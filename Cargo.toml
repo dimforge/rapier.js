@@ -1,0 +1,17 @@
+[workspace]
+members = [ "build/rapier3d", ]
+
+[patch.crates-io]
+nalgebra = { path = "../nalgebra" }
+simba = { path = "../simba" }
+ncollide2d = { path = "../ncollide/build/ncollide2d" }
+ncollide3d = { path = "../ncollide/build/ncollide3d" }
+kiss3d = { path = "../kiss3d" }
+rapier3d = { path = "../rapier/build/rapier3d" }
+rapier2d = { path = "../rapier/build/rapier2d" }
+#wrapped2d = { git = "https://github.com/Bastacyclop/rust_box2d.git" }
+
+[profile.release]
+debug = false
+codegen-units = 1
+#lto = true

@@ -1,0 +1,31 @@
+{
+  "author": "sebcrozet <developer@crozet.re>",
+  "name": "rapier-testbed3d",
+  "version": "0.1.0",
+  "description": "JavaScript testbed for rapier.",
+  "license": "BSD-3-Clause",
+  "main": "dist/rapier-testbed3d.js",
+  "scripts": {
+    "build": "rimraf dist pkg && webpack",
+    "start": "rimraf dist pkg && webpack-dev-server --open -d",
+    "test": "cargo test && wasm-pack test --headless"
+  },
+  "dependencies": {
+    "cannon": "^0.6.2",
+    "cannon-es": "^0.14.0",
+    "dat.gui": "^0.7.7",
+    "stats.js": "^0.17.0",
+    "three": "0.118",
+    "physx-js": "^0.0.6",
+    "worker-loader": "^2.0.0",
+    "rapier3d": "^0.1.4",
+    "oimo": "lo-th/Oimo.js"
+  },
+  "devDependencies": {
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.3",
+    "webpack-dev-server": "^3.7.1",
+    "copy-webpack-plugin": "^5.0.3",
+    "rimraf": "^3.0.0"
+  }
+}
