@@ -1,6 +1,6 @@
 # Name idea: bident for 2D and trident for 3D
 [package]
-name    = "rapierjs3d"
+name    = "rapierjs3d" # Can't be name rapier3d which conflicts with the dependency.
 version = "0.1.4"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
 description = "3-dimensional physics engine in Rust - official JS bindings."
@@ -18,18 +18,18 @@ dim3    = [ ]
 
 [lib]
 name = "rapier3d"
-path = "../../src_js/lib.rs"
+path = "../../src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 required-features = [ "dim3" ]
 
 
 [dependencies]
-rapier3d = { path = "../rapier3d", features = [ "wasm-bindgen" ] }
+rapier3d = { version = "0.1", features = [ "wasm-bindgen" ] }
 ref-cast = "1"
 wasm-bindgen = "0.2"
 js-sys = "0.3"
 nalgebra = "0.21"
 
 [package.metadata.wasm-pack.profile.release]
-# previously had just ['-O4']
+# add -g to keep debug symbols
 wasm-opt = ['-O4' ] # , '-g']
