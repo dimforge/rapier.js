@@ -23,13 +23,13 @@ export class Graphics {
         this.scene.add(ambient_light);
         this.light = new THREE.PointLight(0xffffff, 1, 1000);
         this.scene.add(this.light);
-
+        let me = this;
 
         function onWindowResize() {
-            if (!!this.camera) {
-                this.camera.aspect = window.innerWidth / window.innerHeight;
-                this.camera.updateProjectionMatrix();
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
+            if (!!me.camera) {
+                me.camera.aspect = window.innerWidth / window.innerHeight;
+                me.camera.updateProjectionMatrix();
+                me.renderer.setSize(window.innerWidth, window.innerHeight);
             }
         }
 
@@ -47,7 +47,7 @@ export class Graphics {
         this.instanceGroups.push(this.colorPalette.map(color => {
             let box = new THREE.BoxGeometry(2.0, 2.0, 2.0);
             let mat = new THREE.MeshPhongMaterial({color: color, flatShading: true});
-            return new THREE.InstancedMesh(box, mat, 2000);
+            return new THREE.InstancedMesh(box, mat, 1000);
         }));
 
         this.instanceGroups.push(this.colorPalette.map(color => {

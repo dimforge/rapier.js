@@ -3,12 +3,16 @@ use rapier::geometry::ColliderSet;
 use rapier::math::Vector;
 use rapier::world::World as RWorld;
 use wasm_bindgen::prelude::*;
+use js_sys::Uint8Array;
+use serde::ser::{Serialize, Serializer, SerializeStruct};
 
 use crate::dynamic::{Joint, JointDesc, RigidBody, RigidBodyDesc};
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::geometry::Collider;
 
 #[wasm_bindgen]
+#[derive(Serialize, Deserialize)]
 pub struct World {
     world: RWorld,
     bodies: Rc<RefCell<RigidBodySet>>,
@@ -41,6 +45,17 @@ impl World {
             joints: Rc::new(RefCell::new(JointSet::new())),
         }
     }
+
+    pub fn take_snapshot(&self) -> Option<Uint8Array> {
+        let snap = bincode::serialize(self).ok()?;
+        Some(Uint8Array::from(&snap[..]))
+    }
+
+    pub fn restore_snapshot(data: Uint8Array) -> Option<World> {
+        let data = data.to_vec();
+        bincode::deserialize(&data).ok()
+    }
+
 
     pub fn step(&mut self) {
         self.world.step(
@@ -110,6 +125,36 @@ impl World {
             bodies: self.bodies.clone(),
             joints: self.joints.clone(),
             handle,
+        }
+    }
+
+    pub fn forEachCollider(
+        &self, f: &js_sys::Function
+    ) {
+        let this = JsValue::null();
+        for (handle, _) in self.colliders.borrow().iter() {
+            let collider = Collider {
+                bodies: self.bodies.clone(),
+                colliders: self.colliders.clone(),
+                handle,
+            };
+            let collider = JsValue::from(collider);
+            let _ = f.call1(&this, &collider);
+        }
+    }
+
+    pub fn forEachRigidBody(
+        &self, f: &js_sys::Function
+    ) {
+        let this = JsValue::null();
+        for (handle, _) in self.bodies.borrow().iter() {
+            let body = RigidBody {
+                bodies: self.bodies.clone(),
+                colliders: self.colliders.clone(),
+                handle,
+            };
+            let body = JsValue::from(body);
+            let _ = f.call1(&this, &body);
         }
     }
 }

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+npm run build
 cp static/.htaccess dist/.
 rsync -av --delete-after dist/ crozet@ssh.cluster003.hosting.ovh.net:/home/crozet/rapier/demos
 rsync -av --delete-after dist/ammo.wasm.wasm crozet@ssh.cluster003.hosting.ovh.net:/home/crozet/rapier/ammo.wasm.wasm

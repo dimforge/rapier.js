@@ -25,24 +25,31 @@ export class Worker {
     handleMessage(event) {
         switch (event.data.type) {
             case 'setWorld':
+                this.snapshot = undefined;
                 this.token = event.data.token;
                 let backend = this.backends.get(event.data.backend);
-                this.world = null;
-                this.world = backend(event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
+                this.backend = null;
+                this.backend = backend(event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
                 break;
             case 'step':
                 this.step(event.data);
+                break;
+            case 'takeSnapshot':
+                this.snapshot = this.backend.takeSnapshot();
+                break;
+            case 'restoreSnapshot':
+                this.backend.restoreSnapshot(this.snapshot);
                 break;
         }
     }
 
     step(params) {
-        if (!!this.world && params.running) {
-            this.world.step(params.max_velocity_iterations, params.max_position_iterations);
+        if (!!this.backend && params.running) {
+            this.backend.step(params.max_velocity_iterations, params.max_position_iterations);
         }
 
-        if (!!this.world) {
-            let pos = this.world.colliderPositions();
+        if (!!this.backend) {
+            let pos = this.backend.colliderPositions();
 
             if (!!pos)
                 pos.token = this.token;

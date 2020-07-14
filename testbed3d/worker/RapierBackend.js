@@ -7,14 +7,19 @@ export class RapierBackend {
             ra_world.max_velocity_iterations = world.max_velocity_iterations;
             ra_world.max_position_iterations = world.max_position_iterations;
 
-            me.bodyMap = new Map(bodies.map(body => {
+            let bodyMap = bodies.map(body => {
                 let body_desc = new RAPIER.RigidBodyDesc(body.type);
                 body_desc.set_translation(body.translation.x, body.translation.y, body.translation.z);
                 let ra_body = ra_world.create_rigid_body(body_desc);
                 return [body.handle, ra_body];
-            }));
+            });
 
-            me.colliderMap = new Map(colliders.map(coll => {
+            me.bodyRevMap = new Map(bodyMap.map(entry => {
+                return [entry[1].handle(), entry[0]];
+            }));
+            me.bodyMap = new Map(bodyMap);
+
+            let colliderMap = colliders.map(coll => {
                 let parent_handle = coll.parent_handle;
                 let ra_body = me.bodyMap.get(parent_handle);
                 let collider_desc = null;
@@ -39,7 +44,12 @@ export class RapierBackend {
                 }
 
                 return [coll.handle, ra_collider];
-            }));
+            });
+
+            me.colliderRevMap = new Map(colliderMap.map(entry => {
+                return [entry[1].handle(), entry[0]];
+            }))
+            me.colliderMap = new Map(colliderMap);
 
             joints.forEach(joint => {
                 let ra_body1 = me.bodyMap.get(joint.handle1);
@@ -74,6 +84,35 @@ export class RapierBackend {
             me.world = ra_world;
             me.RAPIER = RAPIER;
         })
+    }
+
+    takeSnapshot() {
+        if (!!this.RAPIER && !!this.world) {
+            return this.world.take_snapshot();
+        } else {
+            return null;
+        }
+    }
+
+    restoreSnapshot(snapshot) {
+        if (!!this.RAPIER && !!snapshot) {
+            this.world = this.RAPIER.World.restore_snapshot(snapshot);
+
+            // Restoring the snapshot creates a new physics world, so this
+            // invalidates all our internal references to bodies, colliders, and joints.
+            this.colliderMap = new Map();
+            this.bodyMap = new Map();
+
+            this.world.forEachCollider(collider => {
+                let externalHandle = this.colliderRevMap.get(collider.handle());
+                this.colliderMap.set(externalHandle, collider);
+            });
+
+            this.world.forEachRigidBody(body => {
+                let externalHandle = this.bodyRevMap.get(body.handle());
+                this.bodyMap.set(externalHandle, body);
+            });
+        }
     }
 
     step(velIters, posIters) {

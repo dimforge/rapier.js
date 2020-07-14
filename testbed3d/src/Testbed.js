@@ -14,6 +14,8 @@ class SimulationParameters {
         this.stepping = false;
         this.step = function() {}
         this.restart = function() {}
+        this.takeSnapshot = function() {}
+        this.restoreSnapshot = function() {}
         this.backends = backends;
         this.builders = builders;
     }
@@ -223,6 +225,14 @@ export class Testbed {
     switchToBackend(backend) {
         this.otherWorld = undefined;
         this.switchToDemo(this.parameters.demo);
+    }
+
+    takeSnapshot() {
+        this.worker.postMessage({ type: 'takeSnapshot' });
+    }
+
+    restoreSnapshot() {
+        this.worker.postMessage({ type: 'restoreSnapshot' });
     }
 
     run() {
