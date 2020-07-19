@@ -1,3 +1,5 @@
+import md5 from 'md5';
+
 export class RapierBackend {
     constructor(world, bodies, colliders, joints) {
         let me = this;
@@ -86,6 +88,11 @@ export class RapierBackend {
         })
     }
 
+    worldHash() {
+        let snap = new Buffer(this.world.take_snapshot());
+        return md5(snap).toString();
+    }
+
     takeSnapshot() {
         if (!!this.RAPIER && !!this.world) {
             return this.world.take_snapshot();
@@ -123,6 +130,9 @@ export class RapierBackend {
             var t0 = new Date().getTime();
             this.world.step();
             this.stepTime = new Date().getTime() - t0;
+            return true;
+        } else {
+            return false;
         }
     }
 

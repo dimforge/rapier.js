@@ -19,7 +19,8 @@
     "physx-js": "^0.0.6",
     "worker-loader": "^2.0.0",
     "rapier3d": "^0.1.4",
-    "oimo": "lo-th/Oimo.js"
+    "oimo": "lo-th/Oimo.js",
+    "md5": "^2.2.1"
   },
   "devDependencies": {
     "webpack": "^4.42.0",

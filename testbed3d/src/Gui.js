@@ -17,6 +17,7 @@ export class Gui {
 
         var backends = simulation_parameters.backends;
         var demos = Array.from(simulation_parameters.builders.keys());
+        var me = this;
 
         // For configuring simulation parameters.
         this.gui = new dat.GUI({
@@ -28,6 +29,7 @@ export class Gui {
             .onChange(function(demo) { testbed.switchToDemo(demo) } );
         this.velIter = this.gui.add(simulation_parameters, 'numVelocityIter', 0, 20).step(1).listen();
         this.posIter = this.gui.add(simulation_parameters, 'numPositionIter', 0, 20).step(1).listen();
+        this.gui.add(simulation_parameters, 'debugInfos');
         this.gui.add(simulation_parameters, 'running', true).listen();
         this.gui.add(simulation_parameters, 'step')
             .onChange(function() { simulation_parameters.stepping = true; });
@@ -37,6 +39,26 @@ export class Gui {
             .onChange(function() { testbed.restoreSnapshot()} )
         this.gui.add(simulation_parameters, 'restart')
             .onChange(function() { testbed.switchToDemo(currDemo.getValue())} )
+
+
+        /*
+         * Block of text for debug infos.
+         */
+        this.debugText = document.createElement('div');
+        this.debugText.style.position = 'absolute';
+        this.debugText.innerHTML = "";
+        this.debugText.style.top = 50 + 'px';
+        this.debugText.style.visibility = 'visible';
+        document.body.appendChild(this.debugText);
+    }
+
+    setDebugInfos(infos) {
+        let text =  "[Step " + infos.stepId + "]";
+
+        if (infos.worldHash) {
+            text += "<br/>World hash: " + infos.worldHash;
+        }
+        this.debugText.innerHTML = text;
     }
 
     setTiming(timing) {

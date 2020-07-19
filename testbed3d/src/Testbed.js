@@ -18,6 +18,7 @@ class SimulationParameters {
         this.restoreSnapshot = function() {}
         this.backends = backends;
         this.builders = builders;
+        this.debugInfos = false;
     }
 }
 
@@ -110,6 +111,7 @@ export class Testbed {
             if (!!msg.data && msg.data.token == this.demoToken) {
                 this.graphics.updatePositions(msg.data.positions);
                 this.gui.setTiming(msg.data.stepTime);
+                this.gui.setDebugInfos(msg.data);
             }
 
             let now = new Date().getTime();
@@ -134,6 +136,7 @@ export class Testbed {
             max_velocity_iterations: this.parameters.numVelocityIter,
             max_position_iterations: this.parameters.numPositionIter,
             running: this.parameters.running || this.parameters.stepping,
+            debugInfos: this.parameters.debugInfos
         };
 
         if (this.parameters.stepping) {
