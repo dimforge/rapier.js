@@ -12,85 +12,85 @@ class AmmoBackend {
             let solver = new Ammo.btSequentialImpulseConstraintSolver();
             me.world = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
             me.world.setGravity(new Ammo.btVector3(0, -9.81, 0));
-            me.world.getSolverInfo().set_m_numIterations(world.max_velocity_iterations);
+            me.world.getSolverInfo().set_m_numIterations(world.maxVelocityIterations);
 
             let body2colliders = new Map();
             colliders.forEach(coll => {
-                if (!body2colliders.get(coll.parent_handle)) {
-                    body2colliders.set(coll.parent_handle, []);
+                if (!body2colliders.get(coll.parentHandle)) {
+                    body2colliders.set(coll.parentHandle, []);
                 }
 
-                body2colliders.get(coll.parent_handle).push(coll);
+                body2colliders.get(coll.parentHandle).push(coll);
             });
 
             me.bodyMap = new Map(bodies.map(body => {
                 let pos = body.translation;
 
-                let am_pos = new Ammo.btTransform();
-                am_pos.setIdentity();
-                am_pos.getOrigin().setX(pos.x);
-                am_pos.getOrigin().setY(pos.y);
-                am_pos.getOrigin().setZ(pos.z);
+                let amPos = new Ammo.btTransform();
+                amPos.setIdentity();
+                amPos.getOrigin().setX(pos.x);
+                amPos.getOrigin().setY(pos.y);
+                amPos.getOrigin().setZ(pos.z);
 
                 let collider = body2colliders.get(body.handle)[0];
-                let am_shape;
+                let amShape;
 
                 switch (collider.type) {
                     case 'Ball':
                         let r = collider.radius;
-                        am_shape = new Ammo.btSphereShape(r);
+                        amShape = new Ammo.btSphereShape(r);
                         break;
                     case 'Cuboid':
-                        let he = collider.half_extents;
-                        am_shape = new Ammo.btBoxShape(new Ammo.btVector3(he.x, he.y, he.z));
+                        let he = collider.halfExtents;
+                        amShape = new Ammo.btBoxShape(new Ammo.btVector3(he.x, he.y, he.z));
                         break;
                 }
 
-                let am_mass = body.type == "dynamic" ? body.mass : 0.0;
-                let am_inertia = new Ammo.btVector3(0.0, 0.0, 0.0);
-                am_shape.calculateLocalInertia(am_mass, am_inertia);
+                let amMass = body.type == "dynamic" ? body.mass : 0.0;
+                let amInertia = new Ammo.btVector3(0.0, 0.0, 0.0);
+                amShape.calculateLocalInertia(amMass, amInertia);
 
-                let am_motionState = new Ammo.btDefaultMotionState(am_pos);
-                let am_bodyInfo = new Ammo.btRigidBodyConstructionInfo(am_mass, am_motionState, am_shape, am_inertia);
-                am_bodyInfo.set_m_friction(collider.friction);
-                let am_body = new Ammo.btRigidBody(am_bodyInfo);
-                me.world.addRigidBody(am_body);
-                am_body.colliderHandle = collider.handle;
-                return [ body.handle, am_body ];
+                let amMotionState = new Ammo.btDefaultMotionState(amPos);
+                let amBodyInfo = new Ammo.btRigidBodyConstructionInfo(amMass, amMotionState, amShape, amInertia);
+                amBodyInfo.set_m_friction(collider.friction);
+                let amBody = new Ammo.btRigidBody(amBodyInfo);
+                me.world.addRigidBody(amBody);
+                amBody.colliderHandle = collider.handle;
+                return [ body.handle, amBody ];
             }));
 
             joints.forEach(joint => {
                 let handle1 = joint.handle1;
                 let handle2 = joint.handle2;
-                let am_body1 = me.bodyMap.get(handle1);
-                let am_body2 = me.bodyMap.get(handle2);
-                let anchor1, anchor2, am_anchor1, am_anchor2;
-                let am_constraint;
+                let amBody1 = me.bodyMap.get(handle1);
+                let amBody2 = me.bodyMap.get(handle2);
+                let anchor1, anchor2, amAnchor1, amAnchor2;
+                let amConstraint;
 
                 switch (joint.type) {
                     case "Ball":
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
-                        am_anchor1 = new Ammo.btVector3(anchor1.x, anchor1.y, anchor1.z);
-                        am_anchor2 = new Ammo.btVector3(anchor2.x, anchor2.y, anchor2.z);
-                        am_constraint = new Ammo.btPoint2PointConstraint(am_body1, am_body2, am_anchor1, am_anchor2);
+                        amAnchor1 = new Ammo.btVector3(anchor1.x, anchor1.y, anchor1.z);
+                        amAnchor2 = new Ammo.btVector3(anchor2.x, anchor2.y, anchor2.z);
+                        amConstraint = new Ammo.btPoint2PointConstraint(amBody1, amBody2, amAnchor1, amAnchor2);
                         break;
                     case "Revolute":
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
                         let axis1 = joint.axis1;
                         let axis2 = joint.axis2;
-                        am_anchor1 = new Ammo.btVector3(anchor1.x, anchor1.y, anchor1.z);
-                        am_anchor2 = new Ammo.btVector3(anchor2.x, anchor2.y, anchor2.z);
-                        let am_axis1 = new Ammo.btVector3(axis1.x, axis1.y, axis1.z);
-                        let am_axis2 = new Ammo.btVector3(axis2.x, axis2.y, axis2.z);
-                        am_constraint = new Ammo.btHingeConstraint(am_body1, am_body2, am_anchor1, am_anchor2, am_axis1, am_axis2);
+                        amAnchor1 = new Ammo.btVector3(anchor1.x, anchor1.y, anchor1.z);
+                        amAnchor2 = new Ammo.btVector3(anchor2.x, anchor2.y, anchor2.z);
+                        let amAxis1 = new Ammo.btVector3(axis1.x, axis1.y, axis1.z);
+                        let amAxis2 = new Ammo.btVector3(axis2.x, axis2.y, axis2.z);
+                        amConstraint = new Ammo.btHingeConstraint(amBody1, amBody2, amAnchor1, amAnchor2, amAxis1, amAxis2);
                         break;
                     default:
                         return;
                 }
 
-                me.world.addConstraint(am_constraint);
+                me.world.addConstraint(amConstraint);
             });
 
             me.AMMO = Ammo;
@@ -113,12 +113,12 @@ class AmmoBackend {
             let transform = new this.AMMO.btTransform();
 
             if (this.bodyMap) {
-                this.bodyMap.forEach(am_body => {
-                    am_body.getMotionState().getWorldTransform(transform);
+                this.bodyMap.forEach(amBody => {
+                    amBody.getMotionState().getWorldTransform(transform);
                     let t = transform.getOrigin();
                     let r = transform.getRotation();
                     let entry = {
-                        handle: am_body.colliderHandle,
+                        handle: amBody.colliderHandle,
                         translation: {x: t.x(), y: t.y(), z: t.z()},
                         rotation: {x: r.x(), y: r.y(), z: r.z(), w: r.w()}
                     };

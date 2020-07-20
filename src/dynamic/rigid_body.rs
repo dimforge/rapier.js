@@ -1,7 +1,5 @@
 use crate::geometry::{Collider, ColliderDesc};
 use crate::math::Vector;
-use crate::world::World;
-use js_sys::Array;
 use rapier::dynamics::{
     BodyStatus, RigidBody as RRigidBody, RigidBodyBuilder as RRigidBodyBuilder, RigidBodyHandle,
     RigidBodySet,
@@ -42,7 +40,7 @@ impl RigidBody {
         self.map(|rb| rb.mass())
     }
 
-    pub fn create_collider(&mut self, collider: &ColliderDesc) -> Collider {
+    pub fn createCollider(&mut self, collider: &ColliderDesc) -> Collider {
         let builder: ColliderBuilder = collider.clone().into();
         let collider = builder.build(self.handle);
         let colliders = self.colliders.clone();
@@ -61,22 +59,22 @@ impl RigidBody {
         self.handle.into_raw_parts().0
     }
 
-    pub fn num_colliders(&self) -> usize {
+    pub fn numColliders(&self) -> usize {
         self.map(|rb| rb.colliders().len())
     }
 
     pub fn collider(&self, at: usize) -> Collider {
         self.map(|rb| {
-            let h = rb.colliders()[at];
+            let handle = rb.colliders()[at];
             Collider {
                 colliders: self.colliders.clone(),
                 bodies: self.bodies.clone(),
-                handle: self.handle.clone(),
+                handle,
             }
         })
     }
 
-    pub fn body_type(&self) -> String {
+    pub fn bodyType(&self) -> String {
         self.map(|rb| match rb.body_type {
             BodyStatus::Static => "static".to_string(),
             BodyStatus::Dynamic => "dynamic".to_string(),
@@ -84,15 +82,15 @@ impl RigidBody {
         })
     }
 
-    pub fn is_static(&self) -> bool {
+    pub fn isStatic(&self) -> bool {
         self.map(|rb| rb.is_static())
     }
 
-    pub fn is_kinematic(&self) -> bool {
+    pub fn isKinematic(&self) -> bool {
         self.map(|rb| rb.is_kinematic())
     }
 
-    pub fn is_dynamic(&self) -> bool {
+    pub fn isDynamic(&self) -> bool {
         self.map(|rb| rb.is_dynamic())
     }
 }
@@ -100,7 +98,7 @@ impl RigidBody {
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
 pub struct RigidBodyDesc {
-    pub(crate) body_type: BodyStatus,
+    pub(crate) bodyType: BodyStatus,
     pub position: Vector,
     linvel: Vector,
     angvel: Vector,
@@ -109,7 +107,7 @@ pub struct RigidBodyDesc {
 
 impl From<RigidBodyDesc> for RRigidBodyBuilder {
     fn from(desc: RigidBodyDesc) -> Self {
-        RRigidBodyBuilder::new(desc.body_type)
+        RRigidBodyBuilder::new(desc.bodyType)
             .can_sleep(desc.can_sleep)
             .linvel(desc.linvel.0)
             .angvel(desc.angvel.0)
@@ -120,19 +118,19 @@ impl From<RigidBodyDesc> for RRigidBodyBuilder {
 #[wasm_bindgen]
 impl RigidBodyDesc {
     #[wasm_bindgen(constructor)]
-    pub fn new(body_type: String) -> Self {
-        let body_type = match body_type.as_str() {
+    pub fn new(bodyType: String) -> Self {
+        let bodyType = match bodyType.as_str() {
             "static" => BodyStatus::Static,
             "dynamic" => BodyStatus::Dynamic,
             "kinematic" => BodyStatus::Kinematic,
             _ => panic!(
                 "Invalid body type: {}. Must be static|dynamic|kinematic.",
-                body_type
+                bodyType
             ),
         };
 
         Self {
-            body_type,
+            bodyType,
             position: Vector::zero(),
             linvel: Vector::zero(),
             angvel: Vector::zero(),
@@ -140,7 +138,7 @@ impl RigidBodyDesc {
         }
     }
 
-    pub fn set_translation(&mut self, x: f32, y: f32, z: f32) {
+    pub fn setTranslation(&mut self, x: f32, y: f32, z: f32) {
         self.position = Vector::new(x, y, z)
     }
 }

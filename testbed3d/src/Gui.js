@@ -2,7 +2,7 @@ import * as dat from 'dat.gui'
 import * as Stats  from "stats.js";
 
 export class Gui {
-    constructor(testbed, simulation_parameters) {
+    constructor(testbed, simulationParameters) {
         // Timings
         this.stats = new Stats();
         this.maxTimePanelValue = 16.0;
@@ -15,29 +15,29 @@ export class Gui {
         this.stats.setMode(3);
         document.body.appendChild(this.stats.dom);
 
-        var backends = simulation_parameters.backends;
-        var demos = Array.from(simulation_parameters.builders.keys());
+        var backends = simulationParameters.backends;
+        var demos = Array.from(simulationParameters.builders.keys());
         var me = this;
 
         // For configuring simulation parameters.
         this.gui = new dat.GUI({
             name: "Rapier JS demos"
         });
-        this.gui.add(simulation_parameters, 'backend', backends)
+        this.gui.add(simulationParameters, 'backend', backends)
             .onChange(function(backend) { testbed.switchToBackend(backend) } );
-        var currDemo = this.gui.add(simulation_parameters, 'demo', demos)
+        var currDemo = this.gui.add(simulationParameters, 'demo', demos)
             .onChange(function(demo) { testbed.switchToDemo(demo) } );
-        this.velIter = this.gui.add(simulation_parameters, 'numVelocityIter', 0, 20).step(1).listen();
-        this.posIter = this.gui.add(simulation_parameters, 'numPositionIter', 0, 20).step(1).listen();
-        this.gui.add(simulation_parameters, 'debugInfos');
-        this.gui.add(simulation_parameters, 'running', true).listen();
-        this.gui.add(simulation_parameters, 'step')
-            .onChange(function() { simulation_parameters.stepping = true; });
-        this.gui.add(simulation_parameters, 'takeSnapshot')
+        this.velIter = this.gui.add(simulationParameters, 'numVelocityIter', 0, 20).step(1).listen();
+        this.posIter = this.gui.add(simulationParameters, 'numPositionIter', 0, 20).step(1).listen();
+        // this.gui.add(simulationParameters, 'debugInfos');
+        this.gui.add(simulationParameters, 'running', true).listen();
+        this.gui.add(simulationParameters, 'step')
+            .onChange(function() { simulationParameters.stepping = true; });
+        this.gui.add(simulationParameters, 'takeSnapshot')
             .onChange(function() { testbed.takeSnapshot()} )
-        this.gui.add(simulation_parameters, 'restoreSnapshot')
+        this.gui.add(simulationParameters, 'restoreSnapshot')
             .onChange(function() { testbed.restoreSnapshot()} )
-        this.gui.add(simulation_parameters, 'restart')
+        this.gui.add(simulationParameters, 'restart')
             .onChange(function() { testbed.switchToDemo(currDemo.getValue())} )
 
 

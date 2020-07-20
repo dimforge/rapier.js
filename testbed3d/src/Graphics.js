@@ -8,7 +8,7 @@ var dummy = new THREE.Object3D();
 var kk = 0;
 
 export class Graphics {
-    constructor(simulation_parameters) {
+    constructor(simulationParameters) {
         this.coll2gfx = new Map();
         this.colorIndex = 0;
         this.colorPalette = [ 0xF3D9B1, 0x98C1D9, 0x053C5E, 0x1F7A8C ];
@@ -19,8 +19,8 @@ export class Graphics {
         this.renderer.setClearColor(0xF9F9FF, 1);
         document.body.appendChild(this.renderer.domElement);
 
-        let ambient_light = new THREE.AmbientLight(0x606060);
-        this.scene.add(ambient_light);
+        let ambientLight = new THREE.AmbientLight(0x606060);
+        this.scene.add(ambientLight);
         this.light = new THREE.PointLight(0xffffff, 1, 1000);
         this.scene.add(this.light);
         let me = this;
@@ -113,13 +113,13 @@ export class Graphics {
         let instance;
         let instanceDesc = {
             groupId: 0,
-            instanceId: collider.parent().is_static() ? 0 : (this.colorIndex + 1),
+            instanceId: collider.parent().isStatic() ? 0 : (this.colorIndex + 1),
             elementId: 0,
         };
 
-        switch (collider.shape_type()) {
+        switch (collider.shapeType()) {
             case 'Cuboid':
-                let hext = collider.half_extents();
+                let hext = collider.halfExtents();
                 instance = this.instanceGroups[BOX_INSTANCE_INDEX][instanceDesc.instanceId];
                 instanceDesc.groupId = BOX_INSTANCE_INDEX;
                 instanceDesc.elementId = instance.count;

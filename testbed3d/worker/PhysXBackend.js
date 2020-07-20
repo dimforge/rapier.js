@@ -40,77 +40,77 @@ export class PhysXBackend {
 
             me.bodyMap = new Map(bodies.map(body => {
                 let pos = body.translation;
-                let px_pos = {
+                let pxPos = {
                     translation: { x: pos.x, y: pos.y, z: pos.z },
                     rotation: { w: 1.0, x: 0.0, y: 0.0, z: 0.0 }
                 };
 
-                let px_body = body.type == "dynamic" ? me.physics.createRigidDynamic(px_pos) : me.physics.createRigidStatic(px_pos);
-                me.world.addActor(px_body, null);
-                return [ body.handle, px_body ];
+                let pxBody = body.type == "dynamic" ? me.physics.createRigidDynamic(pxPos) : me.physics.createRigidStatic(pxPos);
+                me.world.addActor(pxBody, null);
+                return [ body.handle, pxBody ];
             }));
 
             me.colliderMap = new Map(colliders.map(coll => {
-                let handle = coll.parent_handle;
-                let px_body = me.bodyMap.get(handle);
-                let px_geom;
+                let handle = coll.parentHandle;
+                let pxBody = me.bodyMap.get(handle);
+                let pxGeom;
 
                 switch (coll.type) {
                     case 'Cuboid':
-                        let he = coll.half_extents;
-                        px_geom = new PhysX.PxBoxGeometry(he.x, he.y, he.z);
+                        let he = coll.halfExtents;
+                        pxGeom = new PhysX.PxBoxGeometry(he.x, he.y, he.z);
                         break;
                     case 'Ball':
                         let r = coll.radius;
-                        px_geom = new PhysX.PxSphereGeometry(r);
+                        pxGeom = new PhysX.PxSphereGeometry(r);
                         break;
                 }
 
-                let px_material = me.physics.createMaterial(coll.friction, coll.friction, 0.0);
-                const px_flags = new PhysX.PxShapeFlags(PhysX.PxShapeFlag.eSIMULATION_SHAPE.value);
-                const px_shape = me.physics.createShape(px_geom, px_material, false, px_flags);
-                px_body.attachShape(px_shape);
+                let pxMaterial = me.physics.createMaterial(coll.friction, coll.friction, 0.0);
+                const pxFlags = new PhysX.PxShapeFlags(PhysX.PxShapeFlag.eSIMULATION_SHAPE.value);
+                const pxShape = me.physics.createShape(pxGeom, pxMaterial, false, pxFlags);
+                pxBody.attachShape(pxShape);
 
-                return [ coll.handle, px_body ];
+                return [ coll.handle, pxBody ];
             }));
 
             joints.forEach(joint => {
                 let handle1 = joint.handle1;
                 let handle2 = joint.handle2;
-                let px_body1 = me.bodyMap.get(handle1);
-                let px_body2 = me.bodyMap.get(handle2);
-                let anchor1, anchor2, px_anchor1, px_anchor2;
-                let px_constraint;
+                let pxBody1 = me.bodyMap.get(handle1);
+                let pxBody2 = me.bodyMap.get(handle2);
+                let anchor1, anchor2, pxAnchor1, pxAnchor2;
+                let pxConstraint;
 
                 switch (joint.type) {
                     case "Ball":
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
-                        px_anchor1 = {
+                        pxAnchor1 = {
                             translation: { x: anchor1.x, y: anchor1.y, z: anchor1.z },
                             rotation: { w: 1.0, x: 0.0, y: 0.0, z: 0.0 }
                         };
-                        px_anchor2 = {
+                        pxAnchor2 = {
                             translation: { x: anchor2.x, y: anchor2.y, z: anchor2.z },
                             rotation: { w: 1.0, x: 0.0, y: 0.0, z: 0.0 }
                         };
-                        px_constraint = PhysX.PxSphericalJointCreate(me.physics, px_body1, px_anchor1, px_body2, px_anchor2);
+                        pxConstraint = PhysX.PxSphericalJointCreate(me.physics, pxBody1, pxAnchor1, pxBody2, pxAnchor2);
                         break;
                     case "Revolute":
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
-                        let frame1 = joint.frame_x_1;
-                        let frame2 = joint.frame_x_2;
+                        let frame1 = joint.frameX1;
+                        let frame2 = joint.frameX2;
 
-                        px_anchor1 = {
+                        pxAnchor1 = {
                             translation: { x: anchor1.x, y: anchor1.y, z: anchor1.z },
                             rotation: { w: frame1.w, x: frame1.x, y: frame1.y, z: frame1.z }
                         };
-                        px_anchor2 = {
+                        pxAnchor2 = {
                             translation: { x: anchor2.x, y: anchor2.y, z: anchor2.z },
                             rotation: { w: frame2.w, x: frame2.x, y: frame2.y, z: frame2.z }
                         };
-                        px_constraint = PhysX.PxRevoluteJointCreate(me.physics, px_body1, px_anchor1, px_body2, px_anchor2);
+                        pxConstraint = PhysX.PxRevoluteJointCreate(me.physics, pxBody1, pxAnchor1, pxBody2, pxAnchor2);
                         break;
                     default:
                         return;
@@ -139,10 +139,10 @@ export class PhysXBackend {
             let result = [];
 
             if (this.colliderMap) {
-                this.colliderMap.forEach((px_body, handle) => {
-                    let px_pos = px_body.getGlobalPose();
-                    let t = px_pos.translation;
-                    let r = px_pos.rotation;
+                this.colliderMap.forEach((pxBody, handle) => {
+                    let pxPos = pxBody.getGlobalPose();
+                    let t = pxPos.translation;
+                    let r = pxPos.rotation;
                     let entry = {
                         handle: handle,
                         translation: {x: t.x, y: t.y, z: t.z},

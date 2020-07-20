@@ -23,35 +23,35 @@ class SimulationParameters {
 }
 
 function extractWorldDescription(world, bodies, colliders, joints) {
-    let meta_world = {
-        max_velocity_iterations: world.max_velocity_iterations,
-        max_position_iterations: world.max_position_iterations,
+    let metaWorld = {
+        maxVelocityIterations: world.maxVelocityIterations,
+        maxPositionIterations: world.maxPositionIterations,
     };
 
-    let meta_bodies = bodies.map(body => {
+    let metaBodies = bodies.map(body => {
         let pos = body.translation();
 
         return {
             handle: body.handle(),
-            type: body.body_type(),
+            type: body.bodyType(),
             translation: { x: pos.x, y: pos.y, z: pos.z },
             mass: body.mass()
         };
     });
 
-    let meta_colliders = colliders.map(coll => {
+    let metaColliders = colliders.map(coll => {
         let meta = {
             handle: coll.handle(),
-            parent_handle: coll.parent_handle(),
-            type: coll.shape_type(),
+            parentHandle: coll.parentHandle(),
+            type: coll.shapeType(),
             radius: coll.radius(),
             density: coll.density(),
             friction: coll.friction(),
         };
 
-        let he = coll.half_extents();
+        let he = coll.halfExtents();
         if (!!he) {
-            meta.half_extents = { x: he.x, y: he.y, z: he.z };
+            meta.halfExtents = { x: he.x, y: he.y, z: he.z };
         }
 
         return meta;
@@ -62,33 +62,33 @@ function extractWorldDescription(world, bodies, colliders, joints) {
         let a2 = joint.anchor2();
         let ax1 = joint.axis1() || { x: 0.0, y: 0.0, z: 0.0 };
         let ax2 = joint.axis2() || { x: 0.0, y: 0.0, z: 0.0 };
-        let fx1 = joint.frame_x_1() || { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
-        let fx2 = joint.frame_x_2() || { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
+        let fx1 = joint.frameX1() || { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
+        let fx2 = joint.frameX2() || { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
 
         return {
-            handle1: joint.body_handle1(),
-            handle2: joint.body_handle2(),
-            type: joint.joint_type(),
+            handle1: joint.bodyHandle1(),
+            handle2: joint.bodyHandle2(),
+            type: joint.jointType(),
             anchor1: { x: a1.x, y: a1.y, z: a1.z },
             anchor2: { x: a2.x, y: a2.y, z: a2.z },
             axis1: { x: ax1.x, y: ax1.y, z: ax1.z },
             axis2: { x: ax2.x, y: ax2.y, z: ax2.z },
-            frame_x_1: { x: fx1.x, y: fx1.y, z: fx1.z, w: fx1.w },
-            frame_x_2: { x: fx2.x, y: fx2.y, z: fx2.z, w: fx2.w },
+            frameX1: { x: fx1.x, y: fx1.y, z: fx1.z, w: fx1.w },
+            frameX2: { x: fx2.x, y: fx2.y, z: fx2.z, w: fx2.w },
         };
     });
 
     return {
-        world: meta_world,
-        bodies: meta_bodies,
-        colliders: meta_colliders,
-        joints: meta_joints,
+        world: metaWorld,
+        bodies: metaBodies,
+        colliders: metaColliders,
+        joints: metaJoints,
 
     }
 }
 
 export class Testbed {
-    constructor(Rapier, builders, worker) {
+    constructor(RAPIER, builders, worker) {
         let backends = [
             "rapier",
             "ammo.js",
@@ -103,7 +103,7 @@ export class Testbed {
         this.inhibitLookAt = false;
         this.parameters = parameters;
         this.worker = worker;
-        this.rapier = Rapier;
+        this.RAPIER = RAPIER;
         this.demoToken = 0;
         this.switchToDemo(builders.keys().next().value);
 
@@ -133,8 +133,8 @@ export class Testbed {
     stepMessage() {
         let res = {
             type: 'step',
-            max_velocity_iterations: this.parameters.numVelocityIter,
-            max_position_iterations: this.parameters.numPositionIter,
+            maxVelocityIterations: this.parameters.numVelocityIter,
+            maxPositionIterations: this.parameters.numPositionIter,
             running: this.parameters.running || this.parameters.stepping,
             debugInfos: this.parameters.debugInfos
         };
@@ -149,8 +149,8 @@ export class Testbed {
 
     setWorld(world, bodies, colliders, joints) {
         this.world = world;
-        this.world.max_velocity_iterations = this.parameters.numVelocityIter;
-        this.world.max_position_iterations = this.parameters.numPositionIter;
+        this.world.maxVelocityIterations = this.parameters.numVelocityIter;
+        this.world.maxPositionIterations = this.parameters.numPositionIter;
         this.demoToken += 1;
         this.bodies = bodies;
         this.colliders = colliders;
@@ -222,7 +222,7 @@ export class Testbed {
         }
 
         this.parameters.prevBackend = this.parameters.backend;
-        this.parameters.builders.get(demo)(this.rapier, this);
+        this.parameters.builders.get(demo)(this.RAPIER, this);
     }
 
     switchToBackend(backend) {
@@ -240,8 +240,8 @@ export class Testbed {
 
     run() {
         // if (this.parameters.running || this.parameters.stepping) {
-        //     this.world.max_velocity_iterations = this.parameters.numVelocityIter;
-        //     this.world.max_position_iterations = this.parameters.numPositionIter;
+        //     this.world.maxVelocityIterations = this.parameters.numVelocityIter;
+        //     this.world.maxPositionIterations = this.parameters.numPositionIter;
         // }
         //
         // if (this.parameters.stepping) {

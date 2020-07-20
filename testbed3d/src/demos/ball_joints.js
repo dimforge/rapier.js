@@ -1,5 +1,5 @@
-export function init_world(Rapier, testbed) {
-    let world = new Rapier.World(0.0, -9.81, 0.0);
+export function initWorld(RAPIER, testbed) {
+    let world = new RAPIER.World(0.0, -9.81, 0.0);
     let bodies = new Array();
     let colliders = new Array();
     let joints = new Array();
@@ -13,32 +13,32 @@ export function init_world(Rapier, testbed) {
         for (i = 0; i < num; ++i) {
             let status = i == 0 && (k % 4 == 0 || k == num - 1) ? 'static' : 'dynamic';
 
-            let body_desc = new Rapier.RigidBodyDesc(status);
-            body_desc.set_translation(k * shift, 0.0, i * shift);
-            let child = world.create_rigid_body(body_desc);
-            let collider_desc = Rapier.ColliderDesc.ball(rad);
-            collider_desc.density = 1.0;
-            let collider = child.create_collider(collider_desc);
+            let bodyDesc = new RAPIER.RigidBodyDesc(status);
+            bodyDesc.setTranslation(k * shift, 0.0, i * shift);
+            let child = world.createRigidBody(bodyDesc);
+            let colliderDesc = RAPIER.ColliderDesc.ball(rad);
+            colliderDesc.density = 1.0;
+            let collider = child.createCollider(colliderDesc);
             let joint;
 
             // Vertical joint.
             if (i > 0) {
                 let parent = bodies[bodies.length - 1];
-                let anchor1 = new Rapier.Vector(0.0, 0.0, 0.0);
-                let anchor2 = new Rapier.Vector(0.0, 0.0, -shift);
-                let joint_desc = Rapier.JointDesc.ball(anchor1, anchor2);
-                joint = world.create_joint(joint_desc, parent, child);
+                let anchor1 = new RAPIER.Vector(0.0, 0.0, 0.0);
+                let anchor2 = new RAPIER.Vector(0.0, 0.0, -shift);
+                let jointDesc = RAPIER.JointDesc.ball(anchor1, anchor2);
+                joint = world.createJoint(jointDesc, parent, child);
                 joints.push(joint);
             }
 
             // Horizontal joint.
             if (k > 0) {
-                let parent_index = bodies.length - num;
-                let parent = bodies[parent_index];
-                let anchor1 = new Rapier.Vector(0.0, 0.0, 0.0);
-                let anchor2 = new Rapier.Vector(-shift, 0.0, 0.0);
-                let joint_desc = Rapier.JointDesc.ball(anchor1, anchor2);
-                joint = world.create_joint(joint_desc, parent, child);
+                let parentIndex = bodies.length - num;
+                let parent = bodies[parentIndex];
+                let anchor1 = new RAPIER.Vector(0.0, 0.0, 0.0);
+                let anchor2 = new RAPIER.Vector(-shift, 0.0, 0.0);
+                let jointDesc = RAPIER.JointDesc.ball(anchor1, anchor2);
+                joint = world.createJoint(jointDesc, parent, child);
                 joints.push(joint);
             }
 

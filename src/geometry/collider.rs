@@ -55,7 +55,7 @@ impl Collider {
         self.map(|co| Rotation(co.position().rotation))
     }
 
-    pub fn shape_type(&self) -> ShapeType {
+    pub fn shapeType(&self) -> ShapeType {
         self.map(|co| match co.shape() {
             Shape::Ball(_) => ShapeType::Ball,
             Shape::Polygon(_) => ShapeType::Polygon,
@@ -68,7 +68,7 @@ impl Collider {
     }
 
     /// The half-extents of this collider if it is has a cuboid shape.
-    pub fn half_extents(&self) -> Option<Vector> {
+    pub fn halfExtents(&self) -> Option<Vector> {
         self.map(|co| match co.shape() {
             Shape::Cuboid(c) => Some(Vector(c.half_extents)),
             _ => None,
@@ -95,7 +95,7 @@ impl Collider {
         self.handle.into_raw_parts().0
     }
 
-    pub fn parent_handle(&self) -> usize {
+    pub fn parentHandle(&self) -> usize {
         self.map(|co| co.parent().into_raw_parts().0)
     }
 
@@ -104,7 +104,7 @@ impl Collider {
     }
 
     #[cfg(feature = "dim3")]
-    pub fn set_position_debug(
+    pub fn setPositionDebug(
         &mut self,
         x: f32,
         y: f32,

@@ -4,8 +4,6 @@ import { PhysXBackend } from "./PhysXBackend";
 import { OimoBackend } from "./OimoBackend";
 import { RapierBackend } from "./RapierBackend";
 
-const PHYSX_BACKEND_NAME = "physx.release.wasm";
-
 var interval = null;
 
 export class Worker {
@@ -19,7 +17,7 @@ export class Worker {
             ["cannon.js", (w, b, c, j) => new CannonJSBackend(w, b, c, j)],
             // ["cannon-es", (w, b, c, j) => new CannonESBackend(w, b, c, j)], // FIXME: this does not work in a web worker?
             ["oimo.js", (w, b, c, j) => new OimoBackend(w, b, c, j)],
-            [PHYSX_BACKEND_NAME, (w, b, c, j) => new PhysXBackend(w, b, c, j)]
+            ["physx.release.wasm", (w, b, c, j) => new PhysXBackend(w, b, c, j)]
         ]);
     }
 
@@ -49,7 +47,7 @@ export class Worker {
 
     step(params) {
         if (!!this.backend && params.running) {
-            let ok = this.backend.step(params.max_velocity_iterations, params.max_position_iterations);
+            let ok = this.backend.step(params.maxVelocityIterations, params.maxPositionIterations);
             if (ok)
                 this.stepId += 1;
         }

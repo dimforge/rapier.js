@@ -28,15 +28,15 @@ impl Joint {
 
 #[wasm_bindgen]
 impl Joint {
-    pub fn body_handle1(&self) -> usize {
+    pub fn bodyHandle1(&self) -> usize {
         self.map(|j| j.body1.into_raw_parts().0)
     }
 
-    pub fn body_handle2(&self) -> usize {
+    pub fn bodyHandle2(&self) -> usize {
         self.map(|j| j.body2.into_raw_parts().0)
     }
 
-    pub fn joint_type(&self) -> String {
+    pub fn jointType(&self) -> String {
         self.map(|j| match &j.params {
             JointParams::BallJoint(_) => "Ball".to_string(),
             JointParams::RevoluteJoint(_) => "Revolute".to_string(),
@@ -46,7 +46,7 @@ impl Joint {
     }
 
     /// The rotation matrix that aligns this joint's first axis to the `x` axis.
-    pub fn frame_x_1(&self) -> Rotation {
+    pub fn frameX1(&self) -> Rotation {
         self.map(|j| {
             let local_axis1 = match &j.params {
                 JointParams::BallJoint(_) => return Rotation::identity(),
@@ -71,7 +71,7 @@ impl Joint {
     }
 
     /// The rotation matrix that aligns this joint's secnod to the `x` axis.
-    pub fn frame_x_2(&self) -> Rotation {
+    pub fn frameX2(&self) -> Rotation {
         self.map(|j| {
             let local_axis2 = match &j.params {
                 JointParams::BallJoint(_) => return Rotation::identity(),

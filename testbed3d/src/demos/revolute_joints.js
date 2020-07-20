@@ -1,4 +1,4 @@
-export function init_world(RAPIER, testbed) {
+export function initWorld(RAPIER, testbed) {
     let world = new RAPIER.World(0.0, -9.81, 0.0);
     let bodies = new Array();
     let colliders = new Array();
@@ -16,14 +16,14 @@ export function init_world(RAPIER, testbed) {
         for (j = 0; j < 25; ++j) {
             let x = j * shift * 4.0;
 
-            let body_desc = new RAPIER.RigidBodyDesc("static");
-            body_desc.set_translation(x, y, 0.0);
-            let curr_parent = world.create_rigid_body(body_desc);
+            let bodyDesc = new RAPIER.RigidBodyDesc("static");
+            bodyDesc.setTranslation(x, y, 0.0);
+            let currParent = world.createRigidBody(bodyDesc);
 
-            let collider_desc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-            let collider = curr_parent.create_collider(collider_desc);
+            let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+            let collider = currParent.createCollider(colliderDesc);
 
-            bodies.push(curr_parent);
+            bodies.push(currParent);
             colliders.push(collider);
 
             for (i = 0; i < num; ++i) {
@@ -36,39 +36,39 @@ export function init_world(RAPIER, testbed) {
                     new RAPIER.Vector(x, y, z + shift),
                 ];
 
-                let parents = [curr_parent, curr_parent, curr_parent, curr_parent];
+                let parents = [currParent, currParent, currParent, currParent];
                 for (k = 0; k < 4; ++k) {
                     let density = 1.0;
                     let p = positions[k];
-                    let body_desc = new RAPIER.RigidBodyDesc("dynamic");
-                    body_desc.set_translation(p.x, p.y, p.z);
-                    parents[k] = world.create_rigid_body(body_desc);
+                    let bodyDesc = new RAPIER.RigidBodyDesc("dynamic");
+                    bodyDesc.setTranslation(p.x, p.y, p.z);
+                    parents[k] = world.createRigidBody(bodyDesc);
 
-                    let collider_desc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-                    collider_desc.density = density;
-                    let collider = parents[k].create_collider(collider_desc);
+                    let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+                    colliderDesc.density = density;
+                    let collider = parents[k].createCollider(colliderDesc);
                     bodies.push(parents[k]);
                     colliders.push(collider);
                 }
 
                 // Setup four joints.
                 let o = new RAPIER.Vector(0.0, 0.0, 0.0);
-                let x_axis = new RAPIER.Vector(1.0, 0.0, 0.0);
-                let z_axis = new RAPIER.Vector(0.0, 0.0, 1.0);
+                let xAxis = new RAPIER.Vector(1.0, 0.0, 0.0);
+                let zAxis = new RAPIER.Vector(0.0, 0.0, 1.0);
 
                 let revs = [
-                    RAPIER.JointDesc.revolute(o, z_axis, new RAPIER.Vector(0.0, 0.0, -shift), z_axis),
-                    RAPIER.JointDesc.revolute(o, x_axis, new RAPIER.Vector(-shift, 0.0, 0.0), x_axis),
-                    RAPIER.JointDesc.revolute(o, z_axis, new RAPIER.Vector(0.0, 0.0, -shift), z_axis),
-                    RAPIER.JointDesc.revolute(o, x_axis, new RAPIER.Vector(shift, 0.0, 0.0), x_axis),
+                    RAPIER.JointDesc.revolute(o, zAxis, new RAPIER.Vector(0.0, 0.0, -shift), zAxis),
+                    RAPIER.JointDesc.revolute(o, xAxis, new RAPIER.Vector(-shift, 0.0, 0.0), xAxis),
+                    RAPIER.JointDesc.revolute(o, zAxis, new RAPIER.Vector(0.0, 0.0, -shift), zAxis),
+                    RAPIER.JointDesc.revolute(o, xAxis, new RAPIER.Vector(shift, 0.0, 0.0), xAxis),
                 ];
 
-                joints.push(world.create_joint(revs[0], curr_parent, parents[0]));
-                joints.push(world.create_joint(revs[1], parents[0], parents[1]));
-                joints.push(world.create_joint(revs[2], parents[1], parents[2]));
-                joints.push(world.create_joint(revs[3], parents[2], parents[3]));
+                joints.push(world.createJoint(revs[0], currParent, parents[0]));
+                joints.push(world.createJoint(revs[1], parents[0], parents[1]));
+                joints.push(world.createJoint(revs[2], parents[1], parents[2]));
+                joints.push(world.createJoint(revs[3], parents[2], parents[3]));
 
-                curr_parent = parents[3];
+                currParent = parents[3];
             }
         }
     }

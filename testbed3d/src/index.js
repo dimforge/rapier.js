@@ -8,12 +8,12 @@ import * as RevoluteJoints from './demos/revolute_joints'
 
 import('rapier3d').then(Rapier => {
     let builders = new Map([
-        ['cubes', Cubes.init_world],
-        ['balls', Balls.init_world],
-        ['joints: ball', BallJoints.init_world],
-        ['joints: revolute', RevoluteJoints.init_world],
-        ['keva tower', Keva.init_world],
-        ['pyramid', Pyramid.init_world],
+        ['cubes', Cubes.initWorld],
+        ['balls', Balls.initWorld],
+        ['joints: ball', BallJoints.initWorld],
+        ['joints: revolute', RevoluteJoints.initWorld],
+        ['keva tower', Keva.initWorld],
+        ['pyramid', Pyramid.initWorld],
     ]);
     let worker = new Worker("worker.js");
     let testbed = new Testbed(Rapier, builders, worker);

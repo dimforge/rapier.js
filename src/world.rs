@@ -4,7 +4,6 @@ use rapier::math::Vector;
 use rapier::world::World as RWorld;
 use wasm_bindgen::prelude::*;
 use js_sys::Uint8Array;
-use serde::ser::{Serialize, Serializer, SerializeStruct};
 
 use crate::dynamic::{Joint, JointDesc, RigidBody, RigidBodyDesc};
 use std::cell::RefCell;
@@ -46,12 +45,12 @@ impl World {
         }
     }
 
-    pub fn take_snapshot(&self) -> Option<Uint8Array> {
+    pub fn takeSnapshot(&self) -> Option<Uint8Array> {
         let snap = bincode::serialize(self).ok()?;
         Some(Uint8Array::from(&snap[..]))
     }
 
-    pub fn restore_snapshot(data: Uint8Array) -> Option<World> {
+    pub fn restoreSnapshot(data: Uint8Array) -> Option<World> {
         let data = data.to_vec();
         bincode::deserialize(&data).ok()
     }
@@ -96,7 +95,7 @@ impl World {
         self.world.integration_parameters.max_position_iterations = niter
     }
 
-    pub fn create_rigid_body(&mut self, body: &RigidBodyDesc) -> RigidBody {
+    pub fn createRigidBody(&mut self, body: &RigidBodyDesc) -> RigidBody {
         let builder: RigidBodyBuilder = (*body).into();
         let rb = builder.build();
         let bodies = self.bodies.clone();
@@ -109,7 +108,7 @@ impl World {
         }
     }
 
-    pub fn create_joint(
+    pub fn createJoint(
         &mut self,
         joint: &JointDesc,
         parent1: &RigidBody,
