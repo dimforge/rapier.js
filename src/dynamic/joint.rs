@@ -28,14 +28,19 @@ impl Joint {
 
 #[wasm_bindgen]
 impl Joint {
+    /// The unique integer identifier of the first rigid-body this joint it attached to.
     pub fn bodyHandle1(&self) -> usize {
         self.map(|j| j.body1.into_raw_parts().0)
     }
 
+    /// The unique integer identifier of the second rigid-body this joint is attached to.
     pub fn bodyHandle2(&self) -> usize {
         self.map(|j| j.body2.into_raw_parts().0)
     }
 
+    /// The type of this joint given as a string.
+    ///
+    /// Can return "Ball", "Revolute", "Fixed", or "Prismatic".
     pub fn jointType(&self) -> String {
         self.map(|j| match &j.params {
             JointParams::BallJoint(_) => "Ball".to_string(),
@@ -45,7 +50,7 @@ impl Joint {
         })
     }
 
-    /// The rotation matrix that aligns this joint's first axis to the `x` axis.
+    /// The rotation quaternion that aligns this joint's first local axis to the `x` axis.
     pub fn frameX1(&self) -> Rotation {
         self.map(|j| {
             let local_axis1 = match &j.params {
@@ -70,7 +75,7 @@ impl Joint {
         })
     }
 
-    /// The rotation matrix that aligns this joint's secnod to the `x` axis.
+    /// The rotation matrix that aligns this joint's second local axis to the `x` axis.
     pub fn frameX2(&self) -> Rotation {
         self.map(|j| {
             let local_axis2 = match &j.params {
@@ -95,6 +100,10 @@ impl Joint {
         })
     }
 
+    /// The position of the first anchor of this joint.
+    ///
+    /// The first anchor gives the position of the points application point on the
+    /// local frame of the first rigid-body it is attached to.
     pub fn anchor1(&self) -> Vector {
         self.map(|j| match &j.params {
             JointParams::BallJoint(b) => Vector(b.local_anchor1.coords),
@@ -104,6 +113,10 @@ impl Joint {
         })
     }
 
+    /// The position of the second anchor of this joint.
+    ///
+    /// The second anchor gives the position of the points application point on the
+    /// local frame of the second rigid-body it is attached to.
     pub fn anchor2(&self) -> Vector {
         self.map(|j| match &j.params {
             JointParams::BallJoint(b) => Vector(b.local_anchor2.coords),
@@ -113,6 +126,11 @@ impl Joint {
         })
     }
 
+    /// The first axis of this joint, if any.
+    ///
+    /// For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
+    /// this returns the application axis on the first rigid-body this joint is attached to, expressed
+    /// in the local-space of this first rigid-body.
     pub fn axis1(&self) -> Option<Vector> {
         self.map(|j| match &j.params {
             JointParams::BallJoint(_) | JointParams::FixedJoint(_) => None,
@@ -121,6 +139,11 @@ impl Joint {
         })
     }
 
+    /// The second axis of this joint, if any.
+    ///
+    /// For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
+    /// this returns the application axis on the second rigid-body this joint is attached to, expressed
+    /// in the local-space of this second rigid-body.
     pub fn axis2(&self) -> Option<Vector> {
         self.map(|j| match &j.params {
             JointParams::BallJoint(_) | JointParams::FixedJoint(_) => None,
@@ -131,10 +154,19 @@ impl Joint {
 }
 
 #[wasm_bindgen]
+/// The description of a joint to be constructed.
+///
+/// Note that the rigid-bodies the joint is attached to are configuration
+/// when the joint is constructed with `world.createJoint`.
 pub struct JointDesc(pub(crate) JointParams);
 
 #[wasm_bindgen]
 impl JointDesc {
+    /// Create a new joint descriptor that builds Ball joints.
+    ///
+    /// A ball joints allows three relative rotational degrees of freedom
+    /// by prevening any relative translation between the anchors of the
+    /// two attached rigid-bodies.
     pub fn ball(anchor1: &Vector, anchor2: &Vector) -> Self {
         JointDesc(JointParams::BallJoint(BallJoint::new(
             anchor1.0.into(),

@@ -10,6 +10,7 @@ use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+/// A string describing the type of the collider's shape.
 pub enum ShapeType {
     Ball = "Ball",
     Polygon = "Polygon",
@@ -47,14 +48,17 @@ impl Collider {
 
 #[wasm_bindgen]
 impl Collider {
+    /// The world-space position of this collider.
     pub fn translation(&self) -> Vector {
         self.map(|co| Vector(co.position().translation.vector))
     }
 
+    /// The world-space orientation of this collider.
     pub fn rotation(&self) -> Rotation {
         self.map(|co| Rotation(co.position().rotation))
     }
 
+    /// The type of the shape of this collider.
     pub fn shapeType(&self) -> ShapeType {
         self.map(|co| match co.shape() {
             Shape::Ball(_) => ShapeType::Ball,
@@ -83,6 +87,7 @@ impl Collider {
         })
     }
 
+    /// The rigid-body this collider is attached to.
     pub fn parent(&self) -> RigidBody {
         self.map(|co| RigidBody {
             bodies: self.bodies.clone(),
@@ -91,29 +96,24 @@ impl Collider {
         })
     }
 
+    /// The unique integer identifier of this collider.
     pub fn handle(&self) -> usize {
         self.handle.into_raw_parts().0
     }
 
+    /// The unique integer identifier of the rigid-body this collider is attached to.
     pub fn parentHandle(&self) -> usize {
         self.map(|co| co.parent().into_raw_parts().0)
     }
 
+    /// The friction coefficient of this collider.
     pub fn friction(&self) -> f32 {
         self.map(|co| co.friction)
     }
 
     #[cfg(feature = "dim3")]
-    pub fn setPositionDebug(
-        &mut self,
-        x: f32,
-        y: f32,
-        z: f32,
-        ri: f32,
-        rj: f32,
-        rk: f32,
-        rw: f32,
-    ) {
+    /// Reserved for debug.
+    pub fn setPositionDebug(&mut self, x: f32, y: f32, z: f32, ri: f32, rj: f32, rk: f32, rw: f32) {
         let tra = na::Translation3::new(x, y, z);
         let rot = na::Unit::new_unchecked(na::Quaternion::new(ri, rj, rk, rw));
         let iso = tra * rot;
@@ -127,12 +127,17 @@ impl Collider {
 
 #[wasm_bindgen]
 #[derive(Clone)]
+/// The description of a collider to be constructed.
 pub struct ColliderDesc {
     shape: Shape,
+    /// The density of the collider to be constructed.
     pub density: f32,
+    /// The friction coefficient of the collider to be constructed.
     pub friction: f32,
+    /// The restitution coefficient of the collider to be costructed.
     pub restitution: f32,
     delta: Isometry<f32>,
+    /// Is this collider a sensor?
     pub is_sensor: bool,
 }
 
@@ -164,15 +169,30 @@ impl From<ColliderBuilder> for ColliderDesc {
 
 #[wasm_bindgen]
 impl ColliderDesc {
+    /// Create a new collider descriptor with a ball shape.
+    ///
+    /// # Parameters
+    /// - `radius`: the radius of the ball.
     pub fn ball(radius: f32) -> Self {
         ColliderBuilder::ball(radius).into()
     }
 
+    /// Creates a new collider descriptor with a rectangular shape.
+    ///
+    /// # Parameters
+    /// - `hx`: the half-width of the rectangle along its local `x` axis.
+    /// - `hy`: the half-width of the rectangle along its local `y` axis.
     #[cfg(feature = "dim2")]
     pub fn cuboid(hx: f32, hy: f32) -> Self {
         ColliderBuilder::cuboid(hx, hy).into()
     }
 
+    /// Creates a new collider descriptor with a cuboid shape.
+    ///
+    /// # Parameters
+    /// - `hx`: the half-width of the rectangle along its local `x` axis.
+    /// - `hy`: the half-width of the rectangle along its local `y` axis.
+    /// - `hz`: the half-width of the rectangle along its local `z` axis.
     #[cfg(feature = "dim3")]
     pub fn cuboid(hx: f32, hy: f32, hz: f32) -> Self {
         ColliderBuilder::cuboid(hx, hy, hz).into()
