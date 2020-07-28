@@ -7,3 +7,5 @@ target
 package-lock.json
 dist
 pkg
+docs
+*.swp
