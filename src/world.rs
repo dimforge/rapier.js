@@ -1,3 +1,5 @@
+//! The physics pipeline elements.
+
 use js_sys::Uint8Array;
 use rapier::dynamics::{JointSet, RigidBodyBuilder, RigidBodySet};
 use rapier::geometry::ColliderSet;
@@ -30,9 +32,10 @@ impl World {
     /// Creates a new physics World with the given initial gravity affecting all rigid bodies with
     /// non-zero mass.
     ///
-    /// # Parameters
-    /// - `gravity_x`: The `x` component of the gravity.
-    /// - `gravity_y`: The `y` component of the gravity.
+    /// # Arguments
+    ///
+    /// - `gravity_x` − The `x` component of the gravity.
+    /// - `gravity_y` − The `y` component of the gravity.
     pub fn new(gravity_x: f32, gravity_y: f32) -> Self {
         let world = RWorld::new(Vector::new(gravity_x, gravity_y));
         Self {
@@ -46,10 +49,11 @@ impl World {
     /// Creates a new physics World with the given initial gravity affecting all rigid bodies with
     /// non-zero mass.
     ///
-    /// # Parameters
-    /// - `gravity_x`: The `x` component of the gravity.
-    /// - `gravity_y`: The `y` component of the gravity.
-    /// - `gravity_z`: The `z` component of the gravity.
+    /// # Arguments
+    ///
+    /// - `gravity_x` − The `x` component of the gravity.
+    /// - `gravity_y` − The `y` component of the gravity.
+    /// - `gravity_z` − The `z` component of the gravity.
     #[cfg(feature = "dim3")]
     #[wasm_bindgen(constructor)]
     pub fn new(gravity_x: f32, gravity_y: f32, gravity_z: f32) -> World {

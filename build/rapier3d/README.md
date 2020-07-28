@@ -1,2 +1,2 @@
 # rapier.js
-JavaScript bindings for the Rapier physics engine.
+JavaScript bindings for the Rapier3D physics engine.

@@ -9,6 +9,8 @@ use rapier::utils::WBasis;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+
+/// A joint attached to two bodies.
 #[wasm_bindgen]
 pub struct Joint {
     pub(crate) bodies: Rc<RefCell<RigidBodySet>>,
@@ -17,7 +19,7 @@ pub struct Joint {
 }
 
 impl Joint {
-    pub fn map<T>(&self, f: impl FnOnce(&RJoint) -> T) -> T {
+    pub(crate) fn map<T>(&self, f: impl FnOnce(&RJoint) -> T) -> T {
         let joints = self.joints.borrow();
         let joint = joints
             .get(self.handle)
@@ -165,7 +167,7 @@ impl JointDesc {
     /// Create a new joint descriptor that builds Ball joints.
     ///
     /// A ball joints allows three relative rotational degrees of freedom
-    /// by prevening any relative translation between the anchors of the
+    /// by preventing any relative translation between the anchors of the
     /// two attached rigid-bodies.
     pub fn ball(anchor1: &Vector, anchor2: &Vector) -> Self {
         JointDesc(JointParams::BallJoint(BallJoint::new(
@@ -174,6 +176,11 @@ impl JointDesc {
         )))
     }
 
+
+    /// Create a new joint descriptor that builds Revolute joints.
+    ///
+    /// A revolute joint removes all degrees of degrees of freedom between the affected
+    /// bodies except for the translation along one axis.
     pub fn revolute(
         anchor1: &Vector,
         axis1: &Vector,

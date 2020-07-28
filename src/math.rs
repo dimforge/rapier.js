@@ -1,9 +1,12 @@
+//! Linear algebra primitives.
+
 use rapier::math::{Rotation as RRotation, Vector as RVector};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[repr(transparent)]
 #[derive(Copy, Clone)]
+/// A rotation quaternion.
 pub struct Rotation(pub(crate) RRotation<f32>);
 
 #[wasm_bindgen]

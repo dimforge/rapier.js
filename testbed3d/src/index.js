@@ -6,7 +6,7 @@ import * as Keva from './demos/keva'
 import * as BallJoints from './demos/ball_joints'
 import * as RevoluteJoints from './demos/revolute_joints'
 
-import('rapier3d').then(Rapier => {
+import('@dimforge/rapier3d').then(Rapier => {
     let builders = new Map([
         ['cubes', Cubes.initWorld],
         ['balls', Balls.initWorld],

@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use crate::dynamic::RigidBody;
 use crate::math::{Rotation, Vector};
 use rapier::dynamics::RigidBodySet;
@@ -12,16 +14,26 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 /// A string describing the type of the collider's shape.
 pub enum ShapeType {
+    /// A ball shape.
     Ball = "Ball",
+    /// A convex polygon shape.
     Polygon = "Polygon",
+    /// A cuboid shape.
     Cuboid = "Cuboid",
+    /// A capsule shape.
     Capsule = "Capsule",
+    /// A triangle shape.
     Triangle = "Triangle",
+    /// A triangle mesh shape.
     Trimesh = "Trimesh",
+    /// A heightfield shape.
     HeightField = "HeightField",
 }
 
 #[wasm_bindgen]
+/// A geometric entity that can be attached to a body so it can be affected by contacts and proximity queries.
+///
+/// To build a new collider, use the `ColliderBuilder` structure.
 pub struct Collider {
     pub(crate) bodies: Rc<RefCell<RigidBodySet>>,
     pub(crate) colliders: Rc<RefCell<ColliderSet>>,
@@ -29,7 +41,7 @@ pub struct Collider {
 }
 
 impl Collider {
-    pub fn map<T>(&self, f: impl FnOnce(&RCollider) -> T) -> T {
+    pub(crate) fn map<T>(&self, f: impl FnOnce(&RCollider) -> T) -> T {
         let colliders = self.colliders.borrow();
         let body = colliders
             .get(self.handle)
@@ -37,7 +49,7 @@ impl Collider {
         f(body)
     }
 
-    pub fn apply(&mut self, f: impl FnOnce(&mut RCollider)) {
+    pub(crate) fn apply(&mut self, f: impl FnOnce(&mut RCollider)) {
         let mut colliders = self.colliders.borrow_mut();
         let body = colliders
             .get_mut(self.handle)
@@ -120,6 +132,7 @@ impl Collider {
         self.apply(|co| co.set_position_debug(iso));
     }
 
+    /// The density of this collider.
     pub fn density(&self) -> f32 {
         self.map(|co| co.density())
     }

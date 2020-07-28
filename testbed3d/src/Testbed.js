@@ -57,7 +57,7 @@ function extractWorldDescription(world, bodies, colliders, joints) {
         return meta;
     });
 
-    let meta_joints = !joints ? [] : joints.map(joint => {
+    let metaJoints = !joints ? [] : joints.map(joint => {
         let a1 = joint.anchor1();
         let a2 = joint.anchor2();
         let ax1 = joint.axis1() || { x: 0.0, y: 0.0, z: 0.0 };

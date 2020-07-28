@@ -4,7 +4,7 @@ export class RapierBackend {
     constructor(world, bodies, colliders, joints) {
         let me = this;
 
-        import('rapier3d').then(function(RAPIER) {
+        import('@dimforge/rapier3d').then(function(RAPIER) {
             let raWorld = new RAPIER.World(0.0, -9.81, 0.0);
             raWorld.maxVelocityIterations = world.maxVelocityIterations;
             raWorld.maxPositionIterations = world.maxPositionIterations;

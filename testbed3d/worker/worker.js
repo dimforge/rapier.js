@@ -62,7 +62,6 @@ export class Worker {
                 if (!!params.debugInfos) {
                     if (!!this.backend.worldHash) {
                         pos.worldHash = this.backend.worldHash();
-                        console.log(pos.worldHash);
                     }
                 }
             }

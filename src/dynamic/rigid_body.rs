@@ -10,6 +10,9 @@ use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+/// A rigid body.
+///
+/// To create a new rigid-body, use the `RigidBodyBuilder` structure.
 pub struct RigidBody {
     pub(crate) bodies: Rc<RefCell<RigidBodySet>>,
     pub(crate) colliders: Rc<RefCell<ColliderSet>>,
@@ -17,7 +20,7 @@ pub struct RigidBody {
 }
 
 impl RigidBody {
-    pub fn map<T>(&self, f: impl FnOnce(&RRigidBody) -> T) -> T {
+    pub(crate) fn map<T>(&self, f: impl FnOnce(&RRigidBody) -> T) -> T {
         let bodies = self.bodies.borrow();
         let body = bodies.get(self.handle).expect(
             "Invalid RigidBody reference. It may have been removed from the physics World.",
