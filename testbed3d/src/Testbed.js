@@ -108,6 +108,12 @@ export class Testbed {
         this.switchToDemo(builders.keys().next().value);
 
         this.worker.onmessage = msg => {
+            if (!!msg.data && msg.data.token != this.demoToken) {
+                // This messages comes from an older demo update loop
+                // so we can stop the loop now.
+                return;
+            }
+
             if (!!msg.data && msg.data.token == this.demoToken) {
                 this.graphics.updatePositions(msg.data.positions);
                 this.gui.setTiming(msg.data.stepTime);

@@ -13,7 +13,7 @@ export function initWorld(RAPIER, testbed) {
     for (l = 0; l < 5; ++l) {
         let y = l * shift * num * 3.0;
 
-        for (j = 0; j < 25; ++j) {
+        for (j = 0; j < 10; ++j) {
             let x = j * shift * 4.0;
 
             let bodyDesc = new RAPIER.RigidBodyDesc("static");

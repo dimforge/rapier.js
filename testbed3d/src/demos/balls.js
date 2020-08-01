@@ -13,7 +13,7 @@ export function initWorld(RAPIER, testbed) {
 
     // Dynamic cubes.
     let rad = 0.5;
-    let num = 12;
+    let num = 10;
     let center = rad * num;
     let i, j, k;
 

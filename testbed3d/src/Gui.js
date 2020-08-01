@@ -29,7 +29,7 @@ export class Gui {
             .onChange(function(demo) { testbed.switchToDemo(demo) } );
         this.velIter = this.gui.add(simulationParameters, 'numVelocityIter', 0, 20).step(1).listen();
         this.posIter = this.gui.add(simulationParameters, 'numPositionIter', 0, 20).step(1).listen();
-        this.gui.add(simulationParameters, 'debugInfos');
+        this.gui.add(simulationParameters, 'debugInfos').listen();
         this.gui.add(simulationParameters, 'running', true).listen();
         this.gui.add(simulationParameters, 'step')
             .onChange(function() { simulationParameters.stepping = true; });
@@ -62,9 +62,11 @@ export class Gui {
     }
 
     setTiming(timing) {
-        this.maxTimePanelValue = Math.max(this.maxTimePanelValue, timing);
-        this.stepTimePanel1.update(timing, this.maxTimePanelValue);
-        this.stepTimePanel2.update(timing, this.maxTimePanelValue);
+        if (!!timing) {
+            this.maxTimePanelValue = Math.max(this.maxTimePanelValue, timing);
+            this.stepTimePanel1.update(timing, this.maxTimePanelValue);
+            this.stepTimePanel2.update(timing, this.maxTimePanelValue);
+        }
     }
 
     resetTiming() {

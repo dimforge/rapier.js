@@ -13,11 +13,11 @@ export function initWorld(RAPIER, testbed) {
 
     // Dynamic cubes.
     let rad = 0.5;
-    let num = 15;
+    let num = 10;
     let i, j, k;
     let shift = rad * 2.5;
     let center = num * rad;
-    let height = 2.0;
+    let height = 25.0;
 
     for (i = 0; i < num; ++i) {
         for (j = i; j < num; ++j) {

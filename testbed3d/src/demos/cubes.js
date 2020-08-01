@@ -13,6 +13,7 @@ export function initWorld(RAPIER, testbed) {
 
     // Dynamic cubes.
     let num = 8;
+    let numy = 10;
     let rad = 1.0;
 
     let shift = rad * 2.0 + rad;
@@ -23,7 +24,7 @@ export function initWorld(RAPIER, testbed) {
     let offset = -num * (rad * 2.0 + rad) * 0.5;
     let i, j, k;
 
-    for (j = 0; j < 30; ++j) {
+    for (j = 0; j < numy; ++j) {
         for (i = 0; i < num; ++i) {
             for (k = 0; k < num; ++k) {
                 let x = i * shift - centerx + offset;

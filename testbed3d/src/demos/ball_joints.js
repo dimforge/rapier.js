@@ -5,7 +5,7 @@ export function initWorld(RAPIER, testbed) {
     let joints = new Array();
 
     let rad = 0.4;
-    let num = 51;
+    let num = 31;
     let shift = 1.0;
     let i, k;
 

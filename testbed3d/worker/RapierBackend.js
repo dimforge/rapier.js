@@ -9,6 +9,7 @@ export class RapierBackend {
             raWorld.maxVelocityIterations = world.maxVelocityIterations;
             raWorld.maxPositionIterations = world.maxPositionIterations;
 
+            console.log("Num bodies: " + bodies.length);
             let bodyMap = bodies.map(body => {
                 let bodyDesc = new RAPIER.RigidBodyDesc(body.type);
                 bodyDesc.setTranslation(body.translation.x, body.translation.y, body.translation.z);
