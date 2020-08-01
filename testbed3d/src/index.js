@@ -6,7 +6,7 @@ import * as Keva from './demos/keva'
 import * as BallJoints from './demos/ball_joints'
 import * as RevoluteJoints from './demos/revolute_joints'
 
-import('@dimforge/rapier3d').then(Rapier => {
+import('@dimforge/rapier3d').then(RAPIER => {
     let builders = new Map([
         ['cubes', Cubes.initWorld],
         ['balls', Balls.initWorld],
@@ -16,6 +16,6 @@ import('@dimforge/rapier3d').then(Rapier => {
         ['pyramid', Pyramid.initWorld],
     ]);
     let worker = new Worker("worker.js");
-    let testbed = new Testbed(Rapier, builders, worker);
+    let testbed = new Testbed(RAPIER, builders, worker);
     testbed.run();
 })

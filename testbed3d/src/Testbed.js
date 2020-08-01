@@ -22,6 +22,22 @@ class SimulationParameters {
     }
 }
 
+/*
+ * To use our testbed the user has to load Rapier, initialize
+ * the Rapier physics world. Then the testbed will take this word
+ * and convert it to an abstract description of its content to
+ * send it to a web worker. And this web worker will re-build
+ * the Rapier physics world. So basically we are doing two
+ * conversion:
+ *
+ * Rapier -> abstract descripton -> Rapier
+ *
+ * This may sound silly as it would be easier to just have the user
+ * write the abstract description directly and pass it to the testbed.
+ * But we don't do this because we want our demos to be examples on
+ * how one can create a Rapier world. That way one can refer to
+ * there examples to see how some things can be done.
+ */
 function extractWorldDescription(world, bodies, colliders, joints) {
     let metaWorld = {
         maxVelocityIterations: world.maxVelocityIterations,
