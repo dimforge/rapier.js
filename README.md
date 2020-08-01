@@ -22,3 +22,5 @@ import('@dimforge/rapier3d').then(RAPIER => {
 
 See the `testbed3d/src/demos` folder for examples on how to initialize a Rapier physics world
 using these bindings.
+
+Automatically-generated JavaScript API docs are provided [there](https://www.rapier.rs/docs/JavaScript).
