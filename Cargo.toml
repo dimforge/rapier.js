@@ -1,5 +1,5 @@
 [workspace]
-members = [ "build/rapier3d", ]
+members = [ "build/rapier2d", "build/rapier3d" ]
 
 [patch.crates-io]
 nalgebra = { path = "../nalgebra" }

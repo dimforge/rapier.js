@@ -1,14 +1,17 @@
 use wasm_bindgen::prelude::*;
 
 use crate::math::{Rotation, Vector};
+#[cfg(feature = "dim3")]
 use na::{Matrix3, Rotation3, Unit, UnitQuaternion};
+#[cfg(feature = "dim3")]
+use rapier::dynamics::RevoluteJoint;
 use rapier::dynamics::{
-    BallJoint, Joint as RJoint, JointParams, JointSet, RevoluteJoint, RigidBodyHandle, RigidBodySet,
+    BallJoint, Joint as RJoint, JointParams, JointSet, RigidBodyHandle, RigidBodySet,
 };
+#[cfg(feature = "dim3")]
 use rapier::utils::WBasis;
 use std::cell::RefCell;
 use std::rc::Rc;
-
 
 /// A joint attached to two bodies.
 #[wasm_bindgen]
@@ -46,6 +49,7 @@ impl Joint {
     pub fn jointType(&self) -> String {
         self.map(|j| match &j.params {
             JointParams::BallJoint(_) => "Ball".to_string(),
+            #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(_) => "Revolute".to_string(),
             JointParams::FixedJoint(_) => "Fixed".to_string(),
             JointParams::PrismaticJoint(_) => "Prismatic".to_string(),
@@ -53,11 +57,13 @@ impl Joint {
     }
 
     /// The rotation quaternion that aligns this joint's first local axis to the `x` axis.
+    #[cfg(feature = "dim3")]
     pub fn frameX1(&self) -> Rotation {
         self.map(|j| {
             let local_axis1 = match &j.params {
                 JointParams::BallJoint(_) => return Rotation::identity(),
                 JointParams::FixedJoint(f) => return Rotation(f.local_anchor1.rotation),
+                #[cfg(feature = "dim3")]
                 JointParams::RevoluteJoint(r) => *r.local_axis1,
                 JointParams::PrismaticJoint(p) => *p.local_axis1(),
             };
@@ -78,11 +84,13 @@ impl Joint {
     }
 
     /// The rotation matrix that aligns this joint's second local axis to the `x` axis.
+    #[cfg(feature = "dim3")]
     pub fn frameX2(&self) -> Rotation {
         self.map(|j| {
             let local_axis2 = match &j.params {
                 JointParams::BallJoint(_) => return Rotation::identity(),
                 JointParams::FixedJoint(f) => return Rotation(f.local_anchor2.rotation),
+                #[cfg(feature = "dim3")]
                 JointParams::RevoluteJoint(r) => *r.local_axis2,
                 JointParams::PrismaticJoint(p) => *p.local_axis2(),
             };
@@ -109,6 +117,7 @@ impl Joint {
     pub fn anchor1(&self) -> Vector {
         self.map(|j| match &j.params {
             JointParams::BallJoint(b) => Vector(b.local_anchor1.coords),
+            #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(r) => Vector(r.local_anchor1.coords),
             JointParams::FixedJoint(f) => Vector(f.local_anchor1.translation.vector),
             JointParams::PrismaticJoint(p) => Vector(p.local_anchor1.coords),
@@ -122,6 +131,7 @@ impl Joint {
     pub fn anchor2(&self) -> Vector {
         self.map(|j| match &j.params {
             JointParams::BallJoint(b) => Vector(b.local_anchor2.coords),
+            #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(r) => Vector(r.local_anchor2.coords),
             JointParams::FixedJoint(f) => Vector(f.local_anchor2.translation.vector),
             JointParams::PrismaticJoint(p) => Vector(p.local_anchor2.coords),
@@ -136,6 +146,7 @@ impl Joint {
     pub fn axis1(&self) -> Option<Vector> {
         self.map(|j| match &j.params {
             JointParams::BallJoint(_) | JointParams::FixedJoint(_) => None,
+            #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(r) => Some(Vector(*r.local_axis1)),
             JointParams::PrismaticJoint(p) => Some(Vector(*p.local_axis1())),
         })
@@ -149,6 +160,7 @@ impl Joint {
     pub fn axis2(&self) -> Option<Vector> {
         self.map(|j| match &j.params {
             JointParams::BallJoint(_) | JointParams::FixedJoint(_) => None,
+            #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(r) => Some(Vector(*r.local_axis2)),
             JointParams::PrismaticJoint(p) => Some(Vector(*p.local_axis2())),
         })
@@ -176,11 +188,11 @@ impl JointDesc {
         )))
     }
 
-
     /// Create a new joint descriptor that builds Revolute joints.
     ///
     /// A revolute joint removes all degrees of degrees of freedom between the affected
     /// bodies except for the translation along one axis.
+    #[cfg(feature = "dim3")]
     pub fn revolute(
         anchor1: &Vector,
         axis1: &Vector,

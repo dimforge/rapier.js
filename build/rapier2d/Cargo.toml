@@ -1,8 +1,8 @@
 [package]
-name    = "rapierjs3d" # Can't be name rapier3d which conflicts with the dependency.
+name    = "rapierjs2d" # Can't be name rapier2d which conflicts with the dependency.
 version = "0.1.5"
 authors = [ "Sébastien Crozet <developer@crozet.re>" ]
-description = "3-dimensional physics engine in Rust - official JS bindings."
+description = "2-dimensional physics engine in Rust - official JS bindings."
 documentation = "http://rapier.rs/rustdoc/rapier2d/index.html"
 homepage = "https://rapier.rs"
 repository = "https://github.com/dimforge/rapier"
@@ -12,18 +12,18 @@ license = "Apache-2.0"
 edition = "2018"
 
 [features]
-default = [ "dim3" ]
-dim3    = [ ]
+default = [ "dim2" ]
+dim2    = [ ]
 
 [lib]
-name = "rapier3d"
+name = "rapier2d"
 path = "../../src/lib.rs"
 crate-type = ["cdylib", "rlib"]
-required-features = [ "dim3" ]
+required-features = [ "dim2" ]
 
 
 [dependencies]
-rapier3d = { version = "0.1", features = [ "wasm-bindgen", "serde-serialize", "enhanced_determinism" ] }
+rapier2d = { version = "0.1", features = [ "wasm-bindgen", "serde-serialize", "enhanced_determinism" ] }
 ref-cast = "1"
 wasm-bindgen = "0.2"
 js-sys = "0.3"

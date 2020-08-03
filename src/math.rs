@@ -10,8 +10,30 @@ use wasm_bindgen::prelude::*;
 pub struct Rotation(pub(crate) RRotation<f32>);
 
 #[wasm_bindgen]
+#[cfg(feature = "dim2")]
+/// A unit complex number describing the orientation of a Rapier entity.
+impl Rotation {
+    /// The identity rotation.
+    pub fn identity() -> Self {
+        Self(RRotation::identity())
+    }
+
+    /// The imaginary part of this complex number.
+    #[wasm_bindgen(getter)]
+    pub fn im(&self) -> f32 {
+        self.0.im
+    }
+
+    /// The real part of this complex number.
+    #[wasm_bindgen(getter)]
+    pub fn re(&self) -> f32 {
+        self.0.re
+    }
+}
+
+#[wasm_bindgen]
 #[cfg(feature = "dim3")]
-/// A quaternion describing the orientation of a Rapier entity.
+/// A unit quaternion describing the orientation of a Rapier entity.
 impl Rotation {
     /// The identity quaternion.
     pub fn identity() -> Self {
@@ -64,7 +86,7 @@ impl Vector {
     #[cfg(feature = "dim2")]
     #[wasm_bindgen(constructor)]
     pub fn new(x: f32, y: f32) -> Self {
-        Self(RVector::new(x, y, z))
+        Self(RVector::new(x, y))
     }
 
     /// Creates a new 3D vector from its two components.

@@ -124,17 +124,27 @@ pub struct RigidBodyDesc {
     /// The world-space rigid-body position.
     pub position: Vector,
     linvel: Vector,
+    #[cfg(feature = "dim2")]
+    angvel: f32,
+    #[cfg(feature = "dim3")]
     angvel: Vector,
     can_sleep: bool,
 }
 
 impl From<RigidBodyDesc> for RRigidBodyBuilder {
     fn from(desc: RigidBodyDesc) -> Self {
-        RRigidBodyBuilder::new(desc.bodyType)
+        let res = RRigidBodyBuilder::new(desc.bodyType)
             .can_sleep(desc.can_sleep)
-            .linvel(desc.linvel.0)
-            .angvel(desc.angvel.0)
+            .linvel(desc.linvel.0);
+
+        #[cfg(feature = "dim2")]
+        return res
+            .translation(desc.position.0.x, desc.position.0.y)
+            .angvel(desc.angvel);
+        #[cfg(feature = "dim3")]
+        return res
             .translation(desc.position.0.x, desc.position.0.y, desc.position.0.z)
+            .angvel(desc.angvel.0);
     }
 }
 
@@ -164,7 +174,7 @@ impl RigidBodyDesc {
             bodyType,
             position: Vector::zero(),
             linvel: Vector::zero(),
-            angvel: Vector::zero(),
+            angvel: na::zero(),
             can_sleep: true,
         }
     }
@@ -174,7 +184,18 @@ impl RigidBodyDesc {
     /// # Parameters
     /// - `x`: the position of this rigid-body along the `x` axis.
     /// - `y`: the position of this rigid-body along the `y` axis.
+    #[cfg(feature = "dim2")]
+    pub fn setTranslation(&mut self, x: f32, y: f32) {
+        self.position = Vector::new(x, y)
+    }
+
+    /// Sets the world-space position of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `x`: the position of this rigid-body along the `x` axis.
+    /// - `y`: the position of this rigid-body along the `y` axis.
     /// - `z`: the position of this rigid-body along the `z` axis.
+    #[cfg(feature = "dim3")]
     pub fn setTranslation(&mut self, x: f32, y: f32, z: f32) {
         self.position = Vector::new(x, y, z)
     }
