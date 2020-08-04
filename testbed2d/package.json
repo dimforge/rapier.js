@@ -12,11 +12,14 @@
   },
   "dependencies": {
     "@dimforge/rapier2d": "^0.1.5",
+    "matter-js": "^0.14.2",
+    "planck-js": "^0.3.21",
     "dat.gui": "^0.7.7",
     "md5": "^2.2.1",
     "stats.js": "^0.17.0",
     "three": "0.118",
     "pixi.js": "^5.3.2",
+    "pixi-viewport": "^4.13.2",
     "worker-loader": "^2.0.0"
   },
   "devDependencies": {

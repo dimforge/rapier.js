@@ -117,13 +117,13 @@ impl World {
 
     /// The maximum velocity iterations the velocity-based force constraint solver can make.
     #[wasm_bindgen(getter)]
-    pub fn max_velocity_iterations(&self) -> usize {
+    pub fn maxVelocityIterations(&self) -> usize {
         self.world.integration_parameters.max_velocity_iterations
     }
 
     /// The maximum position iterations the position-based constraint regularization solver can make.
     #[wasm_bindgen(getter)]
-    pub fn max_position_iterations(&self) -> usize {
+    pub fn maxPositionIterations(&self) -> usize {
         self.world.integration_parameters.max_position_iterations
     }
 
@@ -135,7 +135,7 @@ impl World {
     /// # Parameters
     /// - `niter`: The new maximum number of velocity iterations.
     #[wasm_bindgen(setter)]
-    pub fn set_max_velocity_iterations(&mut self, niter: usize) {
+    pub fn set_maxVelocityIterations(&mut self, niter: usize) {
         self.world.integration_parameters.max_velocity_iterations = niter
     }
 
@@ -151,7 +151,7 @@ impl World {
     /// # Parameters
     /// - `niter`: The new maximum number of position iterations.
     #[wasm_bindgen(setter)]
-    pub fn set_max_position_iterations(&mut self, niter: usize) {
+    pub fn set_maxPositionIterations(&mut self, niter: usize) {
         self.world.integration_parameters.max_position_iterations = niter
     }
 

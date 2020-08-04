@@ -4,7 +4,7 @@ export class RapierBackend {
     constructor(world, bodies, colliders, joints) {
         let me = this;
 
-        import('@dimforge/rapier3d').then(function(RAPIER) {
+        import('@dimforge/rapier2d').then(function(RAPIER) {
             let raWorld = new RAPIER.World(0.0, -9.81);
             raWorld.maxVelocityIterations = world.maxVelocityIterations;
             raWorld.maxPositionIterations = world.maxPositionIterations;
@@ -137,7 +137,7 @@ export class RapierBackend {
                     let entry = {
                         handle: key,
                         translation: {x: t.x, y: t.y},
-                        rotation: {im: r.im, re: r.re}
+                        rotation: r.angle
                     };
                     result.push(entry)
                 });

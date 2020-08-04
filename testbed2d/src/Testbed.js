@@ -22,6 +22,10 @@ class SimulationParameters {
     }
 }
 
+function canSetPosIters(backend) {
+    return backend == "rapier" || backend == "box2d.js" || backend == "box2d.wasm";
+}
+
 /*
  * To use our testbed the user has to load Rapier, initialize
  * the Rapier physics world. Then the testbed will take this word
@@ -107,11 +111,10 @@ export class Testbed {
     constructor(RAPIER, builders, worker) {
         let backends = [
             "rapier",
-            "ammo.js",
-            "ammo.wasm",
-            "cannon.js",
-            "oimo.js",
-            PHYSX_BACKEND_NAME
+            "matter.js",
+            "planck.js",
+            "box2d.js",
+            "box2d.wasm"
         ];
         let parameters = new SimulationParameters(backends, builders);
         this.gui = new Gui(this, parameters);
@@ -220,7 +223,7 @@ export class Testbed {
                 break;
         }
 
-        if (this.parameters.backend == "rapier") {
+        if (canSetPosIters(this.parameters.backend)) {
             this.gui.posIter.domElement.style.pointerEvents = "auto";
             this.gui.posIter.domElement.style.opacity = 1;
         } else {

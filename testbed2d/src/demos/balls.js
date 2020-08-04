@@ -13,7 +13,7 @@ export function initWorld(RAPIER, testbed) {
 
     // Dynamic cubes.
     let rad = 0.5;
-    let num = 10;
+    let num = 50;
     let center = rad * num;
     let i, j, k;
 
@@ -35,4 +35,8 @@ export function initWorld(RAPIER, testbed) {
     }
 
     testbed.setWorld(world, bodies, colliders);
+    testbed.lookAt({
+        target: { x: -10.0, y: -15.0 },
+        zoom: 10.0
+    });
 }

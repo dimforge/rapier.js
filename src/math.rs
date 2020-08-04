@@ -29,6 +29,12 @@ impl Rotation {
     pub fn re(&self) -> f32 {
         self.0.re
     }
+
+    /// The rotation angle in radians.
+    #[wasm_bindgen(getter)]
+    pub fn angle(&self) -> f32 {
+        self.0.angle()
+    }
 }
 
 #[wasm_bindgen]
@@ -139,7 +145,39 @@ impl Vector {
         self.0.z = z
     }
 
-    /// Create a new 3D vector from this vector with its components rearanged as `{x, y, z}`.
+
+    /// Create a new 2D vector from this vector with its components rearranged as `{x, y}`.
+    pub fn xy(&self) -> Self {
+        Self(self.0.xy())
+    }
+
+    /// Create a new 2D vector from this vector with its components rearranged as `{y, x}`.
+    pub fn yx(&self) -> Self {
+        Self(self.0.yx())
+    }
+
+    /// Create a new 2D vector from this vector with its components rearranged as `{z, y}`.
+    #[cfg(feature = "dim3")]
+    pub fn zy(&self) -> Self {
+        Self(self.0.zy())
+    }
+    /// Create a new 2D vector from this vector with its components rearranged as `{z, x}`.
+    #[cfg(feature = "dim3")]
+    pub fn zx(&self) -> Self {
+        Self(self.0.zx())
+    }
+    /// Create a new 2D vector from this vector with its components rearranged as `{y, z}`.
+    #[cfg(feature = "dim3")]
+    pub fn yz(&self) -> Self {
+        Self(self.0.yz())
+    }
+    /// Create a new 2D vector from this vector with its components rearranged as `{x, z}`.
+    #[cfg(feature = "dim3")]
+    pub fn xz(&self) -> Self {
+        Self(self.0.xz())
+    }
+
+    /// Create a new 3D vector from this vector with its components rearranged as `{x, y, z}`.
     ///
     /// This will effectively return a copy of `this`. This method exist for completeness with the
     /// other swizzling functions.
@@ -148,31 +186,31 @@ impl Vector {
         Self(self.0.xyz())
     }
 
-    /// Create a new 3D vector from this vector with its components rearanged as `{y, x, z}`.
+    /// Create a new 3D vector from this vector with its components rearranged as `{y, x, z}`.
     #[cfg(feature = "dim3")]
     pub fn yxz(&self) -> Self {
         Self(self.0.yxz())
     }
 
-    /// Create a new 3D vector from this vector with its components rearanged as `{z, x, y}`.
+    /// Create a new 3D vector from this vector with its components rearranged as `{z, x, y}`.
     #[cfg(feature = "dim3")]
     pub fn zxy(&self) -> Self {
         Self(self.0.zxy())
     }
 
-    /// Create a new 3D vector from this vector with its components rearanged as `{x, z, y}`.
+    /// Create a new 3D vector from this vector with its components rearranged as `{x, z, y}`.
     #[cfg(feature = "dim3")]
     pub fn xzy(&self) -> Self {
         Self(self.0.xzy())
     }
 
-    /// Create a new 3D vector from this vector with its components rearanged as `{y, z, x}`.
+    /// Create a new 3D vector from this vector with its components rearranged as `{y, z, x}`.
     #[cfg(feature = "dim3")]
     pub fn yzx(&self) -> Self {
         Self(self.0.yzx())
     }
 
-    /// Create a new 3D vector from this vector with its components rearanged as `{z, y, x}`.
+    /// Create a new 3D vector from this vector with its components rearranged as `{z, y, x}`.
     #[cfg(feature = "dim3")]
     pub fn zyx(&self) -> Self {
         Self(self.0.zyx())
