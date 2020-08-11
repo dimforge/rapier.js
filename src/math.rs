@@ -147,34 +147,22 @@ impl Vector {
 
 
     /// Create a new 2D vector from this vector with its components rearranged as `{x, y}`.
+    #[cfg(feature = "dim2")]
     pub fn xy(&self) -> Self {
         Self(self.0.xy())
     }
 
     /// Create a new 2D vector from this vector with its components rearranged as `{y, x}`.
+    #[cfg(feature = "dim2")]
     pub fn yx(&self) -> Self {
         Self(self.0.yx())
     }
 
     /// Create a new 2D vector from this vector with its components rearranged as `{z, y}`.
+    #[cfg(feature = "dim2")]
     #[cfg(feature = "dim3")]
     pub fn zy(&self) -> Self {
         Self(self.0.zy())
-    }
-    /// Create a new 2D vector from this vector with its components rearranged as `{z, x}`.
-    #[cfg(feature = "dim3")]
-    pub fn zx(&self) -> Self {
-        Self(self.0.zx())
-    }
-    /// Create a new 2D vector from this vector with its components rearranged as `{y, z}`.
-    #[cfg(feature = "dim3")]
-    pub fn yz(&self) -> Self {
-        Self(self.0.yz())
-    }
-    /// Create a new 2D vector from this vector with its components rearranged as `{x, z}`.
-    #[cfg(feature = "dim3")]
-    pub fn xz(&self) -> Self {
-        Self(self.0.xz())
     }
 
     /// Create a new 3D vector from this vector with its components rearranged as `{x, y, z}`.

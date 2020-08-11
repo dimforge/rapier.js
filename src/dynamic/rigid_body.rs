@@ -174,7 +174,10 @@ impl RigidBodyDesc {
             bodyType,
             position: Vector::zero(),
             linvel: Vector::zero(),
-            angvel: na::zero(),
+            #[cfg(feature = "dim2")]
+            angvel: 0.0,
+            #[cfg(feature = "dim3")]
+            angvel: Vector::zero(),
             can_sleep: true,
         }
     }

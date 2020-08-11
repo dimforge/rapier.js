@@ -197,6 +197,20 @@ impl World {
         }
     }
 
+    /// Removes the given rigid-body from this physics world.
+    ///
+    /// This will remove this rigid-body as wall as all its attached colliders and joints.
+    /// Every other bodies touching or attached by joints to this rigid-body will be woken-up.
+    ///
+    /// # Parameters
+    /// - `body`: the rigid-body to remove.
+    pub fn removeRigidBody(&mut self, body: &RigidBody) {
+        let mut bodies = self.bodies.borrow_mut();
+        let mut colliders = self.colliders.borrow_mut();
+        let mut joints = self.joints.borrow_mut();
+        let _ = self.world.remove_rigid_body(body.handle, &mut *bodies, &mut *colliders, &mut *joints);
+    }
+
     /// Applies the given JavaScript function to each collider managed by this physics world.
     ///
     /// # Parameters
