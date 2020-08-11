@@ -134,16 +134,17 @@ pub struct RigidBodyDesc {
 impl From<RigidBodyDesc> for RRigidBodyBuilder {
     fn from(desc: RigidBodyDesc) -> Self {
         let res = RRigidBodyBuilder::new(desc.bodyType)
-            .can_sleep(desc.can_sleep)
-            .linvel(desc.linvel.0);
+            .can_sleep(desc.can_sleep);
 
         #[cfg(feature = "dim2")]
         return res
             .translation(desc.position.0.x, desc.position.0.y)
+            .linvel(desc.linvel.0.x, desc.linvel.0.y)
             .angvel(desc.angvel);
         #[cfg(feature = "dim3")]
         return res
             .translation(desc.position.0.x, desc.position.0.y, desc.position.0.z)
+            .linvel(desc.linvel.0.x, desc.linvel.0.y, desc.linvel.0.z)
             .angvel(desc.angvel.0);
     }
 }

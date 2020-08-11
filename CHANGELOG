@@ -1,2 +1,2 @@
-### v0.1.6 (WIP)
+### v0.1.6
 - Added `world.removeRigidBody(...)` to remove a rigid-body from the world.
