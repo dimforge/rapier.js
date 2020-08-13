@@ -1,8 +1,8 @@
 use crate::geometry::{Collider, ColliderDesc};
-use crate::math::Vector;
+use crate::math::{Vector, Rotation};
 use rapier::dynamics::{
     BodyStatus, RigidBody as RRigidBody, RigidBodyBuilder as RRigidBodyBuilder, RigidBodyHandle,
-    RigidBodySet,
+    RigidBodySet, RigidBodyMut as RRigidBodyMut
 };
 use rapier::geometry::{ColliderBuilder, ColliderSet};
 use std::cell::RefCell;
@@ -27,13 +27,112 @@ impl RigidBody {
         );
         f(body)
     }
+
+    pub(crate) fn map_mut<T>(&mut self, f: impl FnOnce(RRigidBodyMut) -> T) -> T {
+        let mut bodies = self.bodies.borrow_mut();
+        let body = bodies.get_mut(self.handle).expect(
+            "Invalid RigidBody reference. It may have been removed from the physics World.",
+        );
+        f(body)
+    }
 }
 
 #[wasm_bindgen]
 impl RigidBody {
-    /// The world-space position of this rigid-body.
+    /// The world-space translation of this rigid-body.
     pub fn translation(&self) -> Vector {
         self.map(|rb| Vector(rb.position.translation.vector))
+    }
+
+    /// The world-space orientation of this rigid-body.
+    pub fn rotation(&self) -> Rotation {
+        self.map(|rb| Rotation(rb.position.rotation))
+    }
+
+    /// Sets the translation of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `x`: the world-space position of the rigid-body along the `x` axis.
+    /// - `y`: the world-space position of the rigid-body along the `y` axis.
+    /// - `z`: the world-space position of the rigid-body along the `z` axis.
+    /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
+    /// wasn't moving before modifying its position.
+    #[cfg(feature = "dim3")]
+    pub fn setTranslation(&mut self, x: f32, y: f32, z: f32, wakeUp: bool) {
+        self.map_mut(|mut rb| {
+            let mut pos = rb.position;
+            pos.translation.vector = na::Vector3::new(x, y, z);
+            rb.set_position(pos);
+
+            if wakeUp {
+                rb.wake_up()
+            }
+        })
+    }
+
+    /// Sets the translation of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `x`: the world-space position of the rigid-body along the `x` axis.
+    /// - `y`: the world-space position of the rigid-body along the `y` axis.
+    /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
+    /// wasn't moving before modifying its position.
+    #[cfg(feature = "dim2")]
+    pub fn setTranslation(&mut self, x: f32, y: f32, wakeUp: bool) {
+        self.map_mut(|mut rb| {
+            let mut pos = rb.position;
+            pos.translation.vector = na::Vector2::new(x, y);
+            rb.set_position(pos);
+
+            if wakeUp {
+                rb.wake_up()
+            }
+        })
+    }
+
+    /// Sets the rotation quaternion of this rigid-body.
+    ///
+    /// This does nothing if a zero quaternion is provided.
+    ///
+    /// # Parameters
+    /// - `x`: the first vector component of the quaternion.
+    /// - `y`: the second vector component of the quaternion.
+    /// - `z`: the third vector component of the quaternion.
+    /// - `w`: the scalar component of the quaternion.
+    /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
+    /// wasn't moving before modifying its position.
+    #[cfg(feature = "dim3")]
+    pub fn setRotation(&mut self, x: f32, y: f32, z: f32, w: f32, wakeUp: bool) {
+        if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
+            self.map_mut(|mut rb| {
+                let mut pos = rb.position;
+                pos.rotation = q;
+                rb.set_position(pos);
+
+                if wakeUp {
+                    rb.wake_up()
+                }
+            })
+        }
+    }
+
+    /// Sets the rotation angle of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `angle`: the rotation angle, in radians.
+    /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
+    /// wasn't moving before modifying its position.
+    #[cfg(feature = "dim2")]
+    pub fn setRotation(&mut self, angle: f32, wakeUp: bool) {
+        self.map_mut(|mut rb| {
+            let mut pos = rb.position;
+            pos.rotation = na::UnitComplex::new(angle);
+            rb.set_position(pos);
+
+            if wakeUp {
+                rb.wake_up()
+            }
+        })
     }
 
     /// The linear velocity of this rigid-body.
@@ -44,6 +143,17 @@ impl RigidBody {
     /// The mass of this rigid-body.
     pub fn mass(&self) -> f32 {
         self.map(|rb| rb.mass())
+    }
+
+    /// Wakes this rigid-body up.
+    ///
+    /// A dynamic rigid-body that does not move during several consecutive frames will
+    /// be put to sleep by the physics engine, i.e., it will stop being simulated in order
+    /// to avoid useless computations.
+    /// This methods forces a sleeping rigid-body to wake-up. This is useful, e.g., before modifying
+    /// the position of a dynamic body so that it is properly simulated afterwards.
+    pub fn wakeUp(&mut self) {
+        self.map_mut(|mut rb| rb.wake_up())
     }
 
     /// Creates a new collider attached to his rigid-body from the given collider descriptor.
@@ -123,6 +233,7 @@ pub struct RigidBodyDesc {
     pub(crate) bodyType: BodyStatus,
     /// The world-space rigid-body position.
     pub position: Vector,
+    rotation: Rotation,
     linvel: Vector,
     #[cfg(feature = "dim2")]
     angvel: f32,
@@ -133,17 +244,17 @@ pub struct RigidBodyDesc {
 
 impl From<RigidBodyDesc> for RRigidBodyBuilder {
     fn from(desc: RigidBodyDesc) -> Self {
+        let pos = na::Isometry::from_parts(desc.position.0.into(), desc.rotation.0);
         let res = RRigidBodyBuilder::new(desc.bodyType)
+            .position(pos)
             .can_sleep(desc.can_sleep);
 
         #[cfg(feature = "dim2")]
         return res
-            .translation(desc.position.0.x, desc.position.0.y)
             .linvel(desc.linvel.0.x, desc.linvel.0.y)
             .angvel(desc.angvel);
         #[cfg(feature = "dim3")]
         return res
-            .translation(desc.position.0.x, desc.position.0.y, desc.position.0.z)
             .linvel(desc.linvel.0.x, desc.linvel.0.y, desc.linvel.0.z)
             .angvel(desc.angvel.0);
     }
@@ -174,6 +285,7 @@ impl RigidBodyDesc {
         Self {
             bodyType,
             position: Vector::zero(),
+            rotation: Rotation::identity(),
             linvel: Vector::zero(),
             #[cfg(feature = "dim2")]
             angvel: 0.0,
@@ -183,24 +295,49 @@ impl RigidBodyDesc {
         }
     }
 
-    /// Sets the world-space position of this rigid-body.
+    /// Sets the world-space position of the rigid-body to be created.
     ///
     /// # Parameters
-    /// - `x`: the position of this rigid-body along the `x` axis.
-    /// - `y`: the position of this rigid-body along the `y` axis.
+    /// - `x`: the position of the rigid-body to be created along the `x` axis.
+    /// - `y`: the position of the rigid-body to be created along the `y` axis.
     #[cfg(feature = "dim2")]
     pub fn setTranslation(&mut self, x: f32, y: f32) {
         self.position = Vector::new(x, y)
     }
 
-    /// Sets the world-space position of this rigid-body.
+    /// Sets the world-space position of the rigid-body to be created.
     ///
     /// # Parameters
-    /// - `x`: the position of this rigid-body along the `x` axis.
-    /// - `y`: the position of this rigid-body along the `y` axis.
-    /// - `z`: the position of this rigid-body along the `z` axis.
+    /// - `x`: the position of the rigid-body to be created along the `x` axis.
+    /// - `y`: the position of the rigid-body to be created along the `y` axis.
+    /// - `z`: the position of the rigid-body to be created along the `z` axis.
     #[cfg(feature = "dim3")]
     pub fn setTranslation(&mut self, x: f32, y: f32, z: f32) {
         self.position = Vector::new(x, y, z)
+    }
+
+    /// Sets the rotation quaternion of the rigid-body to be created.
+    ///
+    /// This does nothing if a zero quaternion is provided.
+    ///
+    /// # Parameters
+    /// - `x`: the first vector component of the quaternion.
+    /// - `y`: the second vector component of the quaternion.
+    /// - `z`: the third vector component of the quaternion.
+    /// - `w`: the scalar component of the quaternion.
+    #[cfg(feature = "dim3")]
+    pub fn setRotation(&mut self, x: f32, y: f32, z: f32, w: f32) {
+        if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
+            self.rotation = Rotation(q);
+        }
+    }
+
+    /// Sets the rotation angle of the rigid-body to be created.
+    ///
+    /// # Parameters
+    /// - `angle`: the rotation angle.
+    #[cfg(feature = "dim2")]
+    pub fn setRotation(&mut self, angle: f32) {
+        self.rotation = Rotation(na::UnitComplex::new(angle));
     }
 }
