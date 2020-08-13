@@ -1,2 +1,11 @@
+### v0.1.7
+- Added `world.getRigidBody(handle)` to retrieve a rigid-body from its handle.
+- Added `world.getJoint(handle)` to retrieve a joint from its handle.
+- Added `rigid_body.rotation()` to retrieve its world-space orientation as a quaternion.
+- Added `rigid_body.setTranslation(...)` to set the translation of a rigid-body.
+- Added `rigid_body.setRotation(...)` to set the orientation of a rigid-body.
+- Added `rigid_body.wakeUp()` to manually wake up a rigid-body.
+- Added `rigid_body_desc.setRotation(...)` to set tho orientation of the rigid-body to be created.
+
 ### v0.1.6
 - Added `world.removeRigidBody(...)` to remove a rigid-body from the world.
