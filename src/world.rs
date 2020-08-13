@@ -197,6 +197,36 @@ impl World {
         }
     }
 
+    /// Retrieves a rigid-body from its handle.
+    ///
+    /// # Parameters
+    /// - `handle`: the integer handle of the rigid-body to retrieve.
+    pub fn getRigidBody(&self, handle: usize) -> Option<RigidBody> {
+        let bodies = self.bodies.borrow();
+        let (_, handle_with_gen) = bodies.get_unknown_gen(handle)?;
+
+        Some(RigidBody {
+            bodies: self.bodies.clone(),
+            colliders: self.colliders.clone(),
+            handle: handle_with_gen,
+        })
+    }
+
+    /// Retrieves a joint from its handle.
+    ///
+    /// # Parameters
+    /// - `handle`: the integer handle of the rigid-body to retrieve.
+    pub fn getJoint(&self, handle: usize) -> Option<Joint> {
+        let joints = self.joints.borrow();
+        let (_, handle_with_gen) = joints.get_unknown_gen(handle)?;
+
+        Some(Joint {
+            bodies: self.bodies.clone(),
+            joints: self.joints.clone(),
+            handle: handle_with_gen,
+        })
+    }
+
     /// Removes the given rigid-body from this physics world.
     ///
     /// This will remove this rigid-body as wall as all its attached colliders and joints.
