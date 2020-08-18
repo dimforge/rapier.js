@@ -2,15 +2,129 @@
 
 use js_sys::Uint8Array;
 use rapier::dynamics::{JointSet, RigidBodyBuilder, RigidBodySet};
-use rapier::geometry::ColliderSet;
+use rapier::geometry::{ColliderSet, ContactEvent, ProximityEvent};
 use rapier::math::Vector;
+use rapier::world::ChannelEventCollector;
 use rapier::world::World as RWorld;
 use wasm_bindgen::prelude::*;
 
 use crate::dynamic::{Joint, JointDesc, RigidBody, RigidBodyDesc};
 use crate::geometry::Collider;
+use crossbeam_channel::Receiver;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+/// A structure responsible for collecting events generated
+/// by the physics engine.
+#[wasm_bindgen]
+pub struct EventQueue {
+    collector: ChannelEventCollector,
+    contact_events: Receiver<ContactEvent>,
+    proximity_events: Receiver<ProximityEvent>,
+    auto_drain: bool,
+}
+
+#[wasm_bindgen]
+/// The proximity state of a sensor collider and another collider.
+pub enum Proximity {
+    /// The sensor is intersecting the other collider.
+    Intersecting = 0,
+    /// The sensor is within tolerance margin of the other collider.
+    WithinMargin = 1,
+    /// The sensor is disjoint from the other collider.
+    Disjoint = 2,
+}
+
+#[wasm_bindgen]
+impl EventQueue {
+    /// Creates a new event collector.
+    ///
+    /// # Parameters
+    /// - `autoDrain`: setting this to `true` is strongly recommended. If true, the collector will
+    /// be automatically drained before each `world.step(collector)`. If false, the collector will
+    /// keep all events in memory unless it is manually drained/cleared; this may lead to unbounded use of
+    /// RAM if no drain is performed.
+    #[wasm_bindgen(constructor)]
+    pub fn new(autoDrain: bool) -> Self {
+        let contact_channel = crossbeam_channel::unbounded();
+        let proximity_channel = crossbeam_channel::unbounded();
+        let collector = ChannelEventCollector::new(proximity_channel.0, contact_channel.0);
+
+        Self {
+            collector,
+            contact_events: contact_channel.1,
+            proximity_events: proximity_channel.1,
+            auto_drain: autoDrain,
+        }
+    }
+
+    /// Applies the given javascript closure on each contact event of this collector, then clear
+    /// the internal contact event buffer.
+    ///
+    /// # Parameters
+    /// - `f(handle1, handle2, started)`:  JavaScript closure applied to each contact event. The
+    /// closure should take three arguments: two integers representing the handles of the colliders
+    /// involved in the contact, and a boolean indicating if the contact started (true) or stopped
+    /// (false).
+    pub fn drainContactEvents(&mut self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        while let Ok(event) = self.contact_events.try_recv() {
+            match event {
+                ContactEvent::Started(co1, co2) => {
+                    let h1 = co1.into_raw_parts().0 as u32;
+                    let h2 = co2.into_raw_parts().0 as u32;
+                    f.call3(
+                        &this,
+                        &JsValue::from(h1),
+                        &JsValue::from(h2),
+                        &JsValue::from_bool(true),
+                    );
+                }
+                ContactEvent::Stopped(co1, co2) => {
+                    let h1 = co1.into_raw_parts().0 as u32;
+                    let h2 = co2.into_raw_parts().0 as u32;
+                    f.call3(
+                        &this,
+                        &JsValue::from(h1),
+                        &JsValue::from(h2),
+                        &JsValue::from_bool(false),
+                    );
+                }
+            }
+        }
+    }
+
+    /// Applies the given javascript closure on each proximity event of this collector, then clear
+    /// the internal proximity event buffer.
+    ///
+    /// # Parameters
+    /// - `f(handle1, handle2, prev_prox, new_prox)`:  JavaScript closure applied to each proximity event. The
+    /// closure should take four arguments: two integers representing the handles of the colliders
+    /// involved in the proximity, and two `RAPIER.Proximity` enums representing the previous proximity
+    /// status and the new proximity status.
+    pub fn drainProximityEvents(&mut self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        while let Ok(event) = self.proximity_events.try_recv() {
+            let h1 = event.collider1.into_raw_parts().0 as u32;
+            let h2 = event.collider2.into_raw_parts().0 as u32;
+            let prev_status = event.prev_status as u32;
+            let new_status = event.new_status as u32;
+
+            f.bind2(&this, &JsValue::from(h1), &JsValue::from(h2))
+                .call2(
+                    &this,
+                    &JsValue::from(prev_status),
+                    &JsValue::from(new_status),
+                );
+        }
+    }
+
+    /// Removes all events contained by this collector.
+    pub fn clear(&self) {
+        while let Ok(_) = self.contact_events.try_recv() {}
+        while let Ok(_) = self.proximity_events.try_recv() {}
+    }
+}
 
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize)]
@@ -84,12 +198,36 @@ impl World {
     }
 
     /// Advance the simulation by one time step.
+    ///
+    /// All events generated by the physics engine are ignored.
+    ///
+    /// # Parameters
+    /// - `EventQueue`: (optional) structure responsible for collecting
+    ///   events generated by the physics engine.
     pub fn step(&mut self) {
         self.world.step(
             &mut *self.bodies.borrow_mut(),
             &mut *self.colliders.borrow_mut(),
             &mut *self.joints.borrow_mut(),
             &(),
+        )
+    }
+
+    /// Advance the simulation by one time step and keep track of the simulation events.
+    ///
+    /// # Parameters
+    /// - `EventQueue`: (optional) structure responsible for collecting
+    ///   events generated by the physics engine.
+    pub fn stepWithEvents(&mut self, eventQueue: &EventQueue) {
+        if eventQueue.auto_drain {
+            eventQueue.clear();
+        }
+
+        self.world.step(
+            &mut *self.bodies.borrow_mut(),
+            &mut *self.colliders.borrow_mut(),
+            &mut *self.joints.borrow_mut(),
+            &eventQueue.collector,
         )
     }
 
@@ -238,13 +376,15 @@ impl World {
         let mut bodies = self.bodies.borrow_mut();
         let mut colliders = self.colliders.borrow_mut();
         let mut joints = self.joints.borrow_mut();
-        let _ = self.world.remove_rigid_body(body.handle, &mut *bodies, &mut *colliders, &mut *joints);
+        let _ =
+            self.world
+                .remove_rigid_body(body.handle, &mut *bodies, &mut *colliders, &mut *joints);
     }
 
     /// Applies the given JavaScript function to each collider managed by this physics world.
     ///
     /// # Parameters
-    /// - `f`: the function to apply to each collider managed by this physics world. Called as `f(collider)`.
+    /// - `f(collider)`: the function to apply to each collider managed by this physics world. Called as `f(collider)`.
     pub fn forEachCollider(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.colliders.borrow().iter() {
@@ -261,7 +401,7 @@ impl World {
     /// Applies the given JavaScript function to each rigid-body managed by this physics world.
     ///
     /// # Parameters
-    /// - `f`: the function to apply to each rigid-body managed by this physics world. Called as `f(collider)`.
+    /// - `f(body)`: the function to apply to each rigid-body managed by this physics world. Called as `f(collider)`.
     pub fn forEachRigidBody(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.bodies.borrow().iter() {
@@ -275,11 +415,10 @@ impl World {
         }
     }
 
-
     /// Applies the given JavaScript function to the integer handle of each rigid-body managed by this physics world.
     ///
     /// # Parameters
-    /// - `f`: the function to apply to the integer handle of each rigid-body managed by this physics world. Called as `f(collider)`.
+    /// - `f(handle)`: the function to apply to the integer handle of each rigid-body managed by this physics world. Called as `f(collider)`.
     pub fn forEachRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.bodies.borrow().iter() {
@@ -316,7 +455,7 @@ impl World {
     /// unless it is moved manually by the user.
     ///
     /// # Parameters
-    /// - `f`: the function to apply to the integer handle of each active rigid-body managed by this
+    /// - `f(handle)`: the function to apply to the integer handle of each active rigid-body managed by this
     ///   physics world. Called as `f(collider)`.
     pub fn forEachActiveRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();

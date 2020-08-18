@@ -63,6 +63,7 @@ function extractWorldDescription(world, bodies, colliders, joints) {
             radius: coll.radius(),
             density: coll.density(),
             friction: coll.friction(),
+            isSensor: coll.isSensor(),
         };
 
         let he = coll.halfExtents();

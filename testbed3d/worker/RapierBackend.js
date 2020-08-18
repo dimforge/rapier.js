@@ -41,6 +41,7 @@ export class RapierBackend {
 
                 if (!!colliderDesc) {
                     colliderDesc.density = coll.density;
+                    colliderDesc.isSensor = coll.isSensor;
                     raCollider = raBody.createCollider(colliderDesc);
                 } else {
                     console.log("Could not build collider from desc: ", coll);
@@ -85,6 +86,7 @@ export class RapierBackend {
             });
 
             me.world = raWorld;
+            me.events = new RAPIER.EventQueue(true);
             me.RAPIER = RAPIER;
         })
     }
@@ -129,7 +131,7 @@ export class RapierBackend {
             this.world.maxPositionIterations = posIters;
 
             var t0 = new Date().getTime();
-            this.world.step();
+            this.world.stepWithEvents(this.events);
             this.stepTime = new Date().getTime() - t0;
             return true;
         } else {

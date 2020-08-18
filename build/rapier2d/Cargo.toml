@@ -30,6 +30,7 @@ js-sys = "0.3"
 nalgebra = "0.21"
 serde = { version = "1", features = [ "derive", "rc" ] }
 bincode = "1"
+crossbeam-channel = "0.4"
 
 [package.metadata.wasm-pack.profile.release]
 # add -g to keep debug symbols

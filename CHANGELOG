@@ -7,7 +7,10 @@
   handle of each rigid-body on the world.
 - Added `rigidBody.applyForce`, `.applyTorque`, `.applyImpulse`, `.applyTorqueImpulse`, `.applyForceAtPoint`, and
   `.applyImpulseAtPoint` to apply a manual force or torque to a rigid-body.
-
+- Added the `EventQueue` structure that can be used to collect and iterate through physics events.
+- Added the `Proximity` enum that represents the proximity state of a sensor collider and another collider.
+- Added the `world.stepWithEvents(eventQueue)` which executes a physics timestep and collects the physics events
+  into the given event queue.
 
 ### v0.1.7
 - Added `world.getRigidBody(handle)` to retrieve a rigid-body from its handle.

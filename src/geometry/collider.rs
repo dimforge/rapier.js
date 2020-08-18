@@ -60,6 +60,11 @@ impl Collider {
 
 #[wasm_bindgen]
 impl Collider {
+    /// Is this collider a sensor?
+    pub fn isSensor(&self) -> bool {
+        self.map(|co| co.is_sensor())
+    }
+
     /// The world-space position of this collider.
     pub fn translation(&self) -> Vector {
         self.map(|co| Vector(co.position().translation.vector))
@@ -151,7 +156,7 @@ pub struct ColliderDesc {
     pub restitution: f32,
     delta: Isometry<f32>,
     /// Is this collider a sensor?
-    pub is_sensor: bool,
+    pub isSensor: bool,
 }
 
 impl From<ColliderDesc> for ColliderBuilder {
@@ -162,7 +167,7 @@ impl From<ColliderDesc> for ColliderBuilder {
             friction: desc.friction,
             restitution: desc.restitution,
             delta: desc.delta,
-            is_sensor: desc.is_sensor,
+            is_sensor: desc.isSensor,
         }
     }
 }
@@ -175,7 +180,7 @@ impl From<ColliderBuilder> for ColliderDesc {
             friction: bldr.friction,
             restitution: bldr.restitution,
             delta: bldr.delta,
-            is_sensor: bldr.is_sensor,
+            isSensor: bldr.is_sensor,
         }
     }
 }
