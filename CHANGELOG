@@ -1,3 +1,11 @@
+### v0.1.8
+- Added `world.forEachRigidBodyHandle(f)` to apply a closure on the integer handle
+  of each rigid-body on the world.
+- Added `world.forEachActiveRigidBody(f)` to apply a closure on each rigid-body
+  on the world.
+- Added `world.forEachActiveRigidBodyHandle(f)` to apply a closure on the integer
+  handle of each rigid-body on the world.
+
 ### v0.1.7
 - Added `world.getRigidBody(handle)` to retrieve a rigid-body from its handle.
 - Added `world.getJoint(handle)` to retrieve a joint from its handle.

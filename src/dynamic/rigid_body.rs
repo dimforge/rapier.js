@@ -162,12 +162,12 @@ impl RigidBody {
     /// - `collider`: The collider description used to create the collider.
     pub fn createCollider(&mut self, collider: &ColliderDesc) -> Collider {
         let builder: ColliderBuilder = collider.clone().into();
-        let collider = builder.build(self.handle);
+        let collider = builder.build();
         let colliders = self.colliders.clone();
         let bodies = self.bodies.clone();
         let handle = colliders
             .borrow_mut()
-            .insert(collider, &mut *bodies.borrow_mut());
+            .insert(collider, self.handle, &mut *bodies.borrow_mut());
         Collider {
             colliders,
             bodies,
@@ -203,7 +203,7 @@ impl RigidBody {
 
     /// The type of this rigid-body: static, dynamic, or kinematic.
     pub fn bodyType(&self) -> String {
-        self.map(|rb| match rb.body_type {
+        self.map(|rb| match rb.body_status {
             BodyStatus::Static => "static".to_string(),
             BodyStatus::Dynamic => "dynamic".to_string(),
             BodyStatus::Kinematic => "kinematic".to_string(),

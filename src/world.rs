@@ -274,4 +274,54 @@ impl World {
             let _ = f.call1(&this, &body);
         }
     }
+
+
+    /// Applies the given JavaScript function to the integer handle of each rigid-body managed by this physics world.
+    ///
+    /// # Parameters
+    /// - `f`: the function to apply to the integer handle of each rigid-body managed by this physics world. Called as `f(collider)`.
+    pub fn forEachRigidBodyHandle(&self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        for (handle, _) in self.bodies.borrow().iter() {
+            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
+        }
+    }
+
+    /// Applies the given JavaScript function to each active rigid-body managed by this physics world.
+    ///
+    /// After a short time of inactivity, a rigid-body is automatically deactivated ("asleep") by
+    /// the physics engine in order to save computational power. A sleeping rigid-body never moves
+    /// unless it is moved manually by the user.
+    ///
+    /// # Parameters
+    /// - `f`: the function to apply to each active rigid-body managed by this physics world. Called as `f(collider)`.
+    pub fn forEachActiveRigidBody(&self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        for (handle, _) in self.bodies.borrow().iter_active_dynamic() {
+            let body = RigidBody {
+                bodies: self.bodies.clone(),
+                colliders: self.colliders.clone(),
+                handle,
+            };
+            let body = JsValue::from(body);
+            let _ = f.call1(&this, &body);
+        }
+    }
+
+    /// Applies the given JavaScript function to the integer handle of each active rigid-body
+    /// managed by this physics world.
+    ///
+    /// After a short time of inactivity, a rigid-body is automatically deactivated ("asleep") by
+    /// the physics engine in order to save computational power. A sleeping rigid-body never moves
+    /// unless it is moved manually by the user.
+    ///
+    /// # Parameters
+    /// - `f`: the function to apply to the integer handle of each active rigid-body managed by this
+    ///   physics world. Called as `f(collider)`.
+    pub fn forEachActiveRigidBodyHandle(&self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        for (handle, _) in self.bodies.borrow().iter_active_dynamic() {
+            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
+        }
+    }
 }
