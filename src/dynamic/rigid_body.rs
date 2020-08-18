@@ -1,8 +1,8 @@
 use crate::geometry::{Collider, ColliderDesc};
-use crate::math::{Vector, Rotation};
+use crate::math::{Rotation, Vector};
 use rapier::dynamics::{
     BodyStatus, RigidBody as RRigidBody, RigidBodyBuilder as RRigidBodyBuilder, RigidBodyHandle,
-    RigidBodySet, RigidBodyMut as RRigidBodyMut
+    RigidBodyMut as RRigidBodyMut, RigidBodySet,
 };
 use rapier::geometry::{ColliderBuilder, ColliderSet};
 use std::cell::RefCell;
@@ -35,6 +35,23 @@ impl RigidBody {
         );
         f(body)
     }
+
+    pub(crate) fn map_mut_wake<T>(
+        &mut self,
+        wake_up: bool,
+        f: impl FnOnce(RRigidBodyMut) -> T,
+    ) -> T {
+        let mut bodies = self.bodies.borrow_mut();
+        let mut body = bodies.get_mut(self.handle).expect(
+            "Invalid RigidBody reference. It may have been removed from the physics World.",
+        );
+
+        if wake_up {
+            body.wake_up();
+        }
+
+        f(body)
+    }
 }
 
 #[wasm_bindgen]
@@ -59,14 +76,10 @@ impl RigidBody {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim3")]
     pub fn setTranslation(&mut self, x: f32, y: f32, z: f32, wakeUp: bool) {
-        self.map_mut(|mut rb| {
+        self.map_mut_wake(wakeUp, |mut rb| {
             let mut pos = rb.position;
             pos.translation.vector = na::Vector3::new(x, y, z);
             rb.set_position(pos);
-
-            if wakeUp {
-                rb.wake_up()
-            }
         })
     }
 
@@ -79,14 +92,10 @@ impl RigidBody {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
     pub fn setTranslation(&mut self, x: f32, y: f32, wakeUp: bool) {
-        self.map_mut(|mut rb| {
+        self.map_mut_wake(wakeUp, |mut rb| {
             let mut pos = rb.position;
             pos.translation.vector = na::Vector2::new(x, y);
             rb.set_position(pos);
-
-            if wakeUp {
-                rb.wake_up()
-            }
         })
     }
 
@@ -104,14 +113,10 @@ impl RigidBody {
     #[cfg(feature = "dim3")]
     pub fn setRotation(&mut self, x: f32, y: f32, z: f32, w: f32, wakeUp: bool) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
-            self.map_mut(|mut rb| {
+            self.map_mut_wake(wakeUp, |mut rb| {
                 let mut pos = rb.position;
                 pos.rotation = q;
                 rb.set_position(pos);
-
-                if wakeUp {
-                    rb.wake_up()
-                }
             })
         }
     }
@@ -124,14 +129,10 @@ impl RigidBody {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
     pub fn setRotation(&mut self, angle: f32, wakeUp: bool) {
-        self.map_mut(|mut rb| {
+        self.map_mut_wake(wakeUp, |mut rb| {
             let mut pos = rb.position;
             pos.rotation = na::UnitComplex::new(angle);
             rb.set_position(pos);
-
-            if wakeUp {
-                rb.wake_up()
-            }
         })
     }
 
@@ -165,9 +166,10 @@ impl RigidBody {
         let collider = builder.build();
         let colliders = self.colliders.clone();
         let bodies = self.bodies.clone();
-        let handle = colliders
-            .borrow_mut()
-            .insert(collider, self.handle, &mut *bodies.borrow_mut());
+        let handle =
+            colliders
+                .borrow_mut()
+                .insert(collider, self.handle, &mut *bodies.borrow_mut());
         Collider {
             colliders,
             bodies,
@@ -223,6 +225,100 @@ impl RigidBody {
     /// Is this rigid-body dynamic?
     pub fn isDynamic(&self) -> bool {
         self.map(|rb| rb.is_dynamic())
+    }
+
+    /// Applies a force at the center-of-mass of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `force`: the world-space force to apply on the rigid-body.
+    /// - `wakeUp`: should the rigid-body be automatically woken-up?
+    pub fn applyForce(&mut self, force: Vector, wakeUp: bool) {
+        self.map_mut_wake(wakeUp, |mut rb| {
+            rb.apply_force(force.0);
+        })
+    }
+
+    /// Applies an impulse at the center-of-mass of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `impulse`: the world-space impulse to apply on the rigid-body.
+    /// - `wakeUp`: should the rigid-body be automatically woken-up?
+    pub fn applyImpulse(&mut self, impulse: Vector, wakeUp: bool) {
+        self.map_mut_wake(wakeUp, |mut rb| {
+            rb.apply_impulse(impulse.0);
+        })
+    }
+
+    /// Applies a torque at the center-of-mass of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `torque`: the torque to apply on the rigid-body.
+    /// - `wakeUp`: should the rigid-body be automatically woken-up?
+    #[cfg(feature = "dim2")]
+    pub fn applyTorque(&mut self, torque: f32, wakeUp: bool) {
+        self.map_mut_wake(wakeUp, |mut rb| {
+            rb.apply_torque(torque);
+        })
+    }
+
+    /// Applies a torque at the center-of-mass of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `torque`: the world-space torque to apply on the rigid-body.
+    /// - `wakeUp`: should the rigid-body be automatically woken-up?
+    #[cfg(feature = "dim3")]
+    pub fn applyTorque(&mut self, torque: Vector, wakeUp: bool) {
+        self.map_mut_wake(wakeUp, |mut rb| {
+            rb.apply_torque(torque.0);
+        })
+    }
+
+    /// Applies an impulsive torque at the center-of-mass of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `torque impulse`: the torque impulse to apply on the rigid-body.
+    /// - `wakeUp`: should the rigid-body be automatically woken-up?
+    #[cfg(feature = "dim2")]
+    pub fn applyTorqueImpulse(&mut self, torque_impulse: f32, wakeUp: bool) {
+        self.map_mut_wake(wakeUp, |mut rb| {
+            rb.apply_torque_impulse(torque_impulse);
+        })
+    }
+
+    /// Applies an impulsive torque at the center-of-mass of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `torque impulse`: the world-space torque impulse to apply on the rigid-body.
+    /// - `wakeUp`: should the rigid-body be automatically woken-up?
+    #[cfg(feature = "dim3")]
+    pub fn applyTorqueImpulse(&mut self, torque_impulse: Vector, wakeUp: bool) {
+        self.map_mut_wake(wakeUp, |mut rb| {
+            rb.apply_torque_impulse(torque_impulse.0);
+        })
+    }
+
+    /// Applies a force at the given world-space point of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `force`: the world-space force to apply on the rigid-body.
+    /// - `point`: the world-space point where the impulse is to be applied on the rigid-body.
+    /// - `wakeUp`: should the rigid-body be automatically woken-up?
+    pub fn applyForceAtPoint(&mut self, force: Vector, point: Vector, wakeUp: bool) {
+        self.map_mut_wake(wakeUp, |mut rb| {
+            rb.apply_force_at_point(force.0, point.0.into());
+        })
+    }
+
+    /// Applies an impulse at the given world-space point of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `impulse`: the world-space impulse to apply on the rigid-body.
+    /// - `point`: the world-space point where the impulse is to be applied on the rigid-body.
+    /// - `wakeUp`: should the rigid-body be automatically woken-up?
+    pub fn applyImpulseAtPoint(&mut self, impulse: Vector, point: Vector, wakeUp: bool) {
+        self.map_mut_wake(wakeUp, |mut rb| {
+            rb.apply_impulse_at_point(impulse.0, point.0.into());
+        })
     }
 }
 
