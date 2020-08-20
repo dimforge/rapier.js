@@ -73,7 +73,7 @@ impl EventQueue {
                 ContactEvent::Started(co1, co2) => {
                     let h1 = co1.into_raw_parts().0 as u32;
                     let h2 = co2.into_raw_parts().0 as u32;
-                    f.call3(
+                    let _ = f.call3(
                         &this,
                         &JsValue::from(h1),
                         &JsValue::from(h2),
@@ -83,7 +83,7 @@ impl EventQueue {
                 ContactEvent::Stopped(co1, co2) => {
                     let h1 = co1.into_raw_parts().0 as u32;
                     let h2 = co2.into_raw_parts().0 as u32;
-                    f.call3(
+                    let _ = f.call3(
                         &this,
                         &JsValue::from(h1),
                         &JsValue::from(h2),
@@ -110,7 +110,8 @@ impl EventQueue {
             let prev_status = event.prev_status as u32;
             let new_status = event.new_status as u32;
 
-            f.bind2(&this, &JsValue::from(h1), &JsValue::from(h2))
+            let _ = f
+                .bind2(&this, &JsValue::from(h1), &JsValue::from(h2))
                 .call2(
                     &this,
                     &JsValue::from(prev_status),
@@ -361,6 +362,21 @@ impl World {
         Some(Joint {
             bodies: self.bodies.clone(),
             joints: self.joints.clone(),
+            handle: handle_with_gen,
+        })
+    }
+
+    /// Retrieves a collider from its handle.
+    ///
+    /// # Parameters
+    /// - `handle`: the integer handle of the collider to retrieve.
+    pub fn getCollider(&self, handle: usize) -> Option<Collider> {
+        let colliders = self.colliders.borrow();
+        let (_, handle_with_gen) = colliders.get_unknown_gen(handle)?;
+
+        Some(Collider {
+            bodies: self.bodies.clone(),
+            colliders: self.colliders.clone(),
             handle: handle_with_gen,
         })
     }

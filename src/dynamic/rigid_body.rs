@@ -190,7 +190,7 @@ impl RigidBody {
     /// Retrieves the `i-th` collider attached to this rigid-body.
     ///
     /// # Parameters
-    /// - `at`: The index of the collidder to retrieve. Must be a number in `[0, this.numColliders()[`.
+    /// - `at`: The index of the collider to retrieve. Must be a number in `[0, this.numColliders()[`.
     ///         This index is **not** the same as the unique identifier of the collider.
     pub fn collider(&self, at: usize) -> Collider {
         self.map(|rb| {

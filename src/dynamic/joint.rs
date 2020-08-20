@@ -1,17 +1,18 @@
 use wasm_bindgen::prelude::*;
 
-use crate::math::{Rotation, Vector};
-#[cfg(feature = "dim3")]
-use na::{Matrix3, Rotation3, Unit, UnitQuaternion};
-#[cfg(feature = "dim3")]
-use rapier::dynamics::RevoluteJoint;
+use crate::math::Vector;
 use rapier::dynamics::{
     BallJoint, Joint as RJoint, JointParams, JointSet, RigidBodyHandle, RigidBodySet,
 };
-#[cfg(feature = "dim3")]
-use rapier::utils::WBasis;
 use std::cell::RefCell;
 use std::rc::Rc;
+#[cfg(feature = "dim3")]
+use {
+    crate::math::Rotation,
+    na::{Matrix3, Rotation3, Unit, UnitQuaternion},
+    rapier::dynamics::RevoluteJoint,
+    rapier::utils::WBasis,
+};
 
 /// A joint attached to two bodies.
 #[wasm_bindgen]
@@ -33,6 +34,11 @@ impl Joint {
 
 #[wasm_bindgen]
 impl Joint {
+    /// The unique integer identifier of this joint.
+    pub fn handle(&self) -> usize {
+        self.handle.into_raw_parts().0
+    }
+
     /// The unique integer identifier of the first rigid-body this joint it attached to.
     pub fn bodyHandle1(&self) -> usize {
         self.map(|j| j.body1.into_raw_parts().0)

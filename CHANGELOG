@@ -1,3 +1,8 @@
+### v0.1.9
+- Added `world.getCollider(handle)` that retrieves a collider from its integer handle.
+- Added `joint.handle()` that returns the integer handle of the joint.
+
+
 ### v0.1.8
 - Added `world.forEachRigidBodyHandle(f)` to apply a closure on the integer handle
   of each rigid-body on the world.

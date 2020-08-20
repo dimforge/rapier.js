@@ -49,6 +49,7 @@ impl Collider {
         f(body)
     }
 
+    #[cfg(feature = "dim3")]
     pub(crate) fn apply(&mut self, f: impl FnOnce(&mut RCollider)) {
         let mut colliders = self.colliders.borrow_mut();
         let body = colliders
