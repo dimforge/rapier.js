@@ -1,3 +1,7 @@
+### v0.1.10
+- Fix a determinism problem that could cause rigid-body handle allocation to be non-deterministic after a snapshot
+  restoration.
+
 ### v0.1.9
 - Added `world.getCollider(handle)` that retrieves a collider from its integer handle.
 - Added `joint.handle()` that returns the integer handle of the joint.
