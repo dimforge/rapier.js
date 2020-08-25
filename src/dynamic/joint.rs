@@ -17,6 +17,7 @@ use {
 /// A joint attached to two bodies.
 #[wasm_bindgen]
 pub struct Joint {
+    #[allow(dead_code)] // Will be useful later.
     pub(crate) bodies: Rc<RefCell<RigidBodySet>>,
     pub(crate) joints: Rc<RefCell<JointSet>>,
     pub(crate) handle: RigidBodyHandle,
