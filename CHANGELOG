@@ -1,3 +1,6 @@
+### v0.1.11
+- Fix a bug causing a crash when the broad-phase proxy handles were recycled.
+
 ### v0.1.10
 - Fix a determinism problem that could cause rigid-body handle allocation to be non-deterministic after a snapshot
   restoration.

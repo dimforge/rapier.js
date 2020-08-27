@@ -5,3 +5,7 @@ members = [ "build/rapier2d", "build/rapier3d" ]
 debug = false
 codegen-units = 1
 #lto = true
+
+[patch.crates-io]
+# rapier2d = { path = "../rapier/build/rapier2d" }
+# rapier3d = { path = "../rapier/build/rapier3d" }
