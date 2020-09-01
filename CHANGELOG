@@ -1,3 +1,10 @@
+### v0.1.12
+- Added `world.removeCollider(collider)` to remove a collider from the physics world.
+- Added `colliderDesc.setTranslation(...)` to set the relative translation of the collider to build wrt.
+  the rigid-body it is attached to.
+- Added `colliderDesc.setRotation(...)` to set the relative rotation of the collider to build wrt.
+  the rigid-body it is attached to.
+
 ### v0.1.11
 - Fix a bug causing a crash when the broad-phase proxy handles were recycled.
 
