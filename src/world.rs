@@ -401,9 +401,27 @@ impl World {
         })
     }
 
+    /// Removes the given collider from this physics world.
+    ///
+    /// The rigid-body this collider is attached to will be woken-up.
+    ///
+    /// # Parameters
+    /// - `body`: the collider to remove.
+    pub fn removeCollider(&mut self, collider: &Collider) {
+        let mut bodies = self.bodies.borrow_mut();
+        let mut colliders = self.colliders.borrow_mut();
+        let _ = self.pipeline.remove_collider(
+            collider.handle,
+            &mut self.broad_phase,
+            &mut self.narrow_phase,
+            &mut *bodies,
+            &mut *colliders,
+        );
+    }
+
     /// Removes the given rigid-body from this physics world.
     ///
-    /// This will remove this rigid-body as wall as all its attached colliders and joints.
+    /// This will remove this rigid-body as well as all its attached colliders and joints.
     /// Every other bodies touching or attached by joints to this rigid-body will be woken-up.
     ///
     /// # Parameters
