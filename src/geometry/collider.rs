@@ -216,4 +216,50 @@ impl ColliderDesc {
     pub fn cuboid(hx: f32, hy: f32, hz: f32) -> Self {
         ColliderBuilder::cuboid(hx, hy, hz).into()
     }
+
+    /// Sets the position of the collider to be created relative to the rigid-body it is attached to.
+    ///
+    /// # Parameters
+    /// - `x`: the position of the collider to be created along the `x` axis.
+    /// - `y`: the position of the collider to be created along the `y` axis.
+    #[cfg(feature = "dim2")]
+    pub fn setTranslation(&mut self, x: f32, y: f32) {
+        self.delta.translation = na::Translation2::new(x, y)
+    }
+
+    /// Sets the position of the collider to be created relative to the rigid-body it is attached to.
+    ///
+    /// # Parameters
+    /// - `x`: the position of the collider to be created along the `x` axis.
+    /// - `y`: the position of the collider to be created along the `y` axis.
+    /// - `z`: the position of the collider to be created along the `z` axis.
+    #[cfg(feature = "dim3")]
+    pub fn setTranslation(&mut self, x: f32, y: f32, z: f32) {
+        self.delta.translation = na::Translation3::new(x, y, z)
+    }
+
+    /// Sets the rotation of the collider to be created relative to the rigid-body it is attached to.
+    ///
+    /// This does nothing if a zero quaternion is provided.
+    ///
+    /// # Parameters
+    /// - `x`: the first vector component of the quaternion.
+    /// - `y`: the second vector component of the quaternion.
+    /// - `z`: the third vector component of the quaternion.
+    /// - `w`: the scalar component of the quaternion.
+    #[cfg(feature = "dim3")]
+    pub fn setRotation(&mut self, x: f32, y: f32, z: f32, w: f32) {
+        if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
+            self.delta.rotation = q;
+        }
+    }
+
+    /// Sets the rotation of the collider to be created relative to the rigid-body it is attached to.
+    ///
+    /// # Parameters
+    /// - `angle`: the rotation angle.
+    #[cfg(feature = "dim2")]
+    pub fn setRotation(&mut self, angle: f32) {
+        self.delta.rotation = na::UnitComplex::new(angle);
+    }
 }
