@@ -4,11 +4,11 @@ use js_sys::Uint8Array;
 use rapier::dynamics::{IntegrationParameters, JointSet, RigidBodyBuilder, RigidBodySet};
 use rapier::geometry::{BroadPhase, ColliderSet, ContactEvent, NarrowPhase, ProximityEvent};
 use rapier::math::Vector;
-use rapier::pipeline::{ChannelEventCollector, PhysicsPipeline};
+use rapier::pipeline::{ChannelEventCollector, PhysicsPipeline, QueryPipeline};
 use wasm_bindgen::prelude::*;
 
 use crate::dynamic::{Joint, JointDesc, RigidBody, RigidBodyDesc};
-use crate::geometry::Collider;
+use crate::geometry::{Collider, Ray, RayIntersection};
 use crossbeam_channel::Receiver;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -142,6 +142,8 @@ pub struct World {
     joints: Rc<RefCell<JointSet>>,
     #[serde(skip)]
     pipeline: PhysicsPipeline,
+    #[serde(skip)]
+    query_pipeline: QueryPipeline,
 }
 
 #[wasm_bindgen]
@@ -166,6 +168,7 @@ impl World {
             colliders: Rc::new(RefCell::new(ColliderSet::new())),
             joints: Rc::new(RefCell::new(JointSet::new())),
             pipeline: PhysicsPipeline::new(),
+            query_pipeline: QueryPipeline::new(),
         }
     }
 
@@ -190,6 +193,7 @@ impl World {
             colliders: Rc::new(RefCell::new(ColliderSet::new())),
             joints: Rc::new(RefCell::new(JointSet::new())),
             pipeline: PhysicsPipeline::new(),
+            query_pipeline: QueryPipeline::new(),
         }
     }
 
@@ -521,5 +525,22 @@ impl World {
         for (handle, _) in self.bodies.borrow().iter_active_dynamic() {
             let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
         }
+    }
+
+    /// Cast a ray against this physics world and return the first collider it hits.
+    ///
+    /// # Parameter
+    /// - `ray`: the ray to cast.
+    /// - `max_toi`: the maximum time-of-impact that can be reported by this cast. This effectively
+    ///   limits the length of the ray to `ray.dir.norm() * max_toi`. Use `f32::MAX` for an
+    ///   unbounded ray.
+    pub fn castRay(&self, ray: &Ray, maxToi: f32) -> Option<RayIntersection> {
+        let colliders = self.colliders.borrow();
+        let (collider, _, intersection) =
+            self.query_pipeline.cast_ray(&*colliders, &ray.0, maxToi)?;
+        Some(RayIntersection {
+            collider,
+            intersection,
+        })
     }
 }

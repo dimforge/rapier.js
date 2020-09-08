@@ -162,22 +162,21 @@ pub struct ColliderDesc {
 
 impl From<ColliderDesc> for ColliderBuilder {
     fn from(desc: ColliderDesc) -> Self {
-        Self {
-            shape: desc.shape,
-            density: desc.density,
-            friction: desc.friction,
-            restitution: desc.restitution,
-            delta: desc.delta,
-            is_sensor: desc.isSensor,
-        }
+        Self::new(desc.shape)
+            .density(desc.density)
+            .friction(desc.friction)
+            .restitution(desc.restitution)
+            .position(desc.delta)
+            .sensor(desc.isSensor)
     }
 }
 
 impl From<ColliderBuilder> for ColliderDesc {
     fn from(bldr: ColliderBuilder) -> Self {
+        let density = bldr.get_density();
         Self {
             shape: bldr.shape,
-            density: bldr.density,
+            density: density,
             friction: bldr.friction,
             restitution: bldr.restitution,
             delta: bldr.delta,
