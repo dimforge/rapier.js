@@ -1,3 +1,12 @@
+### v0.1.13
+- Added `rigidBody.setNextKinematicTranslation` to set the translation of a kinematic rigid-body at the next timestep.
+- Added `rigidBody.setNextKinematicRotation` to set the rotation of a kinematic rigid-body at the next timestep.
+- Added `rigidBody.predictedTranslation` to get the translation of a kinematic rigid-body at the next timestep.
+- Added `rigidBody.predictedRotation` to set the rotation of a kinematic rigid-body at the next timestep.
+- Added `Ray` and `RayIntersection` structures for ray-casting.
+- Added `world.castRay` to compute the first hit of a ray with the physics scene.
+- Fix a bug causing a kinematic rigid-body not to teleport as expected after a `rigidBody.setPosition`.
+
 ### v0.1.12
 - Added `world.removeCollider(collider)` to remove a collider from the physics world.
 - Added `colliderDesc.setTranslation(...)` to set the relative translation of the collider to build wrt.
