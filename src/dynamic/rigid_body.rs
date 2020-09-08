@@ -66,6 +66,24 @@ impl RigidBody {
         self.map(|rb| Rotation(rb.position.rotation))
     }
 
+    /// The world-space predicted translation of this rigid-body.
+    ///
+    /// If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
+    /// method and is used for estimating the kinematic body velocity at the next timestep.
+    /// For non-kinematic bodies, this value is currently unspecified.
+    pub fn predictedTranslation(&self) -> Vector {
+        self.map(|rb| Vector(rb.predicted_position().translation.vector))
+    }
+
+    /// The world-space predicted orientation of this rigid-body.
+    ///
+    /// If this rigid-body is kinematic this value is set by the `setNextKinematicRotation`
+    /// method and is used for estimating the kinematic body velocity at the next timestep.
+    /// For non-kinematic bodies, this value is currently unspecified.
+    pub fn predictedRotation(&self) -> Rotation {
+        self.map(|rb| Rotation(rb.predicted_position().rotation))
+    }
+
     /// Sets the translation of this rigid-body.
     ///
     /// # Parameters
@@ -133,6 +151,90 @@ impl RigidBody {
             let mut pos = rb.position;
             pos.rotation = na::UnitComplex::new(angle);
             rb.set_position(pos);
+        })
+    }
+
+    /// If this rigid body is kinematic, sets its future translation after the next timestep integration.
+    ///
+    /// This should be used instead of `rigidBody.setTranslation` to make the dynamic object
+    /// interacting with this kinematic body behave as expected. Internally, Rapier will compute
+    /// an artificial velocity for this rigid-body from its current position and its next kinematic
+    /// position. This velocity will be used to compute forces on dynamic bodies interacting with
+    /// this body.
+    ///
+    /// # Parameters
+    /// - `x`: the world-space position of the rigid-body along the `x` axis.
+    /// - `y`: the world-space position of the rigid-body along the `y` axis.
+    /// - `z`: the world-space position of the rigid-body along the `z` axis.
+    #[cfg(feature = "dim3")]
+    pub fn setNextKinematicTranslation(&mut self, x: f32, y: f32, z: f32) {
+        self.map_mut(|mut rb| {
+            let mut pos = *rb.predicted_position();
+            pos.translation.vector = na::Vector3::new(x, y, z);
+            rb.set_next_kinematic_position(pos);
+        })
+    }
+
+    /// If this rigid body is kinematic, sets its future translation after the next timestep integration.
+    ///
+    /// This should be used instead of `rigidBody.setTranslation` to make the dynamic object
+    /// interacting with this kinematic body behave as expected. Internally, Rapier will compute
+    /// an artificial velocity for this rigid-body from its current position and its next kinematic
+    /// position. This velocity will be used to compute forces on dynamic bodies interacting with
+    /// this body.
+    ///
+    /// # Parameters
+    /// - `x`: the world-space position of the rigid-body along the `x` axis.
+    /// - `y`: the world-space position of the rigid-body along the `y` axis.
+    #[cfg(feature = "dim2")]
+    pub fn setNextKinematicTranslation(&mut self, x: f32, y: f32) {
+        self.map_mut(|mut rb| {
+            let mut pos = *rb.predicted_position();
+            pos.translation.vector = na::Vector2::new(x, y);
+            rb.set_next_kinematic_position(pos);
+        })
+    }
+
+    /// If this rigid body is kinematic, sets its future rotation after the next timestep integration.
+    ///
+    /// This should be used instead of `rigidBody.setRotation` to make the dynamic object
+    /// interacting with this kinematic body behave as expected. Internally, Rapier will compute
+    /// an artificial velocity for this rigid-body from its current position and its next kinematic
+    /// position. This velocity will be used to compute forces on dynamic bodies interacting with
+    /// this body.
+    ///
+    /// # Parameters
+    /// - `x`: the first vector component of the quaternion.
+    /// - `y`: the second vector component of the quaternion.
+    /// - `z`: the third vector component of the quaternion.
+    /// - `w`: the scalar component of the quaternion.
+    #[cfg(feature = "dim3")]
+    pub fn setNextKinematicRotation(&mut self, x: f32, y: f32, z: f32, w: f32) {
+        if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
+            self.map_mut(|mut rb| {
+                let mut pos = *rb.predicted_position();
+                pos.rotation = q;
+                rb.set_next_kinematic_position(pos);
+            })
+        }
+    }
+
+    /// If this rigid body is kinematic, sets its future rotation after the next timestep integration.
+    ///
+    /// This should be used instead of `rigidBody.setRotation` to make the dynamic object
+    /// interacting with this kinematic body behave as expected. Internally, Rapier will compute
+    /// an artificial velocity for this rigid-body from its current position and its next kinematic
+    /// position. This velocity will be used to compute forces on dynamic bodies interacting with
+    /// this body.
+    ///
+    /// # Parameters
+    /// - `angle`: the rotation angle, in radians.
+    #[cfg(feature = "dim2")]
+    pub fn setNextKinematicRotation(&mut self, angle: f32) {
+        self.map_mut(|mut rb| {
+            let mut pos = *rb.predicted_position();
+            pos.rotation = na::UnitComplex::new(angle);
+            rb.set_next_kinematic_position(pos);
         })
     }
 
