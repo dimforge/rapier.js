@@ -1,3 +1,4 @@
+use crate::dynamics::RawRigidBodySet;
 use crate::geometry::{Collider, ColliderDesc};
 use crate::math::{Rotation, Vector};
 use rapier::dynamics::{
@@ -57,10 +58,13 @@ impl RigidBody {
 #[wasm_bindgen]
 impl RigidBody {
     /// The world-space translation of this rigid-body.
-    pub fn translation(&self) -> Vector {
-        self.map(|rb| Vector(rb.position.translation.vector))
+    pub fn translation(set: &RawRigidBodySet, handle: usize) -> Vector {
+        Vector(set.map(handle, |rb| rb.position.translation.vector))
     }
+}
 
+#[wasm_bindgen]
+impl RigidBody {
     /// The world-space orientation of this rigid-body.
     pub fn rotation(&self) -> Rotation {
         self.map(|rb| Rotation(rb.position.rotation))

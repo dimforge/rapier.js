@@ -7,7 +7,7 @@ use rapier::math::Vector;
 use rapier::pipeline::{ChannelEventCollector, PhysicsPipeline, QueryPipeline};
 use wasm_bindgen::prelude::*;
 
-use crate::dynamic::{Joint, JointDesc, RigidBody, RigidBodyDesc};
+use crate::dynamics::{Joint, JointDesc, RigidBody, RigidBodyDesc};
 use crate::geometry::{Collider, Ray, RayIntersection};
 use crossbeam_channel::Receiver;
 use std::cell::RefCell;

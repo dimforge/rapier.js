@@ -1,6 +1,6 @@
 #![allow(missing_docs)]
 
-use crate::dynamic::RigidBody;
+use crate::dynamics::RigidBody;
 use crate::math::{Rotation, Vector};
 use rapier::dynamics::RigidBodySet;
 use rapier::geometry::{
