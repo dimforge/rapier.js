@@ -1,3 +1,7 @@
+### v0.1.14
+- Fix issues where force application functions took ownership of the JS vector, preventing the user from
+  freeing with `Vector.free()` afterwards.
+
 ### v0.1.13
 - Added `rigidBody.setNextKinematicTranslation` to set the translation of a kinematic rigid-body at the next timestep.
 - Added `rigidBody.setNextKinematicRotation` to set the rotation of a kinematic rigid-body at the next timestep.
