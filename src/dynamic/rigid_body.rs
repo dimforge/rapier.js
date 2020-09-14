@@ -334,7 +334,7 @@ impl RigidBody {
     /// # Parameters
     /// - `force`: the world-space force to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn applyForce(&mut self, force: Vector, wakeUp: bool) {
+    pub fn applyForce(&mut self, force: &Vector, wakeUp: bool) {
         self.map_mut_wake(wakeUp, |mut rb| {
             rb.apply_force(force.0);
         })
@@ -345,7 +345,7 @@ impl RigidBody {
     /// # Parameters
     /// - `impulse`: the world-space impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn applyImpulse(&mut self, impulse: Vector, wakeUp: bool) {
+    pub fn applyImpulse(&mut self, impulse: &Vector, wakeUp: bool) {
         self.map_mut_wake(wakeUp, |mut rb| {
             rb.apply_impulse(impulse.0);
         })
@@ -369,7 +369,7 @@ impl RigidBody {
     /// - `torque`: the world-space torque to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim3")]
-    pub fn applyTorque(&mut self, torque: Vector, wakeUp: bool) {
+    pub fn applyTorque(&mut self, torque: &Vector, wakeUp: bool) {
         self.map_mut_wake(wakeUp, |mut rb| {
             rb.apply_torque(torque.0);
         })
@@ -393,7 +393,7 @@ impl RigidBody {
     /// - `torque impulse`: the world-space torque impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim3")]
-    pub fn applyTorqueImpulse(&mut self, torque_impulse: Vector, wakeUp: bool) {
+    pub fn applyTorqueImpulse(&mut self, torque_impulse: &Vector, wakeUp: bool) {
         self.map_mut_wake(wakeUp, |mut rb| {
             rb.apply_torque_impulse(torque_impulse.0);
         })
@@ -405,7 +405,7 @@ impl RigidBody {
     /// - `force`: the world-space force to apply on the rigid-body.
     /// - `point`: the world-space point where the impulse is to be applied on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn applyForceAtPoint(&mut self, force: Vector, point: Vector, wakeUp: bool) {
+    pub fn applyForceAtPoint(&mut self, force: &Vector, point: &Vector, wakeUp: bool) {
         self.map_mut_wake(wakeUp, |mut rb| {
             rb.apply_force_at_point(force.0, point.0.into());
         })
@@ -417,7 +417,7 @@ impl RigidBody {
     /// - `impulse`: the world-space impulse to apply on the rigid-body.
     /// - `point`: the world-space point where the impulse is to be applied on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn applyImpulseAtPoint(&mut self, impulse: Vector, point: Vector, wakeUp: bool) {
+    pub fn applyImpulseAtPoint(&mut self, impulse: &Vector, point: &Vector, wakeUp: bool) {
         self.map_mut_wake(wakeUp, |mut rb| {
             rb.apply_impulse_at_point(impulse.0, point.0.into());
         })
