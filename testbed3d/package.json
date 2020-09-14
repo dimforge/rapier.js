@@ -11,11 +11,11 @@
     "test": "cargo test && wasm-pack test --headless"
   },
   "dependencies": {
-    "@dimforge/rapier3d": "^0.1.11",
+    "@dimforge/rapier3d": "^0.1.13",
     "cannon": "^0.6.2",
     "cannon-es": "^0.14.0",
     "dat.gui": "^0.7.7",
-    "md5": "^2.2.1",
+    "md5": "^2.3.0",
     "oimo": "github:lo-th/Oimo.js",
     "physx-js": "^0.0.6",
     "stats.js": "^0.17.0",
@@ -23,9 +23,9 @@
     "worker-loader": "^2.0.0"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^5.0.3",
+    "copy-webpack-plugin": "^5.1.2",
     "rimraf": "^3.0.0",
-    "webpack": "^4.44.0",
+    "webpack": "^4.44.1",
     "webpack-cli": "^3.3.3",
     "webpack-dev-server": "^3.7.1"
   }

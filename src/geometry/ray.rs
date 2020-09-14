@@ -44,7 +44,7 @@ pub struct RayIntersection {
 
 #[wasm_bindgen]
 impl RayIntersection {
-    /// The integer handle of the collider hit by this ray.
+    /// The integer handle of the collider hit by a ray.
     pub fn colliderHandle(&self) -> usize {
         self.collider.into_raw_parts().0
     }
@@ -59,7 +59,7 @@ impl RayIntersection {
         self.intersection.toi
     }
 
-    /// The normal of the collider's shape at the ray's hit point.
+    /// The outward normal of the collider's shape at the ray's hit point.
     pub fn normal(&self) -> Vector {
         Vector(self.intersection.normal)
     }

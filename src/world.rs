@@ -529,6 +529,8 @@ impl World {
 
     /// Cast a ray against this physics world and return the first collider it hits.
     ///
+    /// This returns null if no hit is found.
+    ///
     /// # Parameter
     /// - `ray`: the ray to cast.
     /// - `max_toi`: the maximum time-of-impact that can be reported by this cast. This effectively
