@@ -1,5 +1,5 @@
 ### v0.1.15
-- Fix a bug causing a crash when removing a kinematic rigid-body from the World.
+- Fix crash when removing a kinematic rigid-body from the World.
 
 ### v0.1.14
 - Fix issues where force application functions took ownership of the JS vector, preventing the user from
