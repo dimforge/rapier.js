@@ -1,21 +1,31 @@
 use na::{Quaternion, Unit};
-use rapier::dynamics::{RigidBody, RigidBodyBuilder, RigidBodyMut, RigidBodySet};
+use rapier::dynamics::{BodyStatus, RigidBody, RigidBodyBuilder, RigidBodyMut, RigidBodySet};
 use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub enum BodyStatus {
+pub enum RawBodyStatus {
     Dynamic,
     Static,
     Kinematic,
 }
 
-impl Into<rapier::dynamics::BodyStatus> for BodyStatus {
-    fn into(self) -> rapier::dynamics::BodyStatus {
+impl Into<BodyStatus> for RawBodyStatus {
+    fn into(self) -> BodyStatus {
         match self {
-            BodyStatus::Dynamic => rapier::dynamics::BodyStatus::Dynamic,
-            BodyStatus::Static => rapier::dynamics::BodyStatus::Static,
-            BodyStatus::Kinematic => rapier::dynamics::BodyStatus::Kinematic,
+            RawBodyStatus::Dynamic => BodyStatus::Dynamic,
+            RawBodyStatus::Static => BodyStatus::Static,
+            RawBodyStatus::Kinematic => BodyStatus::Kinematic,
+        }
+    }
+}
+
+impl Into<RawBodyStatus> for BodyStatus {
+    fn into(self) -> RawBodyStatus {
+        match self {
+            BodyStatus::Dynamic => RawBodyStatus::Dynamic,
+            BodyStatus::Static => RawBodyStatus::Static,
+            BodyStatus::Kinematic => RawBodyStatus::Kinematic,
         }
     }
 }
@@ -84,7 +94,7 @@ impl RawRigidBodySet {
         avy: f32,
         avz: f32,
         // Other fields
-        status: BodyStatus,
+        status: RawBodyStatus,
         canSleep: bool,
     ) -> usize {
         let rot = Unit::new_normalize(Quaternion::new(w, i, j, k));
@@ -113,7 +123,7 @@ impl RawRigidBodySet {
         // Angular velocity.
         av: f32,
         // Other fields
-        status: BodyStatus,
+        status: RawBodyStatus,
         canSleep: bool,
     ) -> usize {
         let pos = na::Isometry2::new(Vector::new(x, y), angle);

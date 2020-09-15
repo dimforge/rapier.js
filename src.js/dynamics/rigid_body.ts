@@ -1,24 +1,33 @@
-use crate::dynamics::{RawBodyStatus, RawRigidBodySet};
-use crate::math::{RawRotation, RawVector};
-use rapier::dynamics::{
-    BodyStatus, RigidBody as RRigidBody, RigidBodyBuilder as RRigidBodyBuilder, RigidBodyHandle,
-    RigidBodyMut as RRigidBodyMut, RigidBodySet,
-};
-use rapier::geometry::{ColliderBuilder, ColliderSet};
-use std::cell::RefCell;
-use std::rc::Rc;
-use wasm_bindgen::prelude::*;
+import {RawRigidBodySet} from "../rapier"
+import {Rotation, Vector} from '../math.ts';
 
-#[wasm_bindgen]
-impl RawRigidBodySet {
+export enum BodyStatus {
+    Dynamic = 0,
+    Static,
+    Kinematic,
+}
+
+export class RigidBody {
+    private RAPIER: any;
+    private rawSet: RawRigidBodySet; // The RigidBody won't need to free this.
+    readonly handle: number;
+
+    constructor(RAPIER: any, rawSet: RawRigidBodySet, handle: number) {
+        this.RAPIER = RAPIER;
+        this.rawSet = rawSet;
+        this.handle = handle;
+    }
+
     /// The world-space translation of this rigid-body.
-    pub fn rbTranslation(&self, handle: usize) -> RawVector {
-        self.map(handle, |rb| RawVector(rb.position.translation.vector))
+    public translation(): Vector {
+        let res = this.rawSet.rbTranslation(this.handle);
+        return Vector.fromRaw(res);
     }
 
     /// The world-space orientation of this rigid-body.
-    pub fn rbRotation(&self, handle: usize) -> RawRotation {
-        self.map(handle, |rb| RawRotation(rb.position.rotation))
+    public rotation(): Rotation {
+        let res = this.rawSet.rbRotation(this.handle);
+        return Rotation.fromRaw(res);
     }
 
     /// The world-space predicted translation of this rigid-body.
@@ -26,10 +35,9 @@ impl RawRigidBodySet {
     /// If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
     /// method and is used for estimating the kinematic body velocity at the next timestep.
     /// For non-kinematic bodies, this value is currently unspecified.
-    pub fn rbPredictedTranslation(&self, handle: usize) -> RawVector {
-        self.map(handle, |rb| {
-            RawVector(rb.predicted_position().translation.vector)
-        })
+    public predictedTranslation(): Vector {
+        let res = this.rawSet.rbPredictedTranslation(this.handle);
+        return Vector.fromRaw(res);
     }
 
     /// The world-space predicted orientation of this rigid-body.
@@ -37,8 +45,9 @@ impl RawRigidBodySet {
     /// If this rigid-body is kinematic this value is set by the `setNextKinematicRotation`
     /// method and is used for estimating the kinematic body velocity at the next timestep.
     /// For non-kinematic bodies, this value is currently unspecified.
-    pub fn rbPredictedRotation(&self, handle: usize) -> RawRotation {
-        self.map(handle, |rb| RawRotation(rb.predicted_position().rotation))
+    public predictedRotation(): Rotation {
+        let res = this.rawSet.rbPredictedRotation(this.handle);
+        return Rotation.fromRaw(res);
     }
 
     /// Sets the translation of this rigid-body.
@@ -49,14 +58,16 @@ impl RawRigidBodySet {
     /// - `z`: the world-space position of the rigid-body along the `z` axis.
     /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
-    #[cfg(feature = "dim3")]
-    pub fn rbSetTranslation(&mut self, handle: usize, x: f32, y: f32, z: f32, wakeUp: bool) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            let mut pos = rb.position;
-            pos.translation.vector = na::Vector3::new(x, y, z);
-            rb.set_position(pos);
-        })
+    // #if DIM3
+    public setTranslation(
+        x: number,
+        y: number,
+        z: number,
+        wakeUp: boolean,
+    ) {
+        this.rawSet.rbSetTranslation(this.handle, x, y, z, wakeUp);
     }
+    // #endif
 
     /// Sets the translation of this rigid-body.
     ///
@@ -65,14 +76,11 @@ impl RawRigidBodySet {
     /// - `y`: the world-space position of the rigid-body along the `y` axis.
     /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
-    #[cfg(feature = "dim2")]
-    pub fn rbSetTranslation(&mut self, handle: usize, x: f32, y: f32, wakeUp: bool) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            let mut pos = rb.position;
-            pos.translation.vector = na::Vector2::new(x, y);
-            rb.set_position(pos);
-        })
+    // #if DIM2
+    public setTranslation(x: number, y: number, wakeUp: boolean) {
+        this.rawSet.rbSetTranslation(this.handle, x, y, wakeUp);
     }
+    // #endif
 
     /// Sets the rotation quaternion of this rigid-body.
     ///
@@ -85,16 +93,17 @@ impl RawRigidBodySet {
     /// - `w`: the scalar component of the quaternion.
     /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
-    #[cfg(feature = "dim3")]
-    pub fn rbSetRotation(&mut self, handle: usize, x: f32, y: f32, z: f32, w: f32, wakeUp: bool) {
-        if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
-            self.map_mut_wake(handle, wakeUp, |mut rb| {
-                let mut pos = rb.position;
-                pos.rotation = q;
-                rb.set_position(pos);
-            })
-        }
+    // #if DIM3
+    public setRotation(
+        x: number,
+        y: number,
+        z: number,
+        w: number,
+        wakeUp: boolean,
+    ) {
+        this.rawSet.rbSetRotation(this.handle, x, y, z, w, wakeUp);
     }
+    // #endif
 
     /// Sets the rotation angle of this rigid-body.
     ///
@@ -102,14 +111,11 @@ impl RawRigidBodySet {
     /// - `angle`: the rotation angle, in radians.
     /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
-    #[cfg(feature = "dim2")]
-    pub fn rbSetRotation(&mut self, handle: usize, angle: f32, wakeUp: bool) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            let mut pos = rb.position;
-            pos.rotation = na::UnitComplex::new(angle);
-            rb.set_position(pos);
-        })
+    // #if DIM2
+    public setRotation(angle: number, wakeUp: boolean) {
+        this.rawSet.rbSetRotation(this.handle, angle, wakeUp);
     }
+    // #endif
 
     /// If this rigid body is kinematic, sets its future translation after the next timestep integration.
     ///
@@ -123,14 +129,15 @@ impl RawRigidBodySet {
     /// - `x`: the world-space position of the rigid-body along the `x` axis.
     /// - `y`: the world-space position of the rigid-body along the `y` axis.
     /// - `z`: the world-space position of the rigid-body along the `z` axis.
-    #[cfg(feature = "dim3")]
-    pub fn rbSetNextKinematicTranslation(&mut self, handle: usize, x: f32, y: f32, z: f32) {
-        self.map_mut(handle, |mut rb| {
-            let mut pos = *rb.predicted_position();
-            pos.translation.vector = na::Vector3::new(x, y, z);
-            rb.set_next_kinematic_position(pos);
-        })
+    // #if DIM3
+    public setNextKinematicTranslation(
+        x: number,
+        y: number,
+        z: number,
+    ) {
+        this.rawSet.rbSetNextKinematicTranslation(this.handle, x, y, z);
     }
+    // #endif
 
     /// If this rigid body is kinematic, sets its future translation after the next timestep integration.
     ///
@@ -143,14 +150,11 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `x`: the world-space position of the rigid-body along the `x` axis.
     /// - `y`: the world-space position of the rigid-body along the `y` axis.
-    #[cfg(feature = "dim2")]
-    pub fn rbSetNextKinematicTranslation(&mut self, handle: usize, x: f32, y: f32) {
-        self.map_mut(handle, |mut rb| {
-            let mut pos = *rb.predicted_position();
-            pos.translation.vector = na::Vector2::new(x, y);
-            rb.set_next_kinematic_position(pos);
-        })
+    // #if DIM2
+    public setNextKinematicTranslation(x: number, y: number) {
+        this.rawSet.rbSetNextKinematicTranslation(this.handle, x, y);
     }
+    // #endif
 
     /// If this rigid body is kinematic, sets its future rotation after the next timestep integration.
     ///
@@ -165,16 +169,16 @@ impl RawRigidBodySet {
     /// - `y`: the second vector component of the quaternion.
     /// - `z`: the third vector component of the quaternion.
     /// - `w`: the scalar component of the quaternion.
-    #[cfg(feature = "dim3")]
-    pub fn rbSetNextKinematicRotation(&mut self, handle: usize, x: f32, y: f32, z: f32, w: f32) {
-        if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
-            self.map_mut(handle, |mut rb| {
-                let mut pos = *rb.predicted_position();
-                pos.rotation = q;
-                rb.set_next_kinematic_position(pos);
-            })
-        }
+    // #if DIM3
+    public setNextKinematicRotation(
+        x: number,
+        y: number,
+        z: number,
+        w: number,
+    ) {
+        this.rawSet.rbSetNextKinematicTranslation(this.handle, x, y, z, w);
     }
+    // #endif
 
     /// If this rigid body is kinematic, sets its future rotation after the next timestep integration.
     ///
@@ -186,23 +190,21 @@ impl RawRigidBodySet {
     ///
     /// # Parameters
     /// - `angle`: the rotation angle, in radians.
-    #[cfg(feature = "dim2")]
-    pub fn rbSetNextKinematicRotation(&mut self, handle: usize, angle: f32) {
-        self.map_mut(handle, |mut rb| {
-            let mut pos = *rb.predicted_position();
-            pos.rotation = na::UnitComplex::new(angle);
-            rb.set_next_kinematic_position(pos);
-        })
+    // #if DIM2
+    public setNextKinematicRotation(angle: number) {
+        this.rawSet.rbSetNextKinematicRotation(this.handle, angle);
     }
+    // #endif
 
     /// The linear velocity of this rigid-body.
-    pub fn rbLinvel(&self, handle: usize) -> RawVector {
-        self.map(handle, |rb| RawVector(rb.linvel))
+    public linvel(): Vector {
+        let res = this.rawSet.rbLinvel(this.handle);
+        return Vector.fromRaw(res);
     }
 
     /// The mass of this rigid-body.
-    pub fn rbMass(&self, handle: usize) -> f32 {
-        self.map(handle, |rb| rb.mass())
+    public mass(): number {
+        return this.rawSet.rbMass(this.handle);
     }
 
     /// Wakes this rigid-body up.
@@ -212,8 +214,8 @@ impl RawRigidBodySet {
     /// to avoid useless computations.
     /// This methods forces a sleeping rigid-body to wake-up. This is useful, e.g., before modifying
     /// the position of a dynamic body so that it is properly simulated afterwards.
-    pub fn rbWakeUp(&mut self, handle: usize) {
-        self.map_mut(handle, |mut rb| rb.wake_up())
+    public wakeUp() {
+        this.rawSet.rbWakeUp(this.handle);
     }
 
     /*
@@ -221,7 +223,7 @@ impl RawRigidBodySet {
     ///
     /// # Parameters
     /// - `collider`: The collider description used to create the collider.
-    pub fn createCollider(&mut self, collider: &ColliderDesc) -> Collider {
+    public createCollider(&mut self, collider: &ColliderDesc): Collider {
         let builder: ColliderBuilder = collider.clone().into();
         let collider = builder.build();
         let colliders = self.colliders.clone();
@@ -239,8 +241,8 @@ impl RawRigidBodySet {
     */
 
     /// The number of colliders attached to this rigid-body.
-    pub fn rbNumColliders(&self, handle: usize) -> usize {
-        self.map(handle, |rb| rb.colliders().len())
+    public numColliders(): number {
+        return this.rawSet.rbNumColliders(this.handle);
     }
 
     /*
@@ -249,7 +251,7 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `at`: The index of the collider to retrieve. Must be a number in `[0, this.numColliders()[`.
     ///         This index is **not** the same as the unique identifier of the collider.
-    pub fn collider(&self, at: usize) -> Collider {
+    public collider(&self, at: usize): Collider {
         self.map(|rb| {
             let handle = rb.colliders()[at];
             Collider {
@@ -262,23 +264,23 @@ impl RawRigidBodySet {
     */
 
     /// The type of this rigid-body: static, dynamic, or kinematic.
-    pub fn rbBodyType(&self, handle: usize) -> RawBodyStatus {
-        self.map(handle, |rb| rb.body_status.into())
+    public bodyType(): BodyStatus {
+        return this.rawSet.rbBodyType(this.handle);
     }
 
     /// Is this rigid-body static?
-    pub fn rbIsStatic(&self, handle: usize) -> bool {
-        self.map(handle, |rb| rb.is_static())
+    public isStatic(): boolean {
+        return this.rawSet.rbIsStatic(this.handle);
     }
 
     /// Is this rigid-body kinematic?
-    pub fn rbIsKinematic(&self, handle: usize) -> bool {
-        self.map(handle, |rb| rb.is_kinematic())
+    public isKinematic(): boolean {
+        return this.rawSet.rbIsDynamic(this.handle);
     }
 
     /// Is this rigid-body dynamic?
-    pub fn rbIsDynamic(&self, handle: usize) -> bool {
-        self.map(handle, |rb| rb.is_dynamic())
+    public isDynamic(): boolean {
+        return this.rawSet.rbIsStatic(this.handle);
     }
 
     /// Applies a force at the center-of-mass of this rigid-body.
@@ -286,10 +288,10 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `force`: the world-space force to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn rbApplyForce(&mut self, handle: usize, force: &RawVector, wakeUp: bool) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            rb.apply_force(force.0);
-        })
+    public applyForce(force: Vector, wakeUp: boolean) {
+        const rawForce = force.intoRaw(this.RAPIER);
+        this.rawSet.rbApplyForce(this.handle, rawForce, wakeUp);
+        rawForce.free();
     }
 
     /// Applies an impulse at the center-of-mass of this rigid-body.
@@ -297,10 +299,13 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `impulse`: the world-space impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn rbApplyImpulse(&mut self, handle: usize, impulse: &RawVector, wakeUp: bool) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            rb.apply_impulse(impulse.0);
-        })
+    public applyImpulse(
+        impulse: Vector,
+        wakeUp: boolean,
+    ) {
+        const rawImpulse = impulse.intoRaw(this.RAPIER);
+        this.rawSet.rbApplyImpulse(this.handle, rawImpulse, wakeUp);
+        rawImpulse.free();
     }
 
     /// Applies a torque at the center-of-mass of this rigid-body.
@@ -308,53 +313,48 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `torque`: the torque to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    #[cfg(feature = "dim2")]
-    pub fn rbApplyTorque(&mut self, handle: usize, torque: f32, wakeUp: bool) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            rb.apply_torque(torque);
-        })
+    // #if DIM2
+    public applyTorque(torque: number, wakeUp: boolean) {
+        this.rawSet.rbApplyTorque(this.handle, torque, wakeUp);
     }
+    // #endif
 
     /// Applies a torque at the center-of-mass of this rigid-body.
     ///
     /// # Parameters
     /// - `torque`: the world-space torque to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    #[cfg(feature = "dim3")]
-    pub fn rbApplyTorque(&mut self, handle: usize, torque: &RawVector, wakeUp: bool) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            rb.apply_torque(torque.0);
-        })
+    // #if DIM3
+    public applyTorque(torque: Vector, wakeUp: boolean) {
+        const rawTorque = torque.intoRaw(this.RAPIER);
+        this.rawSet.rbApplyTorque(this.handle, rawTorque, wakeUp);
+        rawTorque.free();
     }
+    // #endif
 
     /// Applies an impulsive torque at the center-of-mass of this rigid-body.
     ///
     /// # Parameters
-    /// - `torque impulse`: the torque impulse to apply on the rigid-body.
+    /// - `torqueImpulse`: the torque impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    #[cfg(feature = "dim2")]
-    pub fn rbApplyTorqueImpulse(&mut self, handle: usize, torque_impulse: f32, wakeUp: bool) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            rb.apply_torque_impulse(torque_impulse);
-        })
+    // #if DIM2
+    public applyTorqueImpulse(torqueImpulse: number, wakeUp: boolean) {
+        this.rawSet.rbApplyTorqueImpulse(this.handle, torqueImpulse, wakeUp);
     }
+    // #endif
 
     /// Applies an impulsive torque at the center-of-mass of this rigid-body.
     ///
     /// # Parameters
-    /// - `torque impulse`: the world-space torque impulse to apply on the rigid-body.
+    /// - `torqueImpulse`: the world-space torque impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    #[cfg(feature = "dim3")]
-    pub fn rbApplyTorqueImpulse(
-        &mut self,
-        handle: usize,
-        torque_impulse: &RawVector,
-        wakeUp: bool,
-    ) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            rb.apply_torque_impulse(torque_impulse.0);
-        })
+    // #if DIM3
+    public applyTorqueImpulse(torqueImpulse: Vector, wakeUp: boolean) {
+        const rawTorqueImpulse = torqueImpulse.intoRaw(this.RAPIER);
+        this.rawSet.rbApplyTorqueImpulse(this.handle, rawTorqueImpulse, wakeUp);
+        rawTorqueImpulse.free();
     }
+    // #endif
 
     /// Applies a force at the given world-space point of this rigid-body.
     ///
@@ -362,16 +362,16 @@ impl RawRigidBodySet {
     /// - `force`: the world-space force to apply on the rigid-body.
     /// - `point`: the world-space point where the impulse is to be applied on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn rbApplyForceAtPoint(
-        &mut self,
-        handle: usize,
-        force: &RawVector,
-        point: &RawVector,
-        wakeUp: bool,
+    public applyForceAtPoint(
+        force: Vector,
+        point: Vector,
+        wakeUp: boolean,
     ) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            rb.apply_force_at_point(force.0, point.0.into());
-        })
+        const rawForce = force.intoRaw(this.RAPIER);
+        const rawPoint = point.intoRaw(this.RAPIER);
+        this.rawSet.rbApplyForceAtPoint(this.handle, rawForce, rawPoint, wakeUp);
+        rawForce.free();
+        rawPoint.free();
     }
 
     /// Applies an impulse at the given world-space point of this rigid-body.
@@ -380,15 +380,58 @@ impl RawRigidBodySet {
     /// - `impulse`: the world-space impulse to apply on the rigid-body.
     /// - `point`: the world-space point where the impulse is to be applied on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn rbApplyImpulseAtPoint(
-        &mut self,
-        handle: usize,
-        impulse: &RawVector,
-        point: &RawVector,
-        wakeUp: bool,
+    public applyImpulseAtPoint(
+        impulse: Vector,
+        point: Vector,
+        wakeUp: boolean,
     ) {
-        self.map_mut_wake(handle, wakeUp, |mut rb| {
-            rb.apply_impulse_at_point(impulse.0, point.0.into());
-        })
+        const rawImpulse = impulse.intoRaw(this.RAPIER);
+        const rawPoint = point.intoRaw(this.RAPIER);
+        this.rawSet.rbApplyImpulseAtPoint(this.handle, rawImpulse, rawPoint, wakeUp);
+        rawImpulse.free();
+        rawPoint.free();
+    }
+}
+
+export class RigidBodyDesc {
+    _translation: Vector;
+    _rotation: Rotation;
+    _linvel: Vector;
+    _angvel: Vector;
+    _status: BodyStatus;
+    _canSleep: boolean;
+
+    constructor(status: BodyStatus) {
+        this._status = status;
+        this._translation = Vector.zeros();
+        this._rotation = Rotation.identity();
+        this._linvel = Vector.zeros();
+        this._angvel = Vector.zeros();
+        this._canSleep = true;
+    }
+
+    public translation(tra: Vector): RigidBodyDesc {
+        this._translation = tra;
+        return this;
+    }
+
+    public rotation(rot: Rotation): RigidBodyDesc {
+        this._rotation = rot;
+        return this;
+    }
+
+    public linvel(vel: Vector): RigidBodyDesc {
+        this._linvel = vel;
+        return this;
+    }
+
+    public angvel(ang: Vector): RigidBodyDesc {
+        this._angvel = ang;
+        return this;
+    }
+
+    public canSleep(can: boolean): RigidBodyDesc {
+        this._canSleep = can;
+        return this;
     }
 }

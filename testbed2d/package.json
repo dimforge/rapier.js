@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@dimforge/rapier2d": "^0.1.11",
+    "@dimforge/hirapier2d": "^0.0.1",
     "dat.gui": "^0.7.7",
     "matter-js": "^0.14.2",
     "md5": "^2.2.1",
