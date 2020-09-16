@@ -47,7 +47,7 @@ impl RigidBody {
         );
 
         if wake_up {
-            body.wake_up();
+            body.wake_up(false);
         }
 
         f(body)
@@ -256,7 +256,7 @@ impl RigidBody {
     /// This methods forces a sleeping rigid-body to wake-up. This is useful, e.g., before modifying
     /// the position of a dynamic body so that it is properly simulated afterwards.
     pub fn wakeUp(&mut self) {
-        self.map_mut(|mut rb| rb.wake_up())
+        self.map_mut(|mut rb| rb.wake_up(false))
     }
 
     /// Creates a new collider attached to his rigid-body from the given collider descriptor.
