@@ -19,6 +19,7 @@ impl Ray {
     /// # Parameters
     /// - `origin`: the starting point of the ray.
     /// - `direction`: the direction of the ray.
+    #[wasm_bindgen(constructor)]
     pub fn new(origin: &Vector, direction: &Vector) -> Self {
         Ray(RRay::new(origin.0.into(), direction.0))
     }
