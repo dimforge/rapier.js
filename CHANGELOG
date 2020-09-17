@@ -1,3 +1,6 @@
+### v0.1.17
+- Fix bug when ghost forces and/or crashes could be observed when a kinematic body touches a static body.
+
 ### v0.1.16
 - Fix kinematic rigid-body not waking up dynamic bodies it touches.
 - Added `new Ray(origin, direction)` constructor instead of `Ray.new(origin, direction)`.
