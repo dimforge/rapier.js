@@ -18,6 +18,12 @@ export class RigidBody {
         this.handle = handle;
     }
 
+    /// Checks if this rigid-body is still valid (i.e. that it has
+    /// not been deleted from the rigid-body set yet.
+    public isValid(): boolean {
+        return this.rawSet.isHandleValid(this.handle);
+    }
+
     /// The world-space translation of this rigid-body.
     public translation(): Vector {
         let res = this.rawSet.rbTranslation(this.handle);
@@ -67,6 +73,7 @@ export class RigidBody {
     ) {
         this.rawSet.rbSetTranslation(this.handle, x, y, z, wakeUp);
     }
+
     // #endif
 
     /// Sets the translation of this rigid-body.
@@ -80,6 +87,7 @@ export class RigidBody {
     public setTranslation(x: number, y: number, wakeUp: boolean) {
         this.rawSet.rbSetTranslation(this.handle, x, y, wakeUp);
     }
+
     // #endif
 
     /// Sets the rotation quaternion of this rigid-body.
@@ -103,6 +111,7 @@ export class RigidBody {
     ) {
         this.rawSet.rbSetRotation(this.handle, x, y, z, w, wakeUp);
     }
+
     // #endif
 
     /// Sets the rotation angle of this rigid-body.
@@ -115,6 +124,7 @@ export class RigidBody {
     public setRotation(angle: number, wakeUp: boolean) {
         this.rawSet.rbSetRotation(this.handle, angle, wakeUp);
     }
+
     // #endif
 
     /// If this rigid body is kinematic, sets its future translation after the next timestep integration.
@@ -137,6 +147,7 @@ export class RigidBody {
     ) {
         this.rawSet.rbSetNextKinematicTranslation(this.handle, x, y, z);
     }
+
     // #endif
 
     /// If this rigid body is kinematic, sets its future translation after the next timestep integration.
@@ -154,6 +165,7 @@ export class RigidBody {
     public setNextKinematicTranslation(x: number, y: number) {
         this.rawSet.rbSetNextKinematicTranslation(this.handle, x, y);
     }
+
     // #endif
 
     /// If this rigid body is kinematic, sets its future rotation after the next timestep integration.
@@ -178,6 +190,7 @@ export class RigidBody {
     ) {
         this.rawSet.rbSetNextKinematicTranslation(this.handle, x, y, z, w);
     }
+
     // #endif
 
     /// If this rigid body is kinematic, sets its future rotation after the next timestep integration.
@@ -194,6 +207,7 @@ export class RigidBody {
     public setNextKinematicRotation(angle: number) {
         this.rawSet.rbSetNextKinematicRotation(this.handle, angle);
     }
+
     // #endif
 
     /// The linear velocity of this rigid-body.
@@ -317,6 +331,7 @@ export class RigidBody {
     public applyTorque(torque: number, wakeUp: boolean) {
         this.rawSet.rbApplyTorque(this.handle, torque, wakeUp);
     }
+
     // #endif
 
     /// Applies a torque at the center-of-mass of this rigid-body.
@@ -330,6 +345,7 @@ export class RigidBody {
         this.rawSet.rbApplyTorque(this.handle, rawTorque, wakeUp);
         rawTorque.free();
     }
+
     // #endif
 
     /// Applies an impulsive torque at the center-of-mass of this rigid-body.
@@ -341,6 +357,7 @@ export class RigidBody {
     public applyTorqueImpulse(torqueImpulse: number, wakeUp: boolean) {
         this.rawSet.rbApplyTorqueImpulse(this.handle, torqueImpulse, wakeUp);
     }
+
     // #endif
 
     /// Applies an impulsive torque at the center-of-mass of this rigid-body.
@@ -354,6 +371,7 @@ export class RigidBody {
         this.rawSet.rbApplyTorqueImpulse(this.handle, rawTorqueImpulse, wakeUp);
         rawTorqueImpulse.free();
     }
+
     // #endif
 
     /// Applies a force at the given world-space point of this rigid-body.
@@ -397,7 +415,12 @@ export class RigidBodyDesc {
     _translation: Vector;
     _rotation: Rotation;
     _linvel: Vector;
+    // #if DIM2
+    _angvel: number;
+    // #endif
+    // #if DIM3
     _angvel: Vector;
+    // #endif
     _status: BodyStatus;
     _canSleep: boolean;
 
@@ -406,7 +429,12 @@ export class RigidBodyDesc {
         this._translation = Vector.zeros();
         this._rotation = Rotation.identity();
         this._linvel = Vector.zeros();
+        // #if DIM2
+        this._angvel = 0.0;
+        // #endif
+        // #if DIM3
         this._angvel = Vector.zeros();
+        // #endif
         this._canSleep = true;
     }
 
@@ -425,10 +453,21 @@ export class RigidBodyDesc {
         return this;
     }
 
+    // #if DIM2
+    public angvel(ang: number): RigidBodyDesc {
+        this._angvel = ang;
+        return this;
+    }
+
+    // #endif
+
+    // #if DIM3
     public angvel(ang: Vector): RigidBodyDesc {
         this._angvel = ang;
         return this;
     }
+
+    // #endif
 
     public canSleep(can: boolean): RigidBodyDesc {
         this._canSleep = can;

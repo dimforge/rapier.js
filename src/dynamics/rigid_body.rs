@@ -1,12 +1,5 @@
 use crate::dynamics::{RawBodyStatus, RawRigidBodySet};
 use crate::math::{RawRotation, RawVector};
-use rapier::dynamics::{
-    BodyStatus, RigidBody as RRigidBody, RigidBodyBuilder as RRigidBodyBuilder, RigidBodyHandle,
-    RigidBodyMut as RRigidBodyMut, RigidBodySet,
-};
-use rapier::geometry::{ColliderBuilder, ColliderSet};
-use std::cell::RefCell;
-use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -213,7 +206,7 @@ impl RawRigidBodySet {
     /// This methods forces a sleeping rigid-body to wake-up. This is useful, e.g., before modifying
     /// the position of a dynamic body so that it is properly simulated afterwards.
     pub fn rbWakeUp(&mut self, handle: usize) {
-        self.map_mut(handle, |mut rb| rb.wake_up())
+        self.map_mut(handle, |mut rb| rb.wake_up(true))
     }
 
     /*

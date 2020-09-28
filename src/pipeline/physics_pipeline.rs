@@ -1,5 +1,6 @@
 use crate::dynamics::{RawIntegrationParameters, RawJointSet, RawRigidBodySet};
 use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
+use crate::math::RawVector;
 use crate::rapier::pipeline::PhysicsPipeline;
 use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
@@ -14,24 +15,21 @@ impl RawPhysicsPipeline {
         RawPhysicsPipeline(PhysicsPipeline::new())
     }
 
-    #[cfg(feature = "dim2")]
     pub fn step(
         &mut self,
-        gravity_x: f32,
-        gravity_y: f32,
-        integration_parameters: &RawIntegrationParameters,
-        broad_phase: &mut RawBroadPhase,
-        narrow_phase: &mut RawNarrowPhase,
+        gravity: &RawVector,
+        integrationParameters: &RawIntegrationParameters,
+        broadPhase: &mut RawBroadPhase,
+        narrowPhase: &mut RawNarrowPhase,
         bodies: &mut RawRigidBodySet,
         colliders: &mut RawColliderSet,
         joints: &mut RawJointSet,
     ) {
-        let gravity = Vector::new(gravity_x, gravity_y);
         self.0.step(
-            &gravity,
-            &integration_parameters.0,
-            &mut broad_phase.0,
-            &mut narrow_phase.0,
+            &gravity.0,
+            &integrationParameters.0,
+            &mut broadPhase.0,
+            &mut narrowPhase.0,
             &mut bodies.0,
             &mut colliders.0,
             &mut joints.0,
@@ -39,45 +37,40 @@ impl RawPhysicsPipeline {
         );
     }
 
-    #[cfg(feature = "dim3")]
-    pub fn step(
-        &mut self,
-        gravity_x: f32,
-        gravity_y: f32,
-        gravity_z: f32,
-        integration_parameters: &RawIntegrationParameters,
-        broad_phase: &mut RawBroadPhase,
-        narrow_phase: &mut RawNarrowPhase,
-        bodies: &mut RawRigidBodySet,
-        colliders: &mut RawColliderSet,
-        joints: &mut RawJointSet,
-    ) {
-        let gravity = Vector::new(gravity_x, gravity_y, gravity_z);
-        self.0.step(
-            &gravity,
-            &integration_parameters.0,
-            &mut broad_phase.0,
-            &mut narrow_phase.0,
-            &mut bodies.0,
-            &mut colliders.0,
-            &mut joints.0,
-            &(), // FIXME: events
-        );
-    }
-
-    pub fn remove_collider(
+    pub fn removeRigidBody(
         &mut self,
         handle: usize,
-        broad_phase: &mut RawBroadPhase,
-        narrow_phase: &mut RawNarrowPhase,
+        broadPhase: &mut RawBroadPhase,
+        narrowPhase: &mut RawNarrowPhase,
+        bodies: &mut RawRigidBodySet,
+        colliders: &mut RawColliderSet,
+        joints: &mut RawJointSet,
+    ) {
+        if let Some((_, handle)) = bodies.0.get_unknown_gen(handle) {
+            self.0.remove_rigid_body(
+                handle,
+                &mut broadPhase.0,
+                &mut narrowPhase.0,
+                &mut bodies.0,
+                &mut colliders.0,
+                &mut joints.0,
+            );
+        }
+    }
+
+    pub fn removeCollider(
+        &mut self,
+        handle: usize,
+        broadPhase: &mut RawBroadPhase,
+        narrowPhase: &mut RawNarrowPhase,
         bodies: &mut RawRigidBodySet,
         colliders: &mut RawColliderSet,
     ) {
-        if let Some((_, handle)) = bodies.0.get_unknown_gen(handle) {
+        if let Some((_, handle)) = colliders.0.get_unknown_gen(handle) {
             self.0.remove_collider(
                 handle,
-                &mut broad_phase.0,
-                &mut narrow_phase.0,
+                &mut broadPhase.0,
+                &mut narrowPhase.0,
                 &mut bodies.0,
                 &mut colliders.0,
             );

@@ -57,10 +57,10 @@ export function initWorld(RAPIER, testbed) {
                 let zAxis = new RAPIER.Vector(0.0, 0.0, 1.0);
 
                 let revs = [
-                    RAPIER.JointDesc.revolute(o, zAxis, new RAPIER.Vector(0.0, 0.0, -shift), zAxis),
-                    RAPIER.JointDesc.revolute(o, xAxis, new RAPIER.Vector(-shift, 0.0, 0.0), xAxis),
-                    RAPIER.JointDesc.revolute(o, zAxis, new RAPIER.Vector(0.0, 0.0, -shift), zAxis),
-                    RAPIER.JointDesc.revolute(o, xAxis, new RAPIER.Vector(shift, 0.0, 0.0), xAxis),
+                    RAPIER.JointParams.revolute(o, zAxis, new RAPIER.Vector(0.0, 0.0, -shift), zAxis),
+                    RAPIER.JointParams.revolute(o, xAxis, new RAPIER.Vector(-shift, 0.0, 0.0), xAxis),
+                    RAPIER.JointParams.revolute(o, zAxis, new RAPIER.Vector(0.0, 0.0, -shift), zAxis),
+                    RAPIER.JointParams.revolute(o, xAxis, new RAPIER.Vector(shift, 0.0, 0.0), xAxis),
                 ];
 
                 joints.push(world.createJoint(revs[0], currParent, parents[0]));
@@ -75,8 +75,8 @@ export function initWorld(RAPIER, testbed) {
 
     testbed.setWorld(world, bodies, colliders, joints);
     let cameraPosition = {
-        eye: { x: -51.470132013355254, y: 36.42820470562974, z: 101.86333640106977 },
-        target: { x: 26.536430977264782, y: 30.320536835519317, z: 10.348050888417388 }
+        eye: {x: -51.470132013355254, y: 36.42820470562974, z: 101.86333640106977},
+        target: {x: 26.536430977264782, y: 30.320536835519317, z: 10.348050888417388}
     };
     testbed.lookAt(cameraPosition)
 }

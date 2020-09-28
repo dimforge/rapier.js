@@ -4,7 +4,7 @@ export class RapierBackend {
     constructor(world, bodies, colliders, joints) {
         let me = this;
 
-        import('@dimforge/rapier3d').then(function(RAPIER) {
+        import('@dimforge/rapier3d').then(function (RAPIER) {
             let raWorld = new RAPIER.World(0.0, -9.81, 0.0);
             raWorld.maxVelocityIterations = world.maxVelocityIterations;
             raWorld.maxPositionIterations = world.maxPositionIterations;
@@ -59,7 +59,7 @@ export class RapierBackend {
                 let raBody1 = me.bodyMap.get(joint.handle1);
                 let raBody2 = me.bodyMap.get(joint.handle2);
                 let anchor1, anchor2, raAnchor1, raAnchor2;
-                let raJointDesc;
+                let raJointParams;
 
                 switch (joint.type) {
                     case "Ball":
@@ -67,7 +67,7 @@ export class RapierBackend {
                         anchor2 = joint.anchor2;
                         raAnchor1 = new RAPIER.Vector(anchor1.x, anchor1.y, anchor1.z);
                         raAnchor2 = new RAPIER.Vector(anchor2.x, anchor2.y, anchor2.z);
-                        raJointDesc = RAPIER.JointDesc.ball(raAnchor1, raAnchor2);
+                        raJointParams = RAPIER.JointParams.ball(raAnchor1, raAnchor2);
                         break;
                     case "Revolute":
                         anchor1 = joint.anchor1;
@@ -78,11 +78,11 @@ export class RapierBackend {
                         raAnchor2 = new RAPIER.Vector(anchor2.x, anchor2.y, anchor2.z);
                         let raAxis1 = new RAPIER.Vector(axis1.x, axis1.y, axis1.z);
                         let raAxis2 = new RAPIER.Vector(axis2.x, axis2.y, axis2.z);
-                        raJointDesc = RAPIER.JointDesc.revolute(raAnchor1, raAxis1, raAnchor2, raAxis2);
+                        raJointParams = RAPIER.JointParams.revolute(raAnchor1, raAxis1, raAnchor2, raAxis2);
                         break;
                 }
 
-                raWorld.createJoint(raJointDesc, raBody1, raBody2);
+                raWorld.createJoint(raJointParams, raBody1, raBody2);
             });
 
             me.world = raWorld;

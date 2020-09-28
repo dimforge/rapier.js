@@ -1,3 +1,4 @@
+use crate::math::{RawRotation, RawVector};
 use na::{Quaternion, Unit};
 use rapier::dynamics::{BodyStatus, RigidBody, RigidBodyBuilder, RigidBodyMut, RigidBodySet};
 use rapier::math::Vector;
@@ -59,7 +60,7 @@ impl RawRigidBodySet {
         );
 
         if wake_up {
-            body.wake_up();
+            body.wake_up(false);
         }
 
         f(body)
@@ -76,34 +77,18 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn createRigidBody(
         &mut self,
-        // Translation
-        x: f32,
-        y: f32,
-        z: f32,
-        // Rotation quaternion
-        i: f32,
-        j: f32,
-        k: f32,
-        w: f32,
-        // Linear velocity.
-        lvx: f32,
-        lvy: f32,
-        lvz: f32,
-        // Angular velocity.
-        avx: f32,
-        avy: f32,
-        avz: f32,
-        // Other fields
+        translation: &RawVector,
+        rotation: &RawRotation,
+        linvel: &RawVector,
+        angvel: &RawVector,
         status: RawBodyStatus,
         canSleep: bool,
     ) -> usize {
-        let rot = Unit::new_normalize(Quaternion::new(w, i, j, k));
-        let tra = na::Translation3::new(x, y, z);
-        let pos = na::Isometry3::from_parts(tra, rot);
+        let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
         let rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
-            .linvel(lvx, lvy, lvz)
-            .angvel(Vector::new(avx, avy, avz))
+            .linvel(linvel.0.x, linvel.0.y, linvel.0.z)
+            .angvel(angvel.0)
             .can_sleep(canSleep)
             .build();
         self.0.insert(rigid_body).into_raw_parts().0
@@ -112,27 +97,53 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim2")]
     pub fn createRigidBody(
         &mut self,
-        // Translation
-        x: f32,
-        y: f32,
-        // Rotation quaternion
-        angle: f32,
-        // Linear velocity.
-        lvx: f32,
-        lvy: f32,
-        // Angular velocity.
-        av: f32,
-        // Other fields
+        translation: &RawVector,
+        rotation: &RawRotation,
+        linvel: &RawVector,
+        angvel: f32,
         status: RawBodyStatus,
         canSleep: bool,
     ) -> usize {
-        let pos = na::Isometry2::new(Vector::new(x, y), angle);
+        let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
-            .linvel(lvx, lvy)
-            .angvel(av)
+            .linvel(linvel.0.x, linvel.0.y)
+            .angvel(angvel)
             .can_sleep(canSleep)
             .build();
         self.0.insert(rigid_body).into_raw_parts().0
+    }
+
+    /// Checks if a rigid-body with the given integer handle exists.
+    pub fn isHandleValid(&self, handle: usize) -> bool {
+        self.0.get_unknown_gen(handle).is_some()
+    }
+
+    /// Applies the given JavaScript function to the integer handle of each rigid-body managed by this physics world.
+    ///
+    /// # Parameters
+    /// - `f(handle)`: the function to apply to the integer handle of each rigid-body managed by this physics world. Called as `f(collider)`.
+    pub fn forEachRigidBodyHandle(&self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        for (handle, _) in self.0.iter() {
+            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
+        }
+    }
+
+    /// Applies the given JavaScript function to the integer handle of each active rigid-body
+    /// managed by this physics world.
+    ///
+    /// After a short time of inactivity, a rigid-body is automatically deactivated ("asleep") by
+    /// the physics engine in order to save computational power. A sleeping rigid-body never moves
+    /// unless it is moved manually by the user.
+    ///
+    /// # Parameters
+    /// - `f(handle)`: the function to apply to the integer handle of each active rigid-body managed by this
+    ///   physics world. Called as `f(collider)`.
+    pub fn forEachActiveRigidBodyHandle(&self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        for (handle, _) in self.0.iter_active_dynamic() {
+            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
+        }
     }
 }

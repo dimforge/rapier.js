@@ -88,6 +88,12 @@ impl RawRotation {
 /// A vector.
 pub struct RawVector(pub(crate) Vector<f32>);
 
+impl From<Vector<f32>> for RawVector {
+    fn from(v: Vector<f32>) -> Self {
+        RawVector(v)
+    }
+}
+
 #[wasm_bindgen]
 impl RawVector {
     /// Creates a new vector filled with zeros.

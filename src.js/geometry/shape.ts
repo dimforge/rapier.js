@@ -1,34 +1,39 @@
 import {Vector} from "../math"
-
-export enum ShapeType {
-    Ball,
-    Cuboid,
-}
+import {RawShape} from "../rapier";
 
 export class Ball {
-    type: ShapeType;
     radius: number;
 
     constructor(radius: number) {
-        this.type = ShapeType.Ball;
         this.radius = radius;
+    }
+
+    public intoRaw(RAPIER: any): RawShape {
+        return RAPIER.RawShape.ball(this.radius);
     }
 }
 
 export class Cuboid {
-    type: ShapeType;
     halfExtents: Vector;
 
     // #if DIM2
     constructor(hx: number, hy: number) {
-        this.type = ShapeType.Cuboid;
         this.halfExtents = new Vector(hx, hy);
     }
+
     // #endif
 
     // #if DIM3
     constructor(hx: number, hy: number, hz: number) {
         this.halfExtents = new Vector(hx, hy, hz);
     }
+
     // #endif
+
+    public intoRaw(RAPIER: any): RawShape {
+        let rawHalfExtents = this.halfExtents.intoRaw(RAPIER);
+        const result = RAPIER.RawShape.cuboid(rawHalfExtents);
+        rawHalfExtents.free();
+        return result;
+    }
 }

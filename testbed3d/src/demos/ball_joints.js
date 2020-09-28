@@ -26,8 +26,8 @@ export function initWorld(RAPIER, testbed) {
                 let parent = bodies[bodies.length - 1];
                 let anchor1 = new RAPIER.Vector(0.0, 0.0, 0.0);
                 let anchor2 = new RAPIER.Vector(0.0, 0.0, -shift);
-                let jointDesc = RAPIER.JointDesc.ball(anchor1, anchor2);
-                joint = world.createJoint(jointDesc, parent, child);
+                let JointParams = RAPIER.JointParams.ball(anchor1, anchor2);
+                joint = world.createJoint(JointParams, parent, child);
                 joints.push(joint);
             }
 
@@ -37,8 +37,8 @@ export function initWorld(RAPIER, testbed) {
                 let parent = bodies[parentIndex];
                 let anchor1 = new RAPIER.Vector(0.0, 0.0, 0.0);
                 let anchor2 = new RAPIER.Vector(-shift, 0.0, 0.0);
-                let jointDesc = RAPIER.JointDesc.ball(anchor1, anchor2);
-                joint = world.createJoint(jointDesc, parent, child);
+                let JointParams = RAPIER.JointParams.ball(anchor1, anchor2);
+                joint = world.createJoint(JointParams, parent, child);
                 joints.push(joint);
             }
 
@@ -49,8 +49,8 @@ export function initWorld(RAPIER, testbed) {
 
     testbed.setWorld(world, bodies, colliders, joints);
     let cameraPosition = {
-        eye: { x: -76.24096608044253, y: 4.647984060151934, z: 49.1960115355001 },
-        target: { x: -7.103281826034137, y: -22.073277339427364, z: 7.9264025035129535 }
+        eye: {x: -76.24096608044253, y: 4.647984060151934, z: 49.1960115355001},
+        target: {x: -7.103281826034137, y: -22.073277339427364, z: 7.9264025035129535}
     };
     testbed.lookAt(cameraPosition)
 }

@@ -1,4 +1,4 @@
-import { RawVector, RawRotation } from "./rapier"
+import {RawVector, RawRotation} from "./rapier"
 
 // #if DIM2
 export class Vector {
@@ -16,6 +16,9 @@ export class Vector {
 
     // FIXME: type ram: RawVector?
     public static fromRaw(raw: RawVector): Vector {
+        if (!raw)
+            return null;
+
         let res = new Vector(raw.x, raw.y);
         raw.free();
         return res;
@@ -40,6 +43,9 @@ export class Rotation {
 
     // FIXME: type ram: RawVector?
     public static fromRaw(raw: RawRotation): Rotation {
+        if (!raw)
+            return null;
+
         let res = new Rotation(raw.angle);
         raw.free();
         return res;
@@ -50,6 +56,7 @@ export class Rotation {
         return RAPIER.RawRotation.from_angle(this.angle);
     }
 }
+
 // #endif
 
 
@@ -71,6 +78,9 @@ export class Vector {
 
     // FIXME: type ram: RawVector?
     public static fromRaw(raw: RawVector): Vector {
+        if (!raw)
+            return null;
+
         let res = new Vector(raw.x, raw.y, raw.z);
         raw.free();
         return res;
@@ -97,6 +107,9 @@ export class Rotation {
 
     // FIXME: type ram: RawVector?
     public static fromRaw(raw: RawRotation): Rotation {
+        if (!raw)
+            return null;
+        
         let res = new Rotation(raw.x, raw.y, raw.z, raw.w);
         raw.free();
         return res;
@@ -107,4 +120,5 @@ export class Rotation {
         return new RAPIER.RawRotation(this.x, this.y, this.z, this.w);
     }
 }
+
 // #endif

@@ -1,5 +1,11 @@
+import {RawNarrowPhase} from "../rapier"
+
 export class NarrowPhase {
-    raw: any;
+    raw: RawNarrowPhase;
+
+    public free() {
+        this.raw.free();
+    }
 
     constructor(RAPIER: any) {
         this.raw = new RAPIER.RawNarrowPhase();

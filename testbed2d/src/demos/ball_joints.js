@@ -27,8 +27,8 @@ export function initWorld(RAPIER, testbed) {
                 let parent = bodies[bodies.length - 1];
                 let anchor1 = new RAPIER.Vector(0.0, 0.0);
                 let anchor2 = new RAPIER.Vector(0.0, shift);
-                let jointDesc = RAPIER.JointDesc.ball(anchor1, anchor2);
-                joint = world.createJoint(jointDesc, parent, child);
+                let JointParams = RAPIER.JointParams.ball(anchor1, anchor2);
+                joint = world.createJoint(JointParams, parent, child);
                 joints.push(joint);
             }
 
@@ -38,8 +38,8 @@ export function initWorld(RAPIER, testbed) {
                 let parent = bodies[parentIndex];
                 let anchor1 = new RAPIER.Vector(0.0, 0.0);
                 let anchor2 = new RAPIER.Vector(-shift, 0.0);
-                let jointDesc = RAPIER.JointDesc.ball(anchor1, anchor2);
-                joint = world.createJoint(jointDesc, parent, child);
+                let JointParams = RAPIER.JointParams.ball(anchor1, anchor2);
+                joint = world.createJoint(JointParams, parent, child);
                 joints.push(joint);
             }
 
@@ -50,7 +50,7 @@ export function initWorld(RAPIER, testbed) {
 
     testbed.setWorld(world, bodies, colliders, joints);
     testbed.lookAt({
-        target: { x: 30.0, y: 30.0 },
+        target: {x: 30.0, y: 30.0},
         zoom: 10.0
     });
 }
