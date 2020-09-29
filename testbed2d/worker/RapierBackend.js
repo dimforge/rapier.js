@@ -14,7 +14,7 @@ export class RapierBackend {
     constructor(world, bodies, colliders, joints) {
         let me = this;
 
-        import('@dimforge/raw-rapier2d').then(function (RAW_RAPIER) {
+        import('@dimforge/rapier-core2d').then(function (RAW_RAPIER) {
             let gravity = new Vector(0.0, -9.81);
             let raWorld = new World(RAW_RAPIER, gravity);
             raWorld.maxVelocityIterations = world.maxVelocityIterations;

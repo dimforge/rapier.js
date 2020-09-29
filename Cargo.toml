@@ -1,5 +1,5 @@
 [workspace]
-members = ["build/raw-rapier2d", "build/raw-rapier3d"]
+members = ["build/rapier-core2d", "build/rapier-core3d"]
 
 [profile.release]
 debug = false
