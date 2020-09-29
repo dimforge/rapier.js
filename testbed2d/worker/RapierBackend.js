@@ -1,24 +1,35 @@
 import md5 from 'md5';
+import {
+    Vector,
+    World,
+    RigidBodyDesc,
+    ColliderDesc,
+    BodyStatus,
+    ShapeType,
+    JointType,
+    JointParams
+} from '@dimforge/rapier2d'
 
 export class RapierBackend {
     constructor(world, bodies, colliders, joints) {
         let me = this;
 
-        import('@dimforge/rapier2d').then(function (RAPIER) {
-            let raWorld = new RAPIER.World(0.0, -9.81);
+        import('@dimforge/raw-rapier2d').then(function (RAW_RAPIER) {
+            let gravity = new Vector(0.0, -9.81);
+            let raWorld = new World(RAW_RAPIER, gravity);
             raWorld.maxVelocityIterations = world.maxVelocityIterations;
             raWorld.maxPositionIterations = world.maxPositionIterations;
 
             console.log("Num bodies: " + bodies.length);
             let bodyMap = bodies.map(body => {
-                let bodyDesc = new RAPIER.RigidBodyDesc(body.type);
-                bodyDesc.setTranslation(body.translation.x, body.translation.y);
+                let bodyDesc = new RigidBodyDesc(body.type)
+                    .withTranslation(new Vector(body.translation.x, body.translation.y));
                 let raBody = raWorld.createRigidBody(bodyDesc);
                 return [body.handle, raBody];
             });
 
             me.bodyRevMap = new Map(bodyMap.map(entry => {
-                return [entry[1].handle(), entry[0]];
+                return [entry[1].handle, entry[0]];
             }));
             me.bodyMap = new Map(bodyMap);
 
@@ -29,19 +40,19 @@ export class RapierBackend {
                 let raCollider = null;
 
                 switch (coll.type) {
-                    case 'Cuboid':
+                    case ShapeType.Cuboid:
                         let he = coll.halfExtents;
-                        colliderDesc = RAPIER.ColliderDesc.cuboid(he.x, he.y);
+                        colliderDesc = ColliderDesc.cuboid(he.x, he.y);
                         break;
-                    case 'Ball':
+                    case ShapeType.Ball:
                         let r = coll.radius;
-                        colliderDesc = RAPIER.ColliderDesc.ball(r);
+                        colliderDesc = ColliderDesc.ball(r);
                         break;
                 }
 
                 if (!!colliderDesc) {
                     colliderDesc.density = coll.density;
-                    raCollider = raBody.createCollider(colliderDesc);
+                    raCollider = raWorld.createCollider(colliderDesc, raBody.handle);
                 } else {
                     console.log("Could not build collider from desc: ", coll);
                 }
@@ -50,7 +61,7 @@ export class RapierBackend {
             });
 
             me.colliderRevMap = new Map(colliderMap.map(entry => {
-                return [entry[1].handle(), entry[0]];
+                return [entry[1].handle, entry[0]];
             }))
             me.colliderMap = new Map(colliderMap);
 
@@ -61,12 +72,12 @@ export class RapierBackend {
                 let raJointParams;
 
                 switch (joint.type) {
-                    case "Ball":
+                    case JointType.Ball:
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
-                        raAnchor1 = new RAPIER.Vector(anchor1.x, anchor1.y);
-                        raAnchor2 = new RAPIER.Vector(anchor2.x, anchor2.y);
-                        raJointParams = RAPIER.JointParams.ball(raAnchor1, raAnchor2);
+                        raAnchor1 = new Vector(anchor1.x, anchor1.y);
+                        raAnchor2 = new Vector(anchor2.x, anchor2.y);
+                        raJointParams = JointParams.ball(raAnchor1, raAnchor2);
                         break;
                 }
 
@@ -74,7 +85,7 @@ export class RapierBackend {
             });
 
             me.world = raWorld;
-            me.RAPIER = RAPIER;
+            me.RAPIER = RAW_RAPIER;
         })
     }
 
@@ -93,7 +104,7 @@ export class RapierBackend {
 
     restoreSnapshot(snapshot) {
         if (!!this.RAPIER && !!snapshot) {
-            this.world = this.RAPIER.World.restoreSnapshot(snapshot);
+            this.world = World.restoreSnapshot(this.RAPIER, snapshot);
 
             // Restoring the snapshot creates a new physics world, so this
             // invalidates all our internal references to bodies, colliders, and joints.

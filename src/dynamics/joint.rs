@@ -10,6 +10,14 @@ use {
 };
 
 #[wasm_bindgen]
+pub enum RawJointType {
+    Ball,
+    Fixed,
+    Prismatic,
+    Revolute,
+}
+
+#[wasm_bindgen]
 impl RawJointSet {
     /// The unique integer identifier of the first rigid-body this joint it attached to.
     pub fn jointBodyHandle1(&self, handle: usize) -> usize {
@@ -22,13 +30,13 @@ impl RawJointSet {
     }
 
     /// The type of this joint given as a string.
-    pub fn jointType(&self, handle: usize) -> String {
+    pub fn jointType(&self, handle: usize) -> RawJointType {
         self.map(handle, |j| match &j.params {
-            JointParams::BallJoint(_) => "Ball".to_string(),
+            JointParams::BallJoint(_) => RawJointType::Ball,
+            JointParams::FixedJoint(_) => RawJointType::Fixed,
+            JointParams::PrismaticJoint(_) => RawJointType::Prismatic,
             #[cfg(feature = "dim3")]
-            JointParams::RevoluteJoint(_) => "Revolute".to_string(),
-            JointParams::FixedJoint(_) => "Fixed".to_string(),
-            JointParams::PrismaticJoint(_) => "Prismatic".to_string(),
+            JointParams::RevoluteJoint(_) => RawJointType::Revolute,
         })
     }
 

@@ -1,11 +1,12 @@
 import * as Ammo from './ammo.js'
 import * as AmmoWasm from './ammo.wasm.js'
+import {ShapeType, BodyStatus, JointType} from "@dimforge/rapier3d";
 
 
 class AmmoBackend {
     constructor(Ammo, world, bodies, colliders, joints) {
         var me = this;
-        Ammo().then(function(Ammo) {
+        Ammo().then(function (Ammo) {
             let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
             let dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
             let overlappingPairCache = new Ammo.btDbvtBroadphase();
@@ -36,17 +37,17 @@ class AmmoBackend {
                 let amShape;
 
                 switch (collider.type) {
-                    case 'Ball':
+                    case ShapeType.Ball:
                         let r = collider.radius;
                         amShape = new Ammo.btSphereShape(r);
                         break;
-                    case 'Cuboid':
+                    case ShapeType.Cuboid:
                         let he = collider.halfExtents;
                         amShape = new Ammo.btBoxShape(new Ammo.btVector3(he.x, he.y, he.z));
                         break;
                 }
 
-                let amMass = body.type == "dynamic" ? body.mass : 0.0;
+                let amMass = body.type == BodyStatus.Dynamic ? body.mass : 0.0;
                 let amInertia = new Ammo.btVector3(0.0, 0.0, 0.0);
                 amShape.calculateLocalInertia(amMass, amInertia);
 
@@ -56,7 +57,7 @@ class AmmoBackend {
                 let amBody = new Ammo.btRigidBody(amBodyInfo);
                 me.world.addRigidBody(amBody);
                 amBody.colliderHandle = collider.handle;
-                return [ body.handle, amBody ];
+                return [body.handle, amBody];
             }));
 
             joints.forEach(joint => {
@@ -68,14 +69,14 @@ class AmmoBackend {
                 let amConstraint;
 
                 switch (joint.type) {
-                    case "Ball":
+                    case JointType.Ball:
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
                         amAnchor1 = new Ammo.btVector3(anchor1.x, anchor1.y, anchor1.z);
                         amAnchor2 = new Ammo.btVector3(anchor2.x, anchor2.y, anchor2.z);
                         amConstraint = new Ammo.btPoint2PointConstraint(amBody1, amBody2, amAnchor1, amAnchor2);
                         break;
-                    case "Revolute":
+                    case JointType.Revolute:
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
                         let axis1 = joint.axis1;
@@ -105,6 +106,9 @@ class AmmoBackend {
             this.world.stepSimulation(0.016);
             this.stepTime = new Date().getTime() - t0;
         }
+    }
+
+    free() {
     }
 
     colliderPositions() {

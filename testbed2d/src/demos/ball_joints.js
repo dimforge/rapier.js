@@ -1,5 +1,8 @@
-export function initWorld(RAPIER, testbed) {
-    let world = new RAPIER.World(0.0, -9.81);
+import {Vector, World, RigidBodyDesc, ColliderDesc, BodyStatus, JointParams} from '@dimforge/rapier2d'
+
+export function initWorld(RAW_RAPIER, testbed) {
+    let gravity = new Vector(0.0, -9.81);
+    let world = new World(RAW_RAPIER, gravity);
     let bodies = new Array();
     let colliders = new Array();
     let joints = new Array();
@@ -12,23 +15,22 @@ export function initWorld(RAPIER, testbed) {
 
     for (k = 0; k < numk; ++k) {
         for (i = 0; i < numi; ++i) {
-            let status = (k >= numk / 2 - 3 && k <= numk / 2 + 3 && i == 0) ? 'static' : 'dynamic';
+            let status = (k >= numk / 2 - 3 && k <= numk / 2 + 3 && i == 0) ? BodyStatus.Static : BodyStatus.Dynamic;
 
-            let bodyDesc = new RAPIER.RigidBodyDesc(status);
-            bodyDesc.setTranslation(k * shift, -i * shift);
+            let bodyDesc = new RigidBodyDesc(status)
+                .withTranslation(new Vector(k * shift, -i * shift));
             let child = world.createRigidBody(bodyDesc);
-            let colliderDesc = RAPIER.ColliderDesc.ball(rad);
-            colliderDesc.density = 1.0;
-            let collider = child.createCollider(colliderDesc);
+            let colliderDesc = ColliderDesc.ball(rad);
+            let collider = world.createCollider(colliderDesc, child.handle);
             let joint;
 
             // Vertical joint.
             if (i > 0) {
                 let parent = bodies[bodies.length - 1];
-                let anchor1 = new RAPIER.Vector(0.0, 0.0);
-                let anchor2 = new RAPIER.Vector(0.0, shift);
-                let JointParams = RAPIER.JointParams.ball(anchor1, anchor2);
-                joint = world.createJoint(JointParams, parent, child);
+                let anchor1 = new Vector(0.0, 0.0);
+                let anchor2 = new Vector(0.0, shift);
+                let jointParams = JointParams.ball(anchor1, anchor2);
+                joint = world.createJoint(jointParams, parent, child);
                 joints.push(joint);
             }
 
@@ -36,10 +38,10 @@ export function initWorld(RAPIER, testbed) {
             if (k > 0) {
                 let parentIndex = bodies.length - numi;
                 let parent = bodies[parentIndex];
-                let anchor1 = new RAPIER.Vector(0.0, 0.0);
-                let anchor2 = new RAPIER.Vector(-shift, 0.0);
-                let JointParams = RAPIER.JointParams.ball(anchor1, anchor2);
-                joint = world.createJoint(JointParams, parent, child);
+                let anchor1 = new Vector(0.0, 0.0);
+                let anchor2 = new Vector(-shift, 0.0);
+                let jointParams = JointParams.ball(anchor1, anchor2);
+                joint = world.createJoint(jointParams, parent, child);
                 joints.push(joint);
             }
 

@@ -1,13 +1,16 @@
-export function initWorld(RAPIER, testbed) {
-    let world = new RAPIER.World(0.0, -9.81, 0.0);
+import {Vector, World, RigidBodyDesc, ColliderDesc, BodyStatus} from '@dimforge/rapier3d'
+
+export function initWorld(RAW_RAPIER, testbed) {
+    let gravity = new Vector(0.0, -9.81, 0.0);
+    let world = new World(RAW_RAPIER, gravity);
     let bodies = new Array();
     let colliders = new Array();
 
     // Create Ground.
-    let bodyDesc = new RAPIER.RigidBodyDesc("static");
+    let bodyDesc = new RigidBodyDesc(BodyStatus.Static);
     let body = world.createRigidBody(bodyDesc);
-    let colliderDesc = RAPIER.ColliderDesc.cuboid(30.0, 0.1, 30.0);
-    let collider = body.createCollider(colliderDesc);
+    let colliderDesc = ColliderDesc.cuboid(30.0, 0.1, 30.0);
+    let collider = world.createCollider(colliderDesc, body.handle);
     bodies.push(body);
     colliders.push(collider);
 
@@ -17,7 +20,7 @@ export function initWorld(RAPIER, testbed) {
     let i, j, k;
     let shift = rad * 2.5;
     let center = num * rad;
-    let height = 25.0;
+    let height = 10.0;
 
     for (i = 0; i < num; ++i) {
         for (j = i; j < num; ++j) {
@@ -29,12 +32,11 @@ export function initWorld(RAPIER, testbed) {
                     - height * rad - center;
 
                 // Create dynamic cube.
-                let bodyDesc = new RAPIER.RigidBodyDesc("dynamic");
-                bodyDesc.setTranslation(x, y, z);
+                let bodyDesc = new RigidBodyDesc(BodyStatus.Dynamic)
+                    .withTranslation(new Vector(x, y, z));
                 let body = world.createRigidBody(bodyDesc);
-                let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-                colliderDesc.density = 1.0;
-                let collider = body.createCollider(colliderDesc);
+                let colliderDesc = ColliderDesc.cuboid(rad, rad, rad);
+                let collider = world.createCollider(colliderDesc, body.handle);
                 bodies.push(body);
                 colliders.push(collider);
             }
@@ -43,8 +45,8 @@ export function initWorld(RAPIER, testbed) {
 
     testbed.setWorld(world, bodies, colliders);
     let cameraPosition = {
-        eye: { x: -31.96000000000001, y: 19.730000000000008, z: -27.86 },
-        target: { x: -0.0505, y: -0.4126, z: -0.0229 }
+        eye: {x: -31.96000000000001, y: 19.730000000000008, z: -27.86},
+        target: {x: -0.0505, y: -0.4126, z: -0.0229}
     };
     testbed.lookAt(cameraPosition)
 }

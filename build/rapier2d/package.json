@@ -1,0 +1,32 @@
+{
+  "name": "@dimforge/rapier",
+  "version": "0.2.0",
+  "description": "High-level wrapper for rapier3d",
+  "scripts": {
+    "build": "webpack --mode production",
+    "test": "echo \\\"Error: no  specified\\\" && exit 1"
+  },
+  "keywords": [
+    "physics"
+  ],
+  "author": "Sébastien Crozet",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@dimforge/raw-rapier3d": "^0.1.15"
+  },
+  "devDependencies": {
+    "base64-loader": "^1.0.0",
+    "ifdef-loader": "^2.1.5",
+    "querystring": "^0.2.0",
+    "string-replace-loader": "^2.3.0",
+    "ts-loader": "^8.0.3",
+    "typescript": "^4.0.2",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
+  },
+  "main": "./pkg3/rapier3d.js",
+  "types": "./pkg3/lib.d.ts",
+  "files": [
+    "pkg3"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@dimforge/rapier3d",
+  "version": "0.2.0",
+  "description": "High-level wrapper for rapier3d",
+  "keywords": [
+    "physics"
+  ],
+  "author": "Sébastien Crozet",
+  "license": "Apache-2.0",
+  "dependencies": {},
+  "main": "./rapier3d.js",
+  "types": "./lib.d.ts"
+}

@@ -1,3 +1,21 @@
+### v0.2.0
+- Calling `.free()` is now required only for objects that live for the whole duration of the simulation. This means that
+  it is no longer necessary to `.free()` vectors, rays, ray intersections, colliders, rigid-bodies, etc. Object that
+  continue to require an explicit `.free()` are:
+  - `World` and `EventQueue`.
+  - Or, if you are not using the `World` directly:
+    `RigidBodySet`, `ColliderSet`, `JointSet`, `IntegrationParameters`, `PhysicsPipeline`, `QueryPipeline`, `SerializationPipeline`, and `EventQueue`.
+- Collider.parent() now returns the handle of its parent.
+- Colliders are now built with `world.createCollider`. `body.createCollider(colliderDesc)` becomes `world.createCollider(colliderDesc, bodyHandle)`.
+- Shape types are not an enumeration instead of strings: `ShapeType.Ball` and `ShapeType.Cuboid` instead of `"ball"` and `"cuboid"`.
+- `collider.handle` is now a field instead of a function.
+- `body.handle` is now a field instead of a function.
+- The world's gravity is now a `Vector` instead of individual components.
+- `world.stepWithEvents` becomes `world.step`.
+- `RigidBodyDesc` and `ColliderDesc` now use the builder pattern. For example
+  `let bodyDesc = new RAPIER.RigidBodyDesc("dynamic"); bodyDesc.setTranslation(x, y, z)` becomes
+  `new RigidBodyDesc(BodyStatus.Dynamic).withTranslation(new Vector(x, y, z))`.
+
 ### v0.1.15
 - Fix crash when removing a kinematic rigid-body from the World.
 

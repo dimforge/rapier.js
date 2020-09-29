@@ -1,5 +1,6 @@
+import {Vector, World, RigidBodyDesc, ColliderDesc, BodyStatus} from '@dimforge/rapier2d'
+
 function buildBlock(
-    RAPIER,
     world,
     bodies,
     colliders,
@@ -24,15 +25,14 @@ function buildBlock(
             let x = i % 2 == 0 ? spacing * j * 2.0 : dim.x * j * 2.0;
 
             // Build the rigid body.
-            let bodyDesc = new RAPIER.RigidBodyDesc("dynamic");
-            bodyDesc.setTranslation(
-                x + dim.x + shift.x,
-                y + dim.y + shift.y,
-            );
+            let bodyDesc = new RigidBodyDesc(BodyStatus.Dynamic)
+                .withTranslation(new Vector(
+                    x + dim.x + shift.x,
+                    y + dim.y + shift.y,
+                ));
             let body = world.createRigidBody(bodyDesc);
-            let colliderDesc = RAPIER.ColliderDesc.cuboid(dim.x, dim.y);
-            colliderDesc.density = 1.0;
-            let collider = body.createCollider(colliderDesc);
+            let colliderDesc = ColliderDesc.cuboid(dim.x, dim.y);
+            let collider = world.createCollider(colliderDesc, body.handle);
             bodies.push(body);
             colliders.push(collider);
         }
@@ -42,24 +42,25 @@ function buildBlock(
 }
 
 
-export function initWorld(RAPIER, testbed) {
-    let world = new RAPIER.World(0.0, -9.81, 0.0);
+export function initWorld(RAW_RAPIER, testbed) {
+    let gravity = new Vector(0.0, -9.81, 0.0);
+    let world = new World(RAW_RAPIER, gravity);
     let bodies = new Array();
     let colliders = new Array();
 
     // Create Ground.
     let groundSize = 150.0;
     let groundHeight = 0.1;
-    let bodyDesc = new RAPIER.RigidBodyDesc("static");
-    bodyDesc.setTranslation(0.0, -groundHeight, 0.0);
+    let bodyDesc = new RigidBodyDesc(BodyStatus.Static)
+        .withTranslation(new Vector(0.0, -groundHeight, 0.0));
     let body = world.createRigidBody(bodyDesc);
-    let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
-    let collider = body.createCollider(colliderDesc);
+    let colliderDesc = ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
+    let collider = world.createCollider(colliderDesc, body.handle);
     bodies.push(body);
     colliders.push(collider);
 
     // Keva tower.
-    let halfExtents = new RAPIER.Vector(0.5, 2.0);
+    let halfExtents = new Vector(0.5, 2.0);
     let blockHeight = 0.0;
     // These should only be set to odd values otherwise
     // the blocks won't align in the nicest way.
@@ -73,12 +74,11 @@ export function initWorld(RAPIER, testbed) {
         let numz = numx * 2 + 1;
         let blockWidth = numx * halfExtents.y * 2.0;
         buildBlock(
-            RAPIER,
             world,
             bodies,
             colliders,
             halfExtents,
-            new RAPIER.Vector(-blockWidth / 2.0, blockHeight),
+            new Vector(-blockWidth / 2.0, blockHeight),
             numx,
             numy,
             numz,
@@ -90,7 +90,7 @@ export function initWorld(RAPIER, testbed) {
     testbed.setWorld(world, bodies, colliders);
 
     testbed.lookAt({
-        target: { x: -10.0, y: -5.0 },
+        target: {x: -10.0, y: -5.0},
         zoom: 4.0
     });
 }

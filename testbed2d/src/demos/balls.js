@@ -1,13 +1,16 @@
-export function initWorld(RAPIER, testbed) {
-    let world = new RAPIER.World(0.0, -9.81);
+import {Vector, World, RigidBodyDesc, ColliderDesc, BodyStatus} from '@dimforge/rapier2d'
+
+export function initWorld(RAW_RAPIER, testbed) {
+    let gravity = new Vector(0.0, -9.81);
+    let world = new World(RAW_RAPIER, gravity);
     let bodies = new Array();
     let colliders = new Array();
 
     // Create Ground.
-    let bodyDesc = new RAPIER.RigidBodyDesc("static");
+    let bodyDesc = new RigidBodyDesc(BodyStatus.Static);
     let body = world.createRigidBody(bodyDesc);
-    let colliderDesc = RAPIER.ColliderDesc.cuboid(30.0, 1.0);
-    let collider = body.createCollider(colliderDesc);
+    let colliderDesc = ColliderDesc.cuboid(30.0, 1.0);
+    let collider = world.createCollider(colliderDesc, body.handle);
     bodies.push(body);
     colliders.push(collider);
 
@@ -23,12 +26,11 @@ export function initWorld(RAPIER, testbed) {
             let y = j * rad * 2.2 + 10.0;
 
             // Create dynamic cube.
-            let bodyDesc = new RAPIER.RigidBodyDesc("dynamic");
-            bodyDesc.setTranslation(x, y);
+            let bodyDesc = new RigidBodyDesc(BodyStatus.Dynamic)
+                .withTranslation(new Vector(x, y));
             let body = world.createRigidBody(bodyDesc);
-            let colliderDesc = RAPIER.ColliderDesc.ball(rad);
-            colliderDesc.density = 1.0;
-            let collider = body.createCollider(colliderDesc);
+            let colliderDesc = ColliderDesc.ball(rad);
+            let collider = world.createCollider(colliderDesc, body.handle);
             bodies.push(body);
             colliders.push(collider);
         }
@@ -36,7 +38,7 @@ export function initWorld(RAPIER, testbed) {
 
     testbed.setWorld(world, bodies, colliders);
     testbed.lookAt({
-        target: { x: -10.0, y: -15.0 },
+        target: {x: -10.0, y: -15.0},
         zoom: 10.0
     });
 }

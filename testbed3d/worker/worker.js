@@ -1,8 +1,8 @@
-import { CannonJSBackend /* , CannonESBackend */ } from "./CannonBackend";
-import { AmmoJSBackend, AmmoWASMBackend } from "./AmmoBackend";
-import { PhysXBackend } from "./PhysXBackend";
-import { OimoBackend } from "./OimoBackend";
-import { RapierBackend } from "./RapierBackend";
+import {CannonJSBackend /* , CannonESBackend */} from "./CannonBackend";
+import {AmmoJSBackend, AmmoWASMBackend} from "./AmmoBackend";
+import {PhysXBackend} from "./PhysXBackend";
+import {OimoBackend} from "./OimoBackend";
+import {RapierBackend} from "./RapierBackend";
 
 var interval = null;
 
@@ -27,7 +27,8 @@ export class Worker {
                 this.snapshot = undefined;
                 this.token = event.data.token;
                 let backend = this.backends.get(event.data.backend);
-                this.backend = null;
+                if (!!this.backend)
+                    this.backend.free();
                 this.backend = backend(event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
                 this.stepId = 0;
                 break;

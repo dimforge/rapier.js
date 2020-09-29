@@ -1,4 +1,5 @@
 import * as OIMO from 'oimo';
+import {BodyStatus, JointType, ShapeType} from "@dimforge/rapier3d";
 
 
 export class OimoBackend {
@@ -29,12 +30,12 @@ export class OimoBackend {
             let oiSize;
 
             switch (collider.type) {
-                case 'Ball':
+                case ShapeType.Ball:
                     let r = collider.radius;
                     oiType = 'sphere';
                     oiSize = [r, r, r];
                     break;
-                case 'Cuboid':
+                case ShapeType.Cuboid:
                     let he = collider.halfExtents;
                     oiType = 'box';
                     oiSize = [he.x * 2.0, he.y * 2.0, he.z * 2.0];
@@ -45,13 +46,13 @@ export class OimoBackend {
                 type: oiType,
                 size: oiSize,
                 pos: [pos.x, pos.y, pos.z],
-                move: body.type == "dynamic",
+                move: body.type == BodyStatus.Dynamic,
                 density: collider.density,
                 friction: collider.friction,
                 restitution: 0.0,
             };
 
-            if (body.type != "dynamic") {
+            if (body.type != BodyStatus.Dynamic) {
                 // Keeping the density field when the body is
                 // not dynamic appears to cause a NaN and breaks
                 // the simulation. Very likely due to the density
@@ -63,7 +64,7 @@ export class OimoBackend {
             let oiBody = this.world.add(oiBodyDesc);
             oiBody.colliderHandle = collider.handle;
 
-            return [ body.handle, oiBody ];
+            return [body.handle, oiBody];
         }));
 
         joints.forEach(joint => {
@@ -75,7 +76,7 @@ export class OimoBackend {
             let oiConstraint;
 
             switch (joint.type) {
-                case "Ball":
+                case JointType.Ball:
                     anchor1 = joint.anchor1;
                     anchor2 = joint.anchor2;
                     oiAncho1 = [anchor1.x, anchor1.y, anchor1.z];
@@ -88,7 +89,7 @@ export class OimoBackend {
                         pos2: oiAncho2
                     };
                     break;
-                case "Revolute":
+                case JointType.Revolute:
                     anchor1 = joint.anchor1;
                     anchor2 = joint.anchor2;
                     let axis1 = joint.axis1;
@@ -121,6 +122,9 @@ export class OimoBackend {
             this.world.step();
             this.stepTime = new Date().getTime() - t0;
         }
+    }
+
+    free() {
     }
 
     colliderPositions() {

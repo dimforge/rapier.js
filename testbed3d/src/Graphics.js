@@ -1,7 +1,8 @@
 import * as THREE from "three";
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import {ShapeType} from "@dimforge/rapier3d";
 
-const BOX_INSTANCE_INDEX = 0;
+const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
 
 var dummy = new THREE.Object3D();
@@ -11,10 +12,10 @@ export class Graphics {
     constructor(simulationParameters) {
         this.coll2gfx = new Map();
         this.colorIndex = 0;
-        this.colorPalette = [ 0xF3D9B1, 0x98C1D9, 0x053C5E, 0x1F7A8C ];
+        this.colorPalette = [0xF3D9B1, 0x98C1D9, 0x053C5E, 0x1F7A8C];
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0xF9F9FF, 1);
         document.body.appendChild(this.renderer.domElement);
@@ -109,16 +110,17 @@ export class Graphics {
         this.colorIndex = 0;
     }
 
-    addCollider(collider) {
+    addCollider(world, collider) {
+        let parent = world.getRigidBody(collider.parent());
         let instance;
         let instanceDesc = {
             groupId: 0,
-            instanceId: collider.parent().isStatic() ? 0 : (this.colorIndex + 1),
+            instanceId: parent.isStatic() ? 0 : (this.colorIndex + 1),
             elementId: 0,
         };
 
         switch (collider.shapeType()) {
-            case 'Cuboid':
+            case ShapeType.Cuboid:
                 let hext = collider.halfExtents();
                 instance = this.instanceGroups[BOX_INSTANCE_INDEX][instanceDesc.instanceId];
                 instanceDesc.groupId = BOX_INSTANCE_INDEX;
@@ -126,7 +128,7 @@ export class Graphics {
                 instanceDesc.scale = new THREE.Vector3(hext.x, hext.y, hext.z);
                 instance.count += 1;
                 break;
-            case 'Ball':
+            case ShapeType.Ball:
                 let rad = collider.radius();
                 instance = this.instanceGroups[BALL_INSTANCE_INDEX][instanceDesc.instanceId];
                 instanceDesc.groupId = BALL_INSTANCE_INDEX;
@@ -148,7 +150,7 @@ export class Graphics {
         instance.setMatrixAt(instanceDesc.elementId, dummy.matrix);
         instance.instanceMatrix.needsUpdate = true;
 
-        this.coll2gfx.set(collider.handle(), instanceDesc);
+        this.coll2gfx.set(collider.handle, instanceDesc);
         this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 1);
     }
 }
