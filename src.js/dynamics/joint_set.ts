@@ -1,6 +1,6 @@
 import {RawJointSet} from "../rapier"
 import {RigidBodySet} from "./rigid_body_set";
-import {Joint, JointParams} from "./joint";
+import {Joint, JointHandle, JointParams} from "./joint";
 import {RigidBody} from "./rigid_body";
 
 export class JointSet {
@@ -9,11 +9,12 @@ export class JointSet {
 
     public free() {
         this.raw.free();
+        this.raw = undefined;
     }
 
-    constructor(RAPIER: any) {
+    constructor(RAPIER: any, raw?: RawJointSet) {
         this.RAPIER = RAPIER;
-        this.raw = new RAPIER.RawJointSet();
+        this.raw = raw || new RAPIER.RawJointSet();
     }
 
     public createJoint(
@@ -28,7 +29,7 @@ export class JointSet {
         return result;
     }
 
-    public get(handle: number): Joint {
+    public get(handle: JointHandle): Joint {
         if (this.raw.isHandleValid(handle)) {
             return new Joint(this.RAPIER, this.raw, handle);
         } else {

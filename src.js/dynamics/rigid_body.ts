@@ -1,5 +1,8 @@
 import {RawRigidBodySet} from "../rapier"
 import {Rotation, Vector} from '../math.ts';
+import {ColliderHandle} from "../geometry";
+
+export type RigidBodyHandle = number;
 
 export enum BodyStatus {
     Dynamic = 0,
@@ -10,9 +13,9 @@ export enum BodyStatus {
 export class RigidBody {
     private RAPIER: any;
     private rawSet: RawRigidBodySet; // The RigidBody won't need to free this.
-    readonly handle: number;
+    readonly handle: RigidBodyHandle;
 
-    constructor(RAPIER: any, rawSet: RawRigidBodySet, handle: number) {
+    constructor(RAPIER: any, rawSet: RawRigidBodySet, handle: RigidBodyHandle) {
         this.RAPIER = RAPIER;
         this.rawSet = rawSet;
         this.handle = handle;
@@ -232,50 +235,19 @@ export class RigidBody {
         this.rawSet.rbWakeUp(this.handle);
     }
 
-    /*
-    /// Creates a new collider attached to his rigid-body from the given collider descriptor.
-    ///
-    /// # Parameters
-    /// - `collider`: The collider description used to create the collider.
-    public createCollider(&mut self, collider: &ColliderDesc): Collider {
-        let builder: ColliderBuilder = collider.clone().into();
-        let collider = builder.build();
-        let colliders = self.colliders.clone();
-        let bodies = self.bodies.clone();
-        let handle =
-            colliders
-                .borrow_mut()
-                .insert(collider, self.handle, &mut *bodies.borrow_mut());
-        Collider {
-            colliders,
-            bodies,
-            handle,
-        }
-    }
-    */
-
     /// The number of colliders attached to this rigid-body.
     public numColliders(): number {
         return this.rawSet.rbNumColliders(this.handle);
     }
 
-    /*
-    /// Retrieves the `i-th` collider attached to this rigid-body.
+    /// Retrieves the handle o fthe `i-th` collider attached to this rigid-body.
     ///
     /// # Parameters
     /// - `at`: The index of the collider to retrieve. Must be a number in `[0, this.numColliders()[`.
     ///         This index is **not** the same as the unique identifier of the collider.
-    public collider(&self, at: usize): Collider {
-        self.map(|rb| {
-            let handle = rb.colliders()[at];
-            Collider {
-                colliders: self.colliders.clone(),
-                bodies: self.bodies.clone(),
-                handle,
-            }
-        })
+    public collider(i: number): ColliderHandle {
+        return this.rawSet.rbCollider(this.handle, i);
     }
-    */
 
     /// The type of this rigid-body: static, dynamic, or kinematic.
     public bodyType(): BodyStatus {
@@ -412,65 +384,65 @@ export class RigidBody {
 }
 
 export class RigidBodyDesc {
-    _translation: Vector;
-    _rotation: Rotation;
-    _linvel: Vector;
+    translation: Vector;
+    rotation: Rotation;
+    linvel: Vector;
     // #if DIM2
-    _angvel: number;
+    angvel: number;
     // #endif
     // #if DIM3
-    _angvel: Vector;
+    angvel: Vector;
     // #endif
-    _status: BodyStatus;
-    _canSleep: boolean;
+    status: BodyStatus;
+    canSleep: boolean;
 
     constructor(status: BodyStatus) {
-        this._status = status;
-        this._translation = Vector.zeros();
-        this._rotation = Rotation.identity();
-        this._linvel = Vector.zeros();
+        this.status = status;
+        this.translation = Vector.zeros();
+        this.rotation = Rotation.identity();
+        this.linvel = Vector.zeros();
         // #if DIM2
-        this._angvel = 0.0;
+        this.angvel = 0.0;
         // #endif
         // #if DIM3
-        this._angvel = Vector.zeros();
+        this.angvel = Vector.zeros();
         // #endif
-        this._canSleep = true;
+        this.canSleep = true;
     }
 
-    public translation(tra: Vector): RigidBodyDesc {
-        this._translation = tra;
+    public withTranslation(tra: Vector): RigidBodyDesc {
+        this.translation = tra;
         return this;
     }
 
-    public rotation(rot: Rotation): RigidBodyDesc {
-        this._rotation = rot;
+    public withRotation(rot: Rotation): RigidBodyDesc {
+        this.rotation = rot;
         return this;
     }
 
-    public linvel(vel: Vector): RigidBodyDesc {
-        this._linvel = vel;
+    public withLinvel(vel: Vector): RigidBodyDesc {
+        this.linvel = vel;
         return this;
     }
 
     // #if DIM2
-    public angvel(ang: number): RigidBodyDesc {
-        this._angvel = ang;
+    public withAngvel(ang: number): RigidBodyDesc {
+        this.angvel = ang;
         return this;
     }
 
     // #endif
 
     // #if DIM3
-    public angvel(ang: Vector): RigidBodyDesc {
-        this._angvel = ang;
+    public withAngvel(ang: Vector): RigidBodyDesc {
+        this.angvel = ang;
         return this;
     }
 
     // #endif
 
-    public canSleep(can: boolean): RigidBodyDesc {
-        this._canSleep = can;
+    public withCanSleep(can: boolean): RigidBodyDesc {
+        this.canSleep = can;
         return this;
     }
 }

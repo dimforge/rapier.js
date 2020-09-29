@@ -9,10 +9,11 @@ export class QueryPipeline {
 
     free() {
         this.raw.free();
+        this.raw = undefined;
     }
 
-    constructor(RAPIER: any) {
-        this.raw = new RAPIER.RawQueryPipeline();
+    constructor(RAPIER: any, raw?: RawQueryPipeline) {
+        this.raw = raw || new RAPIER.RawQueryPipeline();
         this.RAPIER = RAPIER;
     }
 

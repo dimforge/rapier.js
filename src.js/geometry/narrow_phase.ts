@@ -5,9 +5,10 @@ export class NarrowPhase {
 
     public free() {
         this.raw.free();
+        this.raw = undefined;
     }
 
-    constructor(RAPIER: any) {
-        this.raw = new RAPIER.RawNarrowPhase();
+    constructor(RAPIER: any, raw?: RawNarrowPhase) {
+        this.raw = raw || new RAPIER.RawNarrowPhase();
     }
 }

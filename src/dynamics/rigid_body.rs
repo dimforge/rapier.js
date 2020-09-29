@@ -209,50 +209,19 @@ impl RawRigidBodySet {
         self.map_mut(handle, |mut rb| rb.wake_up(true))
     }
 
-    /*
-    /// Creates a new collider attached to his rigid-body from the given collider descriptor.
-    ///
-    /// # Parameters
-    /// - `collider`: The collider description used to create the collider.
-    pub fn createCollider(&mut self, collider: &ColliderDesc) -> Collider {
-        let builder: ColliderBuilder = collider.clone().into();
-        let collider = builder.build();
-        let colliders = self.colliders.clone();
-        let bodies = self.bodies.clone();
-        let handle =
-            colliders
-                .borrow_mut()
-                .insert(collider, self.handle, &mut *bodies.borrow_mut());
-        Collider {
-            colliders,
-            bodies,
-            handle,
-        }
-    }
-    */
-
     /// The number of colliders attached to this rigid-body.
     pub fn rbNumColliders(&self, handle: usize) -> usize {
         self.map(handle, |rb| rb.colliders().len())
     }
 
-    /*
     /// Retrieves the `i-th` collider attached to this rigid-body.
     ///
     /// # Parameters
     /// - `at`: The index of the collider to retrieve. Must be a number in `[0, this.numColliders()[`.
     ///         This index is **not** the same as the unique identifier of the collider.
-    pub fn collider(&self, at: usize) -> Collider {
-        self.map(|rb| {
-            let handle = rb.colliders()[at];
-            Collider {
-                colliders: self.colliders.clone(),
-                bodies: self.bodies.clone(),
-                handle,
-            }
-        })
+    pub fn rbCollider(&self, handle: usize, at: usize) -> usize {
+        self.map(handle, |rb| rb.colliders()[at].into_raw_parts().0)
     }
-    */
 
     /// The type of this rigid-body: static, dynamic, or kinematic.
     pub fn rbBodyType(&self, handle: usize) -> RawBodyStatus {

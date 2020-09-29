@@ -1,5 +1,6 @@
 import {Vector} from "../math";
 import {RawRayColliderIntersection} from "../rapier";
+import {ColliderHandle} from "./collider";
 
 
 export class Ray {
@@ -13,11 +14,11 @@ export class Ray {
 }
 
 export class RayColliderIntersection {
-    colliderHandle: number
+    colliderHandle: ColliderHandle
     toi: number
     normal: Vector
 
-    constructor(colliderHandle: number, toi: number, normal: Vector) {
+    constructor(colliderHandle: ColliderHandle, toi: number, normal: Vector) {
         this.colliderHandle = colliderHandle;
         this.toi = toi;
         this.normal = normal;

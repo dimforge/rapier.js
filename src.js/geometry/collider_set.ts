@@ -1,33 +1,34 @@
 import {RawColliderSet, RawRigidBodySet} from "../rapier"
 import {Vector, Rotation} from '../math';
-import {Collider, ColliderDesc} from '../geometry/collider'
-import {RigidBody} from "../dynamics/rigid_body";
+import {Collider, ColliderDesc, ColliderHandle} from '../geometry'
+import {RigidBody, RigidBodyHandle} from "../dynamics";
+import {RigidBodySet} from "../dynamics";
 
 export class ColliderSet {
     private RAPIER: any;
     raw: RawColliderSet;
-    private rawBodies: RawRigidBodySet;
 
     public free() {
         this.raw.free();
+        this.raw = undefined;
     }
 
-    constructor(RAPIER: any) {
+    constructor(RAPIER: any, raw?: RawColliderSet) {
         this.RAPIER = RAPIER;
-        this.raw = new RAPIER.RawColliderSet();
+        this.raw = raw || new RAPIER.RawColliderSet();
     }
 
-    public createCollider(desc: ColliderDesc, parentBody: RigidBody): number {
-        let rawShape = desc._shape.intoRaw(this.RAPIER);
-        let rawTra = desc._translation.intoRaw(this.RAPIER);
-        let rawRot = desc._rotation.intoRaw(this.RAPIER);
+    public createCollider(bodies: RigidBodySet, desc: ColliderDesc, parentHandle: RigidBodyHandle): ColliderHandle {
+        let rawShape = desc.shape.intoRaw(this.RAPIER);
+        let rawTra = desc.translation.intoRaw(this.RAPIER);
+        let rawRot = desc.rotation.intoRaw(this.RAPIER);
 
         let handle = this.raw.createCollider(
             rawShape,
             rawTra,
             rawRot,
-            parentBody.handle,
-            this.rawBodies,
+            parentHandle,
+            bodies.raw,
         );
 
         rawShape.free();
@@ -37,22 +38,22 @@ export class ColliderSet {
         return handle;
     }
 
-    public get(handle: number): Collider {
+    public get(handle: ColliderHandle): Collider {
         if (this.raw.isHandleValid(handle)) {
-            return new Collider(this.RAPIER, this.raw, this.rawBodies, handle);
+            return new Collider(this.RAPIER, this.raw, handle);
         } else {
             return null;
         }
     }
 
 
-    public forEachCollider(f: (Collider) => void) {
-        this.forEachCollider((handle) => {
-            f(new Collider(this.RAPIER, this.raw, this.rawBodies, handle))
+    public forEachCollider(f: (collider: Collider) => void) {
+        this.forEachColliderHandle((handle) => {
+            f(new Collider(this.RAPIER, this.raw, handle))
         })
     }
 
-    public forEachColliderHandle(f: (number) => void) {
+    public forEachColliderHandle(f: (handle: ColliderHandle) => void) {
         this.raw.forEachColliderHandle(f)
     }
 }

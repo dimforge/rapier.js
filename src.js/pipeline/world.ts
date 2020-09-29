@@ -1,14 +1,35 @@
-import {BroadPhase, Collider, ColliderSet, NarrowPhase, Ray, RayColliderIntersection} from "../geometry";
-import {IntegrationParameters, Joint, JointParams, JointSet, RigidBody, RigidBodyDesc, RigidBodySet} from "../dynamics";
+import {
+    BroadPhase,
+    Collider, ColliderDesc,
+    ColliderHandle,
+    ColliderSet,
+    NarrowPhase,
+    Ray,
+    RayColliderIntersection
+} from "../geometry";
+import {
+    IntegrationParameters,
+    Joint,
+    JointParams,
+    JointSet,
+    RigidBody,
+    RigidBodyDesc,
+    RigidBodyHandle,
+    RigidBodySet
+} from "../dynamics";
 import {Vector} from "../math";
 import {PhysicsPipeline} from "./physics_pipeline";
 import {QueryPipeline} from "./query_pipeline";
 import {SerializationPipeline} from "./serialization_pipeline";
-import {RawDeserializedWorld} from "../../build/rapier2d/pkg";
-
-export class EventQueue {
-    // FIXME
-}
+import {
+    RawBroadPhase, RawColliderSet,
+    RawDeserializedWorld,
+    RawIntegrationParameters,
+    RawJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
+    RawRigidBodySet, RawSerializationPipeline,
+    RawVector
+} from "../rapier";
+import {EventQueue} from "./event_queue";
 
 export class World {
     gravity: Vector
@@ -18,8 +39,8 @@ export class World {
     bodies: RigidBodySet
     colliders: ColliderSet
     joints: JointSet
-    physicsPipeline: PhysicsPipeline
     queryPipeline: QueryPipeline
+    physicsPipeline: PhysicsPipeline
     serializationPipeline: SerializationPipeline
 
     public free() {
@@ -29,59 +50,61 @@ export class World {
         this.bodies.free();
         this.colliders.free();
         this.joints.free();
-        this.physicsPipeline.free();
         this.queryPipeline.free();
+        this.physicsPipeline.free();
         this.serializationPipeline.free();
+
+        this.integrationParameters = undefined;
+        this.broadPhase = undefined;
+        this.narrowPhase = undefined;
+        this.bodies = undefined;
+        this.colliders = undefined;
+        this.joints = undefined;
+        this.queryPipeline = undefined;
+        this.physicsPipeline = undefined;
+        this.serializationPipeline = undefined;
     }
 
-    /// Initialize a new physics world with zero gravity.
-    constructor(RAPIER: any) {
-        this.gravity = Vector.zeros();
-        this.init(RAPIER);
+    constructor(
+        RAPIER: any,
+        gravity: Vector,
+        rawIntegrationParameters?: RawIntegrationParameters,
+        rawBroadPhase?: RawBroadPhase,
+        rawNarrowPhase?: RawNarrowPhase,
+        rawBodies?: RawRigidBodySet,
+        rawColliders?: RawColliderSet,
+        rawJoints?: RawJointSet,
+        rawQueryPipeline?: RawQueryPipeline,
+        rawPhysicsPipeline?: RawPhysicsPipeline,
+        rawSerializationPipeline?: RawSerializationPipeline
+    ) {
+        this.gravity = gravity;
+        this.integrationParameters = new IntegrationParameters(RAPIER, rawIntegrationParameters);
+        this.broadPhase = new BroadPhase(RAPIER, rawBroadPhase);
+        this.narrowPhase = new NarrowPhase(RAPIER, rawNarrowPhase);
+        this.bodies = new RigidBodySet(RAPIER, rawBodies);
+        this.colliders = new ColliderSet(RAPIER, rawColliders);
+        this.joints = new JointSet(RAPIER, rawJoints);
+        this.queryPipeline = new QueryPipeline(RAPIER, rawQueryPipeline);
+        this.physicsPipeline = new PhysicsPipeline(RAPIER, rawPhysicsPipeline);
+        this.serializationPipeline = new SerializationPipeline(RAPIER, rawSerializationPipeline);
     }
 
-    // #if DIM2
-    constructor(RAPIER: any, gravityX: number, gravityY: number) {
-        this.gravity = new Vector(gravityX, gravityY);
-        this.init(RAPIER);
-    }
-
-    // #endif
-
-    // #if DIM3
-    constructor(RAPIER: any, gravityX: number, gravityY: number, gravityZ: number) {
-        this.gravity = new Vector(gravityX, gravityY, gravityZ);
-        this.init(RAPIER);
-    }
-
-    // #endif
-
-    fromRaw(RAPIER: any, raw: RawDeserializedWorld): World {
+    public static fromRaw(RAPIER: any, raw: RawDeserializedWorld): World {
         if (!raw)
             return null;
 
-        let res = new World(RAPIER);
-        res.gravity = Vector.fromRaw(raw.takeGravity());
-        res.integrationParameters = raw.takeIntegrationParameters();
-        res.broadPhase = raw.takeBroadPhase();
-        res.narrowPhase = raw.takeNarrowPhase();
-        res.bodies = raw.takeBodies();
-        res.colliders = raw.takeColliders();
-        res.joints = raw.takeJoints();
-        res.queryPipeline = raw.takeQueryPipeline();
-        raw.free();
-        return res;
-    }
-
-    private init(RAPIER: any) {
-        this.broadPhase = new BroadPhase(RAPIER);
-        this.narrowPhase = new NarrowPhase(RAPIER);
-        this.bodies = new RigidBodySet(RAPIER);
-        this.colliders = new ColliderSet(RAPIER);
-        this.joints = new JointSet(RAPIER);
-        this.physicsPipeline = new PhysicsPipeline(RAPIER);
-        this.queryPipeline = new QueryPipeline(RAPIER);
-        this.serializationPipeline = new SerializationPipeline(RAPIER);
+        return new World(
+            RAPIER,
+            Vector.fromRaw(raw.takeGravity()),
+            raw.takeIntegrationParameters(),
+            raw.takeBroadPhase(),
+            raw.takeNarrowPhase(),
+            raw.takeBodies(),
+            raw.takeColliders(),
+            raw.takeJoints(),
+            raw.takeQueryPipeline(),
+        );
     }
 
     public takeSnapshot(): Uint8Array {
@@ -102,7 +125,7 @@ export class World {
         return deser.deserializeAll(data);
     }
 
-    public step() {
+    public step(eventQueue?: EventQueue) {
         this.physicsPipeline.step(
             this.gravity,
             this.integrationParameters,
@@ -110,13 +133,9 @@ export class World {
             this.narrowPhase,
             this.bodies,
             this.colliders,
-            this.joints
+            this.joints,
+            eventQueue,
         );
-        this.queryPipeline.update(this.bodies, this.colliders);
-    }
-
-    public stepWithEvents(eventQueue: EventQueue) {
-        throw new Error("Unimplemented");
         this.queryPipeline.update(this.bodies, this.colliders);
     }
 
@@ -148,6 +167,10 @@ export class World {
         return this.bodies.get(this.bodies.createRigidBody(body));
     }
 
+    public createCollider(desc: ColliderDesc, parentHandle: RigidBodyHandle): Collider {
+        return this.colliders.get(this.colliders.createCollider(this.bodies, desc, parentHandle));
+    }
+
     public createJoint(
         params: JointParams,
         parent1: RigidBody,
@@ -158,11 +181,11 @@ export class World {
         );
     }
 
-    public getRigidBody(handle: number): RigidBody {
+    public getRigidBody(handle: RigidBodyHandle): RigidBody {
         return this.bodies.get(handle);
     }
 
-    public getCollider(handle: number): Collider {
+    public getCollider(handle: ColliderHandle): Collider {
         return this.colliders.get(handle);
     }
 
@@ -188,27 +211,27 @@ export class World {
         );
     }
 
-    public forEachCollider(f: (Collider) => void) {
+    public forEachCollider(f: (collider: Collider) => void) {
         this.colliders.forEachCollider(f)
     }
 
-    public forEachColliderHandle(f: (number) => void) {
+    public forEachColliderHandle(f: (handle: ColliderHandle) => void) {
         this.colliders.forEachColliderHandle(f)
     }
 
-    public forEachRigidBody(f: (RigidBody) => void) {
+    public forEachRigidBody(f: (body: RigidBody) => void) {
         this.bodies.forEachRigidBody(f)
     }
 
-    public forEachRigidBodyHandle(f: (number) => void) {
+    public forEachRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
         this.bodies.forEachRigidBodyHandle(f)
     }
 
-    public forEachActiveRigidBody(f: (RigidBody) => void) {
+    public forEachActiveRigidBody(f: (body: RigidBody) => void) {
         this.bodies.forEachActiveRigidBody(f);
     }
 
-    public forEachActiveRigidBodyHandle(f: (number) => void) {
+    public forEachActiveRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
         this.bodies.forEachActiveRigidBodyHandle(f);
     }
 

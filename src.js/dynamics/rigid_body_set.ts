@@ -1,6 +1,6 @@
 import {RawRigidBodySet} from "../rapier"
 import {Vector, Rotation} from '../math';
-import {RigidBody, RigidBodyDesc} from '../dynamics/rigid_body'
+import {RigidBody, RigidBodyDesc, RigidBodyHandle} from '../dynamics/rigid_body'
 
 export class RigidBodySet {
     private RAPIER: any;
@@ -8,20 +8,21 @@ export class RigidBodySet {
 
     public free() {
         this.raw.free();
+        this.raw = undefined;
     }
 
-    constructor(RAPIER: any) {
+    constructor(RAPIER: any, raw?: RawRigidBodySet) {
         this.RAPIER = RAPIER;
-        this.raw = new RAPIER.RawRigidBodySet();
+        this.raw = raw || new RAPIER.RawRigidBodySet();
     }
 
     public createRigidBody(desc: RigidBodyDesc): number {
-        let rawTra = desc._translation.intoRaw(this.RAPIER);
-        let rawRot = desc._rotation.intoRaw(this.RAPIER);
-        let rawLv = desc._linvel.intoRaw(this.RAPIER);
+        let rawTra = desc.translation.intoRaw(this.RAPIER);
+        let rawRot = desc.rotation.intoRaw(this.RAPIER);
+        let rawLv = desc.linvel.intoRaw(this.RAPIER);
 
         // #if DIM3
-        let rawAv = desc._angvel.intoRaw(this.RAPIER);
+        let rawAv = desc.angvel.intoRaw(this.RAPIER);
         // #endif
 
         let handle = this.raw.createRigidBody(
@@ -29,13 +30,13 @@ export class RigidBodySet {
             rawRot,
             rawLv,
             // #if DIM2
-            desc._angvel,
+            desc.angvel,
             // #endif
             // #if DIM3
             rawAv,
             // #endif
-            desc._status,
-            desc._canSleep,
+            desc.status,
+            desc.canSleep,
         );
 
         rawTra.free();
@@ -49,7 +50,7 @@ export class RigidBodySet {
         return handle;
     }
 
-    public get(handle: number): RigidBody {
+    public get(handle: RigidBodyHandle): RigidBody {
         if (this.raw.isHandleValid(handle)) {
             return new RigidBody(this.RAPIER, this.raw, handle);
         } else {
@@ -57,23 +58,23 @@ export class RigidBodySet {
         }
     }
 
-    public forEachRigidBody(f: (RigidBody) => void) {
-        this.forEachRigidBody((handle) => {
+    public forEachRigidBody(f: (body: RigidBody) => void) {
+        this.forEachRigidBodyHandle((handle) => {
             f(new RigidBody(this.RAPIER, this.raw, handle))
         })
     }
 
-    public forEachRigidBodyHandle(f: (number) => void) {
+    public forEachRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
         this.raw.forEachRigidBodyHandle(f)
     }
 
-    public forEachActiveRigidBody(f: (RigidBody) => void) {
-        this.forEachActiveRigidBody((handle) => {
+    public forEachActiveRigidBody(f: (body: RigidBody) => void) {
+        this.forEachActiveRigidBodyHandle((handle) => {
             f(new RigidBody(this.RAPIER, this.raw, handle))
         })
     }
 
-    public forEachActiveRigidBodyHandle(f: (number) => void) {
+    public forEachActiveRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
         this.raw.forEachActiveRigidBodyHandle(f)
     }
 }

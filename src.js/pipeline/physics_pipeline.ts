@@ -1,7 +1,8 @@
 import {RawPhysicsPipeline} from "../rapier";
 import {Vector} from "../math";
-import {IntegrationParameters, JointSet, RigidBodySet} from "../dynamics";
-import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
+import {IntegrationParameters, JointSet, RigidBodyHandle, RigidBodySet} from "../dynamics";
+import {BroadPhase, ColliderHandle, ColliderSet, NarrowPhase} from "../geometry";
+import {EventQueue} from "./event_queue";
 
 export class PhysicsPipeline {
     RAPIER: any
@@ -9,10 +10,11 @@ export class PhysicsPipeline {
 
     public free() {
         this.raw.free();
+        this.raw = undefined;
     }
 
-    constructor(RAPIER) {
-        this.raw = new RAPIER.RawPhysicsPipeline();
+    constructor(RAPIER, raw?: RawPhysicsPipeline) {
+        this.raw = raw || new RAPIER.RawPhysicsPipeline();
         this.RAPIER = RAPIER;
     }
 
@@ -24,23 +26,38 @@ export class PhysicsPipeline {
         bodies: RigidBodySet,
         colliders: ColliderSet,
         joints: JointSet,
+        eventQueue?: EventQueue,
     ) {
         let rawG = gravity.intoRaw(this.RAPIER);
-        this.raw.step(
-            rawG,
-            integrationParameters,
-            broadPhase.raw,
-            narrowPhase.raw,
-            bodies.raw,
-            colliders.raw,
-            joints.raw
-        );
+
+        if (!!eventQueue) {
+            this.raw.stepWithEvents(
+                rawG,
+                integrationParameters.raw,
+                broadPhase.raw,
+                narrowPhase.raw,
+                bodies.raw,
+                colliders.raw,
+                joints.raw,
+                eventQueue.raw
+            );
+        } else {
+            this.raw.step(
+                rawG,
+                integrationParameters.raw,
+                broadPhase.raw,
+                narrowPhase.raw,
+                bodies.raw,
+                colliders.raw,
+                joints.raw,
+            )
+        }
         rawG.free();
     }
 
 
     public removeRigidBody(
-        handle: number,
+        handle: RigidBodyHandle,
         broadPhase: BroadPhase,
         narrowPhase: NarrowPhase,
         bodies: RigidBodySet,
@@ -58,7 +75,7 @@ export class PhysicsPipeline {
     }
 
     public removeCollider(
-        handle: number,
+        handle: ColliderHandle,
         broadPhase: BroadPhase,
         narrowPhase: NarrowPhase,
         bodies: RigidBodySet,

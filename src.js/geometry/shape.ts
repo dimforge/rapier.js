@@ -1,6 +1,16 @@
 import {Vector} from "../math"
 import {RawShape} from "../rapier";
 
+export enum ShapeType {
+    Ball = 0,
+    Cuboid = 1,
+    Capsule = 2,
+    Triangle = 3,
+    Polygon = 4,
+    Trimesh = 5,
+    HeightField = 6,
+}
+
 export class Ball {
     radius: number;
 

@@ -10,6 +10,12 @@ use wasm_bindgen::prelude::*;
 /// A rotation quaternion.
 pub struct RawRotation(pub(crate) Rotation<f32>);
 
+impl From<Rotation<f32>> for RawRotation {
+    fn from(v: Rotation<f32>) -> Self {
+        RawRotation(v)
+    }
+}
+
 #[wasm_bindgen]
 #[cfg(feature = "dim2")]
 /// A unit complex number describing the orientation of a Rapier entity.

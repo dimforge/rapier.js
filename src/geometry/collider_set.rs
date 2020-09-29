@@ -1,12 +1,22 @@
 use crate::dynamics::RawRigidBodySet;
 use crate::geometry::RawShape;
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::{ColliderBuilder, ColliderSet};
+use rapier::geometry::{Collider, ColliderBuilder, ColliderSet};
 use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub struct RawColliderSet(pub(crate) ColliderSet);
+
+impl RawColliderSet {
+    pub(crate) fn map<T>(&self, handle: usize, f: impl FnOnce(&Collider) -> T) -> T {
+        let (collider, _) = self
+            .0
+            .get_unknown_gen(handle)
+            .expect("Invalid Collider reference. It may have been removed from the physics World.");
+        f(collider)
+    }
+}
 
 #[wasm_bindgen]
 impl RawColliderSet {

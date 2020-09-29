@@ -19,10 +19,11 @@ export class SerializationPipeline {
 
     free() {
         this.raw.free();
+        this.raw = undefined;
     }
 
-    constructor(RAPIER: any) {
-        this.raw = new RAPIER.RawSerializationPipeline();
+    constructor(RAPIER: any, raw?: RawSerializationPipeline) {
+        this.raw = raw || new RAPIER.RawSerializationPipeline();
         this.RAPIER = RAPIER;
     }
 
@@ -40,7 +41,7 @@ export class SerializationPipeline {
 
         const res = this.raw.serializeAll(
             rawGra,
-            integrationParameters,
+            integrationParameters.raw,
             broadPhase.raw,
             narrowPhase.raw,
             bodies.raw,
@@ -54,6 +55,6 @@ export class SerializationPipeline {
     }
 
     public deserializeAll(data: Uint8Array): World {
-        return World.fromRaw(this.raw.deserializeAll(data));
+        return World.fromRaw(this.RAPIER, this.raw.deserializeAll(data));
     }
 }

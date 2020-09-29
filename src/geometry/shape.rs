@@ -3,6 +3,17 @@ use rapier::geometry::{Ball, Capsule, Cuboid, Shape};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+pub enum RawShapeType {
+    Ball = 0,
+    Cuboid = 1,
+    Capsule = 2,
+    Triangle = 3,
+    Polygon = 4,
+    Trimesh = 5,
+    HeightField = 6,
+}
+
+#[wasm_bindgen]
 pub struct RawShape(pub(crate) Shape);
 
 #[wasm_bindgen]

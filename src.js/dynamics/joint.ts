@@ -1,5 +1,8 @@
 import {Rotation, Vector} from "../math";
 import {RawJointParams, RawJointSet, RawRigidBodySet} from "../rapier";
+import {RigidBodyHandle} from "./rigid_body"
+
+export type JointHandle = number;
 
 export enum JointType {
     Ball,
@@ -9,41 +12,41 @@ export enum JointType {
 export class Joint {
     private RAPIER: any;
     private rawSet: RawJointSet; // The Joint won't need to free this.
-    readonly handle: number;
+    readonly handle: JointHandle;
 
-    constructor(RAPIER: any, rawSet: RawJointSet, handle: number) {
+    constructor(RAPIER: any, rawSet: RawJointSet, handle: JointHandle) {
         this.RAPIER = RAPIER;
         this.rawSet = rawSet;
         this.handle = handle;
     }
 
     /// The unique integer identifier of the first rigid-body this joint it attached to.
-    public jointBodyHandle1(handle: number): number {
-        return this.rawSet.jointBodyHandle1(handle);
+    public bodyHandle1(): RigidBodyHandle {
+        return this.rawSet.jointBodyHandle1(this.handle);
     }
 
     /// The unique integer identifier of the second rigid-body this joint is attached to.
-    public jointBodyHandle2(handle: number): number {
-        return this.rawSet.jointBodyHandle2(handle);
+    public bodyHandle2(): RigidBodyHandle {
+        return this.rawSet.jointBodyHandle2(this.handle);
     }
 
     /// The type of this joint given as a string.
-    public jointType(handle: number): string {
-        return this.rawSet.jointType(handle);
+    public type(): string {
+        return this.rawSet.jointType(this.handle);
     }
 
     /// The rotation quaternion that aligns this joint's first local axis to the `x` axis.
     // #if DIM3
-    public jointFrameX1(handle: number): Rotation {
-        return Rotation.fromRaw(this.rawSet.jointFrameX1(handle));
+    public jointFrameX1(): Rotation {
+        return Rotation.fromRaw(this.rawSet.jointFrameX1(this.handle));
     }
 
     // #endif
 
     /// The rotation matrix that aligns this joint's second local axis to the `x` axis.
     // #if DIM3
-    public jointFrameX2(handle: number): Rotation {
-        return Rotation.fromRaw(this.rawSet.jointFrameX2(handle));
+    public jointFrameX2(): Rotation {
+        return Rotation.fromRaw(this.rawSet.jointFrameX2(this.handle));
     }
 
     // #endif
@@ -52,16 +55,16 @@ export class Joint {
     ///
     /// The first anchor gives the position of the points application point on the
     /// local frame of the first rigid-body it is attached to.
-    public jointAnchor1(handle: number): Vector {
-        return Vector.fromRaw(this.rawSet.jointAnchor1(handle));
+    public jointAnchor1(): Vector {
+        return Vector.fromRaw(this.rawSet.jointAnchor1(this.handle));
     }
 
     /// The position of the second anchor of this joint.
     ///
     /// The second anchor gives the position of the points application point on the
     /// local frame of the second rigid-body it is attached to.
-    public jointAnchor2(handle: number): Vector {
-        return Vector.fromRaw(this.rawSet.jointAnchor2(handle));
+    public jointAnchor2(): Vector {
+        return Vector.fromRaw(this.rawSet.jointAnchor2(this.handle));
     }
 
     /// The first axis of this joint, if any.
@@ -69,8 +72,8 @@ export class Joint {
     /// For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
     /// this returns the application axis on the first rigid-body this joint is attached to, expressed
     /// in the local-space of this first rigid-body.
-    public jointAxis1(handle: number): Vector {
-        return Vector.fromRaw(this.rawSet.jointAxis1(handle));
+    public jointAxis1(): Vector {
+        return Vector.fromRaw(this.rawSet.jointAxis1(this.handle));
     }
 
     /// The second axis of this joint, if any.
@@ -78,8 +81,8 @@ export class Joint {
     /// For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
     /// this returns the application axis on the second rigid-body this joint is attached to, expressed
     /// in the local-space of this second rigid-body.
-    public jointAxis2(handle: number): Vector {
-        return Vector.fromRaw(this.rawSet.jointAxis2(handle))
+    public jointAxis2(): Vector {
+        return Vector.fromRaw(this.rawSet.jointAxis2(this.handle))
     }
 }
 
