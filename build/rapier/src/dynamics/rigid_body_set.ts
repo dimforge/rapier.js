@@ -74,7 +74,7 @@ export class RigidBodySet {
     /**
      * Does this set contain a rigid-body with the given handle?
      *
-     * @param handle - The rigid-body
+     * @param handle - The rigid-body handle to check.
      */
     public contains(handle: RigidBodyHandle): boolean {
         return this.raw.contains(handle);

@@ -7,6 +7,9 @@ export class IntegrationParameters {
         this.raw = raw || new RAPIER.RawIntegrationParameters();
     }
 
+    /**
+     * Free the WASM memory used by these integration parameters.
+     */
     public free() {
         this.raw.free();
         this.raw = undefined;

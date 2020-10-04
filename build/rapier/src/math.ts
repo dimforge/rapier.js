@@ -9,7 +9,7 @@ export interface VectorInterface {
 }
 
 // #if DIM2
-export class Vector {
+export class Vector extends VectorInterface {
     x: number;
     y: number;
 
@@ -68,7 +68,7 @@ export class Rotation {
 
 
 // #if DIM3
-export class Vector {
+export class Vector extends VectorInterface {
     x: number;
     y: number;
     z: number;
