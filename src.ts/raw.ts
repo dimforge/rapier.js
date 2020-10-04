@@ -1,1 +1,1 @@
-export * from '../build/rapier3d/pkg/rapier3d'
+export * from '../rapier3d/pkg/rapier3d'
