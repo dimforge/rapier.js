@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cp -r ../../src.ts/* pkg/.
+cp -r ../src.ts/* pkg/.
 echo 'export * from "./rapier3d"' >pkg/raw.ts
 find pkg/ -type f -print0 | xargs -0 sed -i '/^ *\/\/ #if DIM2/,/^ *\/\/ #endif/{/^ *\/\/ #if DIM2/!{/^ *\/\/ #endif/!d}}'
 tsc

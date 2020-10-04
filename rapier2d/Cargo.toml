@@ -17,7 +17,7 @@ dim2 = []
 
 [lib]
 name = "rapier2d"
-path = "../../src/lib.rs"
+path = "../src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 required-features = ["dim2"]
 
