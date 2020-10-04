@@ -1,23 +1,22 @@
-import { MatterBackend } from "./MatterBackend";
-import { RapierBackend } from "./RapierBackend";
-import { Box2DJSBackend, Box2DWASMBackend } from "./Box2DBackend";
-import { PlanckBackend } from "./PlanckBackend";
+import {MatterBackend} from "./MatterBackend";
+import {RapierBackend} from "./RapierBackend";
+import {Box2DJSBackend, Box2DWASMBackend} from "./Box2DBackend";
+import {PlanckBackend} from "./PlanckBackend";
 
+const RAPIER = import('@dimforge/rapier2d');
 var interval = null;
+
 
 export class Worker {
     constructor(postMessage) {
         this.stepId = 0;
         this.postMessage = postMessage;
         this.backends = new Map([
-            ["rapier", (w, b, c, j) => new RapierBackend(w, b, c, j)],
-            ["matter.js", (w, b, c, j) => new MatterBackend(w, b, c, j)],
-            ["planck.js", (w, b, c, j) => new PlanckBackend(w, b, c, j)],
-            ["box2d.js", (w, b, c, j) => new Box2DJSBackend(w, b, c, j)],
-            ["box2d.wasm", (w, b, c, j) => new Box2DWASMBackend(w, b, c, j)],
-            // ["cannon.js", (w, b, c, j) => new CannonJSBackend(w, b, c, j)],
-            // ["oimo.js", (w, b, c, j) => new OimoBackend(w, b, c, j)],
-            // ["physx.release.wasm", (w, b, c, j) => new PhysXBackend(w, b, c, j)]
+            ["rapier", (R, w, b, c, j) => new RapierBackend(R, w, b, c, j)],
+            ["matter.js", (R, w, b, c, j) => new MatterBackend(R, w, b, c, j)],
+            ["planck.js", (R, w, b, c, j) => new PlanckBackend(R, w, b, c, j)],
+            ["box2d.js", (R, w, b, c, j) => new Box2DJSBackend(R, w, b, c, j)],
+            ["box2d.wasm", (R, w, b, c, j) => new Box2DWASMBackend(R, w, b, c, j)],
         ]);
     }
 
@@ -28,7 +27,10 @@ export class Worker {
                 this.token = event.data.token;
                 let backend = this.backends.get(event.data.backend);
                 this.backend = null;
-                this.backend = backend(event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
+                RAPIER.then(R => {
+                        this.backend = backend(R, event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
+                    }
+                );
                 this.stepId = 0;
                 break;
             case 'step':
@@ -67,6 +69,8 @@ export class Worker {
             }
 
             postMessage(pos);
+        } else {
+            postMessage(null);
         }
     }
 }

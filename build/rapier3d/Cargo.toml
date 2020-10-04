@@ -1,0 +1,37 @@
+[package]
+name = "rapierjs3d" # Can't be named rapier3d which conflicts with the dependency.
+version = "0.2.0"
+authors = ["Sébastien Crozet <developer@crozet.re>"]
+description = "3-dimensional physics engine in Rust - official low-level JS bindings."
+documentation = "http://rapier.rs/rustdoc/rapier2d/index.html"
+homepage = "https://rapier.rs"
+repository = "https://github.com/dimforge/rapier.js"
+readme = "README.md"
+keywords = ["physics", "dynamics", "rigid", "real-time", "joints"]
+license = "Apache-2.0"
+edition = "2018"
+
+[features]
+default = ["dim3"]
+dim3 = []
+
+[lib]
+name = "rapier3d"
+path = "../../src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+required-features = ["dim3"]
+
+
+[dependencies]
+rapier3d = { version = "^0.1.4", features = ["wasm-bindgen", "serde-serialize", "enhanced-determinism"] }
+ref-cast = "1"
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+nalgebra = "0.22"
+serde = { version = "1", features = ["derive", "rc"] }
+bincode = "1"
+crossbeam-channel = "0.4"
+
+[package.metadata.wasm-pack.profile.release]
+# add -g to keep debug symbols
+wasm-opt = ['-O4'] # , '-g']

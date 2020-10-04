@@ -1,0 +1,15 @@
+{
+  "inputFiles": [
+    "./pkg/dynamics",
+    "./pkg/geometry",
+    "./pkg/pipeline",
+    "./pkg/lib.d.ts",
+    "./pkg/math.d.ts"
+  ],
+  "target": "es5",
+  "mode": "file",
+  "excludeExternals": true,
+  "includeDeclarations": true,
+  "out": "./docs",
+  "excludeNotDocumented": false
+}

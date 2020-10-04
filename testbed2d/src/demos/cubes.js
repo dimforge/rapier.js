@@ -1,8 +1,6 @@
-import {Vector, World, RigidBodyDesc, ColliderDesc, BodyStatus} from '@dimforge/rapier2d'
-
-export function initWorld(RAPIER_CORE, testbed) {
-    let gravity = new Vector(0.0, -9.81);
-    let world = new World(RAPIER_CORE, gravity);
+export function initWorld(RAPIER, testbed) {
+    let gravity = new RAPIER.Vector(0.0, -9.81);
+    let world = new RAPIER.World(gravity);
     let bodies = new Array();
     let colliders = new Array();
 
@@ -15,10 +13,10 @@ export function initWorld(RAPIER_CORE, testbed) {
     ];
 
     grounds.forEach(ground => {
-        let bodyDesc = new RigidBodyDesc(BodyStatus.Static)
-            .setTranslation(new Vector(ground.x, ground.y));
+        let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
+            .setTranslation(new RAPIER.Vector(ground.x, ground.y));
         let body = world.createRigidBody(bodyDesc);
-        let colliderDesc = ColliderDesc.cuboid(ground.hx, ground.hy);
+        let colliderDesc = RAPIER.ColliderDesc.cuboid(ground.hx, ground.hy);
         let collider = world.createCollider(colliderDesc, body.handle);
         bodies.push(body);
         colliders.push(collider);
@@ -42,10 +40,10 @@ export function initWorld(RAPIER_CORE, testbed) {
             let y = j * shift + centery + 3.0;
 
             // Create dynamic cube.
-            let bodyDesc = new RigidBodyDesc(BodyStatus.Dynamic)
-                .setTranslation(new Vector(x, y));
+            let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
+                .setTranslation(new RAPIER.Vector(x, y));
             let body = world.createRigidBody(bodyDesc);
-            let colliderDesc = ColliderDesc.cuboid(rad, rad, rad);
+            let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
             let collider = world.createCollider(colliderDesc, body.handle);
             bodies.push(body);
             colliders.push(collider);

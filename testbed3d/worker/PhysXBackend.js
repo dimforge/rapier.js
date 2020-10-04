@@ -1,8 +1,7 @@
 import * as PhysX from 'physx-js'
-import {BodyStatus, JointType, ShapeType} from "@dimforge/rapier3d";
 
 export class PhysXBackend {
-    constructor(world, bodies, colliders, joints) {
+    constructor(RAPIER, world, bodies, colliders, joints) {
         var me = this;
         PhysX().then(function (PhysX) {
             const version = PhysX.PX_PHYSICS_VERSION;
@@ -51,7 +50,7 @@ export class PhysXBackend {
                     rotation: {w: 1.0, x: 0.0, y: 0.0, z: 0.0}
                 };
 
-                let pxBody = body.type == BodyStatus.Dynamic ? me.physics.createRigidDynamic(pxPos) : me.physics.createRigidStatic(pxPos);
+                let pxBody = body.type == RAPIER.BodyStatus.Dynamic ? me.physics.createRigidDynamic(pxPos) : me.physics.createRigidStatic(pxPos);
                 me.world.addActor(pxBody, null);
                 return [body.handle, pxBody];
             }));
@@ -62,11 +61,11 @@ export class PhysXBackend {
                 let pxGeom;
 
                 switch (coll.type) {
-                    case ShapeType.Cuboid:
+                    case RAPIER.ShapeType.Cuboid:
                         let he = coll.halfExtents;
                         pxGeom = new PhysX.PxBoxGeometry(he.x, he.y, he.z);
                         break;
-                    case ShapeType.Ball:
+                    case RAPIER.ShapeType.Ball:
                         let r = coll.radius;
                         pxGeom = new PhysX.PxSphereGeometry(r);
                         break;
@@ -89,7 +88,7 @@ export class PhysXBackend {
                 let pxConstraint;
 
                 switch (joint.type) {
-                    case JointType.Ball:
+                    case RAPIER.JointType.Ball:
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
                         pxAnchor1 = {
@@ -102,7 +101,7 @@ export class PhysXBackend {
                         };
                         pxConstraint = PhysX.PxSphericalJointCreate(me.physics, pxBody1, pxAnchor1, pxBody2, pxAnchor2);
                         break;
-                    case JointType.Revolute:
+                    case RAPIER.JointType.Revolute:
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
                         let frame1 = joint.frameX1;

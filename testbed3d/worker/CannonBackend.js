@@ -1,18 +1,17 @@
 import * as CANNONJS from 'cannon';
-import {BodyStatus, JointType, ShapeType} from "@dimforge/rapier3d";
 
 // import * as CANNONES from 'cannon-es';
 
 
 class CannonBackend {
-    constructor(CANNON, world, bodies, colliders, joints) {
+    constructor(RAPIER, CANNON, world, bodies, colliders, joints) {
         this.world = new CANNON.World();
         this.world.gravity = new CANNON.Vec3(0.0, -9.81, 0.0);
         this.world.solver.iterations = world.maxVelocityIterations;
 
         this.bodyMap = new Map(bodies.map(body => {
             let pos = body.translation;
-            let mass = body.type == BodyStatus.Dynamic ? body.mass : 0.0;
+            let mass = body.type == RAPIER.BodyStatus.Dynamic ? body.mass : 0.0;
             let caPos = new CANNON.Vec3(pos.x, pos.y, pos.z);
             let caBody = new CANNON.Body({
                 mass: mass,
@@ -28,11 +27,11 @@ class CannonBackend {
             let caShape;
 
             switch (coll.type) {
-                case ShapeType.Cuboid:
+                case RAPIER.ShapeType.Cuboid:
                     let he = coll.halfExtents;
                     caShape = new CANNON.Box(new CANNON.Vec3(he.x, he.y, he.z));
                     break;
-                case ShapeType.Ball:
+                case RAPIER.ShapeType.Ball:
                     let r = coll.radius;
                     caShape = new CANNON.Sphere(r);
                     break;
@@ -52,14 +51,14 @@ class CannonBackend {
             let caConstraint;
 
             switch (joint.type) {
-                case JointType.Ball:
+                case RAPIER.JointType.Ball:
                     anchor1 = joint.anchor1;
                     anchor2 = joint.anchor2;
                     caAnchor1 = new CANNON.Vec3(anchor1.x, anchor1.y, anchor1.z);
                     caAnchor2 = new CANNON.Vec3(anchor2.x, anchor2.y, anchor2.z);
                     caConstraint = new CANNON.PointToPointConstraint(caBody1, caAnchor1, caBody2, caAnchor2);
                     break;
-                case JointType.Revolute:
+                case RAPIER.JointType.Revolute:
                     anchor1 = joint.anchor1;
                     anchor2 = joint.anchor2;
                     let axis1 = joint.axis1;
@@ -89,7 +88,7 @@ class CannonBackend {
 
     free() {
     }
-    
+
     colliderPositions() {
         if (!!this.world) {
             let result = [];
@@ -117,14 +116,14 @@ class CannonBackend {
 }
 
 export class CannonJSBackend extends CannonBackend {
-    constructor(world, bodies, colliders, joints) {
-        super(CANNONJS, world, bodies, colliders, joints)
+    constructor(RAPIER, world, bodies, colliders, joints) {
+        super(RAPIER, CANNONJS, world, bodies, colliders, joints)
     }
 }
 
 // It appears this does not work in a web worker?
 // export class CannonESBackend extends CannonBackend {
-//     constructor(world, bodies, colliders, joints) {
-//         super(CANNONES, world, bodies, colliders, joints)
+//     constructor(RAPIER, world, bodies, colliders, joints) {
+//         super(RAPIER, CANNONES, world, bodies, colliders, joints)
 //     }
 // }

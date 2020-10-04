@@ -5,7 +5,7 @@ import * as Pyramid from './demos/pyramid'
 import * as Keva from './demos/keva'
 import * as BallJoints from './demos/ball_joints'
 
-import('@dimforge/rapier-core2d').then(RAPIER => {
+import('@dimforge/rapier2d').then(RAPIER => {
     let builders = new Map([
         ['cubes', Cubes.initWorld],
         ['balls', Balls.initWorld],

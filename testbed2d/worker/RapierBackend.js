@@ -1,92 +1,79 @@
 import md5 from 'md5';
-import {
-    Vector,
-    World,
-    RigidBodyDesc,
-    ColliderDesc,
-    BodyStatus,
-    ShapeType,
-    JointType,
-    JointParams
-} from '@dimforge/rapier2d'
 
 export class RapierBackend {
-    constructor(world, bodies, colliders, joints) {
-        let me = this;
+    constructor(RAPIER, world, bodies, colliders, joints) {
+        let gravity = new RAPIER.Vector(0.0, -9.81);
+        let raWorld = new RAPIER.World(gravity);
 
-        import('@dimforge/rapier-core2d').then(function (RAPIER_CORE) {
-            let gravity = new Vector(0.0, -9.81);
-            let raWorld = new World(RAPIER_CORE, gravity);
-            raWorld.maxVelocityIterations = world.maxVelocityIterations;
-            raWorld.maxPositionIterations = world.maxPositionIterations;
+        raWorld.maxVelocityIterations = world.maxVelocityIterations;
+        raWorld.maxPositionIterations = world.maxPositionIterations;
 
-            console.log("Num bodies: " + bodies.length);
-            let bodyMap = bodies.map(body => {
-                let bodyDesc = new RigidBodyDesc(body.type)
-                    .setTranslation(new Vector(body.translation.x, body.translation.y));
-                let raBody = raWorld.createRigidBody(bodyDesc);
-                return [body.handle, raBody];
-            });
+        console.log("Num bodies: " + bodies.length);
+        let bodyMap = bodies.map(body => {
+            let bodyDesc = new RAPIER.RigidBodyDesc(body.type)
+                .setTranslation(new RAPIER.Vector(body.translation.x, body.translation.y));
+            let raBody = raWorld.createRigidBody(bodyDesc);
+            return [body.handle, raBody];
+        });
 
-            me.bodyRevMap = new Map(bodyMap.map(entry => {
-                return [entry[1].handle, entry[0]];
-            }));
-            me.bodyMap = new Map(bodyMap);
+        this.bodyRevMap = new Map(bodyMap.map(entry => {
+            return [entry[1].handle, entry[0]];
+        }));
+        this.bodyMap = new Map(bodyMap);
 
-            let colliderMap = colliders.map(coll => {
-                let parentHandle = coll.parentHandle;
-                let raBody = me.bodyMap.get(parentHandle);
-                let colliderDesc = null;
-                let raCollider = null;
+        let colliderMap = colliders.map(coll => {
+            let parentHandle = coll.parentHandle;
+            let raBody = this.bodyMap.get(parentHandle);
+            let colliderDesc = null;
+            let raCollider = null;
 
-                switch (coll.type) {
-                    case ShapeType.Cuboid:
-                        let he = coll.halfExtents;
-                        colliderDesc = ColliderDesc.cuboid(he.x, he.y);
-                        break;
-                    case ShapeType.Ball:
-                        let r = coll.radius;
-                        colliderDesc = ColliderDesc.ball(r);
-                        break;
-                }
+            switch (coll.type) {
+                case RAPIER.ShapeType.Cuboid:
+                    let he = coll.halfExtents;
+                    colliderDesc = RAPIER.ColliderDesc.cuboid(he.x, he.y);
+                    break;
+                case RAPIER.ShapeType.Ball:
+                    let r = coll.radius;
+                    colliderDesc = RAPIER.ColliderDesc.ball(r);
+                    break;
+            }
 
-                if (!!colliderDesc) {
-                    colliderDesc.density = coll.density;
-                    raCollider = raWorld.createCollider(colliderDesc, raBody.handle);
-                } else {
-                    console.log("Could not build collider from desc: ", coll);
-                }
+            if (!!colliderDesc) {
+                colliderDesc.density = coll.density;
+                raCollider = raWorld.createCollider(colliderDesc, raBody.handle);
+            } else {
+                console.log("Could not build collider from desc: ", coll);
+            }
 
-                return [coll.handle, raCollider];
-            });
+            return [coll.handle, raCollider];
+        });
 
-            me.colliderRevMap = new Map(colliderMap.map(entry => {
-                return [entry[1].handle, entry[0]];
-            }))
-            me.colliderMap = new Map(colliderMap);
+        this.colliderRevMap = new Map(colliderMap.map(entry => {
+            return [entry[1].handle, entry[0]];
+        }))
+        this.colliderMap = new Map(colliderMap);
 
-            joints.forEach(joint => {
-                let raBody1 = me.bodyMap.get(joint.handle1);
-                let raBody2 = me.bodyMap.get(joint.handle2);
-                let anchor1, anchor2, raAnchor1, raAnchor2;
-                let raJointParams;
+        joints.forEach(joint => {
+            let raBody1 = this.bodyMap.get(joint.handle1);
+            let raBody2 = this.bodyMap.get(joint.handle2);
+            let anchor1, anchor2, raAnchor1, raAnchor2;
+            let raJointParams;
 
-                switch (joint.type) {
-                    case JointType.Ball:
-                        anchor1 = joint.anchor1;
-                        anchor2 = joint.anchor2;
-                        raAnchor1 = new Vector(anchor1.x, anchor1.y);
-                        raAnchor2 = new Vector(anchor2.x, anchor2.y);
-                        raJointParams = JointParams.ball(raAnchor1, raAnchor2);
-                        break;
-                }
+            switch (joint.type) {
+                case RAPIER.JointType.Ball:
+                    anchor1 = joint.anchor1;
+                    anchor2 = joint.anchor2;
+                    raAnchor1 = new RAPIER.Vector(anchor1.x, anchor1.y);
+                    raAnchor2 = new RAPIER.Vector(anchor2.x, anchor2.y);
+                    raJointParams = RAPIER.JointParams.ball(raAnchor1, raAnchor2);
+                    break;
+            }
 
-                raWorld.createJoint(raJointParams, raBody1, raBody2);
-            });
+            raWorld.createJoint(raJointParams, raBody1, raBody2);
+        });
 
-            me.world = raWorld;
-            me.RAPIER = RAPIER_CORE;
-        })
+        this.world = raWorld;
+        this.RAPIER = RAPIER;
     }
 
     worldHash() {

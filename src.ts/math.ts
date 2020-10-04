@@ -1,0 +1,134 @@
+import {RawVector, RawRotation} from "./raw";
+
+export interface VectorInterface {
+    x: number;
+    y: number;
+    // #if DIM3
+    z: number;
+    // #endif
+}
+
+// #if DIM2
+export class Vector implements VectorInterface {
+    x: number;
+    y: number;
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public static zeros(): Vector {
+        return new Vector(0.0, 0.0);
+    }
+
+    // FIXME: type ram: RawVector?
+    public static fromRaw(raw: RawVector): Vector {
+        if (!raw)
+            return null;
+
+        let res = new Vector(raw.x, raw.y);
+        raw.free();
+        return res;
+    }
+
+    public static intoRaw(v: VectorInterface): RawVector {
+        return new RawVector(v.x, v.y);
+    }
+}
+
+export class Rotation {
+    angle: number;
+
+    constructor(angle: number) {
+        this.angle = angle;
+    }
+
+    public static identity(): Rotation {
+        return new Rotation(0.0);
+    }
+
+    // FIXME: type ram: RawVector?
+    public static fromRaw(raw: RawRotation): Rotation {
+        if (!raw)
+            return null;
+
+        let res = new Rotation(raw.angle);
+        raw.free();
+        return res;
+    }
+
+    // FIXME: type ram: RawVector?
+    public intoRaw(): RawRotation {
+        return RawRotation.fromAngle(this.angle);
+    }
+}
+
+// #endif
+
+
+// #if DIM3
+export class Vector implements VectorInterface {
+    x: number;
+    y: number;
+    z: number;
+
+    constructor(x: number, y: number, z: number) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public static intoRaw(v: VectorInterface): RawVector {
+        return new RawVector(v.x, v.y, v.z);
+    }
+
+    public static zeros(): Vector {
+        return new Vector(0.0, 0.0, 0.0);
+    }
+
+    // FIXME: type ram: RawVector?
+    public static fromRaw(raw: RawVector): Vector {
+        if (!raw)
+            return null;
+
+        let res = new Vector(raw.x, raw.y, raw.z);
+        raw.free();
+        return res;
+    }
+}
+
+export class Rotation {
+    x: number;
+    y: number;
+    z: number;
+    w: number;
+
+    constructor(x: number, y: number, z: number, w: number) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+
+    public static identity(): Rotation {
+        return new Rotation(0.0, 0.0, 0.0, 1.0);
+    }
+
+    // FIXME: type ram: RawVector?
+    public static fromRaw(raw: RawRotation): Rotation {
+        if (!raw)
+            return null;
+
+        let res = new Rotation(raw.x, raw.y, raw.z, raw.w);
+        raw.free();
+        return res;
+    }
+
+    // FIXME: type ram: RawVector?
+    public intoRaw(): RawRotation {
+        return new RawRotation(this.x, this.y, this.z, this.w);
+    }
+}
+
+// #endif

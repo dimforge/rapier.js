@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
-import {ShapeType} from "@dimforge/rapier3d";
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
@@ -110,7 +109,7 @@ export class Graphics {
         this.colorIndex = 0;
     }
 
-    addCollider(world, collider) {
+    addCollider(RAPIER, world, collider) {
         let parent = world.getRigidBody(collider.parent());
         let instance;
         let instanceDesc = {
@@ -120,7 +119,7 @@ export class Graphics {
         };
 
         switch (collider.shapeType()) {
-            case ShapeType.Cuboid:
+            case RAPIER.ShapeType.Cuboid:
                 let hext = collider.halfExtents();
                 instance = this.instanceGroups[BOX_INSTANCE_INDEX][instanceDesc.instanceId];
                 instanceDesc.groupId = BOX_INSTANCE_INDEX;
@@ -128,7 +127,7 @@ export class Graphics {
                 instanceDesc.scale = new THREE.Vector3(hext.x, hext.y, hext.z);
                 instance.count += 1;
                 break;
-            case ShapeType.Ball:
+            case RAPIER.ShapeType.Ball:
                 let rad = collider.radius();
                 instance = this.instanceGroups[BALL_INSTANCE_INDEX][instanceDesc.instanceId];
                 instanceDesc.groupId = BALL_INSTANCE_INDEX;

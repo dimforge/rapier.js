@@ -4,6 +4,7 @@ import {PhysXBackend} from "./PhysXBackend";
 import {OimoBackend} from "./OimoBackend";
 import {RapierBackend} from "./RapierBackend";
 
+const RAPIER = import('@dimforge/rapier3d');
 var interval = null;
 
 export class Worker {
@@ -11,13 +12,13 @@ export class Worker {
         this.stepId = 0;
         this.postMessage = postMessage;
         this.backends = new Map([
-            ["rapier", (w, b, c, j) => new RapierBackend(w, b, c, j)],
-            ["ammo.js", (w, b, c, j) => new AmmoJSBackend(w, b, c, j)],
-            ["ammo.wasm", (w, b, c, j) => new AmmoWASMBackend(w, b, c, j)],
-            ["cannon.js", (w, b, c, j) => new CannonJSBackend(w, b, c, j)],
-            // ["cannon-es", (w, b, c, j) => new CannonESBackend(w, b, c, j)], // FIXME: this does not work in a web worker?
-            ["oimo.js", (w, b, c, j) => new OimoBackend(w, b, c, j)],
-            ["physx.release.wasm", (w, b, c, j) => new PhysXBackend(w, b, c, j)]
+            ["rapier", (R, w, b, c, j) => new RapierBackend(R, w, b, c, j)],
+            ["ammo.js", (R, w, b, c, j) => new AmmoJSBackend(R, w, b, c, j)],
+            ["ammo.wasm", (R, w, b, c, j) => new AmmoWASMBackend(R, w, b, c, j)],
+            ["cannon.js", (R, w, b, c, j) => new CannonJSBackend(R, w, b, c, j)],
+            // ["cannon-es", (R, w, b, c, j) => new CannonESBackend(R, w, b, c, j)], // FIXME: this does not work in a web worker?
+            ["oimo.js", (R, w, b, c, j) => new OimoBackend(R, w, b, c, j)],
+            ["physx.release.wasm", (R, w, b, c, j) => new PhysXBackend(R, w, b, c, j)]
         ]);
     }
 
@@ -29,7 +30,10 @@ export class Worker {
                 let backend = this.backends.get(event.data.backend);
                 if (!!this.backend)
                     this.backend.free();
-                this.backend = backend(event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
+
+                RAPIER.then(R => {
+                    this.backend = backend(R, event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
+                });
                 this.stepId = 0;
                 break;
             case 'step':
@@ -68,6 +72,8 @@ export class Worker {
             }
 
             postMessage(pos);
+        } else {
+            postMessage(null);
         }
     }
 }

@@ -1,0 +1,1 @@
+export * from '../build/rapier3d/pkg/rapier3d'

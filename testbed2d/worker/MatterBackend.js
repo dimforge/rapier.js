@@ -1,8 +1,7 @@
 import {Engine, World, Bodies, Body, Constraint} from 'matter-js';
-import {BodyStatus, JointType, ShapeType} from "@dimforge/rapier2d";
 
 export class MatterBackend {
-    constructor(world, bodies, colliders, joints) {
+    constructor(RAPIER, world, bodies, colliders, joints) {
         this.engine = Engine.create();
         this.engine.world.gravity.x = 0.0;
         this.engine.world.gravity.y = -0.1;
@@ -22,18 +21,18 @@ export class MatterBackend {
             let maBody;
 
             switch (collider.type) {
-                case ShapeType.Ball:
+                case RAPIER.ShapeType.Ball:
                     let r = collider.radius;
                     maBody = Bodies.circle(0, 0, r)
                     break;
-                case ShapeType.Cuboid:
+                case RAPIER.ShapeType.Cuboid:
                     let he = collider.halfExtents;
                     maBody = Bodies.rectangle(0, 0, he.x * 2.0, he.y * 2.0);
                     break;
             }
 
             Body.setPosition(maBody, pos);
-            Body.setStatic(maBody, body.type != BodyStatus.Dynamic);
+            Body.setStatic(maBody, body.type != RAPIER.BodyStatus.Dynamic);
             World.add(this.engine.world, [maBody]);
             maBody.colliderHandle = collider.handle;
 
@@ -49,7 +48,7 @@ export class MatterBackend {
             let maConstraint;
 
             switch (joint.type) {
-                case JointType.Ball:
+                case RAPIER.JointType.Ball:
                     maConstraint = Constraint.create({
                         bodyA: maBody1,
                         bodyB: maBody2,

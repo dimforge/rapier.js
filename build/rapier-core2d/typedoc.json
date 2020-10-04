@@ -1,9 +1,0 @@
-{
-	"inputFiles": ["./pkg"],
-	"target": "ES6",
-	"mode": "file",
-	"excludeExternals": true,
-	"includeDeclarations": true,
-	"out": "./docs",
-	"excludeNotDocumented": true
-}

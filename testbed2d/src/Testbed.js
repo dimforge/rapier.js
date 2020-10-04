@@ -187,7 +187,7 @@ export class Testbed {
         this.gui.resetTiming();
 
         colliders.forEach((coll, i, arr) => {
-            this.graphics.addCollider(world, coll);
+            this.graphics.addCollider(this.RAPIER, world, coll);
         });
 
         let desc = extractWorldDescription(world, bodies, colliders, joints);

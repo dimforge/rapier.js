@@ -1,7 +1,6 @@
 import * as PIXI from "pixi.js";
 import {Viewport} from "pixi-viewport";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
-import {ShapeType} from "@dimforge/rapier2d";
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
@@ -98,14 +97,14 @@ export class Graphics {
         this.colorIndex = 0;
     }
 
-    addCollider(world, collider) {
+    addCollider(RAPIER, world, collider) {
         let parent = world.getRigidBody(collider.parent());
         let instance;
         let graphics;
         let instanceId = parent.isStatic() ? 0 : (this.colorIndex + 1);
 
         switch (collider.shapeType()) {
-            case ShapeType.Cuboid:
+            case RAPIER.ShapeType.Cuboid:
                 let hext = collider.halfExtents();
                 instance = this.instanceGroups[BOX_INSTANCE_INDEX][instanceId];
                 graphics = instance.clone();
@@ -114,7 +113,7 @@ export class Graphics {
                 this.viewport.addChild(graphics);
                 instance.count += 1;
                 break;
-            case ShapeType.Ball:
+            case RAPIER.ShapeType.Ball:
                 let rad = collider.radius();
                 instance = this.instanceGroups[BALL_INSTANCE_INDEX][instanceId];
                 graphics = instance.clone();
