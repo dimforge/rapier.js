@@ -10,7 +10,8 @@ function buildBlock(
     numy,
     numz
 ) {
-    let dimensions = [halfExtents.xyz(), halfExtents.zyx()];
+    let half_extents_zyx = {x: halfExtents.z, y: halfExtents.y, z: halfExtents.x};
+    let dimensions = [halfExtents, half_extents_zyx];
     let blockWidth = 2.0 * halfExtents.z * numx;
     let blockHeight = 2.0 * halfExtents.y * numy;
     let spacing = (halfExtents.z * numx - halfExtents.x) / (numz - 1.0);
@@ -31,7 +32,7 @@ function buildBlock(
                 let z = (i % 2) == 0 ? dim.z * k * 2.0 : spacing * k * 2.0;
                 // Build the rigid body.
                 let bodyDesc = new RigidBodyDesc(BodyStatus.Dynamic)
-                    .withTranslation(new Vector(
+                    .setTranslation(new Vector(
                         x + dim.x + shift.x,
                         y + dim.y + shift.y,
                         z + dim.z + shift.z
@@ -46,13 +47,13 @@ function buildBlock(
     }
 
     // Close the top.
-    let dim = halfExtents.zxy();
+    let dim = {x: halfExtents.z, y: halfExtents.x, z: halfExtents.y};
 
     for (i = 0; i < blockWidth / (dim.x * 2.0); ++i) {
         for (j = 0; j < blockWidth / (dim.z * 2.0); ++j) {
             // Build the rigid body.
             let bodyDesc = new RigidBodyDesc(BodyStatus.Dynamic)
-                .withTranslation(new Vector(
+                .setTranslation(new Vector(
                     i * dim.x * 2.0 + dim.x + shift.x,
                     dim.y + shift.y + blockHeight,
                     j * dim.z * 2.0 + dim.z + shift.z,
@@ -67,9 +68,9 @@ function buildBlock(
 }
 
 
-export function initWorld(RAW_RAPIER, testbed) {
+export function initWorld(RAPIER_CORE, testbed) {
     let gravity = new Vector(0.0, -9.81, 0.0);
-    let world = new World(RAW_RAPIER, gravity);
+    let world = new World(RAPIER_CORE, gravity);
     let bodies = new Array();
     let colliders = new Array();
 
@@ -77,7 +78,7 @@ export function initWorld(RAW_RAPIER, testbed) {
     let groundSize = 50.0;
     let groundHeight = 0.1;
     let bodyDesc = new RigidBodyDesc(BodyStatus.Static)
-        .withTranslation(new Vector(0.0, -groundHeight, 0.0));
+        .setTranslation(new Vector(0.0, -groundHeight, 0.0));
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
     let collider = world.createCollider(colliderDesc, body.handle);

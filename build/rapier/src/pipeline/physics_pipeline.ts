@@ -1,5 +1,5 @@
 import {RawPhysicsPipeline} from "@dimforge/rapier-core2d";
-import {Vector} from "../math";
+import {Vector, VectorInterface} from "../math";
 import {IntegrationParameters, JointSet, RigidBodyHandle, RigidBodySet} from "../dynamics";
 import {BroadPhase, ColliderHandle, ColliderSet, NarrowPhase} from "../geometry";
 import {EventQueue} from "./event_queue";
@@ -19,7 +19,7 @@ export class PhysicsPipeline {
     }
 
     public step(
-        gravity: Vector,
+        gravity: VectorInterface,
         integrationParameters: IntegrationParameters,
         broadPhase: BroadPhase,
         narrowPhase: NarrowPhase,
@@ -28,7 +28,7 @@ export class PhysicsPipeline {
         joints: JointSet,
         eventQueue?: EventQueue,
     ) {
-        let rawG = gravity.intoRaw(this.RAPIER);
+        let rawG = Vector.intoRaw(this.RAPIER, gravity);
 
         if (!!eventQueue) {
             this.raw.stepWithEvents(

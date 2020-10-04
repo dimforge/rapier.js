@@ -1,13 +1,13 @@
-import {Vector} from "../math";
+import {Vector, VectorInterface} from "../math";
 import {RawRayColliderIntersection} from "@dimforge/rapier-core2d";
 import {ColliderHandle} from "./collider";
 
 
 export class Ray {
-    origin: Vector
-    dir: Vector
+    origin: VectorInterface
+    dir: VectorInterface
 
-    constructor(origin: Vector, dir: Vector) {
+    constructor(origin: VectorInterface, dir: VectorInterface) {
         this.origin = origin;
         this.dir = dir;
     }
@@ -16,9 +16,9 @@ export class Ray {
 export class RayColliderIntersection {
     colliderHandle: ColliderHandle
     toi: number
-    normal: Vector
+    normal: VectorInterface
 
-    constructor(colliderHandle: ColliderHandle, toi: number, normal: Vector) {
+    constructor(colliderHandle: ColliderHandle, toi: number, normal: VectorInterface) {
         this.colliderHandle = colliderHandle;
         this.toi = toi;
         this.normal = normal;

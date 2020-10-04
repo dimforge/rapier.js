@@ -25,6 +25,14 @@ impl RawColliderSet {
         RawColliderSet(ColliderSet::new())
     }
 
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn contains(&self, handle: usize) -> bool {
+        self.0.get_unknown_gen(handle).is_some()
+    }
+
     pub fn createCollider(
         &mut self,
         shape: &RawShape,

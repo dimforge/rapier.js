@@ -1,5 +1,6 @@
 import md5 from 'md5';
 import {
+    INIT,
     Vector,
     World,
     RigidBodyDesc,
@@ -14,7 +15,7 @@ export class RapierBackend {
     constructor(world, bodies, colliders, joints) {
         let me = this;
 
-        import('@dimforge/rapier-core3d').then(function (RAPIER) {
+        INIT.then(function (RAPIER) {
             let gravity = new Vector(0.0, -9.81, 0.0);
             let raWorld = new World(RAPIER, gravity);
             raWorld.maxVelocityIterations = world.maxVelocityIterations;
@@ -22,7 +23,7 @@ export class RapierBackend {
 
             let bodyMap = bodies.map(body => {
                 let bodyDesc = new RigidBodyDesc(body.type)
-                    .withTranslation(new Vector(body.translation.x, body.translation.y, body.translation.z));
+                    .setTranslation(new Vector(body.translation.x, body.translation.y, body.translation.z));
                 let raBody = raWorld.createRigidBody(bodyDesc);
                 return [body.handle, raBody];
             });

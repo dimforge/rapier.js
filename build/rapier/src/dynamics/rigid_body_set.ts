@@ -2,10 +2,19 @@ import {RawRigidBodySet} from "@dimforge/rapier-core2d"
 import {Vector, Rotation} from '../math';
 import {RigidBody, RigidBodyDesc, RigidBodyHandle} from './rigid_body'
 
+/**
+ * A set of rigid bodies that can be handled by a physics pipeline.
+ *
+ * To avoid leaking WASM resources, this MUST be freed manually with `jointSet.free()`
+ * once you are done using it (and all the rigid-bodies it created).
+ */
 export class RigidBodySet {
     private RAPIER: any;
     raw: RawRigidBodySet;
 
+    /**
+     * Release the WASM memory occupied by this rigid-body set.
+     */
     public free() {
         this.raw.free();
         this.raw = undefined;
@@ -16,13 +25,18 @@ export class RigidBodySet {
         this.raw = raw || new RAPIER.RawRigidBodySet();
     }
 
+    /**
+     * Creates a new rigid-body and return its integer handle.
+     *
+     * @param desc - The description of the rigid-body to create.
+     */
     public createRigidBody(desc: RigidBodyDesc): number {
-        let rawTra = desc.translation.intoRaw(this.RAPIER);
+        let rawTra = Vector.intoRaw(this.RAPIER, desc.translation);
         let rawRot = desc.rotation.intoRaw(this.RAPIER);
-        let rawLv = desc.linvel.intoRaw(this.RAPIER);
+        let rawLv = Vector.intoRaw(this.RAPIER, desc.linvel);
 
         // #if DIM3
-        let rawAv = desc.angvel.intoRaw(this.RAPIER);
+        let rawAv = Vector.intoRaw(this.RAPIER, desc.angvel);
         // #endif
 
         let handle = this.raw.createRigidBody(
@@ -50,30 +64,75 @@ export class RigidBodySet {
         return handle;
     }
 
+    /**
+     * The number of rigid-bodies on this set.
+     */
+    public len(): number {
+        return this.raw.len();
+    }
+
+    /**
+     * Does this set contain a rigid-body with the given handle?
+     *
+     * @param handle - The rigid-body
+     */
+    public contains(handle: RigidBodyHandle): boolean {
+        return this.raw.contains(handle);
+    }
+
+    /**
+     * Gets the rigid-body with the given handle.
+     *
+     * @param handle - The handle of the rigid-body to retrieve.
+     */
     public get(handle: RigidBodyHandle): RigidBody {
-        if (this.raw.isHandleValid(handle)) {
+        if (this.raw.contains(handle)) {
             return new RigidBody(this.RAPIER, this.raw, handle);
         } else {
             return null;
         }
     }
 
+    /**
+     * Applies the given closure to each rigid-body contained by this set.
+     *
+     * @param f - The closure to apply.
+     */
     public forEachRigidBody(f: (body: RigidBody) => void) {
         this.forEachRigidBodyHandle((handle) => {
             f(new RigidBody(this.RAPIER, this.raw, handle))
         })
     }
 
+    /**
+     * Applies the given closure to the handle of each rigid-body contained by this set.
+     *
+     * @param f - The closure to apply.
+     */
     public forEachRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
         this.raw.forEachRigidBodyHandle(f)
     }
 
+    /**
+     * Applies the given closure to each active rigid-bodies contained by this set.
+     *
+     * A rigid-body is active if it is not sleeping, i.e., if it moved recently.
+     *
+     * @param f - The closure to apply.
+     */
     public forEachActiveRigidBody(f: (body: RigidBody) => void) {
         this.forEachActiveRigidBodyHandle((handle) => {
             f(new RigidBody(this.RAPIER, this.raw, handle))
         })
     }
 
+    /**
+     * Applies the given closure to the handle of each active rigid-bodies contained by this set.
+     *
+     * A rigid-body is active if it is not sleeping, i.e., if it moved recently.
+     *
+     * @param f - The closure to apply.
+     */
     public forEachActiveRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
         this.raw.forEachActiveRigidBodyHandle(f)
     }

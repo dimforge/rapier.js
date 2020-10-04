@@ -20,7 +20,7 @@ export class ColliderSet {
 
     public createCollider(bodies: RigidBodySet, desc: ColliderDesc, parentHandle: RigidBodyHandle): ColliderHandle {
         let rawShape = desc.shape.intoRaw(this.RAPIER);
-        let rawTra = desc.translation.intoRaw(this.RAPIER);
+        let rawTra = Vector.intoRaw(this.RAPIER, desc.translation);
         let rawRot = desc.rotation.intoRaw(this.RAPIER);
 
         let handle = this.raw.createCollider(
@@ -39,11 +39,19 @@ export class ColliderSet {
     }
 
     public get(handle: ColliderHandle): Collider {
-        if (this.raw.isHandleValid(handle)) {
+        if (this.raw.contains(handle)) {
             return new Collider(this.RAPIER, this.raw, handle);
         } else {
             return null;
         }
+    }
+
+    public len(): number {
+        return this.raw.len();
+    }
+
+    public contains(handle: ColliderHandle): boolean {
+        return this.raw.contains(handle);
     }
 
 

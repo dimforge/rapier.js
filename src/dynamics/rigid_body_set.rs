@@ -114,15 +114,20 @@ impl RawRigidBodySet {
         self.0.insert(rigid_body).into_raw_parts().0
     }
 
+    /// The number of rigid-bodies on this set.
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
     /// Checks if a rigid-body with the given integer handle exists.
-    pub fn isHandleValid(&self, handle: usize) -> bool {
+    pub fn contains(&self, handle: usize) -> bool {
         self.0.get_unknown_gen(handle).is_some()
     }
 
-    /// Applies the given JavaScript function to the integer handle of each rigid-body managed by this physics world.
+    /// Applies the given JavaScript function to the integer handle of each rigid-body managed by this set.
     ///
     /// # Parameters
-    /// - `f(handle)`: the function to apply to the integer handle of each rigid-body managed by this physics world. Called as `f(collider)`.
+    /// - `f(handle)`: the function to apply to the integer handle of each rigid-body managed by this set. Called as `f(collider)`.
     pub fn forEachRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.0.iter() {
@@ -131,7 +136,7 @@ impl RawRigidBodySet {
     }
 
     /// Applies the given JavaScript function to the integer handle of each active rigid-body
-    /// managed by this physics world.
+    /// managed by this set.
     ///
     /// After a short time of inactivity, a rigid-body is automatically deactivated ("asleep") by
     /// the physics engine in order to save computational power. A sleeping rigid-body never moves
@@ -139,7 +144,7 @@ impl RawRigidBodySet {
     ///
     /// # Parameters
     /// - `f(handle)`: the function to apply to the integer handle of each active rigid-body managed by this
-    ///   physics world. Called as `f(collider)`.
+    ///   set. Called as `f(collider)`.
     pub fn forEachActiveRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.0.iter_active_dynamic() {

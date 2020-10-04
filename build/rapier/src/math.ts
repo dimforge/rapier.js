@@ -1,5 +1,13 @@
 import {RawVector, RawRotation} from "@dimforge/rapier-core2d";
 
+export interface VectorInterface {
+    x: number;
+    y: number;
+    // #if DIM3
+    z: number;
+    // #endif
+}
+
 // #if DIM2
 export class Vector {
     x: number;
@@ -24,17 +32,8 @@ export class Vector {
         return res;
     }
 
-    // FIXME: type ram: RawVector?
-    public intoRaw(RAPIER: any): RawVector {
-        return new RAPIER.RawVector(this.x, this.y);
-    }
-
-    public xy(): Vector {
-        return new Vector(this.x, this.y);
-    }
-
-    public yx(): Vector {
-        return new Vector(this.y, this.x);
+    public static intoRaw(RAPIER: any, v: VectorInterface): RawVector {
+        return new RAPIER.RawVector(v.x, v.y);
     }
 }
 
@@ -80,6 +79,10 @@ export class Vector {
         this.z = z;
     }
 
+    public static intoRaw(RAPIER: any, v: VectorInterface): RawVector {
+        return new RAPIER.RawVector(v.x, v.y, v.z);
+    }
+
     public static zeros(): Vector {
         return new Vector(0.0, 0.0, 0.0);
     }
@@ -92,35 +95,6 @@ export class Vector {
         let res = new Vector(raw.x, raw.y, raw.z);
         raw.free();
         return res;
-    }
-
-    // FIXME: type ram: RawVector?
-    public intoRaw(RAPIER: any): RawVector {
-        return new RAPIER.RawVector(this.x, this.y, this.z);
-    }
-
-    public xyz(): Vector {
-        return new Vector(this.x, this.y, this.z);
-    }
-
-    public xzy(): Vector {
-        return new Vector(this.x, this.z, this.y);
-    }
-
-    public yxz(): Vector {
-        return new Vector(this.y, this.x, this.z);
-    }
-
-    public yzx(): Vector {
-        return new Vector(this.y, this.z, this.x);
-    }
-
-    public zxy(): Vector {
-        return new Vector(this.z, this.x, this.y);
-    }
-
-    public zyx(): Vector {
-        return new Vector(this.z, this.y, this.x);
     }
 }
 

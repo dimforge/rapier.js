@@ -1,8 +1,8 @@
 import {Vector, World, RigidBodyDesc, ColliderDesc, BodyStatus} from '@dimforge/rapier2d'
 
-export function initWorld(RAW_RAPIER, testbed) {
+export function initWorld(RAPIER_CORE, testbed) {
     let gravity = new Vector(0.0, -9.81);
-    let world = new World(RAW_RAPIER, gravity);
+    let world = new World(RAPIER_CORE, gravity);
     let bodies = new Array();
     let colliders = new Array();
 
@@ -16,7 +16,7 @@ export function initWorld(RAW_RAPIER, testbed) {
 
     grounds.forEach(ground => {
         let bodyDesc = new RigidBodyDesc(BodyStatus.Static)
-            .withTranslation(new Vector(ground.x, ground.y));
+            .setTranslation(new Vector(ground.x, ground.y));
         let body = world.createRigidBody(bodyDesc);
         let colliderDesc = ColliderDesc.cuboid(ground.hx, ground.hy);
         let collider = world.createCollider(colliderDesc, body.handle);
@@ -43,7 +43,7 @@ export function initWorld(RAW_RAPIER, testbed) {
 
             // Create dynamic cube.
             let bodyDesc = new RigidBodyDesc(BodyStatus.Dynamic)
-                .withTranslation(new Vector(x, y));
+                .setTranslation(new Vector(x, y));
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = ColliderDesc.cuboid(rad, rad, rad);
             let collider = world.createCollider(colliderDesc, body.handle);

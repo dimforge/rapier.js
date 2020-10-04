@@ -1,8 +1,8 @@
 import {Vector, World, RigidBodyDesc, ColliderDesc, JointParams, BodyStatus} from '@dimforge/rapier3d'
 
-export function initWorld(RAW_RAPIER, testbed) {
+export function initWorld(RAPIER_CORE, testbed) {
     let gravity = new Vector(0.0, -9.81, 0.0);
-    let world = new World(RAW_RAPIER, gravity);
+    let world = new World(RAPIER_CORE, gravity);
     let bodies = new Array();
     let colliders = new Array();
     let joints = new Array();
@@ -17,7 +17,7 @@ export function initWorld(RAW_RAPIER, testbed) {
             let status = i == 0 && (k % 4 == 0 || k == num - 1) ? BodyStatus.Static : BodyStatus.Dynamic;
 
             let bodyDesc = new RigidBodyDesc(status)
-                .withTranslation(new Vector(k * shift, 0.0, i * shift));
+                .setTranslation(new Vector(k * shift, 0.0, i * shift));
             let child = world.createRigidBody(bodyDesc);
             let colliderDesc = ColliderDesc.ball(rad);
             let collider = world.createCollider(colliderDesc, child.handle);

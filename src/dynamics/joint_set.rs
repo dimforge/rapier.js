@@ -39,7 +39,22 @@ impl RawJointSet {
             .0
     }
 
-    pub fn isHandleValid(&self, handle: usize) -> bool {
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn contains(&self, handle: usize) -> bool {
         self.0.get_unknown_gen(handle).is_some()
+    }
+
+    /// Applies the given JavaScript function to the integer handle of each joint managed by this physics world.
+    ///
+    /// # Parameters
+    /// - `f(handle)`: the function to apply to the integer handle of each joint managed by this set. Called as `f(collider)`.
+    pub fn forEachJointHandle(&self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        for (handle, _) in self.0.iter() {
+            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
+        }
     }
 }

@@ -14,6 +14,21 @@ impl RawRigidBodySet {
         self.map(handle, |rb| RawRotation(rb.position.rotation))
     }
 
+    /// Put the given rigid-body to sleep.
+    pub fn rbSleep(&mut self, handle: usize) {
+        self.map_mut(handle, |mut rb| rb.sleep());
+    }
+
+    /// Is this rigid-body sleeping?
+    pub fn rbIsSleeping(&self, handle: usize) -> bool {
+        self.map(handle, |rb| rb.is_sleeping())
+    }
+
+    /// Is the velocity of this rigid-body not zero?
+    pub fn rbIsMoving(&self, handle: usize) -> bool {
+        self.map(handle, |rb| rb.is_moving())
+    }
+
     /// The world-space predicted translation of this rigid-body.
     ///
     /// If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
@@ -193,6 +208,18 @@ impl RawRigidBodySet {
         self.map(handle, |rb| RawVector(rb.linvel))
     }
 
+    /// The angular velocity of this rigid-body.
+    #[cfg(feature = "dim2")]
+    pub fn rbAngvel(&self, handle: usize) -> f32 {
+        self.map(handle, |rb| rb.angvel)
+    }
+
+    /// The angular velocity of this rigid-body.
+    #[cfg(feature = "dim3")]
+    pub fn rbAngvel(&self, handle: usize) -> RawVector {
+        self.map(handle, |rb| RawVector(rb.angvel))
+    }
+
     /// The mass of this rigid-body.
     pub fn rbMass(&self, handle: usize) -> f32 {
         self.map(handle, |rb| rb.mass())
@@ -223,8 +250,8 @@ impl RawRigidBodySet {
         self.map(handle, |rb| rb.colliders()[at].into_raw_parts().0)
     }
 
-    /// The type of this rigid-body: static, dynamic, or kinematic.
-    pub fn rbBodyType(&self, handle: usize) -> RawBodyStatus {
+    /// The status of this rigid-body: static, dynamic, or kinematic.
+    pub fn rbBodyStatus(&self, handle: usize) -> RawBodyStatus {
         self.map(handle, |rb| rb.body_status.into())
     }
 

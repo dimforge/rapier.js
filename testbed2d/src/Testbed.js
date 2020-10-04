@@ -57,7 +57,7 @@ function extractWorldDescription(world, bodies, colliders, joints) {
 
         return {
             handle: body.handle,
-            type: body.bodyType(),
+            type: body.bodyStatus(),
             translation: pos,
             mass: body.mass()
         };

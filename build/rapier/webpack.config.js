@@ -13,7 +13,7 @@ const ifdefLoaderOpts2 = {
 const rapier2d = {
     entry: './src/lib.ts',
     output: {
-        filename: 'rapier.js',
+        filename: 'rapier2d.js',
         path: path.resolve(__dirname, 'pkg2'),
         library: 'rapier2d',
         libraryTarget: 'umd',

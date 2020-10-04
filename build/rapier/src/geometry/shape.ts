@@ -41,7 +41,7 @@ export class Cuboid {
     // #endif
 
     public intoRaw(RAPIER: any): RawShape {
-        let rawHalfExtents = this.halfExtents.intoRaw(RAPIER);
+        let rawHalfExtents = Vector.intoRaw(RAPIER, this.halfExtents);
         const result = RAPIER.RawShape.cuboid(rawHalfExtents);
         rawHalfExtents.free();
         return result;

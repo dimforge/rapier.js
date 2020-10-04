@@ -7,7 +7,7 @@ import {
     RawVector
 } from "@dimforge/rapier-core2d";
 import {QueryPipeline} from "./query_pipeline";
-import {Vector} from "../math";
+import {Vector, VectorInterface} from "../math";
 import {IntegrationParameters, JointSet, RigidBodySet} from "../dynamics";
 import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
 import {World} from "./world";
@@ -28,7 +28,7 @@ export class SerializationPipeline {
     }
 
     public serializeAll(
-        gravity: Vector,
+        gravity: VectorInterface,
         integrationParameters: IntegrationParameters,
         broadPhase: BroadPhase,
         narrowPhase: NarrowPhase,
@@ -37,7 +37,7 @@ export class SerializationPipeline {
         joints: JointSet,
         queryPipeline: QueryPipeline
     ): Uint8Array {
-        let rawGra = gravity.intoRaw(this.RAPIER);
+        let rawGra = Vector.intoRaw(this.RAPIER, gravity);
 
         const res = this.raw.serializeAll(
             rawGra,

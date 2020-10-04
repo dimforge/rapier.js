@@ -26,14 +26,14 @@ import {
     RigidBodyHandle,
     RigidBodySet
 } from "../dynamics";
-import {Vector} from "../math";
+import {Vector, VectorInterface} from "../math";
 import {PhysicsPipeline} from "./physics_pipeline";
 import {QueryPipeline} from "./query_pipeline";
 import {SerializationPipeline} from "./serialization_pipeline";
 import {EventQueue} from "./event_queue";
 
 export class World {
-    gravity: Vector
+    gravity: VectorInterface
     integrationParameters: IntegrationParameters
     broadPhase: BroadPhase
     narrowPhase: NarrowPhase
@@ -68,7 +68,7 @@ export class World {
 
     constructor(
         RAPIER: any,
-        gravity: Vector,
+        gravity: VectorInterface,
         rawIntegrationParameters?: RawIntegrationParameters,
         rawBroadPhase?: RawBroadPhase,
         rawNarrowPhase?: RawNarrowPhase,

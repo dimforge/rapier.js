@@ -1,6 +1,7 @@
 import {RawQueryPipeline} from "@dimforge/rapier-core2d";
 import {ColliderSet, Ray, RayColliderIntersection} from "../geometry";
 import {RigidBodySet} from "../dynamics";
+import {Vector} from "../math";
 
 
 export class QueryPipeline {
@@ -22,8 +23,8 @@ export class QueryPipeline {
     }
 
     public castRay(colliders: ColliderSet, ray: Ray, maxToi: number): RayColliderIntersection {
-        let rawOrig = ray.origin.intoRaw(this.RAPIER);
-        let rawDir = ray.dir.intoRaw(this.RAPIER);
+        let rawOrig = Vector.intoRaw(this.RAPIER, ray.origin);
+        let rawDir = Vector.intoRaw(this.RAPIER, ray.dir);
         let result = RayColliderIntersection.fromRaw(this.raw.castRay(
             colliders.raw,
             rawOrig,

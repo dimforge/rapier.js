@@ -14,16 +14,16 @@ export class RapierBackend {
     constructor(world, bodies, colliders, joints) {
         let me = this;
 
-        import('@dimforge/rapier-core2d').then(function (RAW_RAPIER) {
+        import('@dimforge/rapier-core2d').then(function (RAPIER_CORE) {
             let gravity = new Vector(0.0, -9.81);
-            let raWorld = new World(RAW_RAPIER, gravity);
+            let raWorld = new World(RAPIER_CORE, gravity);
             raWorld.maxVelocityIterations = world.maxVelocityIterations;
             raWorld.maxPositionIterations = world.maxPositionIterations;
 
             console.log("Num bodies: " + bodies.length);
             let bodyMap = bodies.map(body => {
                 let bodyDesc = new RigidBodyDesc(body.type)
-                    .withTranslation(new Vector(body.translation.x, body.translation.y));
+                    .setTranslation(new Vector(body.translation.x, body.translation.y));
                 let raBody = raWorld.createRigidBody(bodyDesc);
                 return [body.handle, raBody];
             });
@@ -85,7 +85,7 @@ export class RapierBackend {
             });
 
             me.world = raWorld;
-            me.RAPIER = RAW_RAPIER;
+            me.RAPIER = RAPIER_CORE;
         })
     }
 
