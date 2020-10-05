@@ -8,7 +8,7 @@ export function initWorld(RAPIER, testbed) {
     let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(100.0, 0.1, 100.0);
-    let collider = world.createCollider(colliderDesc, body);
+    let collider = world.createCollider(colliderDesc, body.handle);
     bodies.push(body);
     colliders.push(collider);
 
