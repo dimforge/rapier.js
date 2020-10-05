@@ -1,4 +1,4 @@
-### v0.2.0
+### v0.2.1
 This is a significant rewrite of the JavaScript bindings for rapier. The objective of this rewrite is to make the API
 closer to Rapier's and remove most need for manual memory managment.
 
@@ -20,6 +20,7 @@ closer to Rapier's and remove most need for manual memory managment.
 - `RigidBodyDesc` and `ColliderDesc` now use the builder pattern. For example
   `let bodyDesc = new RAPIER.RigidBodyDesc("dynamic"); bodyDesc.setTranslation(x, y, z)` becomes
   `new RigidBodyDesc(BodyStatus.Dynamic).setTranslation(new Vector(x, y, z))`.
+- `ray.dir` and `ray.origin` are now fields instead of methods.
 - 2D rotations are now just a `number` instead of a `Rotation` struct. So instead of doing `rotation.angle`, single use
   the number as the rotation angle.
 - 3D rotations are now represented by the interface `Rotation` (with fields `{x,y,z,w}`) or the class `Quaternion`.
@@ -28,6 +29,9 @@ closer to Rapier's and remove most need for manual memory managment.
   with these `{x,y}` fields can be used wherever a `Vector` is required.
 - 3D vectors are now represented by the interface `Vector` (with fields `{x,y,z}`) or the class `Vector3`). Any object
   with these `{x,y,z}` fields can be used wherever a `Vector` is required.
+
+### v0.2.0
+See changelogs for v0.2.1 instead. The NPM package for v0.2.0 were missing some files.
 
 ### v0.1.17
 - Fix bug when ghost forces and/or crashes could be observed when a kinematic body touches a static body.

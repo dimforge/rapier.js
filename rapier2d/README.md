@@ -28,7 +28,7 @@
 
 <p align = "center">
 <b>2D physics engine</b>
-<i>for the JavaScript programming language.</i>
+<i>for the JavaScript programming language (official bindings).</i>
 </p>
 
 -----
