@@ -1,6 +1,10 @@
+### v0.2.2
+- Fix regression causing the density and `isSensor` properties of `ColliderDesc` to not be taken into account.
+- Throw an exception when the parent handle passed to `world.createCollider` is not a number.
+
 ### v0.2.1
 This is a significant rewrite of the JavaScript bindings for rapier. The objective of this rewrite is to make the API
-closer to Rapier's and remove most need for manual memory managment.
+closer to Rapier's and remove most need for manual memory management.
 
 - Calling `.free()` is now required only for objects that live for the whole duration of the simulation. This means that
   it is no longer necessary to `.free()` vectors, rays, ray intersections, colliders, rigid-bodies, etc. Object that
