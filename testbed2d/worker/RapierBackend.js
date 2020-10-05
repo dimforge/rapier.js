@@ -2,7 +2,7 @@ import md5 from 'md5';
 
 export class RapierBackend {
     constructor(RAPIER, world, bodies, colliders, joints) {
-        let gravity = new RAPIER.Vector(0.0, -9.81);
+        let gravity = new RAPIER.Vector2(0.0, -9.81);
         let raWorld = new RAPIER.World(gravity);
 
         raWorld.maxVelocityIterations = world.maxVelocityIterations;
@@ -11,7 +11,7 @@ export class RapierBackend {
         console.log("Num bodies: " + bodies.length);
         let bodyMap = bodies.map(body => {
             let bodyDesc = new RAPIER.RigidBodyDesc(body.type)
-                .setTranslation(new RAPIER.Vector(body.translation.x, body.translation.y));
+                .setTranslation(new RAPIER.Vector2(body.translation.x, body.translation.y));
             let raBody = raWorld.createRigidBody(bodyDesc);
             return [body.handle, raBody];
         });
@@ -63,8 +63,8 @@ export class RapierBackend {
                 case RAPIER.JointType.Ball:
                     anchor1 = joint.anchor1;
                     anchor2 = joint.anchor2;
-                    raAnchor1 = new RAPIER.Vector(anchor1.x, anchor1.y);
-                    raAnchor2 = new RAPIER.Vector(anchor2.x, anchor2.y);
+                    raAnchor1 = new RAPIER.Vector2(anchor1.x, anchor1.y);
+                    raAnchor2 = new RAPIER.Vector2(anchor2.x, anchor2.y);
                     raJointParams = RAPIER.JointParams.ball(raAnchor1, raAnchor2);
                     break;
             }
@@ -91,7 +91,7 @@ export class RapierBackend {
 
     restoreSnapshot(snapshot) {
         if (!!this.RAPIER && !!snapshot) {
-            this.world = World.restoreSnapshot(this.RAPIER, snapshot);
+            this.world = this.RAPIER.World.restoreSnapshot(snapshot);
 
             // Restoring the snapshot creates a new physics world, so this
             // invalidates all our internal references to bodies, colliders, and joints.
@@ -99,12 +99,12 @@ export class RapierBackend {
             this.bodyMap = new Map();
 
             this.world.forEachCollider(collider => {
-                let externalHandle = this.colliderRevMap.get(collider.handle());
+                let externalHandle = this.colliderRevMap.get(collider.handle);
                 this.colliderMap.set(externalHandle, collider);
             });
 
             this.world.forEachRigidBody(body => {
-                let externalHandle = this.bodyRevMap.get(body.handle());
+                let externalHandle = this.bodyRevMap.get(body.handle);
                 this.bodyMap.set(externalHandle, body);
             });
         }
@@ -135,7 +135,7 @@ export class RapierBackend {
                     let entry = {
                         handle: key,
                         translation: {x: t.x, y: t.y},
-                        rotation: r.angle
+                        rotation: r
                     };
                     result.push(entry)
                 });

@@ -1,5 +1,5 @@
 export function initWorld(RAPIER, testbed) {
-    let gravity = new RAPIER.Vector(0.0, -9.81, 0.0);
+    let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
     let bodies = new Array();
     let colliders = new Array();
@@ -15,7 +15,7 @@ export function initWorld(RAPIER, testbed) {
             let status = i == 0 && (k % 4 == 0 || k == num - 1) ? RAPIER.BodyStatus.Static : RAPIER.BodyStatus.Dynamic;
 
             let bodyDesc = new RAPIER.RigidBodyDesc(status)
-                .setTranslation(new RAPIER.Vector(k * shift, 0.0, i * shift));
+                .setTranslation(new RAPIER.Vector3(k * shift, 0.0, i * shift));
             let child = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
             let collider = world.createCollider(colliderDesc, child.handle);
@@ -24,8 +24,8 @@ export function initWorld(RAPIER, testbed) {
             // Vertical joint.
             if (i > 0) {
                 let parent = bodies[bodies.length - 1];
-                let anchor1 = new RAPIER.Vector(0.0, 0.0, 0.0);
-                let anchor2 = new RAPIER.Vector(0.0, 0.0, -shift);
+                let anchor1 = new RAPIER.Vector3(0.0, 0.0, 0.0);
+                let anchor2 = new RAPIER.Vector3(0.0, 0.0, -shift);
                 let jointParams = RAPIER.JointParams.ball(anchor1, anchor2);
                 joint = world.createJoint(jointParams, parent, child);
                 joints.push(joint);
@@ -35,8 +35,8 @@ export function initWorld(RAPIER, testbed) {
             if (k > 0) {
                 let parentIndex = bodies.length - num;
                 let parent = bodies[parentIndex];
-                let anchor1 = new RAPIER.Vector(0.0, 0.0, 0.0);
-                let anchor2 = new RAPIER.Vector(-shift, 0.0, 0.0);
+                let anchor1 = new RAPIER.Vector3(0.0, 0.0, 0.0);
+                let anchor2 = new RAPIER.Vector3(-shift, 0.0, 0.0);
                 let jointParams = RAPIER.JointParams.ball(anchor1, anchor2);
                 joint = world.createJoint(jointParams, parent, child);
                 joints.push(joint);

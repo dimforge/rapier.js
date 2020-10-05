@@ -1,4 +1,4 @@
-import {Vector, VectorInterface} from "../math";
+import {Vector, VectorOps} from "../math";
 import {RawRayColliderIntersection} from "../raw";
 import {ColliderHandle} from "./collider";
 
@@ -9,11 +9,11 @@ export class Ray {
     /**
      * The starting point of the ray.
      */
-    origin: VectorInterface
+    origin: Vector
     /**
      * The direction of propagation of the ray.
      */
-    dir: VectorInterface
+    dir: Vector
 
     /**
      * Builds a ray from its origin and direction.
@@ -21,7 +21,7 @@ export class Ray {
      * @param origin - The ray's starting point.
      * @param dir - The ray's direction of propagation.
      */
-    constructor(origin: VectorInterface, dir: VectorInterface) {
+    constructor(origin: Vector, dir: Vector) {
         this.origin = origin;
         this.dir = dir;
     }
@@ -44,9 +44,9 @@ export class RayColliderIntersection {
     /**
      * The normal of the collider at the hit point.
      */
-    normal: VectorInterface
+    normal: Vector
 
-    constructor(colliderHandle: ColliderHandle, toi: number, normal: VectorInterface) {
+    constructor(colliderHandle: ColliderHandle, toi: number, normal: Vector) {
         this.colliderHandle = colliderHandle;
         this.toi = toi;
         this.normal = normal;
@@ -59,7 +59,7 @@ export class RayColliderIntersection {
         const result = new RayColliderIntersection(
             raw.colliderHandle(),
             raw.toi(),
-            Vector.fromRaw(raw.normal())
+            VectorOps.fromRaw(raw.normal())
         );
         raw.free();
         return result;

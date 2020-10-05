@@ -1,5 +1,5 @@
 import {RawPhysicsPipeline} from "../raw";
-import {Vector, VectorInterface} from "../math";
+import {Vector, VectorOps} from "../math";
 import {IntegrationParameters, JointSet, RigidBodyHandle, RigidBodySet} from "../dynamics";
 import {BroadPhase, ColliderHandle, ColliderSet, NarrowPhase} from "../geometry";
 import {EventQueue} from "./event_queue";
@@ -17,7 +17,7 @@ export class PhysicsPipeline {
     }
 
     public step(
-        gravity: VectorInterface,
+        gravity: Vector,
         integrationParameters: IntegrationParameters,
         broadPhase: BroadPhase,
         narrowPhase: NarrowPhase,
@@ -26,7 +26,7 @@ export class PhysicsPipeline {
         joints: JointSet,
         eventQueue?: EventQueue,
     ) {
-        let rawG = Vector.intoRaw(gravity);
+        let rawG = VectorOps.intoRaw(gravity);
 
         if (!!eventQueue) {
             this.raw.stepWithEvents(

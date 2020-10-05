@@ -1,5 +1,5 @@
 import {RawColliderSet} from "../raw"
-import {Rotation, Vector} from '../math';
+import {Rotation, RotationOps, Vector, VectorOps} from '../math';
 import {Cuboid, Ball, ShapeType} from './index';
 import {RigidBody, RigidBodyHandle} from '../dynamics';
 
@@ -34,14 +34,14 @@ export class Collider {
      * The world-space translation of this rigid-body.
      */
     public translation(): Vector {
-        return Vector.fromRaw(this.rawSet.coTranslation(this.handle));
+        return VectorOps.fromRaw(this.rawSet.coTranslation(this.handle));
     }
 
     /**
      * The world-space orientation of this rigid-body.
      */
     public rotation(): Rotation {
-        return Rotation.fromRaw(this.rawSet.coRotation(this.handle));
+        return RotationOps.fromRaw(this.rawSet.coRotation(this.handle));
     }
 
     /**
@@ -62,7 +62,7 @@ export class Collider {
      * The half-extents of this collider if it is has a cuboid shape.
      */
     public halfExtents(): Vector {
-        return Vector.fromRaw(this.rawSet.coHalfExtents(this.handle));
+        return VectorOps.fromRaw(this.rawSet.coHalfExtents(this.handle));
     }
 
     /**
@@ -114,8 +114,8 @@ export class ColliderDesc {
         this.density = null;
         this.friction = 0.5;
         this.restitution = 0.0;
-        this.rotation = Rotation.identity();
-        this.translation = Vector.zeros();
+        this.rotation = RotationOps.identity();
+        this.translation = VectorOps.zeros();
         this.isSensor = false;
     }
 

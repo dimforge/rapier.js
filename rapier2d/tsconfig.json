@@ -11,6 +11,6 @@
     "declaration": true
   },
   "files": [
-    "./pkg/lib.ts"
+    "./pkg/rapier.ts"
   ]
 }

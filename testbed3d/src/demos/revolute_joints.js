@@ -1,5 +1,5 @@
 export function initWorld(RAPIER, testbed) {
-    let gravity = new RAPIER.Vector(0.0, -9.81, 0.0);
+    let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
     let bodies = new Array();
     let colliders = new Array();
@@ -18,7 +18,7 @@ export function initWorld(RAPIER, testbed) {
             let x = j * shift * 4.0;
 
             let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
-                .setTranslation(new RAPIER.Vector(x, y, 0.0));
+                .setTranslation(new RAPIER.Vector3(x, y, 0.0));
             let currParent = world.createRigidBody(bodyDesc);
 
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
@@ -31,10 +31,10 @@ export function initWorld(RAPIER, testbed) {
                 // Create four bodies.
                 let z = i * shift * 2.0 + shift;
                 let positions = [
-                    new RAPIER.Vector(x, y, z),
-                    new RAPIER.Vector(x + shift, y, z),
-                    new RAPIER.Vector(x + shift, y, z + shift),
-                    new RAPIER.Vector(x, y, z + shift),
+                    new RAPIER.Vector3(x, y, z),
+                    new RAPIER.Vector3(x + shift, y, z),
+                    new RAPIER.Vector3(x + shift, y, z + shift),
+                    new RAPIER.Vector3(x, y, z + shift),
                 ];
 
                 let parents = [currParent, currParent, currParent, currParent];
@@ -51,15 +51,15 @@ export function initWorld(RAPIER, testbed) {
                 }
 
                 // Setup four joints.
-                let o = new RAPIER.Vector(0.0, 0.0, 0.0);
-                let xAxis = new RAPIER.Vector(1.0, 0.0, 0.0);
-                let zAxis = new RAPIER.Vector(0.0, 0.0, 1.0);
+                let o = new RAPIER.Vector3(0.0, 0.0, 0.0);
+                let xAxis = new RAPIER.Vector3(1.0, 0.0, 0.0);
+                let zAxis = new RAPIER.Vector3(0.0, 0.0, 1.0);
 
                 let revs = [
-                    RAPIER.JointParams.revolute(o, zAxis, new RAPIER.Vector(0.0, 0.0, -shift), zAxis),
-                    RAPIER.JointParams.revolute(o, xAxis, new RAPIER.Vector(-shift, 0.0, 0.0), xAxis),
-                    RAPIER.JointParams.revolute(o, zAxis, new RAPIER.Vector(0.0, 0.0, -shift), zAxis),
-                    RAPIER.JointParams.revolute(o, xAxis, new RAPIER.Vector(shift, 0.0, 0.0), xAxis),
+                    RAPIER.JointParams.revolute(o, zAxis, new RAPIER.Vector3(0.0, 0.0, -shift), zAxis),
+                    RAPIER.JointParams.revolute(o, xAxis, new RAPIER.Vector3(-shift, 0.0, 0.0), xAxis),
+                    RAPIER.JointParams.revolute(o, zAxis, new RAPIER.Vector3(0.0, 0.0, -shift), zAxis),
+                    RAPIER.JointParams.revolute(o, xAxis, new RAPIER.Vector3(shift, 0.0, 0.0), xAxis),
                 ];
 
                 joints.push(world.createJoint(revs[0], currParent, parents[0]));

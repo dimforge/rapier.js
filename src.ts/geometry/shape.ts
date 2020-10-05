@@ -1,4 +1,4 @@
-import {Vector} from "../math"
+import {Vector, VectorOps} from "../math"
 import {RawShape} from "../raw";
 
 /**
@@ -52,7 +52,7 @@ export class Cuboid {
      * @param hy - The helf height of the rectangle.
      */
     constructor(hx: number, hy: number) {
-        this.halfExtents = new Vector(hx, hy);
+        this.halfExtents = VectorOps.new(hx, hy);
     }
 
     // #endif
@@ -65,13 +65,13 @@ export class Cuboid {
      * @param hz - The half depth of the cuboid.
      */
     constructor(hx: number, hy: number, hz: number) {
-        this.halfExtents = new Vector(hx, hy, hz);
+        this.halfExtents = VectorOps.new(hx, hy, hz);
     }
 
     // #endif
 
     public intoRaw(): RawShape {
-        let rawHalfExtents = Vector.intoRaw(this.halfExtents);
+        let rawHalfExtents = VectorOps.intoRaw(this.halfExtents);
         const result = RawShape.cuboid(rawHalfExtents);
         rawHalfExtents.free();
         return result;

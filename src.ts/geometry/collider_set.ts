@@ -1,5 +1,5 @@
 import {RawColliderSet, RawRigidBodySet} from "../raw"
-import {Vector, Rotation} from '../math';
+import {RotationOps, VectorOps} from '../math';
 import {Collider, ColliderDesc, ColliderHandle} from './index'
 import {RigidBody, RigidBodyHandle} from "../dynamics";
 import {RigidBodySet} from "../dynamics";
@@ -34,8 +34,8 @@ export class ColliderSet {
      */
     public createCollider(bodies: RigidBodySet, desc: ColliderDesc, parentHandle: RigidBodyHandle): ColliderHandle {
         let rawShape = desc.shape.intoRaw();
-        let rawTra = Vector.intoRaw(desc.translation);
-        let rawRot = desc.rotation.intoRaw();
+        let rawTra = VectorOps.intoRaw(desc.translation);
+        let rawRot = RotationOps.intoRaw(desc.rotation);
 
         let handle = this.raw.createCollider(
             rawShape,

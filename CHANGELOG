@@ -14,7 +14,12 @@
 - `world.stepWithEvents` becomes `world.step`.
 - `RigidBodyDesc` and `ColliderDesc` now use the builder pattern. For example
   `let bodyDesc = new RAPIER.RigidBodyDesc("dynamic"); bodyDesc.setTranslation(x, y, z)` becomes
-  `new RigidBodyDesc(BodyStatus.Dynamic).withTranslation(new Vector(x, y, z))`.
+  `new RigidBodyDesc(BodyStatus.Dynamic).setTranslation(new Vector(x, y, z))`.
+- 2D rotations are now just a `number` instead of a `Rotation` struct. So instead of doing `rotation.angle`, single use
+  the number as the rotation angle.
+- 3D rotations are now represented by the interface `Rotation` (with fields `{x,y,z,w}` or the class `Quaternion`.
+- 2D vectors are now represented by the interface `Vector` (with fields `{x,y}` or the class `Vector2`).
+- 3D vectors are now represented by the interface `Vector` (with fields `{x,y,z}` or the class `Vector3`).
 
 ### v0.1.15
 - Fix crash when removing a kinematic rigid-body from the World.

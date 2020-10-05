@@ -1,5 +1,5 @@
 import {RawRigidBodySet} from "../raw"
-import {Vector, Rotation} from '../math';
+import {VectorOps, RotationOps} from '../math';
 import {RigidBody, RigidBodyDesc, RigidBodyHandle} from './rigid_body'
 
 /**
@@ -29,12 +29,12 @@ export class RigidBodySet {
      * @param desc - The description of the rigid-body to create.
      */
     public createRigidBody(desc: RigidBodyDesc): number {
-        let rawTra = Vector.intoRaw(desc.translation);
-        let rawRot = desc.rotation.intoRaw();
-        let rawLv = Vector.intoRaw(desc.linvel);
+        let rawTra = VectorOps.intoRaw(desc.translation);
+        let rawRot = RotationOps.intoRaw(desc.rotation);
+        let rawLv = VectorOps.intoRaw(desc.linvel);
 
         // #if DIM3
-        let rawAv = Vector.intoRaw(desc.angvel);
+        let rawAv = VectorOps.intoRaw(desc.angvel);
         // #endif
 
         let handle = this.raw.createRigidBody(

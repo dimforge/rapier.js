@@ -2,14 +2,14 @@ import md5 from 'md5';
 
 export class RapierBackend {
     constructor(RAPIER, world, bodies, colliders, joints) {
-        let gravity = new RAPIER.Vector(0.0, -9.81, 0.0);
+        let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
         let raWorld = new RAPIER.World(gravity);
         raWorld.maxVelocityIterations = world.maxVelocityIterations;
         raWorld.maxPositionIterations = world.maxPositionIterations;
 
         let bodyMap = bodies.map(body => {
             let bodyDesc = new RAPIER.RigidBodyDesc(body.type)
-                .setTranslation(new RAPIER.Vector(body.translation.x, body.translation.y, body.translation.z));
+                .setTranslation(new RAPIER.Vector3(body.translation.x, body.translation.y, body.translation.z));
             let raBody = raWorld.createRigidBody(bodyDesc);
             return [body.handle, raBody];
         });
@@ -62,8 +62,8 @@ export class RapierBackend {
                 case RAPIER.JointType.Ball:
                     anchor1 = joint.anchor1;
                     anchor2 = joint.anchor2;
-                    raAnchor1 = new RAPIER.Vector(anchor1.x, anchor1.y, anchor1.z);
-                    raAnchor2 = new RAPIER.Vector(anchor2.x, anchor2.y, anchor2.z);
+                    raAnchor1 = new RAPIER.Vector3(anchor1.x, anchor1.y, anchor1.z);
+                    raAnchor2 = new RAPIER.Vector3(anchor2.x, anchor2.y, anchor2.z);
                     raJointParams = RAPIER.JointParams.ball(raAnchor1, raAnchor2);
                     break;
                 case RAPIER.JointType.Revolute:
@@ -71,10 +71,10 @@ export class RapierBackend {
                     anchor2 = joint.anchor2;
                     let axis1 = joint.axis1;
                     let axis2 = joint.axis2;
-                    raAnchor1 = new RAPIER.Vector(anchor1.x, anchor1.y, anchor1.z);
-                    raAnchor2 = new RAPIER.Vector(anchor2.x, anchor2.y, anchor2.z);
-                    let raAxis1 = new RAPIER.Vector(axis1.x, axis1.y, axis1.z);
-                    let raAxis2 = new RAPIER.Vector(axis2.x, axis2.y, axis2.z);
+                    raAnchor1 = new RAPIER.Vector3(anchor1.x, anchor1.y, anchor1.z);
+                    raAnchor2 = new RAPIER.Vector3(anchor2.x, anchor2.y, anchor2.z);
+                    let raAxis1 = new RAPIER.Vector3(axis1.x, axis1.y, axis1.z);
+                    let raAxis2 = new RAPIER.Vector3(axis2.x, axis2.y, axis2.z);
                     raJointParams = RAPIER.JointParams.revolute(raAnchor1, raAxis1, raAnchor2, raAxis2);
                     break;
             }
@@ -109,7 +109,7 @@ export class RapierBackend {
     restoreSnapshot(snapshot) {
         if (!!this.RAPIER && !!snapshot) {
             const oldWorld = this.world;
-            this.world = World.restoreSnapshot(this.RAPIER, snapshot);
+            this.world = this.RAPIER.World.restoreSnapshot(snapshot);
             oldWorld.free();
 
             // Restoring the snapshot creates a new physics world, so this
@@ -140,6 +140,14 @@ export class RapierBackend {
             return true;
         } else {
             return false;
+        }
+    }
+
+    castRay(ray) {
+        if (!!this.world) {
+            return this.world.castRay({origin: ray.origin, dir: ray.direction}, 1000.0);
+        } else {
+            return null;
         }
     }
 

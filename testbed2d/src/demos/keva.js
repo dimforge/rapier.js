@@ -26,7 +26,7 @@ function buildBlock(
 
             // Build the rigid body.
             let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                .setTranslation(new RAPIER.Vector(
+                .setTranslation(new RAPIER.Vector2(
                     x + dim.x + shift.x,
                     y + dim.y + shift.y,
                 ));
@@ -43,7 +43,7 @@ function buildBlock(
 
 
 export function initWorld(RAPIER, testbed) {
-    let gravity = new RAPIER.Vector(0.0, -9.81, 0.0);
+    let gravity = new RAPIER.Vector2(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
     let bodies = new Array();
     let colliders = new Array();
@@ -52,7 +52,7 @@ export function initWorld(RAPIER, testbed) {
     let groundSize = 150.0;
     let groundHeight = 0.1;
     let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
-        .setTranslation(new RAPIER.Vector(0.0, -groundHeight, 0.0));
+        .setTranslation(new RAPIER.Vector2(0.0, -groundHeight, 0.0));
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
     let collider = world.createCollider(colliderDesc, body.handle);
@@ -60,7 +60,7 @@ export function initWorld(RAPIER, testbed) {
     colliders.push(collider);
 
     // Keva tower.
-    let halfExtents = new RAPIER.Vector(0.5, 2.0);
+    let halfExtents = new RAPIER.Vector2(0.5, 2.0);
     let blockHeight = 0.0;
     // These should only be set to odd values otherwise
     // the blocks won't align in the nicest way.
@@ -79,7 +79,7 @@ export function initWorld(RAPIER, testbed) {
             bodies,
             colliders,
             halfExtents,
-            new RAPIER.Vector(-blockWidth / 2.0, blockHeight),
+            new RAPIER.Vector2(-blockWidth / 2.0, blockHeight),
             numx,
             numy,
             numz,

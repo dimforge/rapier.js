@@ -1,5 +1,5 @@
 export function initWorld(RAPIER, testbed) {
-    let gravity = new RAPIER.Vector(0.0, -9.81);
+    let gravity = new RAPIER.Vector2(0.0, -9.81);
     let world = new RAPIER.World(gravity);
     let bodies = new Array();
     let colliders = new Array();
@@ -27,7 +27,7 @@ export function initWorld(RAPIER, testbed) {
 
             // Create dynamic cube.
             let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                .setTranslation(new RAPIER.Vector(x, y));
+                .setTranslation(new RAPIER.Vector2(x, y));
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad);
             let collider = world.createCollider(colliderDesc, body.handle);

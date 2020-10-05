@@ -1,4 +1,4 @@
-import {Rotation, Vector, VectorInterface} from "../math";
+import {Rotation, Vector, VectorOps, RotationOps} from "../math";
 import {RawJointParams, RawJointSet, RawRigidBodySet} from "../raw";
 import {RigidBodyHandle} from "./rigid_body"
 
@@ -69,7 +69,7 @@ export class Joint {
      * The rotation quaternion that aligns this joint's first local axis to the `x` axis.
      */
     public frameX1(): Rotation {
-        return Rotation.fromRaw(this.rawSet.jointFrameX1(this.handle));
+        return RotationOps.fromRaw(this.rawSet.jointFrameX1(this.handle));
     }
 
     // #endif
@@ -79,7 +79,7 @@ export class Joint {
      * The rotation matrix that aligns this joint's second local axis to the `x` axis.
      */
     public frameX2(): Rotation {
-        return Rotation.fromRaw(this.rawSet.jointFrameX2(this.handle));
+        return RotationOps.fromRaw(this.rawSet.jointFrameX2(this.handle));
     }
 
     // #endif
@@ -91,7 +91,7 @@ export class Joint {
      * local frame of the first rigid-body it is attached to.
      */
     public anchor1(): Vector {
-        return Vector.fromRaw(this.rawSet.jointAnchor1(this.handle));
+        return VectorOps.fromRaw(this.rawSet.jointAnchor1(this.handle));
     }
 
     /**
@@ -101,7 +101,7 @@ export class Joint {
      * local frame of the second rigid-body it is attached to.
      */
     public anchor2(): Vector {
-        return Vector.fromRaw(this.rawSet.jointAnchor2(this.handle));
+        return VectorOps.fromRaw(this.rawSet.jointAnchor2(this.handle));
     }
 
     /**
@@ -112,7 +112,7 @@ export class Joint {
      * in the local-space of this first rigid-body.
      */
     public axis1(): Vector {
-        return Vector.fromRaw(this.rawSet.jointAxis1(this.handle));
+        return VectorOps.fromRaw(this.rawSet.jointAxis1(this.handle));
     }
 
     /**
@@ -123,15 +123,15 @@ export class Joint {
      * in the local-space of this second rigid-body.
      */
     public axis2(): Vector {
-        return Vector.fromRaw(this.rawSet.jointAxis2(this.handle))
+        return VectorOps.fromRaw(this.rawSet.jointAxis2(this.handle))
     }
 }
 
 export class JointParams {
-    anchor1: VectorInterface
-    anchor2: VectorInterface
-    axis1: VectorInterface
-    axis2: VectorInterface
+    anchor1: Vector
+    anchor2: Vector
+    axis1: Vector
+    axis2: Vector
     jointType: JointType
 
     private constructor() {
@@ -149,7 +149,7 @@ export class JointParams {
      * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.
      */
-    public static ball(anchor1: VectorInterface, anchor2: VectorInterface): JointParams {
+    public static ball(anchor1: Vector, anchor2: Vector): JointParams {
         let res = new JointParams();
         res.anchor1 = anchor1;
         res.anchor2 = anchor2;
@@ -172,10 +172,10 @@ export class JointParams {
      * @param axis2 - Axis of the joint, expressed in the local-space of the second rigid-body it is attached to.
      */
     public static revolute(
-        anchor1: VectorInterface,
-        axis1: VectorInterface,
-        anchor2: VectorInterface,
-        axis2: VectorInterface,
+        anchor1: Vector,
+        axis1: Vector,
+        anchor2: Vector,
+        axis2: Vector,
     ): JointParams {
         let res = new JointParams();
         res.anchor1 = anchor1;
@@ -189,8 +189,8 @@ export class JointParams {
     // #endif
 
     public intoRaw(): RawJointParams {
-        let rawA1 = Vector.intoRaw(this.anchor1);
-        let rawA2 = Vector.intoRaw(this.anchor2);
+        let rawA1 = VectorOps.intoRaw(this.anchor1);
+        let rawA2 = VectorOps.intoRaw(this.anchor2);
         let result;
 
         switch (this.jointType) {
@@ -199,8 +199,8 @@ export class JointParams {
                 break;
             // #if DIM3
             case JointType.Revolute:
-                let rawAx1 = Vector.intoRaw(this.axis1);
-                let rawAx2 = Vector.intoRaw(this.axis2);
+                let rawAx1 = VectorOps.intoRaw(this.axis1);
+                let rawAx2 = VectorOps.intoRaw(this.axis2);
                 result = RawJointParams.revolute(rawA1, rawAx1, rawA2, rawAx2);
                 rawAx1.free();
                 rawAx2.free();

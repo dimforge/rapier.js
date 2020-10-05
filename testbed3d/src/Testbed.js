@@ -126,6 +126,7 @@ export class Testbed {
         this.worker = worker;
         this.RAPIER = RAPIER;
         this.demoToken = 0;
+        this.mouse = {x: 0, y: 0};
         this.switchToDemo(builders.keys().next().value);
 
         this.worker.onmessage = msg => {
@@ -136,24 +137,48 @@ export class Testbed {
             }
 
             if (!!msg.data && msg.data.token == this.demoToken) {
-                this.graphics.updatePositions(msg.data.positions);
+                switch (msg.data.type) {
+                    case 'collider.highlight':
+                        this.graphics.highlightCollider(msg.data.handle);
+                        return;
+                    case 'colliders.setPositions':
+                        this.graphics.updatePositions(msg.data.positions);
+                        break;
+                }
                 this.gui.setTiming(msg.data.stepTime);
                 this.gui.setDebugInfos(msg.data);
             }
 
             let now = new Date().getTime();
             let stepMessage = this.stepMessage();
+            let raycastMessage = this.raycastMessage();
 
             /// Don't step the physics world faster than the real world.
             if (now - this.lastMessageTime >= this.world.timestep * 1000) {
+                this.worker.postMessage(raycastMessage);
                 this.worker.postMessage(stepMessage);
                 this.lastMessageTime = now;
             } else {
                 setTimeout(() => {
+                    this.worker.postMessage(raycastMessage);
                     this.worker.postMessage(stepMessage);
                     this.lastMessageTime = new Date().getTime();
                 }, now - this.lastMessageTime);
             }
+        };
+
+        window.addEventListener('mousemove', event => {
+            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            this.mouse.y = 1 - (event.clientY / window.innerHeight) * 2;
+        });
+    }
+
+    raycastMessage() {
+        let ray = this.graphics.rayAtMousePosition(this.mouse);
+        return {
+            type: 'castRay',
+            token: this.demoToken,
+            ray: ray
         };
     }
 

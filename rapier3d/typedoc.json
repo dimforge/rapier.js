@@ -3,7 +3,7 @@
     "./pkg/dynamics",
     "./pkg/geometry",
     "./pkg/pipeline",
-    "./pkg/lib.d.ts",
+    "./pkg/rapier.d.ts",
     "./pkg/math.d.ts"
   ],
   "target": "es5",

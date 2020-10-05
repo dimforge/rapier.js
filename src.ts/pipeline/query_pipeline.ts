@@ -1,7 +1,7 @@
 import {RawQueryPipeline} from "../raw";
 import {ColliderSet, Ray, RayColliderIntersection} from "../geometry";
 import {RigidBodySet} from "../dynamics";
-import {Vector} from "../math";
+import {VectorOps} from "../math";
 
 /**
  * A pipeline for performing queries on all the colliders of a scene.
@@ -42,8 +42,8 @@ export class QueryPipeline {
      *   limits the length of the ray to `ray.dir.norm() * max_toi`. Use `f32::MAX` for an unbounded ray.
      */
     public castRay(colliders: ColliderSet, ray: Ray, maxToi: number): RayColliderIntersection {
-        let rawOrig = Vector.intoRaw(ray.origin);
-        let rawDir = Vector.intoRaw(ray.dir);
+        let rawOrig = VectorOps.intoRaw(ray.origin);
+        let rawDir = VectorOps.intoRaw(ray.dir);
         let result = RayColliderIntersection.fromRaw(this.raw.castRay(
             colliders.raw,
             rawOrig,

@@ -2,7 +2,7 @@ import {
     RawSerializationPipeline,
 } from "../raw";
 import {QueryPipeline} from "./query_pipeline";
-import {Vector, VectorInterface} from "../math";
+import {Vector, VectorOps} from "../math";
 import {IntegrationParameters, JointSet, RigidBodySet} from "../dynamics";
 import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
 import {World} from "./world";
@@ -40,7 +40,7 @@ export class SerializationPipeline {
      * @param queryPipeline - The query pipeline taking part into the simulation.
      */
     public serializeAll(
-        gravity: VectorInterface,
+        gravity: Vector,
         integrationParameters: IntegrationParameters,
         broadPhase: BroadPhase,
         narrowPhase: NarrowPhase,
@@ -49,7 +49,7 @@ export class SerializationPipeline {
         joints: JointSet,
         queryPipeline: QueryPipeline
     ): Uint8Array {
-        let rawGra = Vector.intoRaw(gravity);
+        let rawGra = VectorOps.intoRaw(gravity);
 
         const res = this.raw.serializeAll(
             rawGra,

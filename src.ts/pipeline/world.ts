@@ -26,7 +26,7 @@ import {
     RigidBodyHandle,
     RigidBodySet
 } from "../dynamics";
-import {Vector, VectorInterface} from "../math";
+import {Vector, VectorOps} from "../math";
 import {PhysicsPipeline} from "./physics_pipeline";
 import {QueryPipeline} from "./query_pipeline";
 import {SerializationPipeline} from "./serialization_pipeline";
@@ -39,7 +39,7 @@ import {EventQueue} from "./event_queue";
  * bodies with contacts, joints, and external forces.
  */
 export class World {
-    gravity: VectorInterface
+    gravity: Vector
     integrationParameters: IntegrationParameters
     broadPhase: BroadPhase
     narrowPhase: NarrowPhase
@@ -79,7 +79,7 @@ export class World {
     }
 
     constructor(
-        gravity: VectorInterface,
+        gravity: Vector,
         rawIntegrationParameters?: RawIntegrationParameters,
         rawBroadPhase?: RawBroadPhase,
         rawNarrowPhase?: RawNarrowPhase,
@@ -107,7 +107,7 @@ export class World {
             return null;
 
         return new World(
-            Vector.fromRaw(raw.takeGravity()),
+            VectorOps.fromRaw(raw.takeGravity()),
             raw.takeIntegrationParameters(),
             raw.takeBroadPhase(),
             raw.takeNarrowPhase(),

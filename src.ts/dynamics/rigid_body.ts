@@ -1,5 +1,5 @@
 import {RawRigidBodySet} from "../raw"
-import {Rotation, Vector, VectorInterface} from '../math';
+import {Rotation, RotationOps, Vector, VectorOps} from '../math';
 import {ColliderHandle} from "../geometry";
 
 /**
@@ -55,7 +55,7 @@ export class RigidBody {
      */
     public translation(): Vector {
         let res = this.rawSet.rbTranslation(this.handle);
-        return Vector.fromRaw(res);
+        return VectorOps.fromRaw(res);
     }
 
     /**
@@ -63,7 +63,7 @@ export class RigidBody {
      */
     public rotation(): Rotation {
         let res = this.rawSet.rbRotation(this.handle);
-        return Rotation.fromRaw(res);
+        return RotationOps.fromRaw(res);
     }
 
     /**
@@ -75,7 +75,7 @@ export class RigidBody {
      */
     public predictedTranslation(): Vector {
         let res = this.rawSet.rbPredictedTranslation(this.handle);
-        return Vector.fromRaw(res);
+        return VectorOps.fromRaw(res);
     }
 
     /**
@@ -87,7 +87,7 @@ export class RigidBody {
      */
     public predictedRotation(): Rotation {
         let res = this.rawSet.rbPredictedRotation(this.handle);
-        return Rotation.fromRaw(res);
+        return RotationOps.fromRaw(res);
     }
 
     /**
@@ -97,7 +97,7 @@ export class RigidBody {
      * @param wakeUp - Forces the rigid-body to wake-up so it is properly affected by forces if it
      *                 wasn't moving before modifying its position.
      */
-    public setTranslation(tra: VectorInterface, wakeUp: boolean,) {
+    public setTranslation(tra: Vector, wakeUp: boolean,) {
         // #if DIM2
         this.rawSet.rbSetTranslation(this.handle, tra.x, tra.y, wakeUp);
         // #endif
@@ -196,7 +196,7 @@ export class RigidBody {
      * The linear velocity of this rigid-body.
      */
     public linvel(): Vector {
-        return Vector.fromRaw(this.rawSet.rbLinvel(this.handle));
+        return VectorOps.fromRaw(this.rawSet.rbLinvel(this.handle));
     }
 
     // #if DIM3
@@ -204,7 +204,7 @@ export class RigidBody {
      * The angular velocity of this rigid-body.
      */
     public angvel(): Vector {
-        return Vector.fromRaw(this.rawSet.rbAngvel(this.handle));
+        return VectorOps.fromRaw(this.rawSet.rbAngvel(this.handle));
     }
 
     // #endif
@@ -315,8 +315,8 @@ export class RigidBody {
      * @param force - the world-space force to apply on the rigid-body.
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
-    public applyForce(force: VectorInterface, wakeUp: boolean) {
-        const rawForce = Vector.intoRaw(force);
+    public applyForce(force: Vector, wakeUp: boolean) {
+        const rawForce = VectorOps.intoRaw(force);
         this.rawSet.rbApplyForce(this.handle, rawForce, wakeUp);
         rawForce.free();
     }
@@ -328,10 +328,10 @@ export class RigidBody {
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
     public applyImpulse(
-        impulse: VectorInterface,
+        impulse: Vector,
         wakeUp: boolean,
     ) {
-        const rawImpulse = Vector.intoRaw(impulse);
+        const rawImpulse = VectorOps.intoRaw(impulse);
         this.rawSet.rbApplyImpulse(this.handle, rawImpulse, wakeUp);
         rawImpulse.free();
     }
@@ -356,8 +356,8 @@ export class RigidBody {
      * @param torque - the world-space torque to apply on the rigid-body.
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
-    public applyTorque(torque: VectorInterface, wakeUp: boolean) {
-        const rawTorque = Vector.intoRaw(torque);
+    public applyTorque(torque: Vector, wakeUp: boolean) {
+        const rawTorque = VectorOps.intoRaw(torque);
         this.rawSet.rbApplyTorque(this.handle, rawTorque, wakeUp);
         rawTorque.free();
     }
@@ -384,8 +384,8 @@ export class RigidBody {
      * @param torqueImpulse - the world-space torque impulse to apply on the rigid-body.
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
-    public applyTorqueImpulse(torqueImpulse: VectorInterface, wakeUp: boolean) {
-        const rawTorqueImpulse = Vector.intoRaw(torqueImpulse);
+    public applyTorqueImpulse(torqueImpulse: Vector, wakeUp: boolean) {
+        const rawTorqueImpulse = VectorOps.intoRaw(torqueImpulse);
         this.rawSet.rbApplyTorqueImpulse(this.handle, rawTorqueImpulse, wakeUp);
         rawTorqueImpulse.free();
     }
@@ -400,12 +400,12 @@ export class RigidBody {
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
     public applyForceAtPoint(
-        force: VectorInterface,
-        point: VectorInterface,
+        force: Vector,
+        point: Vector,
         wakeUp: boolean,
     ) {
-        const rawForce = Vector.intoRaw(force);
-        const rawPoint = Vector.intoRaw(point);
+        const rawForce = VectorOps.intoRaw(force);
+        const rawPoint = VectorOps.intoRaw(point);
         this.rawSet.rbApplyForceAtPoint(this.handle, rawForce, rawPoint, wakeUp);
         rawForce.free();
         rawPoint.free();
@@ -419,12 +419,12 @@ export class RigidBody {
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
     public applyImpulseAtPoint(
-        impulse: VectorInterface,
-        point: VectorInterface,
+        impulse: Vector,
+        point: Vector,
         wakeUp: boolean,
     ) {
-        const rawImpulse = Vector.intoRaw(impulse);
-        const rawPoint = Vector.intoRaw(point);
+        const rawImpulse = VectorOps.intoRaw(impulse);
+        const rawPoint = VectorOps.intoRaw(point);
         this.rawSet.rbApplyImpulseAtPoint(this.handle, rawImpulse, rawPoint, wakeUp);
         rawImpulse.free();
         rawPoint.free();
@@ -446,14 +446,14 @@ export class RigidBodyDesc {
 
     constructor(status: BodyStatus) {
         this.status = status;
-        this.translation = Vector.zeros();
-        this.rotation = Rotation.identity();
-        this.linvel = Vector.zeros();
+        this.translation = VectorOps.zeros();
+        this.rotation = RotationOps.identity();
+        this.linvel = VectorOps.zeros();
         // #if DIM2
         this.angvel = 0.0;
         // #endif
         // #if DIM3
-        this.angvel = Vector.zeros();
+        this.angvel = VectorOps.zeros();
         // #endif
         this.canSleep = true;
     }

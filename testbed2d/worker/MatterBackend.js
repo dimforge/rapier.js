@@ -81,7 +81,7 @@ export class MatterBackend {
             if (this.bodyMap) {
                 this.bodyMap.forEach(maBody => {
                     let t = maBody.position;
-                    let r = maBody.angle;
+                    let r = maBody;
                     let entry = {
                         handle: maBody.colliderHandle,
                         translation: {x: t.x, y: t.y},

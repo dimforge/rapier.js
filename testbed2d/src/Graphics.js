@@ -41,6 +41,13 @@ export class Graphics {
             me.renderer.resize(window.innerWidth, window.innerHeight);
         }
 
+        function onContextMenu(event) {
+            event.preventDefault();
+        }
+
+        document.oncontextmenu = onContextMenu;
+        document.body.oncontextmenu = onContextMenu;
+
         window.addEventListener('resize', onWindowResize, false);
 
         this.initInstances();

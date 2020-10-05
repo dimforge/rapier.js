@@ -47,6 +47,20 @@ export class Worker {
                 this.backend.restoreSnapshot(this.snapshot);
                 this.stepId = this.snapshotStepId;
                 break;
+            case 'castRay':
+                this.castRay(event.data);
+                break;
+        }
+    }
+
+    castRay(params) {
+        if (!!this.backend && !!this.backend.castRay) {
+            let hit = this.backend.castRay(params.ray);
+            postMessage({
+                token: params.token,
+                type: "collider.highlight",
+                handle: !!hit ? hit.colliderHandle : null,
+            });
         }
     }
 
@@ -59,6 +73,7 @@ export class Worker {
 
         if (!!this.backend) {
             let pos = this.backend.colliderPositions();
+            pos.type = "colliders.setPositions";
 
             if (!!pos) {
                 pos.token = this.token;
