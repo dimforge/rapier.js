@@ -38,12 +38,27 @@ impl RawColliderSet {
         shape: &RawShape,
         translation: &RawVector,
         rotation: &RawRotation,
+        density: Option<f32>,
+        friction: f32,
+        restitution: f32,
+        isSensor: bool,
         parent: usize,
         bodies: &mut RawRigidBodySet,
     ) -> Option<usize> {
         if let Some((_, handle)) = bodies.0.get_unknown_gen(parent) {
             let pos = Isometry::from_parts(translation.0.into(), rotation.0);
-            let collider = ColliderBuilder::new(shape.0.clone()).position(pos).build();
+            let mut builder = ColliderBuilder::new(shape.0.clone())
+                .position(pos)
+                .friction(friction)
+                .restitution(restitution)
+                .sensor(isSensor);
+
+            if let Some(density) = density {
+                builder = builder.density(density);
+            }
+
+            let collider = builder.build();
+
             Some(
                 self.0
                     .insert(collider, handle, &mut bodies.0)

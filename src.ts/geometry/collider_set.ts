@@ -41,6 +41,10 @@ export class ColliderSet {
             rawShape,
             rawTra,
             rawRot,
+            desc.density,
+            desc.friction,
+            desc.restitution,
+            desc.isSensor,
             parentHandle,
             bodies.raw,
         );
