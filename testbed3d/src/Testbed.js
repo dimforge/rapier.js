@@ -1,5 +1,5 @@
-import { Graphics } from './Graphics'
-import { Gui } from './Gui'
+import {Graphics} from './Graphics'
+import {Gui} from './Gui'
 
 const PHYSX_BACKEND_NAME = "physx.release.wasm";
 
@@ -12,10 +12,14 @@ class SimulationParameters {
         this.numPositionIter = 1;
         this.running = true;
         this.stepping = false;
-        this.step = function() {}
-        this.restart = function() {}
-        this.takeSnapshot = function() {}
-        this.restoreSnapshot = function() {}
+        this.step = function () {
+        }
+        this.restart = function () {
+        }
+        this.takeSnapshot = function () {
+        }
+        this.restoreSnapshot = function () {
+        }
         this.backends = backends;
         this.builders = builders;
         this.debugInfos = false;
@@ -48,17 +52,17 @@ function extractWorldDescription(world, bodies, colliders, joints) {
         let pos = body.translation();
 
         return {
-            handle: body.handle(),
-            type: body.bodyType(),
-            translation: { x: pos.x, y: pos.y, z: pos.z },
+            handle: body.handle,
+            type: body.bodyStatus(),
+            translation: pos,
             mass: body.mass()
         };
     });
 
     let metaColliders = colliders.map(coll => {
         let meta = {
-            handle: coll.handle(),
-            parentHandle: coll.parentHandle(),
+            handle: coll.handle,
+            parentHandle: coll.parent(),
             type: coll.shapeType(),
             radius: coll.radius(),
             density: coll.density(),
@@ -68,7 +72,7 @@ function extractWorldDescription(world, bodies, colliders, joints) {
 
         let he = coll.halfExtents();
         if (!!he) {
-            meta.halfExtents = { x: he.x, y: he.y, z: he.z };
+            meta.halfExtents = {x: he.x, y: he.y, z: he.z};
         }
 
         return meta;
@@ -77,21 +81,21 @@ function extractWorldDescription(world, bodies, colliders, joints) {
     let metaJoints = !joints ? [] : joints.map(joint => {
         let a1 = joint.anchor1();
         let a2 = joint.anchor2();
-        let ax1 = joint.axis1() || { x: 0.0, y: 0.0, z: 0.0 };
-        let ax2 = joint.axis2() || { x: 0.0, y: 0.0, z: 0.0 };
-        let fx1 = joint.frameX1() || { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
-        let fx2 = joint.frameX2() || { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
+        let ax1 = joint.axis1() || {x: 0.0, y: 0.0, z: 0.0};
+        let ax2 = joint.axis2() || {x: 0.0, y: 0.0, z: 0.0};
+        let fx1 = joint.frameX1() || {x: 0.0, y: 0.0, z: 0.0, w: 1.0};
+        let fx2 = joint.frameX2() || {x: 0.0, y: 0.0, z: 0.0, w: 1.0};
 
         return {
             handle1: joint.bodyHandle1(),
             handle2: joint.bodyHandle2(),
-            type: joint.jointType(),
-            anchor1: { x: a1.x, y: a1.y, z: a1.z },
-            anchor2: { x: a2.x, y: a2.y, z: a2.z },
-            axis1: { x: ax1.x, y: ax1.y, z: ax1.z },
-            axis2: { x: ax2.x, y: ax2.y, z: ax2.z },
-            frameX1: { x: fx1.x, y: fx1.y, z: fx1.z, w: fx1.w },
-            frameX2: { x: fx2.x, y: fx2.y, z: fx2.z, w: fx2.w },
+            type: joint.type(),
+            anchor1: {x: a1.x, y: a1.y, z: a1.z},
+            anchor2: {x: a2.x, y: a2.y, z: a2.z},
+            axis1: {x: ax1.x, y: ax1.y, z: ax1.z},
+            axis2: {x: ax2.x, y: ax2.y, z: ax2.z},
+            frameX1: {x: fx1.x, y: fx1.y, z: fx1.z, w: fx1.w},
+            frameX2: {x: fx2.x, y: fx2.y, z: fx2.z, w: fx2.w},
         };
     });
 
@@ -122,6 +126,7 @@ export class Testbed {
         this.worker = worker;
         this.RAPIER = RAPIER;
         this.demoToken = 0;
+        this.mouse = {x: 0, y: 0};
         this.switchToDemo(builders.keys().next().value);
 
         this.worker.onmessage = msg => {
@@ -132,24 +137,48 @@ export class Testbed {
             }
 
             if (!!msg.data && msg.data.token == this.demoToken) {
-                this.graphics.updatePositions(msg.data.positions);
+                switch (msg.data.type) {
+                    case 'collider.highlight':
+                        this.graphics.highlightCollider(msg.data.handle);
+                        return;
+                    case 'colliders.setPositions':
+                        this.graphics.updatePositions(msg.data.positions);
+                        break;
+                }
                 this.gui.setTiming(msg.data.stepTime);
                 this.gui.setDebugInfos(msg.data);
             }
 
             let now = new Date().getTime();
             let stepMessage = this.stepMessage();
+            let raycastMessage = this.raycastMessage();
 
             /// Don't step the physics world faster than the real world.
             if (now - this.lastMessageTime >= this.world.timestep * 1000) {
+                this.worker.postMessage(raycastMessage);
                 this.worker.postMessage(stepMessage);
                 this.lastMessageTime = now;
             } else {
                 setTimeout(() => {
+                    this.worker.postMessage(raycastMessage);
                     this.worker.postMessage(stepMessage);
                     this.lastMessageTime = new Date().getTime();
                 }, now - this.lastMessageTime);
             }
+        };
+
+        window.addEventListener('mousemove', event => {
+            this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            this.mouse.y = 1 - (event.clientY / window.innerHeight) * 2;
+        });
+    }
+
+    raycastMessage() {
+        let ray = this.graphics.rayAtMousePosition(this.mouse);
+        return {
+            type: 'castRay',
+            token: this.demoToken,
+            ray: ray
         };
     }
 
@@ -181,7 +210,7 @@ export class Testbed {
         this.gui.resetTiming();
 
         colliders.forEach((coll, i, arr) => {
-            this.graphics.addCollider(coll);
+            this.graphics.addCollider(this.RAPIER, world, coll);
         });
 
         let desc = extractWorldDescription(world, bodies, colliders, joints);
@@ -254,11 +283,11 @@ export class Testbed {
     }
 
     takeSnapshot() {
-        this.worker.postMessage({ type: 'takeSnapshot' });
+        this.worker.postMessage({type: 'takeSnapshot'});
     }
 
     restoreSnapshot() {
-        this.worker.postMessage({ type: 'restoreSnapshot' });
+        this.worker.postMessage({type: 'restoreSnapshot'});
     }
 
     run() {

@@ -22,7 +22,8 @@ const appConfig = {
     },
     output: {
         path: dist,
-        filename: "index.js"
+        filename: "index.js",
+        globalObject: 'this'
     },
     plugins: [
         new CopyPlugin([
@@ -44,14 +45,12 @@ const workerConfig = {
     },
     output: {
         path: dist,
-        filename: "worker.js"
+        filename: "worker.js",
+        globalObject: 'this'
     }
 };
 
 module.exports = [appConfig, workerConfig];
-
-
-
 
 
 // module.exports = [

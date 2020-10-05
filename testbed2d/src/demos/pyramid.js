@@ -1,13 +1,14 @@
 export function initWorld(RAPIER, testbed) {
-    let world = new RAPIER.World(0.0, -9.81);
+    let gravity = new RAPIER.Vector2(0.0, -9.81);
+    let world = new RAPIER.World(gravity);
     let bodies = new Array();
     let colliders = new Array();
 
     // Create Ground.
-    let bodyDesc = new RAPIER.RigidBodyDesc("static");
+    let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(50.0, 0.1);
-    let collider = body.createCollider(colliderDesc);
+    let collider = world.createCollider(colliderDesc, body.handle);
     bodies.push(body);
     colliders.push(collider);
 
@@ -25,12 +26,11 @@ export function initWorld(RAPIER, testbed) {
             let y = i * shift + height;
 
             // Create dynamic cube.
-            let bodyDesc = new RAPIER.RigidBodyDesc("dynamic");
-            bodyDesc.setTranslation(x, y);
+            let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
+                .setTranslation(new RAPIER.Vector2(x, y));
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad);
-            colliderDesc.density = 1.0;
-            let collider = body.createCollider(colliderDesc);
+            let collider = world.createCollider(colliderDesc, body.handle);
             bodies.push(body);
             colliders.push(collider);
         }
@@ -38,7 +38,7 @@ export function initWorld(RAPIER, testbed) {
 
     testbed.setWorld(world, bodies, colliders);
     testbed.lookAt({
-        target: { x: -10.0, y: -15.0 },
+        target: {x: -10.0, y: -15.0},
         zoom: 10.0
     });
 }

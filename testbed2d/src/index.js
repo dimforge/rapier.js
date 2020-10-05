@@ -1,4 +1,4 @@
-import { Testbed } from './Testbed';
+import {Testbed} from './Testbed';
 import * as Cubes from './demos/cubes'
 import * as Balls from './demos/balls'
 import * as Pyramid from './demos/pyramid'

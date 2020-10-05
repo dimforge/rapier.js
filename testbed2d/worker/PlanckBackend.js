@@ -1,7 +1,7 @@
 import * as PLANCK from "planck-js"
 
 export class PlanckBackend {
-    constructor(world, bodies, colliders, joints) {
+    constructor(RAPIER, world, bodies, colliders, joints) {
         let gravity = new PLANCK.Vec2(0.0, -9.81);
         this.world = new PLANCK.World(gravity);
 
@@ -9,11 +9,11 @@ export class PlanckBackend {
         this.bodyMap = new Map(bodies.map(body => {
             let pos = body.translation;
             let b2BodyDef = {
-                type: body.type,
+                type: body.type == RAPIER.BodyStatus.Dynamic ? "dynamic" : "static",
                 position: PLANCK.Vec2(pos.x, pos.y)
             };
             let b2Body = this.world.createBody(b2BodyDef);
-            return [ body.handle, b2Body ];
+            return [body.handle, b2Body];
         }));
 
         this.colliderMap = new Map(colliders.map(coll => {
@@ -25,18 +25,18 @@ export class PlanckBackend {
             let b2Body = this.bodyMap.get(handle);
 
             switch (coll.type) {
-                case 'Cuboid':
+                case RAPIER.ShapeType.Cuboid:
                     let he = coll.halfExtents;
                     b2FixtureDef.shape = new PLANCK.Box(he.x, he.y);
                     break;
-                case 'Ball':
+                case RAPIER.ShapeType.Ball:
                     let r = coll.radius;
                     b2FixtureDef.shape = new PLANCK.Circle(r);
                     break;
             }
 
             b2Body.createFixture(b2FixtureDef);
-            return [ coll.handle, b2Body ];
+            return [coll.handle, b2Body];
         }));
 
 
@@ -48,7 +48,7 @@ export class PlanckBackend {
             let b2Def;
 
             switch (joint.type) {
-                case "Ball":
+                case RAPIER.JointType.Ball:
                     let revJoint = PLANCK.RevoluteJoint({}, b2Body1, b2Body2);
                     revJoint.m_localAnchorA = new PLANCK.Vec2(joint.anchor1.x, joint.anchor1.y);
                     revJoint.m_localAnchorB = new PLANCK.Vec2(joint.anchor2.x, joint.anchor2.y);
@@ -79,7 +79,7 @@ export class PlanckBackend {
 
                     let entry = {
                         handle: handle,
-                        translation: { x: t.x, y: t.y },
+                        translation: {x: t.x, y: t.y},
                         rotation: r
                     };
 

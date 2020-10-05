@@ -1,21 +1,33 @@
 //! Linear algebra primitives.
 
-use rapier::math::{Rotation as RRotation, Vector as RVector};
+use na::{Quaternion, Unit};
+use rapier::math::{Rotation, Vector};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[repr(transparent)]
 #[derive(Copy, Clone)]
 /// A rotation quaternion.
-pub struct Rotation(pub(crate) RRotation<f32>);
+pub struct RawRotation(pub(crate) Rotation<f32>);
+
+impl From<Rotation<f32>> for RawRotation {
+    fn from(v: Rotation<f32>) -> Self {
+        RawRotation(v)
+    }
+}
 
 #[wasm_bindgen]
 #[cfg(feature = "dim2")]
 /// A unit complex number describing the orientation of a Rapier entity.
-impl Rotation {
+impl RawRotation {
     /// The identity rotation.
     pub fn identity() -> Self {
-        Self(RRotation::identity())
+        Self(Rotation::identity())
+    }
+
+    /// The rotation with thegiven angle.
+    pub fn fromAngle(angle: f32) -> Self {
+        Self(Rotation::new(angle))
     }
 
     /// The imaginary part of this complex number.
@@ -40,10 +52,15 @@ impl Rotation {
 #[wasm_bindgen]
 #[cfg(feature = "dim3")]
 /// A unit quaternion describing the orientation of a Rapier entity.
-impl Rotation {
+impl RawRotation {
+    #[wasm_bindgen(constructor)]
+    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+        RawRotation(Unit::new_unchecked(Quaternion::new(w, x, y, z)))
+    }
+
     /// The identity quaternion.
     pub fn identity() -> Self {
-        Self(RRotation::identity())
+        Self(Rotation::identity())
     }
 
     /// The `x` component of this quaternion.
@@ -75,13 +92,19 @@ impl Rotation {
 #[repr(transparent)]
 #[derive(Copy, Clone)]
 /// A vector.
-pub struct Vector(pub(crate) RVector<f32>);
+pub struct RawVector(pub(crate) Vector<f32>);
+
+impl From<Vector<f32>> for RawVector {
+    fn from(v: Vector<f32>) -> Self {
+        RawVector(v)
+    }
+}
 
 #[wasm_bindgen]
-impl Vector {
+impl RawVector {
     /// Creates a new vector filled with zeros.
     pub fn zero() -> Self {
-        Self(RVector::zeros())
+        Self(Vector::zeros())
     }
 
     /// Creates a new 2D vector from its two components.
@@ -92,7 +115,7 @@ impl Vector {
     #[cfg(feature = "dim2")]
     #[wasm_bindgen(constructor)]
     pub fn new(x: f32, y: f32) -> Self {
-        Self(RVector::new(x, y))
+        Self(Vector::new(x, y))
     }
 
     /// Creates a new 3D vector from its two components.
@@ -104,7 +127,7 @@ impl Vector {
     #[cfg(feature = "dim3")]
     #[wasm_bindgen(constructor)]
     pub fn new(x: f32, y: f32, z: f32) -> Self {
-        Self(RVector::new(x, y, z))
+        Self(Vector::new(x, y, z))
     }
 
     /// The `x` component of this vector.
@@ -144,7 +167,6 @@ impl Vector {
     pub fn set_z(&mut self, z: f32) {
         self.0.z = z
     }
-
 
     /// Create a new 2D vector from this vector with its components rearranged as `{x, y}`.
     #[cfg(feature = "dim2")]

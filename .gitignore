@@ -9,3 +9,4 @@ dist
 pkg
 docs
 *.swp
+*.d.ts

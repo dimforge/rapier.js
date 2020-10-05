@@ -1,7 +1,7 @@
-import { Engine, World, Bodies, Body, Constraint } from 'matter-js';
+import {Engine, World, Bodies, Body, Constraint} from 'matter-js';
 
 export class MatterBackend {
-    constructor(world, bodies, colliders, joints) {
+    constructor(RAPIER, world, bodies, colliders, joints) {
         this.engine = Engine.create();
         this.engine.world.gravity.x = 0.0;
         this.engine.world.gravity.y = -0.1;
@@ -21,22 +21,22 @@ export class MatterBackend {
             let maBody;
 
             switch (collider.type) {
-                case 'Ball':
+                case RAPIER.ShapeType.Ball:
                     let r = collider.radius;
                     maBody = Bodies.circle(0, 0, r)
                     break;
-                case 'Cuboid':
+                case RAPIER.ShapeType.Cuboid:
                     let he = collider.halfExtents;
                     maBody = Bodies.rectangle(0, 0, he.x * 2.0, he.y * 2.0);
                     break;
             }
 
             Body.setPosition(maBody, pos);
-            Body.setStatic(maBody, body.type != "dynamic");
+            Body.setStatic(maBody, body.type != RAPIER.BodyStatus.Dynamic);
             World.add(this.engine.world, [maBody]);
             maBody.colliderHandle = collider.handle;
 
-            return [ body.handle, maBody ];
+            return [body.handle, maBody];
         }));
 
         joints.forEach(joint => {
@@ -48,7 +48,7 @@ export class MatterBackend {
             let maConstraint;
 
             switch (joint.type) {
-                case "Ball":
+                case RAPIER.JointType.Ball:
                     maConstraint = Constraint.create({
                         bodyA: maBody1,
                         bodyB: maBody2,
@@ -81,10 +81,10 @@ export class MatterBackend {
             if (this.bodyMap) {
                 this.bodyMap.forEach(maBody => {
                     let t = maBody.position;
-                    let r = maBody.angle;
+                    let r = maBody;
                     let entry = {
                         handle: maBody.colliderHandle,
-                        translation: {x: t.x, y: t.y },
+                        translation: {x: t.x, y: t.y},
                         rotation: r
                     };
                     result.push(entry)

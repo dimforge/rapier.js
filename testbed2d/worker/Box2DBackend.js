@@ -1,11 +1,10 @@
 import * as Box2D from './Box2D_v2.3.1_min.js'
 import * as Box2DWasm from './Box2D_v2.3.1_min.wasm.js'
 
-
 class Box2DBackend {
-    constructor(Box2D, world, bodies, colliders, joints) {
+    constructor(RAPIER, Box2D, world, bodies, colliders, joints) {
         var me = this;
-        Box2D().then(function(BOX2D) {
+        Box2D().then(function (BOX2D) {
             let gravity = new BOX2D.b2Vec2(0.0, -9.81);
             me.world = new BOX2D.b2World(gravity);
 
@@ -13,10 +12,10 @@ class Box2DBackend {
             me.bodyMap = new Map(bodies.map(body => {
                 let pos = body.translation;
                 let b2BodyDef = new BOX2D.b2BodyDef();
-                b2BodyDef.set_type(body.type == "dynamic" ? BOX2D.b2_dynamicBody : BOX2D.b2_staticBody);
+                b2BodyDef.set_type(body.type == RAPIER.BodyStatus.Dynamic ? BOX2D.b2_dynamicBody : BOX2D.b2_staticBody);
                 b2BodyDef.set_position(new BOX2D.b2Vec2(pos.x, pos.y));
                 let b2Body = me.world.CreateBody(b2BodyDef);
-                return [ body.handle, b2Body ];
+                return [body.handle, b2Body];
             }));
 
             me.colliderMap = new Map(colliders.map(coll => {
@@ -28,12 +27,12 @@ class Box2DBackend {
                 let b2Geom;
 
                 switch (coll.type) {
-                    case 'Cuboid':
+                    case RAPIER.ShapeType.Cuboid:
                         let he = coll.halfExtents;
                         b2Geom = new BOX2D.b2PolygonShape();
                         b2Geom.SetAsBox(he.x, he.y);
                         break;
-                    case 'Ball':
+                    case RAPIER.ShapeType.Ball:
                         let r = coll.radius;
                         b2Geom = new BOX2D.b2CircleShape();
                         b2Geom.set_m_radius(r);
@@ -41,7 +40,7 @@ class Box2DBackend {
                 }
 
                 b2Body.CreateFixture(b2Geom, b2FixtureDef);
-                return [ coll.handle, b2Body ];
+                return [coll.handle, b2Body];
             }));
 
 
@@ -54,10 +53,10 @@ class Box2DBackend {
                 let b2Def;
 
                 switch (joint.type) {
-                    case "Ball":
+                    case RAPIER.JointType.Ball:
                         b2Def = new BOX2D.b2RevoluteJointDef();
                         b2Def.bodyA = b2Body1,
-                        b2Def.bodyB = b2Body2;
+                            b2Def.bodyB = b2Body2;
                         b2Def.localAnchorA = new BOX2D.b2Vec2(joint.anchor1.x, joint.anchor1.y);
                         b2Def.localAnchorB = new BOX2D.b2Vec2(joint.anchor2.x, joint.anchor2.y);
                         me.world.CreateJoint(b2Def);
@@ -90,7 +89,7 @@ class Box2DBackend {
 
                     let entry = {
                         handle: handle,
-                        translation: {x: t.get_x(), y: t.get_y() },
+                        translation: {x: t.get_x(), y: t.get_y()},
                         rotation: r
                     };
 
@@ -107,13 +106,13 @@ class Box2DBackend {
 }
 
 export class Box2DJSBackend extends Box2DBackend {
-    constructor(world, bodies, colliders, joints) {
-        super(Box2D, world, bodies, colliders, joints)
+    constructor(RAPIER, world, bodies, colliders, joints) {
+        super(RAPIER, Box2D, world, bodies, colliders, joints)
     }
 }
 
 export class Box2DWASMBackend extends Box2DBackend {
-    constructor(world, bodies, colliders, joints) {
-        super(Box2DWasm, world, bodies, colliders, joints)
+    constructor(RAPIER, world, bodies, colliders, joints) {
+        super(RAPIER, Box2DWasm, world, bodies, colliders, joints)
     }
 }

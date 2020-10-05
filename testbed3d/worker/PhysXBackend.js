@@ -1,9 +1,9 @@
 import * as PhysX from 'physx-js'
 
 export class PhysXBackend {
-    constructor(world, bodies, colliders, joints) {
+    constructor(RAPIER, world, bodies, colliders, joints) {
         var me = this;
-        PhysX().then(function(PhysX) {
+        PhysX().then(function (PhysX) {
             const version = PhysX.PX_PHYSICS_VERSION;
             const defaultErrorCallback = new PhysX.PxDefaultErrorCallback();
             const allocator = new PhysX.PxDefaultAllocator();
@@ -13,11 +13,16 @@ export class PhysXBackend {
                 defaultErrorCallback
             );
             const triggerCallback = {
-                onContactBegin: () => {},
-                onContactEnd: () => {},
-                onContactPersist: () => {},
-                onTriggerBegin: () => {},
-                onTriggerEnd: () => {},
+                onContactBegin: () => {
+                },
+                onContactEnd: () => {
+                },
+                onContactPersist: () => {
+                },
+                onTriggerBegin: () => {
+                },
+                onTriggerEnd: () => {
+                },
             };
             const physxSimulationCallbackInstance = PhysX.PxSimulationEventCallback.implement(
                 triggerCallback
@@ -41,13 +46,13 @@ export class PhysXBackend {
             me.bodyMap = new Map(bodies.map(body => {
                 let pos = body.translation;
                 let pxPos = {
-                    translation: { x: pos.x, y: pos.y, z: pos.z },
-                    rotation: { w: 1.0, x: 0.0, y: 0.0, z: 0.0 }
+                    translation: {x: pos.x, y: pos.y, z: pos.z},
+                    rotation: {w: 1.0, x: 0.0, y: 0.0, z: 0.0}
                 };
 
-                let pxBody = body.type == "dynamic" ? me.physics.createRigidDynamic(pxPos) : me.physics.createRigidStatic(pxPos);
+                let pxBody = body.type == RAPIER.BodyStatus.Dynamic ? me.physics.createRigidDynamic(pxPos) : me.physics.createRigidStatic(pxPos);
                 me.world.addActor(pxBody, null);
-                return [ body.handle, pxBody ];
+                return [body.handle, pxBody];
             }));
 
             me.colliderMap = new Map(colliders.map(coll => {
@@ -56,11 +61,11 @@ export class PhysXBackend {
                 let pxGeom;
 
                 switch (coll.type) {
-                    case 'Cuboid':
+                    case RAPIER.ShapeType.Cuboid:
                         let he = coll.halfExtents;
                         pxGeom = new PhysX.PxBoxGeometry(he.x, he.y, he.z);
                         break;
-                    case 'Ball':
+                    case RAPIER.ShapeType.Ball:
                         let r = coll.radius;
                         pxGeom = new PhysX.PxSphereGeometry(r);
                         break;
@@ -71,7 +76,7 @@ export class PhysXBackend {
                 const pxShape = me.physics.createShape(pxGeom, pxMaterial, false, pxFlags);
                 pxBody.attachShape(pxShape);
 
-                return [ coll.handle, pxBody ];
+                return [coll.handle, pxBody];
             }));
 
             joints.forEach(joint => {
@@ -83,32 +88,32 @@ export class PhysXBackend {
                 let pxConstraint;
 
                 switch (joint.type) {
-                    case "Ball":
+                    case RAPIER.JointType.Ball:
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
                         pxAnchor1 = {
-                            translation: { x: anchor1.x, y: anchor1.y, z: anchor1.z },
-                            rotation: { w: 1.0, x: 0.0, y: 0.0, z: 0.0 }
+                            translation: {x: anchor1.x, y: anchor1.y, z: anchor1.z},
+                            rotation: {w: 1.0, x: 0.0, y: 0.0, z: 0.0}
                         };
                         pxAnchor2 = {
-                            translation: { x: anchor2.x, y: anchor2.y, z: anchor2.z },
-                            rotation: { w: 1.0, x: 0.0, y: 0.0, z: 0.0 }
+                            translation: {x: anchor2.x, y: anchor2.y, z: anchor2.z},
+                            rotation: {w: 1.0, x: 0.0, y: 0.0, z: 0.0}
                         };
                         pxConstraint = PhysX.PxSphericalJointCreate(me.physics, pxBody1, pxAnchor1, pxBody2, pxAnchor2);
                         break;
-                    case "Revolute":
+                    case RAPIER.JointType.Revolute:
                         anchor1 = joint.anchor1;
                         anchor2 = joint.anchor2;
                         let frame1 = joint.frameX1;
                         let frame2 = joint.frameX2;
 
                         pxAnchor1 = {
-                            translation: { x: anchor1.x, y: anchor1.y, z: anchor1.z },
-                            rotation: { w: frame1.w, x: frame1.x, y: frame1.y, z: frame1.z }
+                            translation: {x: anchor1.x, y: anchor1.y, z: anchor1.z},
+                            rotation: {w: frame1.w, x: frame1.x, y: frame1.y, z: frame1.z}
                         };
                         pxAnchor2 = {
-                            translation: { x: anchor2.x, y: anchor2.y, z: anchor2.z },
-                            rotation: { w: frame2.w, x: frame2.x, y: frame2.y, z: frame2.z }
+                            translation: {x: anchor2.x, y: anchor2.y, z: anchor2.z},
+                            rotation: {w: frame2.w, x: frame2.x, y: frame2.y, z: frame2.z}
                         };
                         pxConstraint = PhysX.PxRevoluteJointCreate(me.physics, pxBody1, pxAnchor1, pxBody2, pxAnchor2);
                         break;
@@ -132,6 +137,9 @@ export class PhysXBackend {
             this.world.fetchResults(true);
             this.stepTime = new Date().getTime() - t0;
         }
+    }
+
+    free() {
     }
 
     colliderPositions() {

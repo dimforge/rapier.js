@@ -1,13 +1,14 @@
 export function initWorld(RAPIER, testbed) {
-    let world = new RAPIER.World(0.0, -9.81, 0.0);
+    let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
+    let world = new RAPIER.World(gravity);
     let bodies = new Array();
     let colliders = new Array();
 
     // Create Ground.
-    let bodyDesc = new RAPIER.RigidBodyDesc("static");
+    let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(100.0, 0.1, 100.0);
-    let collider = body.createCollider(colliderDesc);
+    let collider = world.createCollider(colliderDesc, body);
     bodies.push(body);
     colliders.push(collider);
 
@@ -32,12 +33,11 @@ export function initWorld(RAPIER, testbed) {
                 let z = k * shift - centerz + offset;
 
                 // Create dynamic cube.
-                let bodyDesc = new RAPIER.RigidBodyDesc("dynamic");
-                bodyDesc.setTranslation(x, y, z);
+                let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
+                    .setTranslation(new RAPIER.Vector3(x, y, z));
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-                colliderDesc.density = 1.0;
-                let collider = body.createCollider(colliderDesc);
+                let collider = world.createCollider(colliderDesc, body.handle);
                 bodies.push(body);
                 colliders.push(collider);
             }
@@ -48,8 +48,8 @@ export function initWorld(RAPIER, testbed) {
 
     testbed.setWorld(world, bodies, colliders);
     let cameraPosition = {
-        eye: { x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844 },
-        target: { x: -40.54730666382427, y: 12.208423050588094, z: -24.423676285239814 }
+        eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},
+        target: {x: -40.54730666382427, y: 12.208423050588094, z: -24.423676285239814}
     };
     testbed.lookAt(cameraPosition)
 }
