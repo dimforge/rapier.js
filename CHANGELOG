@@ -1,25 +1,33 @@
 ### v0.2.0
+This is a significant rewrite of the JavaScript bindings for rapier. The objective of this rewrite is to make the API
+closer to Rapier's and remove most need for manual memory managment.
+
 - Calling `.free()` is now required only for objects that live for the whole duration of the simulation. This means that
   it is no longer necessary to `.free()` vectors, rays, ray intersections, colliders, rigid-bodies, etc. Object that
   continue to require an explicit `.free()` are:
   - `World` and `EventQueue`.
   - Or, if you are not using the `World` directly:
     `RigidBodySet`, `ColliderSet`, `JointSet`, `IntegrationParameters`, `PhysicsPipeline`, `QueryPipeline`, `SerializationPipeline`, and `EventQueue`.
-- Collider.parent() now returns the handle of its parent.
-- Colliders are now built with `world.createCollider`. `body.createCollider(colliderDesc)` becomes `world.createCollider(colliderDesc, bodyHandle)`.
+- Collider.parent() now returns the `RigidBodyHandle` of its parent (instead of the `RigidBody` directly).
+- Colliders are now built with `world.createCollider`, i.e., `body.createCollider(colliderDesc)` becomes `world.createCollider(colliderDesc, bodyHandle)`.
 - Shape types are not an enumeration instead of strings: `ShapeType.Ball` and `ShapeType.Cuboid` instead of `"ball"` and `"cuboid"`.
 - `collider.handle` is now a field instead of a function.
 - `body.handle` is now a field instead of a function.
-- The world's gravity is now a `Vector` instead of individual components.
-- `world.stepWithEvents` becomes `world.step`.
+- The world's gravity is now a `Vector` instead of individual components, i.e., `let world = new RAPIER.World(x, y, z);` becomes `let world = new RAPIER.World(new RAPIER.Vector3(x, y, z))`.
+- Most methods that took individual components as argument (`setPosition`, `setKinematicPosition`, `setRotation`, etc.) now take a `Vector` or `Rotation` structure instead.
+  For example `rigid_body.setKinematicPosition(x, y, z)` becomes `rigid_body.setKinematicPosition(new RAPIER.Vector3(x, y, z))`.
+- `world.stepWithEvents` becomes `world.step` (the event queue is the last optional argument).
 - `RigidBodyDesc` and `ColliderDesc` now use the builder pattern. For example
   `let bodyDesc = new RAPIER.RigidBodyDesc("dynamic"); bodyDesc.setTranslation(x, y, z)` becomes
   `new RigidBodyDesc(BodyStatus.Dynamic).setTranslation(new Vector(x, y, z))`.
 - 2D rotations are now just a `number` instead of a `Rotation` struct. So instead of doing `rotation.angle`, single use
   the number as the rotation angle.
-- 3D rotations are now represented by the interface `Rotation` (with fields `{x,y,z,w}` or the class `Quaternion`.
-- 2D vectors are now represented by the interface `Vector` (with fields `{x,y}` or the class `Vector2`).
-- 3D vectors are now represented by the interface `Vector` (with fields `{x,y,z}` or the class `Vector3`).
+- 3D rotations are now represented by the interface `Rotation` (with fields `{x,y,z,w}`) or the class `Quaternion`.
+  Any object with these `{x, y, z, w}` fields can be used wherever a `Rotation` is required.
+- 2D vectors are now represented by the interface `Vector` (with fields `{x,y}`) or the class `Vector2`). Any object
+  with these `{x,y}` fields can be used wherever a `Vector` is required.
+- 3D vectors are now represented by the interface `Vector` (with fields `{x,y,z}`) or the class `Vector3`). Any object
+  with these `{x,y,z}` fields can be used wherever a `Vector` is required.
 
 ### v0.1.15
 - Fix crash when removing a kinematic rigid-body from the World.
