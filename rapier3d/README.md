@@ -12,8 +12,8 @@
     <a href="https://crates.io/crates/rapier3d">
          <img src="https://meritbadge.herokuapp.com/rapier3d?style=flat-square" alt="crates.io">
     </a>
-    <a href="https://badge.fury.io/js/%40dimforge%2Frapier2d">
-        <img src="https://badge.fury.io/js/%40dimforge%2Frapier2d.svg" alt="npm version" height="18">
+    <a href="https://www.npmjs.com/package/@dimforge/rapier3d">
+        <img src="https://badge.fury.io/js/%40dimforge%2Frapier3d.svg" alt="npm version">
     </a>
     <a href="https://opensource.org/licenses/Apache-2.0">
         <img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg">
