@@ -36,7 +36,27 @@ export function initWorld(RAPIER, testbed) {
                 let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
                     .setTranslation(new RAPIER.Vector3(x, y, z));
                 let body = world.createRigidBody(bodyDesc);
-                let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+                let colliderDesc;
+
+                switch (j % 4) {
+                    case 0:
+                        colliderDesc
+                            = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+                        break;
+                    case 1:
+                        colliderDesc
+                            = RAPIER.ColliderDesc.ball(rad);
+                        break;
+                    case 2:
+                        colliderDesc
+                            = RAPIER.ColliderDesc.cylinder(rad, rad);
+                        break;
+                    case 3:
+                        colliderDesc
+                            = RAPIER.ColliderDesc.cone(rad, rad);
+                        break;
+                }
+
                 let collider = world.createCollider(colliderDesc, body.handle);
                 bodies.push(body);
                 colliders.push(collider);

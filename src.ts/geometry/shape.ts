@@ -12,6 +12,11 @@ export enum ShapeType {
     Polygon = 4,
     Trimesh = 5,
     HeightField = 6,
+    // #if DIM3
+    Cylinder = 7,
+    RoundCylinder = 8,
+    Cone = 9,
+    // #endif
 }
 
 /**
@@ -77,3 +82,131 @@ export class Cuboid {
         return result;
     }
 }
+
+/**
+ * A shape that is a capsule.
+ */
+export class Capsule {
+    /**
+     * The radius of the capsule's basis.
+     */
+    readonly radius: number;
+
+    /**
+     * The capsule's half height, along the `y` axis.
+     */
+    readonly halfHeight: number;
+
+    /**
+     * Creates a new capsule with the given radius and half-height.
+     * @param halfHeight - The balls half-height along the `y` axis.
+     * @param radius - The balls radius.
+     */
+    constructor(halfHeight: number, radius: number) {
+        this.halfHeight = halfHeight;
+        this.radius = radius;
+    }
+
+    public intoRaw(): RawShape {
+        return RawShape.capsule(this.halfHeight, this.radius);
+    }
+}
+
+
+// #if DIM3
+/**
+ * A shape that is a 3D cylinder.
+ */
+export class Cylinder {
+    /**
+     * The radius of the cylinder's basis.
+     */
+    readonly radius: number;
+
+    /**
+     * The cylinder's half height, along the `y` axis.
+     */
+    readonly halfHeight: number;
+
+    /**
+     * Creates a new cylinder with the given radius and half-height.
+     * @param halfHeight - The balls half-height along the `y` axis.
+     * @param radius - The balls radius.
+     */
+    constructor(halfHeight: number, radius: number) {
+        this.halfHeight = halfHeight;
+        this.radius = radius;
+    }
+
+    public intoRaw(): RawShape {
+        return RawShape.cylinder(this.halfHeight, this.radius);
+    }
+}
+
+
+/**
+ * A shape that is a 3D cylinder.
+ */
+export class RoundCylinder {
+    /**
+     * The radius of the cylinder's basis.
+     */
+    readonly radius: number;
+
+    /**
+     * The radius of the cylinder's rounded edges and vertices.
+     */
+    readonly roundRadius: number;
+
+    /**
+     * The cylinder's half height, along the `y` axis.
+     */
+    readonly halfHeight: number;
+
+    /**
+     * Creates a new cylinder with the given radius and half-height.
+     * @param halfHeight - The balls half-height along the `y` axis.
+     * @param radius - The balls radius.
+     */
+    constructor(halfHeight: number, radius: number, roundRadius: number) {
+        this.roundRadius = roundRadius;
+        this.halfHeight = halfHeight;
+        this.radius = radius;
+    }
+
+    public intoRaw(): RawShape {
+        return RawShape.round_cylinder(this.halfHeight, this.radius, this.roundRadius);
+    }
+}
+
+
+/**
+ * A shape that is a 3D cone.
+ */
+export class Cone {
+    /**
+     * The radius of the cone's basis.
+     */
+    readonly radius: number;
+
+    /**
+     * The cone's half height, along the `y` axis.
+     */
+    readonly halfHeight: number;
+
+    /**
+     * Creates a new cone with the given radius and half-height.
+     * @param halfHeight - The balls half-height along the `y` axis.
+     * @param radius - The balls radius.
+     */
+    constructor(halfHeight: number, radius: number) {
+        this.halfHeight = halfHeight;
+        this.radius = radius;
+    }
+
+    public intoRaw(): RawShape {
+        return RawShape.cone(this.halfHeight, this.radius);
+    }
+}
+
+// #if endif

@@ -3,6 +3,8 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
+const CYLINDER_INSTANCE_INDEX = 2;
+const CONE_INSTANCE_INDEX = 3;
 
 var dummy = new THREE.Object3D();
 var kk = 0;
@@ -56,6 +58,18 @@ export class Graphics {
             let ball = new THREE.SphereGeometry(1.0);
             let mat = new THREE.MeshPhongMaterial({color: color, flatShading: true});
             return new THREE.InstancedMesh(ball, mat, 1000);
+        }));
+
+        this.instanceGroups.push(this.colorPalette.map(color => {
+            let cylinder = new THREE.CylinderGeometry(1.0, 1.0);
+            let mat = new THREE.MeshPhongMaterial({color: color, flatShading: true});
+            return new THREE.InstancedMesh(cylinder, mat, 100);
+        }));
+
+        this.instanceGroups.push(this.colorPalette.map(color => {
+            let cone = new THREE.ConeGeometry(1.0, 1.0);
+            let mat = new THREE.MeshPhongMaterial({color: color, flatShading: true});
+            return new THREE.InstancedMesh(cone, mat, 100);
         }));
 
         this.instanceGroups.forEach(groups => {
@@ -157,26 +171,43 @@ export class Graphics {
             highlighted: false,
         };
 
+        console.log("Shape type: ", collider.shapeType());
         switch (collider.shapeType()) {
             case RAPIER.ShapeType.Cuboid:
                 let hext = collider.halfExtents();
                 instance = this.instanceGroups[BOX_INSTANCE_INDEX][instanceDesc.instanceId];
                 instanceDesc.groupId = BOX_INSTANCE_INDEX;
-                instanceDesc.elementId = instance.count;
                 instanceDesc.scale = new THREE.Vector3(hext.x, hext.y, hext.z);
-                instance.count += 1;
                 break;
             case RAPIER.ShapeType.Ball:
                 let rad = collider.radius();
                 instance = this.instanceGroups[BALL_INSTANCE_INDEX][instanceDesc.instanceId];
                 instanceDesc.groupId = BALL_INSTANCE_INDEX;
-                instanceDesc.elementId = instance.count;
                 instanceDesc.scale = new THREE.Vector3(rad, rad, rad);
-                instance.count += 1;
+                break;
+            case RAPIER.ShapeType.Cylinder:
+            case RAPIER.ShapeType.RoundCylinder:
+                let cyl_rad = collider.radius();
+                let cyl_height = collider.halfHeight() * 2.0;
+                instance = this.instanceGroups[CYLINDER_INSTANCE_INDEX][instanceDesc.instanceId];
+                instanceDesc.groupId = CYLINDER_INSTANCE_INDEX;
+                instanceDesc.scale = new THREE.Vector3(cyl_rad, cyl_height, cyl_rad);
+                break;
+            case RAPIER.ShapeType.Cone:
+                let cone_rad = collider.radius();
+                let cone_height = collider.halfHeight() * 2.0;
+                instance = this.instanceGroups[CONE_INSTANCE_INDEX][instanceDesc.instanceId];
+                instanceDesc.groupId = CONE_INSTANCE_INDEX;
+                instanceDesc.scale = new THREE.Vector3(cone_rad, cone_height, cone_rad);
                 break;
             default:
                 console.log("Unknown shape to render.");
                 break;
+        }
+
+        if (!!instance) {
+            instanceDesc.elementId = instance.count;
+            instance.count += 1;
         }
 
         let highlightInstance = this.instanceGroups[instanceDesc.groupId][this.highlightInstanceId()];

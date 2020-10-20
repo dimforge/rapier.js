@@ -7,7 +7,7 @@ class SimulationParameters {
     constructor(backends, builders) {
         this.backend = 'rapier';
         this.prevBackend = 'rapier';
-        this.demo = 'cubes';
+        this.demo = 'primitives';
         this.numVelocityIter = 4;
         this.numPositionIter = 1;
         this.running = true;
@@ -73,6 +73,11 @@ function extractWorldDescription(world, bodies, colliders, joints) {
         let he = coll.halfExtents();
         if (!!he) {
             meta.halfExtents = {x: he.x, y: he.y, z: he.z};
+        }
+
+        let halfHeight = coll.halfHeight();
+        if (!!halfHeight) {
+            meta.halfHeight = coll.halfHeight();
         }
 
         return meta;

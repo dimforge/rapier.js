@@ -24,6 +24,8 @@ export class RapierBackend {
             let raBody = this.bodyMap.get(parentHandle);
             let colliderDesc = null;
             let raCollider = null;
+            let r = 0.0;
+            let hh = 0.0;
 
             switch (coll.type) {
                 case RAPIER.ShapeType.Cuboid:
@@ -31,8 +33,23 @@ export class RapierBackend {
                     colliderDesc = RAPIER.ColliderDesc.cuboid(he.x, he.y, he.z);
                     break;
                 case RAPIER.ShapeType.Ball:
-                    let r = coll.radius;
+                    r = coll.radius;
                     colliderDesc = RAPIER.ColliderDesc.ball(r);
+                    break;
+                case RAPIER.ShapeType.Capsule:
+                    r = coll.radius;
+                    hh = coll.halfHeight;
+                    colliderDesc = RAPIER.ColliderDesc.capsule(hh, r);
+                    break;
+                case RAPIER.ShapeType.Cylinder:
+                    r = coll.radius;
+                    hh = coll.halfHeight;
+                    colliderDesc = RAPIER.ColliderDesc.cylinder(hh, r);
+                    break;
+                case RAPIER.ShapeType.Cone:
+                    r = coll.radius;
+                    hh = coll.halfHeight;
+                    colliderDesc = RAPIER.ColliderDesc.cone(hh, r);
                     break;
             }
 

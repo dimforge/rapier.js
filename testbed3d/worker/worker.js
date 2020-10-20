@@ -73,9 +73,9 @@ export class Worker {
 
         if (!!this.backend) {
             let pos = this.backend.colliderPositions();
-            pos.type = "colliders.setPositions";
 
             if (!!pos) {
+                pos.type = "colliders.setPositions";
                 pos.token = this.token;
                 pos.stepId = this.stepId;
 

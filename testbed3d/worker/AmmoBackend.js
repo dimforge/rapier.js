@@ -33,15 +33,32 @@ class AmmoBackend {
 
                 let collider = body2colliders.get(body.handle)[0];
                 let amShape;
+                let r = 0.0;
+                let hh = 0.0;
 
                 switch (collider.type) {
                     case RAPIER.ShapeType.Ball:
-                        let r = collider.radius;
+                        r = collider.radius;
                         amShape = new Ammo.btSphereShape(r);
                         break;
                     case RAPIER.ShapeType.Cuboid:
                         let he = collider.halfExtents;
                         amShape = new Ammo.btBoxShape(new Ammo.btVector3(he.x, he.y, he.z));
+                        break;
+                    case RAPIER.ShapeType.Capsule:
+                        r = collider.radius;
+                        hh = collider.halfHeight;
+                        amShape = new Ammo.btCapsuleShape(r, hh * 2.0);
+                        break;
+                    case RAPIER.ShapeType.Cylinder:
+                        r = collider.radius;
+                        hh = collider.halfHeight;
+                        amShape = new Ammo.btCylinderShape(new Ammo.btVector3(r, hh, r));
+                        break;
+                    case RAPIER.ShapeType.Cone:
+                        r = collider.radius;
+                        hh = collider.halfHeight;
+                        amShape = new Ammo.btConeShape(r, hh * 2.0);
                         break;
                 }
 

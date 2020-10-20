@@ -1,6 +1,11 @@
 import {RawColliderSet} from "../raw"
 import {Rotation, RotationOps, Vector, VectorOps} from '../math';
-import {Cuboid, Ball, ShapeType} from './index';
+import {
+    Cuboid, Ball, ShapeType, Capsule,
+    // #if DIM3
+    Cylinder, RoundCylinder, Cone
+    // #endif
+} from './index';
 import {RigidBody, RigidBodyHandle} from '../dynamics';
 
 /**
@@ -66,10 +71,17 @@ export class Collider {
     }
 
     /**
-     * The radius of this collider if it is has a ball shape.
+     * The radius of this collider if it is has a ball, cylinder, capsule, or cone shape.
      */
     public radius(): number {
         return this.rawSet.coRadius(this.handle);
+    }
+
+    /**
+     * The half height of this collider if it is has a cylinder, capsule, or cone shape.
+     */
+    public halfHeight(): number {
+        return this.rawSet.coHalfHeight(this.handle);
     }
 
     /**
@@ -109,7 +121,11 @@ export class ColliderDesc {
      *
      * @param shape - The shape of the collider being built.
      */
-    constructor(shape: Ball | Cuboid) {
+    constructor(shape: Ball | Cuboid | Capsule
+// #if DIM3
+        | Cylinder | RoundCylinder | Cone
+                // #endif
+    ) {
         this.shape = shape;
         this.density = null;
         this.friction = 0.5;
@@ -153,6 +169,54 @@ export class ColliderDesc {
      */
     public static cuboid(hx: number, hy: number, hz: number): ColliderDesc {
         const shape = new Cuboid(hx, hy, hz);
+        return new ColliderDesc(shape);
+    }
+
+    // #endif
+
+    /**
+     * Create a new collider descriptor with a capsule shape.
+     *
+     * @param half_height - The half-height of the capsule, along the `y` axis.
+     * @param radius - The radius of the capsule basis.
+     */
+    public static capsule(half_height: number, radius: number): ColliderDesc {
+        const shape = new Capsule(half_height, radius);
+        return new ColliderDesc(shape);
+    }
+
+    // #if DIM3
+    /**
+     * Create a new collider descriptor with a cylinder shape.
+     *
+     * @param half_height - The half-height of the cylinder, along the `y` axis.
+     * @param radius - The radius of the cylinder basis.
+     */
+    public static cylinder(half_height: number, radius: number): ColliderDesc {
+        const shape = new Cylinder(half_height, radius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Create a new collider descriptor with a cylinder shape with rounded corners.
+     *
+     * @param half_height - The half-height of the cylinder, along the `y` axis.
+     * @param radius - The radius of the cylinder basis.
+     * @param round_radius - The radius of the cylinder's rounded edges and vertices.
+     */
+    public static round_cylinder(half_height: number, radius: number, round_radius: number): ColliderDesc {
+        const shape = new RoundCylinder(half_height, radius, round_radius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Create a new collider descriptor with a cone shape.
+     *
+     * @param half_height - The half-height of the cone, along the `y` axis.
+     * @param radius - The radius of the cone basis.
+     */
+    public static cone(half_height: number, radius: number): ColliderDesc {
+        const shape = new Cone(half_height, radius);
         return new ColliderDesc(shape);
     }
 
