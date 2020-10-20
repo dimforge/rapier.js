@@ -48,7 +48,7 @@ impl RawColliderSet {
         })
     }
 
-    /// The radius of this collider if it is has a ball, capsule, cylinder, or cone shape.
+    /// The radius of this collider if it is a ball, capsule, cylinder, or cone shape.
     pub fn coRadius(&self, handle: usize) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::Ball => co.shape().as_ball().map(|b| b.radius),
@@ -56,14 +56,14 @@ impl RawColliderSet {
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => co.shape().as_cylinder().map(|b| b.radius),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCylinder => co.shape().as_rounded::<Cylinder>().map(|b| b.radius),
+            ShapeType::RoundCylinder => co.shape().as_rounded::<Cylinder>().map(|b| b.shape.radius),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.radius),
             _ => None,
         })
     }
 
-    /// The radius of this collider if it is has a capsule, cylinder, or cone shape.
+    /// The radius of this collider if it is a capsule, cylinder, or cone shape.
     pub fn coHalfHeight(&self, handle: usize) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::Capsule => co.shape().as_capsule().map(|b| b.half_height),
@@ -76,6 +76,15 @@ impl RawColliderSet {
                 .map(|b| b.shape.half_height),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.half_height),
+            _ => None,
+        })
+    }
+
+    /// The radius of the round edges of this collider if it is a round cylinder.
+    pub fn coRoundRadius(&self, handle: usize) -> Option<f32> {
+        self.map(handle, |co| match co.shape().shape_type() {
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundCylinder => co.shape().as_rounded::<Cylinder>().map(|b| b.radius),
             _ => None,
         })
     }

@@ -80,6 +80,11 @@ function extractWorldDescription(world, bodies, colliders, joints) {
             meta.halfHeight = coll.halfHeight();
         }
 
+        let roundRadius = coll.roundRadius();
+        if (!!roundRadius) {
+            meta.roundRadius = coll.roundRadius();
+        }
+
         return meta;
     });
 

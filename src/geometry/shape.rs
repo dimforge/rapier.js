@@ -52,7 +52,7 @@ impl RawShape {
     }
 
     #[cfg(feature = "dim3")]
-    pub fn round_cylinder(half_height: f32, radius: f32, round_radius: f32) -> Self {
+    pub fn roundCylinder(half_height: f32, radius: f32, round_radius: f32) -> Self {
         Self(ColliderShape::round_cylinder(
             half_height,
             radius,

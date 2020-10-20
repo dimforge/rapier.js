@@ -175,7 +175,7 @@ export class RoundCylinder {
     }
 
     public intoRaw(): RawShape {
-        return RawShape.round_cylinder(this.halfHeight, this.radius, this.roundRadius);
+        return RawShape.roundCylinder(this.halfHeight, this.radius, this.roundRadius);
     }
 }
 

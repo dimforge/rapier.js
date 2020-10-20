@@ -26,6 +26,7 @@ export class RapierBackend {
             let raCollider = null;
             let r = 0.0;
             let hh = 0.0;
+            let rr = 0.0;
 
             switch (coll.type) {
                 case RAPIER.ShapeType.Cuboid:
@@ -45,6 +46,12 @@ export class RapierBackend {
                     r = coll.radius;
                     hh = coll.halfHeight;
                     colliderDesc = RAPIER.ColliderDesc.cylinder(hh, r);
+                    break;
+                case RAPIER.ShapeType.RoundCylinder:
+                    r = coll.radius;
+                    hh = coll.halfHeight;
+                    rr = coll.roundRadius;
+                    colliderDesc = RAPIER.ColliderDesc.roundCylinder(hh, r, rr);
                     break;
                 case RAPIER.ShapeType.Cone:
                     r = coll.radius;

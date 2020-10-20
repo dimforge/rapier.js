@@ -64,21 +64,28 @@ export class Collider {
     }
 
     /**
-     * The half-extents of this collider if it is has a cuboid shape.
+     * The half-extents of this collider if it is a cuboid shape.
      */
     public halfExtents(): Vector {
         return VectorOps.fromRaw(this.rawSet.coHalfExtents(this.handle));
     }
 
     /**
-     * The radius of this collider if it is has a ball, cylinder, capsule, or cone shape.
+     * The radius of this collider if it is a ball, cylinder, capsule, or cone shape.
      */
     public radius(): number {
         return this.rawSet.coRadius(this.handle);
     }
 
     /**
-     * The half height of this collider if it is has a cylinder, capsule, or cone shape.
+     * The radius of the round edges of this collider if it is a round cylinder.
+     */
+    public roundRadius(): number {
+        return this.rawSet.coRoundRadius(this.handle);
+    }
+
+    /**
+     * The half height of this collider if it is a cylinder, capsule, or cone shape.
      */
     public halfHeight(): number {
         return this.rawSet.coHalfHeight(this.handle);
@@ -204,7 +211,7 @@ export class ColliderDesc {
      * @param radius - The radius of the cylinder basis.
      * @param round_radius - The radius of the cylinder's rounded edges and vertices.
      */
-    public static round_cylinder(half_height: number, radius: number, round_radius: number): ColliderDesc {
+    public static roundCylinder(half_height: number, radius: number, round_radius: number): ColliderDesc {
         const shape = new RoundCylinder(half_height, radius, round_radius);
         return new ColliderDesc(shape);
     }

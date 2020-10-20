@@ -1,3 +1,9 @@
+### v0.2.4
+- Add the support for round cylinder colliders (i.e. cylinders with round edges).
+
+### v0.2.3
+- Add the support for cone, cylinder, and capsule colliders.
+
 ### v0.2.2
 - Fix regression causing the density and `isSensor` properties of `ColliderDesc` to not be taken into account.
 - Throw an exception when the parent handle passed to `world.createCollider` is not a number.

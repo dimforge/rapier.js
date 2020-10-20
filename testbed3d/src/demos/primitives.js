@@ -49,7 +49,7 @@ export function initWorld(RAPIER, testbed) {
                         break;
                     case 2:
                         colliderDesc
-                            = RAPIER.ColliderDesc.cylinder(rad, rad);
+                            = RAPIER.ColliderDesc.roundCylinder(rad, rad, rad / 10.0);
                         break;
                     case 3:
                         colliderDesc
