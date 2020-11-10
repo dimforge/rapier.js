@@ -299,14 +299,14 @@ export class RigidBody {
      * Is this rigid-body kinematic?
      */
     public isKinematic(): boolean {
-        return this.rawSet.rbIsDynamic(this.handle);
+        return this.rawSet.rbIsKinematic(this.handle);
     }
 
     /**
      * Is this rigid-body dynamic?
      */
     public isDynamic(): boolean {
-        return this.rawSet.rbIsStatic(this.handle);
+        return this.rawSet.rbIsDynamic(this.handle);
     }
 
     /**

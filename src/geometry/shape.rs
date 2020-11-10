@@ -1,32 +1,35 @@
 use crate::math::RawVector;
-use rapier::geometry::{Ball, Capsule, ColliderShape, Cuboid};
+use rapier::geometry::ColliderShape;
+use rapier::math::{Point, Vector};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 #[cfg(feature = "dim2")]
 pub enum RawShapeType {
     Ball = 0,
-    Cuboid = 1,
-    Capsule = 2,
-    Triangle = 3,
-    Polygon = 4,
-    Trimesh = 5,
-    HeightField = 6,
+    Polygon = 1,
+    Cuboid = 2,
+    Capsule = 3,
+    Segment = 4,
+    Triangle = 5,
+    Trimesh = 6,
+    HeightField = 7,
 }
 
 #[wasm_bindgen]
 #[cfg(feature = "dim3")]
 pub enum RawShapeType {
     Ball = 0,
-    Cuboid = 1,
-    Capsule = 2,
-    Triangle = 3,
-    Polygon = 4,
-    Trimesh = 5,
-    HeightField = 6,
-    Cylinder = 7,
-    RoundCylinder = 8,
-    Cone = 9,
+    Polygon = 1,
+    Cuboid = 2,
+    Capsule = 3,
+    Segment = 4,
+    Triangle = 5,
+    Trimesh = 6,
+    HeightField = 7,
+    Cylinder = 8,
+    RoundCylinder = 9,
+    Cone = 10,
 }
 
 #[wasm_bindgen]
@@ -43,7 +46,9 @@ impl RawShape {
     }
 
     pub fn capsule(half_height: f32, radius: f32) -> Self {
-        Self(ColliderShape::capsule(half_height, radius))
+        let p2 = Point::from(Vector::y() * half_height);
+        let p1 = -p2;
+        Self(ColliderShape::capsule(p1, p2, radius))
     }
 
     #[cfg(feature = "dim3")]

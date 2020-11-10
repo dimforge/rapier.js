@@ -1,3 +1,6 @@
+### v0.2.5
+- Fix wrong result given by `RigidBody.isKinematic()` and `RigidBody.isDynamic()`.
+
 ### v0.2.4
 - Add the support for round cylinder colliders (i.e. cylinders with round edges).
 

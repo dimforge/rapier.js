@@ -1,7 +1,7 @@
 use crate::dynamics::RawRigidBodySet;
 use crate::geometry::{RawColliderSet, RawRayColliderIntersection};
 use crate::math::RawVector;
-use rapier::geometry::Ray;
+use rapier::geometry::{InteractionGroups, Ray};
 use rapier::pipeline::QueryPipeline;
 use wasm_bindgen::prelude::*;
 
@@ -27,7 +27,9 @@ impl RawQueryPipeline {
         maxToi: f32,
     ) -> Option<RawRayColliderIntersection> {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
-        let (handle, _, inter) = self.0.cast_ray(&colliders.0, &ray, maxToi)?;
+        let (handle, _, inter) =
+            self.0
+                .cast_ray(&colliders.0, &ray, maxToi, InteractionGroups::all())?;
         Some(RawRayColliderIntersection { handle, inter })
     }
 }

@@ -1,7 +1,5 @@
 use crate::geometry::{RawColliderSet, RawShapeType};
 use crate::math::{RawRotation, RawVector};
-#[cfg(feature = "dim3")]
-use rapier::geometry::Cylinder;
 use rapier::geometry::ShapeType;
 use wasm_bindgen::prelude::*;
 
@@ -38,6 +36,7 @@ impl RawColliderSet {
             ShapeType::RoundCylinder => RawShapeType::RoundCylinder,
             #[cfg(feature = "dim3")]
             ShapeType::Cone => RawShapeType::Cone,
+            ShapeType::Segment => RawShapeType::Segment,
         })
     }
 
@@ -56,7 +55,7 @@ impl RawColliderSet {
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => co.shape().as_cylinder().map(|b| b.radius),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCylinder => co.shape().as_rounded::<Cylinder>().map(|b| b.shape.radius),
+            ShapeType::RoundCylinder => co.shape().as_round_cylinder().map(|b| b.cylinder.radius),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.radius),
             _ => None,
@@ -66,14 +65,14 @@ impl RawColliderSet {
     /// The radius of this collider if it is a capsule, cylinder, or cone shape.
     pub fn coHalfHeight(&self, handle: usize) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
-            ShapeType::Capsule => co.shape().as_capsule().map(|b| b.half_height),
+            ShapeType::Capsule => co.shape().as_capsule().map(|b| b.half_height()),
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => co.shape().as_cylinder().map(|b| b.half_height),
             #[cfg(feature = "dim3")]
             ShapeType::RoundCylinder => co
                 .shape()
-                .as_rounded::<Cylinder>()
-                .map(|b| b.shape.half_height),
+                .as_round_cylinder()
+                .map(|b| b.cylinder.half_height),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.half_height),
             _ => None,
@@ -84,7 +83,7 @@ impl RawColliderSet {
     pub fn coRoundRadius(&self, handle: usize) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCylinder => co.shape().as_rounded::<Cylinder>().map(|b| b.radius),
+            ShapeType::RoundCylinder => co.shape().as_round_cylinder().map(|b| b.border_radius),
             _ => None,
         })
     }

@@ -6,16 +6,17 @@ import {RawShape} from "../raw";
  */
 export enum ShapeType {
     Ball = 0,
-    Cuboid = 1,
-    Capsule = 2,
-    Triangle = 3,
-    Polygon = 4,
-    Trimesh = 5,
-    HeightField = 6,
-    // #if DIM3
-    Cylinder = 7,
-    RoundCylinder = 8,
-    Cone = 9,
+    Polygon = 1,
+    Cuboid = 2,
+    Capsule = 3,
+    Segment = 4,
+    Triangle = 5,
+    Trimesh = 6,
+    HeightField = 7,
+    // # if DIM3
+    Cylinder = 8,
+    RoundCylinder = 9,
+    Cone = 10,
     // #endif
 }
 

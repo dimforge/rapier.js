@@ -1,6 +1,6 @@
-use crossbeam_channel::Receiver;
-use rapier::geometry::{ColliderSet, ContactEvent, ProximityEvent};
-use rapier::pipeline::{ChannelEventCollector, PhysicsPipeline, QueryPipeline};
+use rapier::crossbeam::channel::Receiver;
+use rapier::geometry::{ContactEvent, ProximityEvent};
+use rapier::pipeline::ChannelEventCollector;
 use wasm_bindgen::prelude::*;
 
 /// A structure responsible for collecting events generated
@@ -35,8 +35,8 @@ impl RawEventQueue {
     /// RAM if no drain is performed.
     #[wasm_bindgen(constructor)]
     pub fn new(autoDrain: bool) -> Self {
-        let contact_channel = crossbeam_channel::unbounded();
-        let proximity_channel = crossbeam_channel::unbounded();
+        let contact_channel = rapier::crossbeam::channel::unbounded();
+        let proximity_channel = rapier::crossbeam::channel::unbounded();
         let collector = ChannelEventCollector::new(proximity_channel.0, contact_channel.0);
 
         Self {

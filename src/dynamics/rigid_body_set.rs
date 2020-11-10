@@ -1,7 +1,5 @@
 use crate::math::{RawRotation, RawVector};
-use na::{Quaternion, Unit};
 use rapier::dynamics::{BodyStatus, RigidBody, RigidBodyBuilder, RigidBodyMut, RigidBodySet};
-use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

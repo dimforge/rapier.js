@@ -3,7 +3,6 @@ use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
 use crate::math::RawVector;
 use crate::pipeline::RawEventQueue;
 use crate::rapier::pipeline::PhysicsPipeline;
-use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -34,6 +33,8 @@ impl RawPhysicsPipeline {
             &mut bodies.0,
             &mut colliders.0,
             &mut joints.0,
+            None,
+            None,
             &(),
         );
     }
@@ -61,6 +62,8 @@ impl RawPhysicsPipeline {
             &mut bodies.0,
             &mut colliders.0,
             &mut joints.0,
+            None,
+            None,
             &eventQueue.collector,
         );
     }
