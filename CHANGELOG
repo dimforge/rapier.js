@@ -1,3 +1,6 @@
+### v0.2.6
+- Fix bug causing an unbounded memory usage when an objects falls indefinitely.
+
 ### v0.2.5
 - Fix wrong result given by `RigidBody.isKinematic()` and `RigidBody.isDynamic()`.
 
