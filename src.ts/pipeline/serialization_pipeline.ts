@@ -1,7 +1,6 @@
 import {
     RawSerializationPipeline,
 } from "../raw";
-import {QueryPipeline} from "./query_pipeline";
 import {Vector, VectorOps} from "../math";
 import {IntegrationParameters, JointSet, RigidBodySet} from "../dynamics";
 import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
@@ -37,7 +36,6 @@ export class SerializationPipeline {
      * @param bodies - The rigid-bodies taking part into the simulation.
      * @param colliders - The colliders taking part into the simulation.
      * @param joints - The joints taking part into the simulation.
-     * @param queryPipeline - The query pipeline taking part into the simulation.
      */
     public serializeAll(
         gravity: Vector,
@@ -47,7 +45,6 @@ export class SerializationPipeline {
         bodies: RigidBodySet,
         colliders: ColliderSet,
         joints: JointSet,
-        queryPipeline: QueryPipeline
     ): Uint8Array {
         let rawGra = VectorOps.intoRaw(gravity);
 
@@ -59,7 +56,6 @@ export class SerializationPipeline {
             bodies.raw,
             colliders.raw,
             joints.raw,
-            queryPipeline.raw
         );
         rawGra.free();
 

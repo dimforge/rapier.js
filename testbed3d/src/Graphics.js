@@ -14,6 +14,7 @@ export class Graphics {
         this.raycaster = new THREE.Raycaster();
         this.highlightedCollider = null;
         this.coll2gfx = new Map();
+        this.rb2colls = new Map();
         this.colorIndex = 0;
         this.colorPalette = [0xF3D9B1, 0x98C1D9, 0x053C5E, 0x1F7A8C, 0xFF0000];
         this.scene = new THREE.Scene();
@@ -74,6 +75,7 @@ export class Graphics {
 
         this.instanceGroups.forEach(groups => {
             groups.forEach(instance => {
+                instance.elementId2coll = new Map();
                 instance.count = 0;
                 instance.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
                 this.scene.add(instance);
@@ -153,15 +155,56 @@ export class Graphics {
     reset() {
         this.instanceGroups.forEach(groups => {
             groups.forEach(instance => {
+                instance.elementId2coll = new Map();
                 instance.count = 0;
             })
         });
 
         this.coll2gfx = new Map();
+        this.rb2colls = new Map();
         this.colorIndex = 0;
     }
 
+    applyModifications(RAPIER, world, modifications) {
+        if (!!modifications) {
+            modifications.addCollider.forEach(coll => {
+                let collider = world.getCollider(coll.handle);
+                this.addCollider(RAPIER, world, collider);
+            });
+            modifications.removeRigidBody.forEach(body => {
+                if (!!this.rb2colls.get(body)) {
+                    this.rb2colls.get(body).forEach(coll => this.removeCollider(coll));
+                    this.rb2colls.delete(body);
+                }
+            });
+        }
+    }
+
+    removeCollider(handle) {
+        let gfx = this.coll2gfx.get(handle);
+        let instance = this.instanceGroups[gfx.groupId][gfx.instanceId];
+
+        if (instance.count > 1) {
+            let coll2 = instance.elementId2coll.get(instance.count - 1);
+            instance.elementId2coll.delete(instance.count - 1);
+            instance.elementId2coll.set(gfx.elementId, coll2);
+
+            let gfx2 = this.coll2gfx.get(coll2);
+            gfx2.elementId = gfx.elementId;
+        }
+
+        instance.count -= 1;
+        this.coll2gfx.delete(handle);
+    }
+
     addCollider(RAPIER, world, collider) {
+        let parentHandle = collider.parent();
+        if (!this.rb2colls.get(parentHandle)) {
+            this.rb2colls.set(parentHandle, [collider.handle]);
+        } else {
+            this.rb2colls.get(parentHandle).push(collider.handle);
+        }
+
         let parent = world.getRigidBody(collider.parent());
         let instance;
         let instanceDesc = {
@@ -171,7 +214,6 @@ export class Graphics {
             highlighted: false,
         };
 
-        console.log("Shape type: ", collider.shapeType());
         switch (collider.shapeType()) {
             case RAPIER.ShapeType.Cuboid:
                 let hext = collider.halfExtents();
@@ -207,6 +249,7 @@ export class Graphics {
 
         if (!!instance) {
             instanceDesc.elementId = instance.count;
+            instance.elementId2coll.set(instance.count, collider.handle);
             instance.count += 1;
         }
 

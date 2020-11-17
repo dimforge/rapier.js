@@ -1,12 +1,10 @@
 use crate::dynamics::{RawIntegrationParameters, RawJointSet, RawRigidBodySet};
 use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
 use crate::math::RawVector;
-use crate::pipeline::RawQueryPipeline;
 use js_sys::Uint8Array;
 use rapier::dynamics::{IntegrationParameters, JointSet, RigidBodySet};
 use rapier::geometry::{BroadPhase, ColliderSet, NarrowPhase};
 use rapier::math::Vector;
-use rapier::pipeline::QueryPipeline;
 use wasm_bindgen::prelude::*;
 
 #[derive(Serialize)]
@@ -18,7 +16,6 @@ struct SerializableWorld<'a> {
     bodies: &'a RigidBodySet,
     colliders: &'a ColliderSet,
     joints: &'a JointSet,
-    query_pipeline: &'a QueryPipeline,
 }
 
 #[derive(Deserialize)]
@@ -30,7 +27,6 @@ struct DeserializableWorld {
     bodies: RigidBodySet,
     colliders: ColliderSet,
     joints: JointSet,
-    query_pipeline: QueryPipeline,
 }
 
 #[wasm_bindgen]
@@ -42,7 +38,6 @@ pub struct RawDeserializedWorld {
     bodies: Option<RawRigidBodySet>,
     colliders: Option<RawColliderSet>,
     joints: Option<RawJointSet>,
-    queryPipeline: Option<RawQueryPipeline>,
 }
 
 #[wasm_bindgen]
@@ -74,10 +69,6 @@ impl RawDeserializedWorld {
     pub fn takeJoints(&mut self) -> Option<RawJointSet> {
         self.joints.take()
     }
-
-    pub fn takeQueryPipeline(&mut self) -> Option<RawQueryPipeline> {
-        self.queryPipeline.take()
-    }
 }
 
 #[wasm_bindgen]
@@ -99,7 +90,6 @@ impl RawSerializationPipeline {
         bodies: &RawRigidBodySet,
         colliders: &RawColliderSet,
         joints: &RawJointSet,
-        queryPipeline: &RawQueryPipeline,
     ) -> Option<Uint8Array> {
         let to_serialize = SerializableWorld {
             gravity: &gravity.0,
@@ -109,7 +99,6 @@ impl RawSerializationPipeline {
             bodies: &bodies.0,
             colliders: &colliders.0,
             joints: &joints.0,
-            query_pipeline: &queryPipeline.0,
         };
         let snap = bincode::serialize(&to_serialize).ok()?;
         Some(Uint8Array::from(&snap[..]))
@@ -126,7 +115,6 @@ impl RawSerializationPipeline {
             bodies: Some(RawRigidBodySet(d.bodies)),
             colliders: Some(RawColliderSet(d.colliders)),
             joints: Some(RawJointSet(d.joints)),
-            queryPipeline: Some(RawQueryPipeline(d.query_pipeline)),
         })
     }
 }

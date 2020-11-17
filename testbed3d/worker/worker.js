@@ -3,6 +3,7 @@ import {AmmoJSBackend, AmmoWASMBackend} from "./AmmoBackend";
 import {PhysXBackend} from "./PhysXBackend";
 import {OimoBackend} from "./OimoBackend";
 import {RapierBackend} from "./RapierBackend";
+import crc32 from 'buffer-crc32'
 
 const RAPIER = import('@dimforge/rapier3d');
 var interval = null;
@@ -66,6 +67,7 @@ export class Worker {
 
     step(params) {
         if (!!this.backend && params.running) {
+            this.backend.applyModifications(params.modifications);
             let ok = this.backend.step(params.maxVelocityIterations, params.maxPositionIterations);
             if (ok)
                 this.stepId += 1;
@@ -81,7 +83,19 @@ export class Worker {
 
                 if (!!params.debugInfos) {
                     if (!!this.backend.worldHash) {
-                        pos.worldHash = this.backend.worldHash();
+
+                        let t0 = performance.now();
+                        let snapshot = this.backend.takeSnapshot();
+                        let t1 = performance.now();
+                        let snapshotTime = t1 - t0;
+
+                        t0 = performance.now();
+                        pos.worldHash = crc32(new Buffer(snapshot));
+                        t1 = performance.now();
+                        let worldHashTime = t1 - t0;
+
+                        pos.worldHashTime = worldHashTime;
+                        pos.snapshotTime = snapshotTime;
                     }
                 }
             }

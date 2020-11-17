@@ -1,5 +1,5 @@
 import * as dat from 'dat.gui'
-import * as Stats  from "stats.js";
+import * as Stats from "stats.js";
 
 export class Gui {
     constructor(testbed, simulationParameters) {
@@ -24,21 +24,33 @@ export class Gui {
             name: "Rapier JS demos"
         });
         this.gui.add(simulationParameters, 'backend', backends)
-            .onChange(function(backend) { testbed.switchToBackend(backend) } );
+            .onChange(function (backend) {
+                testbed.switchToBackend(backend)
+            });
         var currDemo = this.gui.add(simulationParameters, 'demo', demos)
-            .onChange(function(demo) { testbed.switchToDemo(demo) } );
+            .onChange(function (demo) {
+                testbed.switchToDemo(demo)
+            });
         this.velIter = this.gui.add(simulationParameters, 'numVelocityIter', 0, 20).step(1).listen();
         this.posIter = this.gui.add(simulationParameters, 'numPositionIter', 0, 20).step(1).listen();
         this.gui.add(simulationParameters, 'debugInfos').listen();
         this.gui.add(simulationParameters, 'running', true).listen();
         this.gui.add(simulationParameters, 'step')
-            .onChange(function() { simulationParameters.stepping = true; });
+            .onChange(function () {
+                simulationParameters.stepping = true;
+            });
         this.gui.add(simulationParameters, 'takeSnapshot')
-            .onChange(function() { testbed.takeSnapshot()} )
+            .onChange(function () {
+                testbed.takeSnapshot()
+            })
         this.gui.add(simulationParameters, 'restoreSnapshot')
-            .onChange(function() { testbed.restoreSnapshot()} )
+            .onChange(function () {
+                testbed.restoreSnapshot()
+            })
         this.gui.add(simulationParameters, 'restart')
-            .onChange(function() { testbed.switchToDemo(currDemo.getValue())} )
+            .onChange(function () {
+                testbed.switchToDemo(currDemo.getValue())
+            })
 
 
         /*
@@ -53,10 +65,12 @@ export class Gui {
     }
 
     setDebugInfos(infos) {
-        let text =  "[Step " + infos.stepId + "]";
+        let text = "[Step " + infos.stepId + "]";
 
         if (infos.worldHash) {
-            text += "<br/>World hash: " + infos.worldHash;
+            text += "<br/>World hash (CRC32): " + infos.worldHash;
+            text += "<br/>World hash time (CRC32): " + infos.worldHashTime + "ms";
+            text += "<br/>Snapshot time: " + infos.snapshotTime + "ms";
         }
         this.debugText.innerHTML = text;
     }

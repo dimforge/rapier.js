@@ -114,7 +114,6 @@ export class World {
             raw.takeBodies(),
             raw.takeColliders(),
             raw.takeJoints(),
-            raw.takeQueryPipeline(),
         );
     }
 
@@ -133,7 +132,6 @@ export class World {
             this.bodies,
             this.colliders,
             this.joints,
-            this.queryPipeline
         );
     }
 

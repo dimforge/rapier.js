@@ -1,3 +1,5 @@
+import {PhysicsModifications} from "../PhysicsModifications"
+
 export function initWorld(RAPIER, testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
@@ -13,8 +15,8 @@ export function initWorld(RAPIER, testbed) {
     colliders.push(collider);
 
     // Dynamic cubes.
-    let num = 8;
-    let numy = 10;
+    let num = 6;
+    let numy = 6;
     let rad = 1.0;
 
     let shift = rad * 2.0 + rad;
@@ -44,9 +46,9 @@ export function initWorld(RAPIER, testbed) {
                             = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
                         break;
                     case 1:
-                        colliderDesc
-                            = RAPIER.ColliderDesc.ball(rad);
-                        break;
+                    // colliderDesc
+                    //     = RAPIER.ColliderDesc.ball(rad);
+                    // break;
                     case 2:
                         colliderDesc
                             = RAPIER.ColliderDesc.roundCylinder(rad, rad, rad / 10.0);
@@ -67,6 +69,7 @@ export function initWorld(RAPIER, testbed) {
     }
 
     testbed.setWorld(world, bodies, colliders);
+
     let cameraPosition = {
         eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},
         target: {x: -40.54730666382427, y: 12.208423050588094, z: -24.423676285239814}

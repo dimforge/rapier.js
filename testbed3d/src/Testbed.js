@@ -1,5 +1,6 @@
 import {Graphics} from './Graphics'
 import {Gui} from './Gui'
+import {extractWorldDescription} from './PhysicsDescription'
 
 const PHYSX_BACKEND_NAME = "physx.release.wasm";
 
@@ -23,98 +24,6 @@ class SimulationParameters {
         this.backends = backends;
         this.builders = builders;
         this.debugInfos = false;
-    }
-}
-
-/*
- * To use our testbed the user has to load Rapier, initialize
- * the Rapier physics world. Then the testbed will take this word
- * and convert it to an abstract description of its content to
- * send it to a web worker. And this web worker will re-build
- * the Rapier physics world. So basically we are doing two
- * conversion:
- *
- * Rapier -> abstract descripton -> Rapier
- *
- * This may sound silly as it would be easier to just have the user
- * write the abstract description directly and pass it to the testbed.
- * But we don't do this because we want our demos to be examples on
- * how one can create a Rapier world. That way one can refer to
- * there examples to see how some things can be done.
- */
-function extractWorldDescription(world, bodies, colliders, joints) {
-    let metaWorld = {
-        maxVelocityIterations: world.maxVelocityIterations,
-        maxPositionIterations: world.maxPositionIterations,
-    };
-
-    let metaBodies = bodies.map(body => {
-        let pos = body.translation();
-
-        return {
-            handle: body.handle,
-            type: body.bodyStatus(),
-            translation: pos,
-            mass: body.mass()
-        };
-    });
-
-    let metaColliders = colliders.map(coll => {
-        let meta = {
-            handle: coll.handle,
-            parentHandle: coll.parent(),
-            type: coll.shapeType(),
-            radius: coll.radius(),
-            density: coll.density(),
-            friction: coll.friction(),
-            isSensor: coll.isSensor(),
-        };
-
-        let he = coll.halfExtents();
-        if (!!he) {
-            meta.halfExtents = {x: he.x, y: he.y, z: he.z};
-        }
-
-        let halfHeight = coll.halfHeight();
-        if (!!halfHeight) {
-            meta.halfHeight = coll.halfHeight();
-        }
-
-        let roundRadius = coll.roundRadius();
-        if (!!roundRadius) {
-            meta.roundRadius = coll.roundRadius();
-        }
-
-        return meta;
-    });
-
-    let metaJoints = !joints ? [] : joints.map(joint => {
-        let a1 = joint.anchor1();
-        let a2 = joint.anchor2();
-        let ax1 = joint.axis1() || {x: 0.0, y: 0.0, z: 0.0};
-        let ax2 = joint.axis2() || {x: 0.0, y: 0.0, z: 0.0};
-        let fx1 = joint.frameX1() || {x: 0.0, y: 0.0, z: 0.0, w: 1.0};
-        let fx2 = joint.frameX2() || {x: 0.0, y: 0.0, z: 0.0, w: 1.0};
-
-        return {
-            handle1: joint.bodyHandle1(),
-            handle2: joint.bodyHandle2(),
-            type: joint.type(),
-            anchor1: {x: a1.x, y: a1.y, z: a1.z},
-            anchor2: {x: a2.x, y: a2.y, z: a2.z},
-            axis1: {x: ax1.x, y: ax1.y, z: ax1.z},
-            axis2: {x: ax2.x, y: ax2.y, z: ax2.z},
-            frameX1: {x: fx1.x, y: fx1.y, z: fx1.z, w: fx1.w},
-            frameX2: {x: fx2.x, y: fx2.y, z: fx2.z, w: fx2.w},
-        };
-    });
-
-    return {
-        world: metaWorld,
-        bodies: metaBodies,
-        colliders: metaColliders,
-        joints: metaJoints,
-
     }
 }
 
@@ -146,6 +55,8 @@ export class Testbed {
                 return;
             }
 
+            let modifications;
+
             if (!!msg.data && msg.data.token == this.demoToken) {
                 switch (msg.data.type) {
                     case 'collider.highlight':
@@ -160,16 +71,27 @@ export class Testbed {
             }
 
             let now = new Date().getTime();
-            let stepMessage = this.stepMessage();
             let raycastMessage = this.raycastMessage();
 
             /// Don't step the physics world faster than the real world.
             if (now - this.lastMessageTime >= this.world.timestep * 1000) {
+                if (!!this.preTimestepAction && this.parameters.running) {
+                    modifications = this.preTimestepAction();
+                }
+                let stepMessage = this.stepMessage(modifications);
+
+                this.graphics.applyModifications(this.RAPIER, this.world, modifications);
                 this.worker.postMessage(raycastMessage);
                 this.worker.postMessage(stepMessage);
                 this.lastMessageTime = now;
             } else {
                 setTimeout(() => {
+                    if (!!this.preTimestepAction && this.parameters.running) {
+                        modifications = this.preTimestepAction();
+                    }
+                    let stepMessage = this.stepMessage(modifications);
+                    
+                    this.graphics.applyModifications(this.RAPIER, this.world, modifications);
                     this.worker.postMessage(raycastMessage);
                     this.worker.postMessage(stepMessage);
                     this.lastMessageTime = new Date().getTime();
@@ -192,11 +114,12 @@ export class Testbed {
         };
     }
 
-    stepMessage() {
+    stepMessage(modifications) {
         let res = {
             type: 'step',
             maxVelocityIterations: this.parameters.numVelocityIter,
             maxPositionIterations: this.parameters.numPositionIter,
+            modifications: modifications,
             running: this.parameters.running || this.parameters.stepping,
             debugInfos: this.parameters.debugInfos
         };
@@ -209,13 +132,16 @@ export class Testbed {
         return res;
     }
 
+    setpreTimestepAction(action) {
+        this.preTimestepAction = action;
+    }
+
     setWorld(world, bodies, colliders, joints) {
+        this.preTimestepAction = null;
         this.world = world;
         this.world.maxVelocityIterations = this.parameters.numVelocityIter;
         this.world.maxPositionIterations = this.parameters.numPositionIter;
         this.demoToken += 1;
-        this.bodies = bodies;
-        this.colliders = colliders;
         this.joints = !!joints ? joints : new Array();
         this.gui.resetTiming();
 
