@@ -1,3 +1,6 @@
+### v0.2.7
+- Reduce snapshot size and computation times.
+
 ### v0.2.6
 - Fix bug causing an unbounded memory usage when an objects falls indefinitely.
 
