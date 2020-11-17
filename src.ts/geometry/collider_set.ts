@@ -48,6 +48,8 @@ export class ColliderSet {
             desc.friction,
             desc.restitution,
             desc.isSensor,
+            desc.collisionGroups,
+            desc.solverGroups,
             parentHandle,
             bodies.raw,
         );
@@ -57,6 +59,17 @@ export class ColliderSet {
         rawRot.free();
 
         return handle;
+    }
+
+    /**
+     * Remove a collider from this set.
+     *
+     * @param handle - The integer handle of the collider to remove.
+     * @param bodies - The set of rigid-body containing the rigid-body the collider is attached to.
+     * @param wakeUp - If `true`, the rigid-body the removed collider is attached to will be woken-up automatically.
+     */
+    public remove(handle: ColliderHandle, bodies: RigidBodySet, wakeUp: boolean) {
+        this.raw.remove(handle, bodies.raw, wakeUp);
     }
 
     /**

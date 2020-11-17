@@ -1,40 +1,19 @@
 import {PhysicsModifications} from "../PhysicsModifications"
 import seedrandom from 'seedrandom'
 
-function generateTrimesh(nsubdivs, wx, wy, wz) {
-    let vertices = [];
-    let indices = [];
+function generateHeightfield(nsubdivs) {
+    let heights = [];
 
-    let elementWidth = 1.0 / nsubdivs;
-    let rng = seedrandom('trimesh');
+    let rng = seedrandom('heightfield');
 
     let i, j;
     for (i = 0; i <= nsubdivs; ++i) {
         for (j = 0; j <= nsubdivs; ++j) {
-            let x = (j * elementWidth - 0.5) * wx;
-            let y = rng() * wy;
-            let z = (i * elementWidth - 0.5) * wz;
-
-            vertices.push(x, y, z);
+            heights.push(rng());
         }
     }
 
-    for (i = 0; i < nsubdivs; ++i) {
-        for (j = 0; j < nsubdivs; ++j) {
-            let i1 = (i + 0) * (nsubdivs + 1) + (j + 0);
-            let i2 = (i + 0) * (nsubdivs + 1) + (j + 1);
-            let i3 = (i + 1) * (nsubdivs + 1) + (j + 0);
-            let i4 = (i + 1) * (nsubdivs + 1) + (j + 1);
-
-            indices.push(i1, i3, i2);
-            indices.push(i3, i4, i2);
-        }
-    }
-
-    return {
-        vertices: new Float32Array(vertices),
-        indices: new Uint32Array(indices),
-    }
+    return heights;
 }
 
 export function initWorld(RAPIER, testbed) {
@@ -44,10 +23,12 @@ export function initWorld(RAPIER, testbed) {
     let colliders = new Array();
 
     // Create Ground.
+    let nsubdivs = 20;
+    let scale = new RAPIER.Vector3(70.0, 4.0, 70.0);
     let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
     let body = world.createRigidBody(bodyDesc);
-    let trimesh = generateTrimesh(20, 70.0, 4.0, 70.0)
-    let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
+    let heights = generateHeightfield(nsubdivs)
+    let colliderDesc = RAPIER.ColliderDesc.heightfield(nsubdivs, nsubdivs, heights, scale);
     let collider = world.createCollider(colliderDesc, body.handle);
     bodies.push(body);
     colliders.push(collider);

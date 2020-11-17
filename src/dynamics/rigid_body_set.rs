@@ -1,5 +1,9 @@
+use crate::dynamics::RawJointSet;
+use crate::geometry::RawColliderSet;
 use crate::math::{RawRotation, RawVector};
-use rapier::dynamics::{BodyStatus, RigidBody, RigidBodyBuilder, RigidBodyMut, RigidBodySet};
+use rapier::dynamics::{
+    BodyStatus, MassProperties, RigidBody, RigidBodyBuilder, RigidBodyMut, RigidBodySet,
+};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -77,16 +81,32 @@ impl RawRigidBodySet {
         &mut self,
         translation: &RawVector,
         rotation: &RawRotation,
+        mass: f32,
+        centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: &RawVector,
+        principalAngularInertia: &RawVector,
+        angularInertiaFrame: &RawRotation,
+        linearDamping: f32,
+        angularDamping: f32,
         status: RawBodyStatus,
         canSleep: bool,
     ) -> usize {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
+        let props = MassProperties::with_principal_inertia_frame(
+            centerOfMass.0.into(),
+            mass,
+            principalAngularInertia.0,
+            angularInertiaFrame.0,
+        );
+
         let rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
+            .mass_properties(props)
             .linvel(linvel.0.x, linvel.0.y, linvel.0.z)
             .angvel(angvel.0)
+            .linear_damping(linearDamping)
+            .angular_damping(angularDamping)
             .can_sleep(canSleep)
             .build();
         self.0.insert(rigid_body).into_raw_parts().0
@@ -97,19 +117,39 @@ impl RawRigidBodySet {
         &mut self,
         translation: &RawVector,
         rotation: &RawRotation,
+        mass: f32,
+        centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: f32,
+        principalAngularInertia: f32,
+        linearDamping: f32,
+        angularDamping: f32,
         status: RawBodyStatus,
         canSleep: bool,
     ) -> usize {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
+        let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
         let rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
+            .mass_properties(props)
             .linvel(linvel.0.x, linvel.0.y)
             .angvel(angvel)
+            .linear_damping(linearDamping)
+            .angular_damping(angularDamping)
             .can_sleep(canSleep)
             .build();
         self.0.insert(rigid_body).into_raw_parts().0
+    }
+
+    pub fn remove(
+        &mut self,
+        handle: usize,
+        colliders: &mut RawColliderSet,
+        joints: &mut RawJointSet,
+    ) {
+        if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
+            self.0.remove(handle, &mut colliders.0, &mut joints.0);
+        }
     }
 
     /// The number of rigid-bodies on this set.

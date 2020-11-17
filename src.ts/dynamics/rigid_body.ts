@@ -310,6 +310,20 @@ export class RigidBody {
     }
 
     /**
+     * The linear damping coefficient of this rigid-body.
+     */
+    public linearDamping(): number {
+        return this.rawSet.rbLinearDamping(this.handle);
+    }
+
+    /**
+     * The angular damping coefficient of this rigid-body.
+     */
+    public angularDamping(): number {
+        return this.rawSet.rbAngularDamping(this.handle);
+    }
+
+    /**
      * Applies a force at the center-of-mass of this rigid-body.
      *
      * @param force - the world-space force to apply on the rigid-body.
@@ -434,13 +448,20 @@ export class RigidBody {
 export class RigidBodyDesc {
     translation: Vector;
     rotation: Rotation;
+    mass: number;
+    centerOfMass: Vector;
     linvel: Vector;
     // #if DIM2
     angvel: number;
+    principalAngularInertia: number;
     // #endif
     // #if DIM3
     angvel: Vector;
+    principalAngularInertia: Vector;
+    angularInertiaLocalFrame: Rotation;
     // #endif
+    linearDamping: number
+    angularDamping: number
     status: BodyStatus;
     canSleep: boolean;
 
@@ -449,12 +470,19 @@ export class RigidBodyDesc {
         this.translation = VectorOps.zeros();
         this.rotation = RotationOps.identity();
         this.linvel = VectorOps.zeros();
+        this.mass = 0.0;
+        this.centerOfMass = VectorOps.zeros();
         // #if DIM2
         this.angvel = 0.0;
+        this.principalAngularInertia = 0.0;
         // #endif
         // #if DIM3
         this.angvel = VectorOps.zeros();
+        this.principalAngularInertia = VectorOps.zeros();
+        this.angularInertiaLocalFrame = RotationOps.identity();
         // #endif
+        this.linearDamping = 0.0;
+        this.angularDamping = 0.0;
         this.canSleep = true;
     }
 
@@ -479,6 +507,25 @@ export class RigidBodyDesc {
     }
 
     /**
+     * Sets the mass of the rigid-body being built.
+     *
+     * Note that the final mass of the rigid-bodies depends
+     * on the initial mass of the rigid-body (set by this method)
+     * to which is added the contributions of all the colliders with non-zero density
+     * attached to this rigid-body.
+     *
+     * Therefore, if you want your provided mass to be the final
+     * mass of your rigid-body, don't attach colliders to it, or
+     * only attach colliders with densities equal to zero.
+     *
+     * @param mass − The initial mass of the rigid-body to create.
+     */
+    public setMass(mass: number): RigidBodyDesc {
+        this.mass = mass;
+        return this;
+    }
+
+    /**
      * Sets the initial linear velocity of the rigid-body to create.
      *
      * @param vel - The linear velocity to set.
@@ -499,6 +546,29 @@ export class RigidBodyDesc {
         return this;
     }
 
+    /**
+     * Sets the mass properties of the rigid-body being built.
+     *
+     * Note that the final mass properties of the rigid-bodies depends
+     * on the initial mass-properties of the rigid-body (set by this method)
+     * to which is added the contributions of all the colliders with non-zero density
+     * attached to this rigid-body.
+     *
+     * Therefore, if you want your provided mass properties to be the final
+     * mass properties of your rigid-body, don't attach colliders to it, or
+     * only attach colliders with densities equal to zero.
+     *
+     * @param mass − The initial mass of the rigid-body to create.
+     * @param centerOfMass − The initial center-of-mass of the rigid-body to create.
+     * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
+     */
+    public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number) {
+        this.mass = mass;
+        this.centerOfMass = centerOfMass;
+        this.principalAngularInertia = principalAngularInertia;
+        return this;
+    }
+
     // #endif
 
     // #if DIM3
@@ -512,7 +582,60 @@ export class RigidBodyDesc {
         return this;
     }
 
+    /**
+     * Sets the mass properties of the rigid-body being built.
+     *
+     * Note that the final mass properties of the rigid-bodies depends
+     * on the initial mass-properties of the rigid-body (set by this method)
+     * to which is added the contributions of all the colliders with non-zero density
+     * attached to this rigid-body.
+     *
+     * Therefore, if you want your provided mass properties to be the final
+     * mass properties of your rigid-body, don't attach colliders to it, or
+     * only attach colliders with densities equal to zero.
+     *
+     * @param mass − The initial mass of the rigid-body to create.
+     * @param centerOfMass − The initial center-of-mass of the rigid-body to create.
+     * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
+     *                                  These are the eigenvalues of the angular inertia matrix.
+     * @param angularInertiaLocalFrame − The initial local angular inertia frame of the rigid-body to create.
+     *                                   These are the eigenvectors of the angular inertia matrix.
+     */
+    public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: Vector, angularInertiaLocalFrame) {
+        this.mass = mass;
+        this.centerOfMass = centerOfMass;
+        this.principalAngularInertia = principalAngularInertia;
+        this.angularInertiaLocalFrame = angularInertiaLocalFrame;
+        return this;
+    }
+
     // #endif
+
+    /**
+     * Sets the linear damping of the rigid-body to create.
+     *
+     * This will progressively slowdown the translational movement of the rigid-body.
+     *
+     * @param damping - The angular damping coefficient. Should be >= 0. The higher this
+     *                  value is, the stronger the translational slowdown will be.
+     */
+    public setLinearDamping(damping: number): RigidBodyDesc {
+        this.linearDamping = damping;
+        return this;
+    }
+
+    /**
+     * Sets the angular damping of the rigid-body to create.
+     *
+     * This will progressively slowdown the rotational movement of the rigid-body.
+     *
+     * @param damping - The angular damping coefficient. Should be >= 0. The higher this
+     *                  value is, the stronger the rotational slowdown will be.
+     */
+    public setAngularDamping(damping: number): RigidBodyDesc {
+        this.angularDamping = damping;
+        return this;
+    }
 
     /**
      * Sets whether or not the rigid-body to create can sleep.

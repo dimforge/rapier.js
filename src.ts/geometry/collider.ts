@@ -1,9 +1,10 @@
 import {RawColliderSet} from "../raw"
 import {Rotation, RotationOps, Vector, VectorOps} from '../math';
 import {
-    Cuboid, Ball, ShapeType, Capsule,
+    InteractionGroups,
+    Cuboid, Ball, ShapeType, Capsule, Trimesh, Heightfield,
     // #if DIM3
-    Cylinder, RoundCylinder, Cone
+    Cylinder, RoundCylinder, Cone,
     // #endif
 } from './index';
 import {RigidBody, RigidBodyHandle} from '../dynamics';
@@ -92,6 +93,59 @@ export class Collider {
     }
 
     /**
+     * If this collider has a triangle mesh shape, this returns the vertex buffer
+     * of the triangle esh.
+     */
+    public trimeshVertices(): Float32Array {
+        return this.rawSet.coTrimeshVertices(this.handle);
+    }
+
+    /**
+     * If this collider has a triangle mesh shape, this returns the index buffer
+     * of the triangle mesh.
+     */
+    public trimeshIndices(): Uint32Array {
+        return this.rawSet.coTrimeshIndices(this.handle);
+    }
+
+    /**
+     * If this collider has a heightfield shape, this returns the heights buffer of
+     * the heightfield.
+     * In 3D, the returned height matrix is provided in column-major order.
+     */
+    public heightfieldHeights(): Float32Array {
+        return this.rawSet.coHeightfieldHeights(this.handle);
+    }
+
+    /**
+     * If this collider has a heightfield shape, this returns the scale
+     * applied to it.
+     */
+    public heightfieldScale(): Vector {
+        let scale = this.rawSet.coHeightfieldScale(this.handle);
+        return VectorOps.fromRaw(scale);
+    }
+
+    // #if DIM3
+    /**
+     * If this collider has a heightfield shape, this returns the number of
+     * rows of its height matrix.
+     */
+    public heightfieldNRows(): number {
+        return this.rawSet.coHeightfieldNRows(this.handle);
+    }
+
+    /**
+     * If this collider has a heightfield shape, this returns the number of
+     * columns of its height matrix.
+     */
+    public heightfieldNCols(): number {
+        return this.rawSet.coHeightfieldNCols(this.handle);
+    }
+
+    // #endif
+
+    /**
      * The unique integer identifier of the rigid-body this collider is attached to.
      */
     public parent(): RigidBodyHandle {
@@ -111,24 +165,44 @@ export class Collider {
     public density(): number {
         return this.rawSet.coDensity(this.handle);
     }
+
+    /**
+     * The collision groups of this collider.
+     */
+    public collisionGroups(): InteractionGroups {
+        return this.rawSet.coCollisionGroups(this.handle);
+    }
+
+    /**
+     * The solver gorups of this collider.
+     */
+    public solverGroups(): InteractionGroups {
+        return this.rawSet.coSolverGroups(this.handle);
+    }
 }
 
 
 export class ColliderDesc {
-    shape: Ball | Cuboid;
+    shape: Ball | Cuboid | Capsule | Trimesh | Heightfield
+// #if DIM3
+        | Cylinder | RoundCylinder | Cone
+        // #endif
+    ;
     density?: number;
     friction: number;
     restitution: number;
     rotation: Rotation;
     translation: Vector;
     isSensor: boolean;
+    collisionGroups: InteractionGroups;
+    solverGroups: InteractionGroups;
 
     /**
      * Initializes a collider descriptor from the collision shape.
      *
      * @param shape - The shape of the collider being built.
      */
-    constructor(shape: Ball | Cuboid | Capsule
+    constructor(shape: Ball | Cuboid | Capsule | Trimesh | Heightfield
 // #if DIM3
         | Cylinder | RoundCylinder | Cone
                 // #endif
@@ -140,6 +214,8 @@ export class ColliderDesc {
         this.rotation = RotationOps.identity();
         this.translation = VectorOps.zeros();
         this.isSensor = false;
+        this.collisionGroups = 0xffff_ffff;
+        this.solverGroups = 0xffff_ffff;
     }
 
     /**
@@ -152,6 +228,28 @@ export class ColliderDesc {
         return new ColliderDesc(shape);
     }
 
+    /**
+     * Create a new collider descriptor with a capsule shape.
+     *
+     * @param half_height - The half-height of the capsule, along the `y` axis.
+     * @param radius - The radius of the capsule basis.
+     */
+    public static capsule(half_height: number, radius: number): ColliderDesc {
+        const shape = new Capsule(half_height, radius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor with a triangle mesh shape.
+     *
+     * @param vertices - The coordinates of the triangle mesh's vertices.
+     * @param indices - The indices of the triangle mesh's triangles.
+     */
+    public static trimesh(vertices: Float32Array, indices: Uint32Array) {
+        const shape = new Trimesh(vertices, indices);
+        return new ColliderDesc(shape);
+    }
+
     // #if DIM2
     /**
      * Creates a new collider descriptor with a rectangular shape.
@@ -161,6 +259,17 @@ export class ColliderDesc {
      */
     public static cuboid(hx: number, hy: number): ColliderDesc {
         const shape = new Cuboid(hx, hy);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor with a heightfield shape.
+     *
+     * @param heights - The heights of the heightfield, along its local `y` axis.
+     * @param scale - The scale factor applied to the heightfield.
+     */
+    public static heightfield(heights: Float32Array, scale: Vector) {
+        const shape = new Heightfield(heights, scale);
         return new ColliderDesc(shape);
     }
 
@@ -179,20 +288,20 @@ export class ColliderDesc {
         return new ColliderDesc(shape);
     }
 
-    // #endif
-
     /**
-     * Create a new collider descriptor with a capsule shape.
+     * Creates a new collider descriptor with a heightfield shape.
      *
-     * @param half_height - The half-height of the capsule, along the `y` axis.
-     * @param radius - The radius of the capsule basis.
+     * @param nrows − The number of rows in the heights matrix.
+     * @param ncols - The number of columns in the heights matrix.
+     * @param heights - The heights of the heightfield along its local `y` axis,
+     *                  provided as a matrix stored in column-major order.
+     * @param scale - The scale factor applied to the heightfield.
      */
-    public static capsule(half_height: number, radius: number): ColliderDesc {
-        const shape = new Capsule(half_height, radius);
+    public static heightfield(nrows: number, ncols: number, heights: Float32Array, scale: Vector) {
+        const shape = new Heightfield(nrows, ncols, heights, scale);
         return new ColliderDesc(shape);
     }
 
-    // #if DIM3
     /**
      * Create a new collider descriptor with a cylinder shape.
      *
@@ -295,5 +404,32 @@ export class ColliderDesc {
     public setFriction(friction: number): ColliderDesc {
         this.friction = friction;
         return this;
+    }
+
+    /**
+     * Sets the collision groups used by this collider.
+     *
+     * Two colliders will interact iff. their collision groups are compatible.
+     * See the documentation of `InteractionGroups` for details on teh used bit pattern.
+     *
+     * @param groups - The collision groups used for the collider being built.
+     */
+    public setCollisionGroups(groups: InteractionGroups): ColliderDesc {
+        this.collisionGroups = groups;
+        return this
+    }
+
+    /**
+     * Sets the solver groups used by this collider.
+     *
+     * Forces between two colliders in contact will be computed iff their solver
+     * groups are compatible.
+     * See the documentation of `InteractionGroups` for details on the used bit pattern.
+     *
+     * @param groups - The solver groups used for the collider being built.
+     */
+    public setSolverGroups(groups: InteractionGroups): ColliderDesc {
+        this.solverGroups = groups;
+        return this
     }
 }

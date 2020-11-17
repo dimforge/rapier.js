@@ -270,6 +270,16 @@ impl RawRigidBodySet {
         self.map(handle, |rb| rb.is_dynamic())
     }
 
+    /// The linear damping coefficient of this rigid-body.
+    pub fn rbLinearDamping(&self, handle: usize) -> f32 {
+        self.map(handle, |rb| rb.linear_damping)
+    }
+
+    /// The angular damping coefficient of this rigid-body.
+    pub fn rbAngularDamping(&self, handle: usize) -> f32 {
+        self.map(handle, |rb| rb.angular_damping)
+    }
+
     /// Applies a force at the center-of-mass of this rigid-body.
     ///
     /// # Parameters

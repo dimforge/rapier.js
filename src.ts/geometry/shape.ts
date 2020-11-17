@@ -113,8 +113,123 @@ export class Capsule {
     }
 }
 
+/**
+ * A shape that is a triangle mesh.
+ */
+export class Trimesh {
+    /**
+     * The vertices of the triangle mesh.
+     */
+    readonly vertices: Float32Array;
+
+    /**
+     * The indices of the triangles.
+     */
+    readonly indices: Uint32Array;
+
+    /**
+     * Creates a new triangle mesh shape.
+     *
+     * @param vertices - The coordinates of the triangle mesh's vertices.
+     * @param indices - The indices of the triangle mesh's triangles.
+     */
+    constructor(vertices: Float32Array, indices: Uint32Array) {
+        this.vertices = vertices;
+        this.indices = indices;
+    }
+
+    public intoRaw(): RawShape {
+        return RawShape.trimesh(this.vertices, this.indices);
+    }
+}
+
+// #if DIM2
+/**
+ * A shape that is a heightfield.
+ */
+export class Heightfield {
+    /**
+     * The heights of the heightfield, along its local `y` axis.
+     */
+    readonly heights: Float32Array;
+
+    /**
+     * The heightfield's length along its local `x` axis.
+     */
+    readonly scale: Vector;
+
+    /**
+     * Creates a new heightfield shape.
+     *
+     * @param heights - The heights of the heightfield, along its local `y` axis.
+     * @param scale - The scale factor applied to the heightfield.
+     */
+    constructor(heights: Float32Array, scale: Vector) {
+        this.heights = heights;
+        this.scale = scale;
+    }
+
+    public intoRaw(): RawShape {
+        let rawScale = VectorOps.intoRaw(this.scale);
+        let rawShape = RawShape.heightfield(this.heights, rawScale);
+        rawScale.free();
+        return rawShape;
+    }
+}
+
+// #endif
+
 
 // #if DIM3
+/**
+ * A shape that is a heightfield.
+ */
+export class Heightfield {
+    /**
+     * The number of rows in the heights matrix.
+     */
+    readonly nrows: number;
+
+    /**
+     * The number of columns in the heights matrix.
+     */
+    readonly ncols: number;
+
+    /**
+     * The heights of the heightfield along its local `y` axis,
+     * provided as a matrix stored in column-major order.
+     */
+    readonly heights: Float32Array;
+
+    /**
+     * The dimensions of the heightfield's local `x,z` plane.
+     */
+    readonly scale: Vector;
+
+    /**
+     * Creates a new heightfield shape.
+     *
+     * @param nrows − The number of rows in the heights matrix.
+     * @param ncols - The number of columns in the heights matrix.
+     * @param heights - The heights of the heightfield along its local `y` axis,
+     *                  provided as a matrix stored in column-major order.
+     * @param scale - The dimensions of the heightfield's local `x,z` plane.
+     */
+    constructor(nrows: number, ncols: number, heights: Float32Array, scale: Vector) {
+        this.nrows = nrows;
+        this.ncols = ncols;
+        this.heights = heights;
+        this.scale = scale;
+    }
+
+    public intoRaw(): RawShape {
+        let rawScale = VectorOps.intoRaw(this.scale);
+        let rawShape = RawShape.heightfield(this.nrows, this.ncols, this.heights, rawScale);
+        rawScale.free();
+        return rawShape;
+    }
+}
+
 /**
  * A shape that is a 3D cylinder.
  */

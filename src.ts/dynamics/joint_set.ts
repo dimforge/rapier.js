@@ -45,6 +45,17 @@ export class JointSet {
     }
 
     /**
+     * Remove a joint from this set.
+     *
+     * @param handle - The integer handle of the joint.
+     * @param bodies - The set of rigid-bodies containing the rigid-bodies attached by the removed joint.
+     * @param wake_up - If `true`, the rigid-bodies attached by the removed joint will be woken-up automatically.
+     */
+    public remove(handle: JointHandle, bodies: RigidBodySet, wake_up: boolean) {
+        this.raw.remove(handle, bodies.raw, wake_up);
+    }
+
+    /**
      * The number of joints on this set.
      */
     public len(): number {

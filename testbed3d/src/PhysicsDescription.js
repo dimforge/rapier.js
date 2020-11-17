@@ -6,6 +6,9 @@ export function extractRigidBodyDescription(body) {
         type: body.bodyStatus(),
         translation: pos,
         linvel: body.linvel(),
+        angvel: body.angvel(),
+        linearDamping: body.linearDamping(),
+        angularDamping: body.angularDamping(),
         mass: body.mass()
     };
 }
@@ -28,12 +31,29 @@ export function extractColliderDescription(coll) {
 
     let halfHeight = coll.halfHeight();
     if (!!halfHeight) {
-        meta.halfHeight = coll.halfHeight();
+        meta.halfHeight = halfHeight;
     }
 
     let roundRadius = coll.roundRadius();
     if (!!roundRadius) {
-        meta.roundRadius = coll.roundRadius();
+        meta.roundRadius = roundRadius;
+    }
+
+    let vertices = coll.trimeshVertices();
+    if (!!vertices) {
+        meta.trimeshVertices = vertices;
+    }
+
+    let indices = coll.trimeshIndices();
+    if (!!indices) {
+        meta.trimeshIndices = indices;
+    }
+
+    if (!!coll.heightfieldHeights()) {
+        meta.heightfieldHeights = coll.heightfieldHeights();
+        meta.heightfieldNRows = coll.heightfieldNRows();
+        meta.heightfieldNCols = coll.heightfieldNCols();
+        meta.heightfieldScale = coll.heightfieldScale();
     }
 
     return meta;
@@ -78,6 +98,7 @@ export function extractJointDescription(joint) {
  */
 export function extractWorldDescription(world, bodies, colliders, joints) {
     let metaWorld = {
+        gravity: world.gravity,
         maxVelocityIterations: world.maxVelocityIterations,
         maxPositionIterations: world.maxPositionIterations,
     };

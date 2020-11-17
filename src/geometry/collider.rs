@@ -88,6 +88,68 @@ impl RawColliderSet {
         })
     }
 
+    /// The vertices of this triangle mesh if it is one.
+    pub fn coTrimeshVertices(&self, handle: usize) -> Option<Vec<f32>> {
+        self.map(handle, |co| match co.shape().shape_type() {
+            ShapeType::Trimesh => co.shape().as_trimesh().map(|t| {
+                t.vertices()
+                    .iter()
+                    .flat_map(|p| p.iter())
+                    .copied()
+                    .collect()
+            }),
+            _ => None,
+        })
+    }
+
+    /// The indices of this triangle mesh if it is one.
+    pub fn coTrimeshIndices(&self, handle: usize) -> Option<Vec<u32>> {
+        self.map(handle, |co| match co.shape().shape_type() {
+            ShapeType::Trimesh => co
+                .shape()
+                .as_trimesh()
+                .map(|t| t.indices().iter().flat_map(|p| p.iter()).copied().collect()),
+            _ => None,
+        })
+    }
+
+    /// The height of this heightfield if it is one.
+    pub fn coHeightfieldHeights(&self, handle: usize) -> Option<Vec<f32>> {
+        self.map(handle, |co| match co.shape().shape_type() {
+            ShapeType::HeightField => co
+                .shape()
+                .as_heightfield()
+                .map(|h| h.heights().as_slice().to_vec()),
+            _ => None,
+        })
+    }
+
+    /// The scaling factor applied of this heightfield if it is one.
+    pub fn coHeightfieldScale(&self, handle: usize) -> Option<RawVector> {
+        self.map(handle, |co| match co.shape().shape_type() {
+            ShapeType::HeightField => co.shape().as_heightfield().map(|h| RawVector(*h.scale())),
+            _ => None,
+        })
+    }
+
+    /// The number of rows on this heightfield's height matrix, if it is one.
+    #[cfg(feature = "dim3")]
+    pub fn coHeightfieldNRows(&self, handle: usize) -> Option<usize> {
+        self.map(handle, |co| match co.shape().shape_type() {
+            ShapeType::HeightField => co.shape().as_heightfield().map(|h| h.nrows()),
+            _ => None,
+        })
+    }
+
+    /// The number of columns on this heightfield's height matrix, if it is one.
+    #[cfg(feature = "dim3")]
+    pub fn coHeightfieldNCols(&self, handle: usize) -> Option<usize> {
+        self.map(handle, |co| match co.shape().shape_type() {
+            ShapeType::HeightField => co.shape().as_heightfield().map(|h| h.ncols()),
+            _ => None,
+        })
+    }
+
     /// The unique integer identifier of the rigid-body this collider is attached to.
     pub fn coParent(&self, handle: usize) -> usize {
         self.map(handle, |co| co.parent().into_raw_parts().0)
@@ -101,5 +163,15 @@ impl RawColliderSet {
     /// The density of this collider.
     pub fn coDensity(&self, handle: usize) -> f32 {
         self.map(handle, |co| co.density())
+    }
+
+    /// The collision groups of this collider.
+    pub fn coCollisionGroups(&self, handle: usize) -> u32 {
+        self.map(handle, |co| co.collision_groups().0)
+    }
+
+    /// The solver groups of this collider.
+    pub fn coSolverGroups(&self, handle: usize) -> u32 {
+        self.map(handle, |co| co.solver_groups().0)
     }
 }

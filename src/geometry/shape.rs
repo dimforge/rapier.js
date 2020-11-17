@@ -1,6 +1,7 @@
 use crate::math::RawVector;
+use na::{DMatrix, DVector, Point3};
 use rapier::geometry::ColliderShape;
-use rapier::math::{Point, Vector};
+use rapier::math::{Point, Vector, DIM};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -68,5 +69,23 @@ impl RawShape {
     #[cfg(feature = "dim3")]
     pub fn cone(half_height: f32, radius: f32) -> Self {
         Self(ColliderShape::cone(half_height, radius))
+    }
+
+    pub fn trimesh(vertices: Vec<f32>, indices: Vec<u32>) -> Self {
+        let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        let indices = indices.chunks(3).map(|v| Point3::from_slice(v)).collect();
+        Self(ColliderShape::trimesh(vertices, indices))
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn heightfield(heights: Vec<f32>, scale: &RawVector) -> Self {
+        let heights = DVector::from_vec(heights);
+        Self(ColliderShape::heightfield(heights, scale.0))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn heightfield(nrows: u32, ncols: u32, heights: Vec<f32>, scale: &RawVector) -> Self {
+        let heights = DMatrix::from_vec(nrows as usize + 1, ncols as usize + 1, heights);
+        Self(ColliderShape::heightfield(heights, scale.0))
     }
 }

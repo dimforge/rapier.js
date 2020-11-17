@@ -1,3 +1,17 @@
+### v0.2.8
+- Add `RigidBodySet.remove` to remove a rigid-body from the set.
+- Add `ColliderSet.remove` to remove a collider from the set.
+- Add `JointSet.remove` to remove a joint from the set.
+- Add `RigidBodyDesc.setLinearDamping` and `RigidBodyDesc.setAngularDamping` for setting the linear and
+  angular damping coefficient of the rigid-body to create.
+- Add `RigidBodyDesc.setMass`, and `RigidBodyDesc.setMassProperties` for setting the initial mass properties
+  of a rigid-body.
+- Add `ColliderDesc.setCollisionGroups` to use bit-masks for collision filtering between some pairs of colliders.
+- Add `ColliderDesc.setSolverGroups` to use bit-masks for making the constraints solver ignore contacts between
+  some pairs of colliders.
+- Add `ColliderDesc.heightfield` to build a collider with an heightfield shape.
+- Add `ColliderDesc.trimesh` to build a collider with a triangle mesh shape.
+
 ### v0.2.7
 - Reduce snapshot size and computation times.
 
