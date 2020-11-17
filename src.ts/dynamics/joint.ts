@@ -11,10 +11,10 @@ export type JointHandle = number;
  * An enum grouping all possible types of joints:
  * - `Ball`: A Ball joint that removes all relative linear degrees of freedom between the affected bodies.
  * - `Fixed`: A fixed joint that removes all relative degrees of freedom between the affected bodies.
- * - `Prismatic`: A prismatic joint that removes all degrees of degrees of freedom between the affected
+ * - `Prismatic`: A prismatic joint that removes all degrees of freedom between the affected
  *                bodies except for the translation along one axis.
- * - `Revolute`: (3D only) A revolute joint that removes all degrees of degrees of freedom between the affected
- *               bodies except for the translation along one axis.
+ * - `Revolute`: (3D only) A revolute joint that removes all degrees of freedom between the affected
+ *               bodies except for the rotation along one axis.
  */
 export enum JointType {
     Ball,
@@ -161,8 +161,8 @@ export class JointParams {
     /**
      * Create a new joint descriptor that builds Revolute joints.
      *
-     * A revolute joint removes all degrees of degrees of freedom between the affected
-     * bodies except for the translation along one axis.
+     * A revolute joint removes all degrees of freedom between the affected
+     * bodies except for the rotation along one axis.
      *
      * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.

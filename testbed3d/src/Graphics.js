@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import seedrandom from "seedrandom";
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
@@ -9,11 +10,52 @@ const CONE_INSTANCE_INDEX = 3;
 var dummy = new THREE.Object3D();
 var kk = 0;
 
+function genHeightfieldGeometry(collider) {
+    let heights = collider.heightfieldHeights();
+    let nrows = collider.heightfieldNRows();
+    let ncols = collider.heightfieldNCols();
+    let scale = collider.heightfieldScale();
+
+    let vertices = [];
+    let indices = [];
+    let eltWX = 1.0 / nrows;
+    let eltWY = 1.0 / ncols;
+
+    let i, j;
+    for (j = 0; j <= ncols; ++j) {
+        for (i = 0; i <= nrows; ++i) {
+            let x = (j * eltWX - 0.5) * scale.x;
+            let y = heights[j * (nrows + 1) + i] * scale.y;
+            let z = (i * eltWY - 0.5) * scale.z;
+
+            vertices.push(x, y, z);
+        }
+    }
+
+    for (j = 0; j < ncols; ++j) {
+        for (i = 0; i < nrows; ++i) {
+            let i1 = (i + 0) * (ncols + 1) + (j + 0);
+            let i2 = (i + 0) * (ncols + 1) + (j + 1);
+            let i3 = (i + 1) * (ncols + 1) + (j + 0);
+            let i4 = (i + 1) * (ncols + 1) + (j + 1);
+
+            indices.push(i1, i3, i2);
+            indices.push(i3, i4, i2);
+        }
+    }
+
+    return {
+        vertices: new Float32Array(vertices),
+        indices: new Uint32Array(indices),
+    }
+}
+
 export class Graphics {
     constructor(simulationParameters) {
         this.raycaster = new THREE.Raycaster();
         this.highlightedCollider = null;
-        this.coll2gfx = new Map();
+        this.coll2instance = new Map();
+        this.coll2mesh = new Map();
         this.rb2colls = new Map();
         this.colorIndex = 0;
         this.colorPalette = [0xF3D9B1, 0x98C1D9, 0x053C5E, 0x1F7A8C, 0xFF0000];
@@ -116,21 +158,27 @@ export class Graphics {
             return;
 
         if (this.highlightedCollider != null) {
-            let desc = this.coll2gfx.get(this.highlightedCollider);
-            desc.highlighted = false;
-            this.instanceGroups[desc.groupId][this.highlightInstanceId()].count = 0;
+            let desc = this.coll2instance.get(this.highlightedCollider);
+
+            if (!!desc) {
+                desc.highlighted = false;
+                this.instanceGroups[desc.groupId][this.highlightInstanceId()].count = 0;
+            }
         }
         if (handle != null) {
-            let desc = this.coll2gfx.get(handle);
-            if (desc.instanceId != 0) // Don't highlight static/kinematic bodies.
-                desc.highlighted = true;
+            let desc = this.coll2instance.get(handle);
+
+            if (!!desc) {
+                if (desc.instanceId != 0) // Don't highlight static/kinematic bodies.
+                    desc.highlighted = true;
+            }
         }
         this.highlightedCollider = handle;
     }
 
     updatePositions(positions) {
         positions.forEach(elt => {
-            let gfx = this.coll2gfx.get(elt.handle);
+            let gfx = this.coll2instance.get(elt.handle);
 
             if (!!gfx) {
                 let instance = this.instanceGroups[gfx.groupId][gfx.instanceId];
@@ -160,7 +208,11 @@ export class Graphics {
             })
         });
 
-        this.coll2gfx = new Map();
+        this.coll2mesh.forEach(mesh => {
+            this.scene.remove(mesh);
+        });
+
+        this.coll2instance = new Map();
         this.rb2colls = new Map();
         this.colorIndex = 0;
     }
@@ -181,7 +233,7 @@ export class Graphics {
     }
 
     removeCollider(handle) {
-        let gfx = this.coll2gfx.get(handle);
+        let gfx = this.coll2instance.get(handle);
         let instance = this.instanceGroups[gfx.groupId][gfx.instanceId];
 
         if (instance.count > 1) {
@@ -189,12 +241,12 @@ export class Graphics {
             instance.elementId2coll.delete(instance.count - 1);
             instance.elementId2coll.set(gfx.elementId, coll2);
 
-            let gfx2 = this.coll2gfx.get(coll2);
+            let gfx2 = this.coll2instance.get(coll2);
             gfx2.elementId = gfx.elementId;
         }
 
         instance.count -= 1;
-        this.coll2gfx.delete(handle);
+        this.coll2instance.delete(handle);
     }
 
     addCollider(RAPIER, world, collider) {
@@ -242,6 +294,34 @@ export class Graphics {
                 instanceDesc.groupId = CONE_INSTANCE_INDEX;
                 instanceDesc.scale = new THREE.Vector3(cone_rad, cone_height, cone_rad);
                 break;
+            case RAPIER.ShapeType.Trimesh:
+            case RAPIER.ShapeType.HeightField:
+                let geometry = new THREE.BufferGeometry();
+                let vertices;
+                let indices;
+
+                if (collider.shapeType() == RAPIER.ShapeType.Trimesh) {
+                    vertices = collider.trimeshVertices();
+                    indices = collider.trimeshIndices();
+                } else {
+                    let g = genHeightfieldGeometry(collider, vertices, indices);
+                    vertices = g.vertices;
+                    indices = g.indices;
+                }
+
+                geometry.setIndex(Array.from(indices));
+                geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+                let material = new THREE.MeshPhongMaterial({
+                    color: this.colorPalette[0],
+                    side: THREE.DoubleSide,
+                    flatShading: true
+                });
+
+                let mesh = new THREE.Mesh(geometry, material);
+                this.scene.add(mesh);
+                this.coll2mesh.set(collider.handle, mesh);
+                return;
             default:
                 console.log("Unknown shape to render.");
                 break;
@@ -265,7 +345,7 @@ export class Graphics {
         instance.setMatrixAt(instanceDesc.elementId, dummy.matrix);
         instance.instanceMatrix.needsUpdate = true;
 
-        this.coll2gfx.set(collider.handle, instanceDesc);
+        this.coll2instance.set(collider.handle, instanceDesc);
         this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 2);
     }
 }

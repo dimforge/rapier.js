@@ -11,7 +11,7 @@
     "test": "cargo test && wasm-pack test --headless"
   },
   "dependencies": {
-    "@dimforge/rapier3d": "^0.2.5",
+    "@dimforge/rapier3d": "^0.2.8",
     "buffer-crc32": "^0.2.13",
     "cannon": "^0.6.2",
     "cannon-es": "^0.14.0",
@@ -19,6 +19,7 @@
     "md5": "^2.3.0",
     "oimo": "github:lo-th/Oimo.js",
     "physx-js": "^0.0.6",
+    "seedrandom": "^3.0.5",
     "stats.js": "^0.17.0",
     "three": "0.118",
     "worker-loader": "^2.0.0"

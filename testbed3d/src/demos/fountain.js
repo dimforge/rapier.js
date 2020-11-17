@@ -10,7 +10,7 @@ export function initWorld(RAPIER, testbed) {
     // Create Ground.
     let groundBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
     let groundBody = world.createRigidBody(groundBodyDesc);
-    let groundColliderDesc = RAPIER.ColliderDesc.cuboid(100.0, 0.1, 100.0);
+    let groundColliderDesc = RAPIER.ColliderDesc.cuboid(40.0, 0.1, 40.0);
     let groundCollider = world.createCollider(groundColliderDesc, groundBody.handle);
     bodies.push(groundBody);
     colliders.push(groundCollider);
@@ -70,7 +70,7 @@ export function initWorld(RAPIER, testbed) {
 
     let cameraPosition = {
         eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},
-        target: {x: -40.54730666382427, y: 12.208423050588094, z: -24.423676285239814}
+        target: {x: 0.0, y: 10.0, z: 0.0}
     };
     testbed.lookAt(cameraPosition)
 }

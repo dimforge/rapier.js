@@ -97,7 +97,7 @@ impl RawPhysicsPipeline {
         colliders: &mut RawColliderSet,
     ) {
         if let Some((_, handle)) = colliders.0.get_unknown_gen(handle) {
-            colliders.0.remove(handle, &mut bodies.0);
+            colliders.0.remove(handle, &mut bodies.0, true);
             broadPhase.0.maintain(&mut colliders.0);
             narrowPhase.0.maintain(&mut colliders.0, &mut bodies.0);
         }

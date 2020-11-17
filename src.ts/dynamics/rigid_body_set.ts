@@ -1,6 +1,8 @@
 import {RawRigidBodySet} from "../raw"
 import {VectorOps, RotationOps} from '../math';
 import {RigidBody, RigidBodyDesc, RigidBodyHandle} from './rigid_body'
+import {ColliderSet} from "../geometry";
+import {JointSet} from "./joint_set";
 
 /**
  * A set of rigid bodies that can be handled by a physics pipeline.
@@ -28,25 +30,35 @@ export class RigidBodySet {
      *
      * @param desc - The description of the rigid-body to create.
      */
-    public createRigidBody(desc: RigidBodyDesc): number {
+    public createRigidBody(desc: RigidBodyDesc): RigidBodyHandle {
         let rawTra = VectorOps.intoRaw(desc.translation);
         let rawRot = RotationOps.intoRaw(desc.rotation);
         let rawLv = VectorOps.intoRaw(desc.linvel);
+        let rawCom = VectorOps.intoRaw(desc.centerOfMass);
 
         // #if DIM3
         let rawAv = VectorOps.intoRaw(desc.angvel);
+        let rawPrincipalInertia = VectorOps.intoRaw(desc.principalAngularInertia);
+        let rawInertiaFrame = RotationOps.intoRaw(desc.angularInertiaLocalFrame);
         // #endif
 
         let handle = this.raw.createRigidBody(
             rawTra,
             rawRot,
+            desc.mass,
+            rawCom,
             rawLv,
             // #if DIM2
             desc.angvel,
+            desc.principalAngularInertia,
             // #endif
             // #if DIM3
             rawAv,
+            rawPrincipalInertia,
+            rawInertiaFrame,
             // #endif
+            desc.linearDamping,
+            desc.angularDamping,
             desc.status,
             desc.canSleep,
         );
@@ -54,12 +66,28 @@ export class RigidBodySet {
         rawTra.free();
         rawRot.free();
         rawLv.free();
+        rawCom.free();
 
         // #if DIM3
         rawAv.free();
+        rawPrincipalInertia.free();
+        rawInertiaFrame.free();
         // #endif
 
         return handle;
+    }
+
+    /**
+     * Removes a rigid-body from this set.
+     *
+     * This will also remove all the colliders and joints attached to the rigid-body.
+     *
+     * @param handle - The integer handle of the rigid-body to remove.
+     * @param colliders - The set of colliders that may contain colliders attached to the removed rigid-body.
+     * @param joints - The set of joints that may contain joints attached to the removed rigid-body.
+     */
+    public remove(handle: RigidBodyHandle, colliders: ColliderSet, joints: JointSet) {
+        this.raw.remove(handle, colliders.raw, joints.raw)
     }
 
     /**

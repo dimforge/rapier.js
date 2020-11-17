@@ -1,7 +1,7 @@
 use crate::dynamics::RawRigidBodySet;
 use crate::geometry::RawShape;
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::{Collider, ColliderBuilder, ColliderSet};
+use rapier::geometry::{Collider, ColliderBuilder, ColliderSet, InteractionGroups};
 use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
 
@@ -42,6 +42,8 @@ impl RawColliderSet {
         friction: f32,
         restitution: f32,
         isSensor: bool,
+        collisionGroups: u32,
+        solverGroups: u32,
         parent: usize,
         bodies: &mut RawRigidBodySet,
     ) -> Option<usize> {
@@ -51,6 +53,8 @@ impl RawColliderSet {
                 .position(pos)
                 .friction(friction)
                 .restitution(restitution)
+                .collision_groups(InteractionGroups(collisionGroups))
+                .solver_groups(InteractionGroups(solverGroups))
                 .sensor(isSensor);
 
             if let Some(density) = density {
@@ -67,6 +71,13 @@ impl RawColliderSet {
             )
         } else {
             None
+        }
+    }
+
+    /// Removes a collider from this set and wake-up the rigid-body it is attached to.
+    pub fn remove(&mut self, handle: usize, bodies: &mut RawRigidBodySet, wakeUp: bool) {
+        if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
+            self.0.remove(handle, &mut bodies.0, wakeUp);
         }
     }
 

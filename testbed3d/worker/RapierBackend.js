@@ -22,7 +22,10 @@ export class RapierBackend {
     addRigidBody(body) {
         let bodyDesc = new this.RAPIER.RigidBodyDesc(body.type)
             .setTranslation(body.translation)
-            .setLinvel(body.linvel);
+            .setLinvel(body.linvel)
+            .setAngvel(body.angvel)
+            .setLinearDamping(body.linearDamping)
+            .setAngularDamping(body.angularDamping);
         let raBody = this.world.createRigidBody(bodyDesc);
 
         this.bodyMap.set(body.handle, raBody);
@@ -66,6 +69,18 @@ export class RapierBackend {
                 r = coll.radius;
                 hh = coll.halfHeight;
                 colliderDesc = this.RAPIER.ColliderDesc.cone(hh, r);
+                break;
+            case this.RAPIER.ShapeType.Trimesh:
+                let vertices = coll.trimeshVertices;
+                let indices = coll.trimeshIndices;
+                colliderDesc = this.RAPIER.ColliderDesc.trimesh(vertices, indices);
+                break;
+            case this.RAPIER.ShapeType.HeightField:
+                let heights = coll.heightfieldHeights;
+                let nrows = coll.heightfieldNRows;
+                let ncols = coll.heightfieldNCols;
+                let scale = coll.heightfieldScale;
+                colliderDesc = this.RAPIER.ColliderDesc.heightfield(nrows, ncols, heights, scale);
                 break;
         }
 
@@ -116,7 +131,7 @@ export class RapierBackend {
         this.bodyMap = new Map();
         this.colliderRevMap = new Map();
         this.bodyRevMap = new Map();
-        let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
+        let gravity = world.gravity;
         let raWorld = new RAPIER.World(gravity);
         this.world = raWorld;
         this.events = new RAPIER.EventQueue(true);

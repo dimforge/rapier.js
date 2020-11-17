@@ -39,6 +39,12 @@ impl RawJointSet {
             .0
     }
 
+    pub fn remove(&mut self, handle: usize, bodies: &mut RawRigidBodySet, wakeUp: bool) {
+        if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
+            self.0.remove(handle, &mut bodies.0, wakeUp);
+        }
+    }
+
     pub fn len(&self) -> usize {
         self.0.len()
     }
