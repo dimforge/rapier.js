@@ -1,6 +1,6 @@
 [package]
 name = "dimforge_rapier2d" # Can't be named rapier2d which conflicts with the dependency.
-version = "0.2.8"
+version = "0.2.9"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 description = "2-dimensional physics engine in Rust - official JS bindings."
 documentation = "http://rapier.rs/rustdoc/rapier2d/index.html"

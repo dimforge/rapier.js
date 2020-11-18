@@ -1,3 +1,7 @@
+### v0.2.9
+- Add `RigidBody.setLinvel` to set the linear velocity of a rigid-body.
+- Add `RigidBody.setAngvel` to set the angular velocity of a rigid-body.
+
 ### v0.2.8
 - Add `RigidBodySet.remove` to remove a rigid-body from the set.
 - Add `ColliderSet.remove` to remove a collider from the set.
