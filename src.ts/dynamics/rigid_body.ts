@@ -164,7 +164,7 @@ export class RigidBody {
      * @param vel - The angular velocity to set.
      * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
      */
-    public setAngvel(vel: Vector, wakeUp: boolean) {
+    public setAngvel(vel: number, wakeUp: boolean) {
         this.rawSet.rbSetAngvel(this.handle, vel, wakeUp);
     }
 
