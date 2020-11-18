@@ -120,7 +120,7 @@ impl RawRigidBodySet {
     }
 
     /// Sets the linear velocity of this rigid-body.
-    pub fn rbSetLinvel(&mut self, handle: usize, linvel: RawVector, wakeUp: bool) {
+    pub fn rbSetLinvel(&mut self, handle: usize, linvel: &RawVector, wakeUp: bool) {
         self.map_mut_wake(handle, wakeUp, |mut rb| {
             rb.linvel = linvel.0;
         });
@@ -136,7 +136,7 @@ impl RawRigidBodySet {
 
     /// Sets the angular velocity of this rigid-body.
     #[cfg(feature = "dim3")]
-    pub fn rbSetAngvel(&mut self, handle: usize, angvel: RawVector, wakeUp: bool) {
+    pub fn rbSetAngvel(&mut self, handle: usize, angvel: &RawVector, wakeUp: bool) {
         self.map_mut_wake(handle, wakeUp, |mut rb| {
             rb.angvel = angvel.0;
         });
