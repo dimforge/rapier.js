@@ -106,6 +106,18 @@ export class RigidBody {
         // #endif
     }
 
+    /**
+     * Sets the linear velocity fo this rigid-body.
+     *
+     * @param vel - The linear velocity to set.
+     * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
+     */
+    public setLinvel(vel: Vector, wakeUp: boolean) {
+        let rawVel = VectorOps.intoRaw(vel);
+        this.rawSet.rbSetLinvel(this.handle, rawVel, wakeUp);
+        rawVel.free();
+    }
+
     // #if DIM3
     /**
      * Sets the rotation quaternion of this rigid-body.
@@ -120,6 +132,18 @@ export class RigidBody {
         this.rawSet.rbSetRotation(this.handle, rot.x, rot.y, rot.z, rot.w, wakeUp);
     }
 
+    /**
+     * Sets the angular velocity fo this rigid-body.
+     *
+     * @param vel - The angular velocity to set.
+     * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
+     */
+    public setAngvel(vel: Vector, wakeUp: boolean) {
+        let rawVel = VectorOps.intoRaw(vel);
+        this.rawSet.rbSetAngvel(this.handle, rawVel, wakeUp);
+        rawVel.free();
+    }
+
     // #endif
 
     // #if DIM2
@@ -132,6 +156,16 @@ export class RigidBody {
      */
     public setRotation(angle: number, wakeUp: boolean) {
         this.rawSet.rbSetRotation(this.handle, angle, wakeUp);
+    }
+
+    /**
+     * Sets the angular velocity fo this rigid-body.
+     *
+     * @param vel - The angular velocity to set.
+     * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
+     */
+    public setAngvel(vel: number, wakeUp: boolean) {
+        this.rawSet.rbSetAngvel(this.handle, vel, wakeUp);
     }
 
     // #endif

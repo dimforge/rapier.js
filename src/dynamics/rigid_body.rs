@@ -119,6 +119,29 @@ impl RawRigidBodySet {
         })
     }
 
+    /// Sets the linear velocity of this rigid-body.
+    pub fn rbSetLinvel(&mut self, handle: usize, linvel: &RawVector, wakeUp: bool) {
+        self.map_mut_wake(handle, wakeUp, |mut rb| {
+            rb.linvel = linvel.0;
+        });
+    }
+
+    /// Sets the angular velocity of this rigid-body.
+    #[cfg(feature = "dim2")]
+    pub fn rbSetAngvel(&mut self, handle: usize, angvel: f32, wakeUp: bool) {
+        self.map_mut_wake(handle, wakeUp, |mut rb| {
+            rb.angvel = angvel;
+        });
+    }
+
+    /// Sets the angular velocity of this rigid-body.
+    #[cfg(feature = "dim3")]
+    pub fn rbSetAngvel(&mut self, handle: usize, angvel: &RawVector, wakeUp: bool) {
+        self.map_mut_wake(handle, wakeUp, |mut rb| {
+            rb.angvel = angvel.0;
+        });
+    }
+
     /// If this rigid body is kinematic, sets its future translation after the next timestep integration.
     ///
     /// This should be used instead of `rigidBody.setTranslation` to make the dynamic object
