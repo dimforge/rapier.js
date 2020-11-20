@@ -322,7 +322,7 @@ export class World {
      * @param body - The collider to remove.
      */
     public removeCollider(collider: Collider) {
-        this.physicsPipeline.removeRigidBody(
+        this.physicsPipeline.removeCollider(
             collider.handle,
             this.broadPhase,
             this.narrowPhase,
