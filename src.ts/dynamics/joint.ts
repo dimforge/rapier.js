@@ -132,6 +132,10 @@ export class JointParams {
     anchor2: Vector
     axis1: Vector
     axis2: Vector
+    tangent1: Vector
+    tangent2: Vector
+    frame1: Rotation
+    frame2: Rotation
     jointType: JointType
 
     private constructor() {
@@ -157,7 +161,93 @@ export class JointParams {
         return res;
     }
 
+    /**
+     * Creates a new joint descriptor that builds a Fixed joint.
+     *
+     * A fixed joint removes all the degrees of freedom between the affected bodies, ensuring their
+     * anchor and local frames coincide in world-space.
+     *
+     * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param frame1 - The reference orientation of the joint wrt. the first rigid-body.
+     * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param frame2 - The reference orientation of the joint wrt. the second rigid-body.
+     */
+    public static fixed(anchor1: Vector, frame1: Rotation, anchor2: Vector, frame2: Rotation): JointParams {
+        let res = new JointParams();
+        res.anchor1 = anchor1;
+        res.anchor2 = anchor2;
+        res.jointType = JointType.Fixed;
+        return res;
+    }
+
+    // #if DIM2
+    /**
+     * Creates a new joint descriptor that builds a Prismatic joint.
+     *
+     * A prismatic joint removes all the degrees of freedom between the
+     * affected bodies, except for the translation along one axis.
+     *
+     * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param axis1 - Axis of the joint, expressed in the local-space of the first rigid-body it is attached to.
+     * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param axis2 - Axis of the joint, expressed in the local-space of the second rigid-body it is attached to.
+     */
+    public static prismatic(anchor1: Vector, axis1: Vector, anchor2: Vector, axis2: Vector): JointParams {
+        let res = new JointParams();
+        res.anchor1 = anchor1;
+        res.axis1 = axis1;
+        res.anchor2 = anchor2;
+        res.axis2 = axis2;
+        res.jointType = JointType.Prismatic;
+        return res;
+    }
+
+    // #endif
+
     // #if DIM3
+
+    /**
+     * Creates a new joint descriptor that builds a Prismatic joint.
+     *
+     * A prismatic joint removes all the degrees of freedom between the
+     * affected bodies, except for the translation along one axis.
+     *
+     * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param axis1 - Axis of the joint, expressed in the local-space of the first rigid-body it is attached to.
+     * @param tangent1 - A vector orthogonal to `axis1`. It is used to compute a basis orthonormal
+     *                   to the joint's axis. If this tangent is set to the zero vector, the orthonormal
+     *                   basis will be automatically computed arbitrarily.
+     * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param axis2 - Axis of the joint, expressed in the local-space of the second rigid-body it is attached to.
+     * @param tangent2 - A vector orthogonal to `axis2`. It is used to compute a basis orthonormal
+     *                   to the joint's axis. If this tangent is set to the zero vector, the orthonormal
+     *                   basis will be automatically computed arbitrarily.
+     */
+    public static prismatic(
+        anchor1: Vector,
+        axis1: Vector,
+        tangent1: Vector,
+        anchor2: Vector,
+        axis2: Vector,
+        tangent2: Vector,
+    ): JointParams {
+        let res = new JointParams();
+        res.anchor1 = anchor1;
+        res.axis1 = axis1;
+        res.tangent1 = tangent1;
+        res.anchor2 = anchor2;
+        res.axis2 = axis2;
+        res.tangent2 = tangent2;
+        res.jointType = JointType.Prismatic;
+        return res;
+    }
+
     /**
      * Create a new joint descriptor that builds Revolute joints.
      *
@@ -191,16 +281,44 @@ export class JointParams {
     public intoRaw(): RawJointParams {
         let rawA1 = VectorOps.intoRaw(this.anchor1);
         let rawA2 = VectorOps.intoRaw(this.anchor2);
+        let rawAx1;
+        let rawAx2;
         let result;
 
         switch (this.jointType) {
             case JointType.Ball:
                 result = RawJointParams.ball(rawA1, rawA2);
                 break;
+            case JointType.Fixed:
+                let rawFra1 = RotationOps.intoRaw(this.frame1);
+                let rawFra2 = RotationOps.intoRaw(this.frame2);
+                result = RawJointParams.fixed(rawA1, rawFra1, rawA2, rawFra2);
+                rawFra1.free();
+                rawFra2.free();
+                break;
+            case JointType.Prismatic:
+                rawAx1 = VectorOps.intoRaw(this.axis1);
+                rawAx2 = VectorOps.intoRaw(this.axis2);
+
+                // #if DIM2
+                result = RawJointParams.prismatic(rawA1, rawAx1, rawA2, rawAx2);
+                // #endif
+
+                // #if DIM3
+                let rawTa1 = VectorOps.intoRaw(this.tangent1);
+                let rawTa2 = VectorOps.intoRaw(this.tangent2);
+                result = RawJointParams.prismatic(rawA1, rawAx1, rawTa1, rawA2, rawAx2, rawTa2);
+                rawTa1.free();
+                rawTa2.free();
+                // #endif
+
+                rawAx1.free();
+                rawAx2.free();
+                break;
             // #if DIM3
             case JointType.Revolute:
-                let rawAx1 = VectorOps.intoRaw(this.axis1);
-                let rawAx2 = VectorOps.intoRaw(this.axis2);
+                rawAx1 = VectorOps.intoRaw(this.axis1);
+                rawAx2 = VectorOps.intoRaw(this.axis2);
                 result = RawJointParams.revolute(rawA1, rawAx1, rawA2, rawAx2);
                 rawAx1.free();
                 rawAx2.free();
@@ -210,6 +328,7 @@ export class JointParams {
 
         rawA1.free();
         rawA2.free();
+
         return result;
     }
 }

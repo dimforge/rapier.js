@@ -1,10 +1,12 @@
 use crate::dynamics::RawJointSet;
 use crate::math::{RawRotation, RawVector};
-use rapier::dynamics::{BallJoint, JointParams};
+use na::Unit;
+use rapier::dynamics::{BallJoint, FixedJoint, JointParams, PrismaticJoint};
+use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
 #[cfg(feature = "dim3")]
 use {
-    na::{Matrix3, Rotation3, Unit, UnitQuaternion},
+    na::{Matrix3, Rotation3, UnitQuaternion},
     rapier::dynamics::RevoluteJoint,
     rapier::utils::WBasis,
 };
@@ -162,16 +164,79 @@ impl RawJointParams {
     /// by preventing any relative translation between the anchors of the
     /// two attached rigid-bodies.
     pub fn ball(anchor1: &RawVector, anchor2: &RawVector) -> Self {
-        Self(JointParams::BallJoint(BallJoint::new(
-            anchor1.0.into(),
-            anchor2.0.into(),
-        )))
+        Self(BallJoint::new(anchor1.0.into(), anchor2.0.into()).into())
+    }
+
+    /// Creates a new joint descriptor that builds a Prismatic joint.
+    ///
+    /// A prismatic joint removes all the degrees of freedom between the
+    /// affected bodies, except for the translation along one axis.
+    ///
+    /// Returns `None` if any of the provided axes cannot be normalized.
+    #[cfg(feature = "dim2")]
+    pub fn prismatic(
+        anchor1: &RawVector,
+        axis1: &RawVector,
+        anchor2: &RawVector,
+        axis2: &RawVector,
+    ) -> Option<RawJointParams> {
+        let axis1 = Unit::try_new(axis1.0, 0.0)?;
+        let axis2 = Unit::try_new(axis2.0, 0.0)?;
+
+        Some(Self(
+            PrismaticJoint::new(anchor1.0.into(), axis1, anchor2.0.into(), axis2).into(),
+        ))
+    }
+
+    /// Creates a new joint descriptor that builds a Prismatic joint.
+    ///
+    /// A prismatic joint removes all the degrees of freedom between the
+    /// affected bodies, except for the translation along one axis.
+    ///
+    /// Returns `None` if any of the provided axes cannot be normalized.
+    #[cfg(feature = "dim3")]
+    pub fn prismatic(
+        anchor1: &RawVector,
+        axis1: &RawVector,
+        tangent1: &RawVector,
+        anchor2: &RawVector,
+        axis2: &RawVector,
+        tangent2: &RawVector,
+    ) -> Option<RawJointParams> {
+        let axis1 = Unit::try_new(axis1.0, 0.0)?;
+        let axis2 = Unit::try_new(axis2.0, 0.0)?;
+
+        Some(Self(
+            PrismaticJoint::new(
+                anchor1.0.into(),
+                axis1,
+                tangent1.0,
+                anchor2.0.into(),
+                axis2,
+                tangent2.0,
+            )
+            .into(),
+        ))
+    }
+
+    /// Creates a new joint descriptor that builds a Fixed joint.
+    ///
+    /// A fixed joint removes all the degrees of freedom between the affected bodies.
+    pub fn fixed(
+        anchor1: &RawVector,
+        axes1: &RawRotation,
+        anchor2: &RawVector,
+        axes2: &RawRotation,
+    ) -> RawJointParams {
+        let pos1 = Isometry::from_parts(anchor1.0.into(), axes1.0);
+        let pos2 = Isometry::from_parts(anchor2.0.into(), axes2.0);
+        Self(FixedJoint::new(pos1, pos2).into())
     }
 
     /// Create a new joint descriptor that builds Revolute joints.
     ///
-    /// A revolute joint removes all degrees of degrees of freedom between the affected
-    /// bodies except for the translation along one axis.
+    /// A revolute joint removes all degrees of freedom between the affected
+    /// bodies except for the rotation along one axis.
     #[cfg(feature = "dim3")]
     pub fn revolute(
         anchor1: &RawVector,
