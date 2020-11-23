@@ -50,23 +50,6 @@ impl RawRigidBodySet {
         );
         f(body)
     }
-
-    pub(crate) fn map_mut_wake<T>(
-        &mut self,
-        handle: usize,
-        wake_up: bool,
-        f: impl FnOnce(RigidBodyMut) -> T,
-    ) -> T {
-        let (mut body, _) = self.0.get_unknown_gen_mut(handle).expect(
-            "Invalid RigidBody reference. It may have been removed from the physics World.",
-        );
-
-        if wake_up {
-            body.wake_up(false);
-        }
-
-        f(body)
-    }
 }
 
 #[wasm_bindgen]
