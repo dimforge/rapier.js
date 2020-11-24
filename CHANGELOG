@@ -1,6 +1,7 @@
 ### v0.2.10
 - Fix a bug where removing a collider would result in a rigid-body being removed instead.
 - Fix a determinism issue when running simulation on the Apple M1 processor.
+- Add `JointParams.prismatic` and `JointParams.fixed` for creating prismatic joint or fixed joints.
 
 ### v0.2.9
 - Add `RigidBody.setLinvel` to set the linear velocity of a rigid-body.
