@@ -328,7 +328,6 @@ export class World {
             this.narrowPhase,
             this.bodies,
             this.colliders,
-            this.joints,
         );
     }
 

@@ -1,10 +1,12 @@
 use crate::dynamics::RawJointSet;
 use crate::math::{RawRotation, RawVector};
-use rapier::dynamics::{BallJoint, JointParams};
+use na::Unit;
+use rapier::dynamics::{BallJoint, FixedJoint, JointParams, PrismaticJoint};
+use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
 #[cfg(feature = "dim3")]
 use {
-    na::{Matrix3, Rotation3, Unit, UnitQuaternion},
+    na::{Matrix3, Rotation3, UnitQuaternion},
     rapier::dynamics::RevoluteJoint,
     rapier::utils::WBasis,
 };
@@ -124,7 +126,7 @@ impl RawJointSet {
 
     /// The first axis of this joint, if any.
     ///
-    /// For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
+    /// For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
     /// this returns the application axis on the first rigid-body this joint is attached to, expressed
     /// in the local-space of this first rigid-body.
     pub fn jointAxis1(&self, handle: usize) -> Option<RawVector> {
@@ -138,7 +140,7 @@ impl RawJointSet {
 
     /// The second axis of this joint, if any.
     ///
-    /// For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
+    /// For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
     /// this returns the application axis on the second rigid-body this joint is attached to, expressed
     /// in the local-space of this second rigid-body.
     pub fn jointAxis2(&self, handle: usize) -> Option<RawVector> {
@@ -147,6 +149,30 @@ impl RawJointSet {
             #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(r) => Some(RawVector(*r.local_axis2)),
             JointParams::PrismaticJoint(p) => Some(RawVector(*p.local_axis2())),
+        })
+    }
+
+    /// Are the limits for this joint enabled?
+    pub fn jointLimitsEnabled(&self, handle: usize) -> bool {
+        self.map(handle, |j| match &j.params {
+            JointParams::PrismaticJoint(p) => p.limits_enabled,
+            _ => false,
+        })
+    }
+
+    /// If this is a prismatic joint, returns its lower limit.
+    pub fn jointLimitsMin(&self, handle: usize) -> f32 {
+        self.map(handle, |j| match &j.params {
+            JointParams::PrismaticJoint(p) => p.limits[0],
+            _ => -f32::MAX,
+        })
+    }
+
+    /// If this is a prismatic joint, returns its upper limit.
+    pub fn jointLimitsMax(&self, handle: usize) -> f32 {
+        self.map(handle, |j| match &j.params {
+            JointParams::PrismaticJoint(p) => p.limits[1],
+            _ => f32::MAX,
         })
     }
 }
@@ -162,16 +188,92 @@ impl RawJointParams {
     /// by preventing any relative translation between the anchors of the
     /// two attached rigid-bodies.
     pub fn ball(anchor1: &RawVector, anchor2: &RawVector) -> Self {
-        Self(JointParams::BallJoint(BallJoint::new(
+        Self(BallJoint::new(anchor1.0.into(), anchor2.0.into()).into())
+    }
+
+    /// Creates a new joint descriptor that builds a Prismatic joint.
+    ///
+    /// A prismatic joint removes all the degrees of freedom between the
+    /// affected bodies, except for the translation along one axis.
+    ///
+    /// Returns `None` if any of the provided axes cannot be normalized.
+    #[cfg(feature = "dim2")]
+    pub fn prismatic(
+        anchor1: &RawVector,
+        axis1: &RawVector,
+        anchor2: &RawVector,
+        axis2: &RawVector,
+        limitsEnabled: bool,
+        limitsMin: f32,
+        limitsMax: f32,
+    ) -> Option<RawJointParams> {
+        let axis1 = Unit::try_new(axis1.0, 0.0)?;
+        let axis2 = Unit::try_new(axis2.0, 0.0)?;
+        let mut joint = PrismaticJoint::new(anchor1.0.into(), axis1, anchor2.0.into(), axis2);
+
+        if limitsEnabled {
+            joint.limits_enabled = true;
+            joint.limits = [limitsMin, limitsMax];
+        }
+
+        Some(Self(joint.into()))
+    }
+
+    /// Creates a new joint descriptor that builds a Prismatic joint.
+    ///
+    /// A prismatic joint removes all the degrees of freedom between the
+    /// affected bodies, except for the translation along one axis.
+    ///
+    /// Returns `None` if any of the provided axes cannot be normalized.
+    #[cfg(feature = "dim3")]
+    pub fn prismatic(
+        anchor1: &RawVector,
+        axis1: &RawVector,
+        tangent1: &RawVector,
+        anchor2: &RawVector,
+        axis2: &RawVector,
+        tangent2: &RawVector,
+        limitsEnabled: bool,
+        limitsMin: f32,
+        limitsMax: f32,
+    ) -> Option<RawJointParams> {
+        let axis1 = Unit::try_new(axis1.0, 0.0)?;
+        let axis2 = Unit::try_new(axis2.0, 0.0)?;
+        let mut joint = PrismaticJoint::new(
             anchor1.0.into(),
+            axis1,
+            tangent1.0,
             anchor2.0.into(),
-        )))
+            axis2,
+            tangent2.0,
+        );
+
+        if limitsEnabled {
+            joint.limits_enabled = true;
+            joint.limits = [limitsMin, limitsMax];
+        }
+
+        Some(Self(joint.into()))
+    }
+
+    /// Creates a new joint descriptor that builds a Fixed joint.
+    ///
+    /// A fixed joint removes all the degrees of freedom between the affected bodies.
+    pub fn fixed(
+        anchor1: &RawVector,
+        axes1: &RawRotation,
+        anchor2: &RawVector,
+        axes2: &RawRotation,
+    ) -> RawJointParams {
+        let pos1 = Isometry::from_parts(anchor1.0.into(), axes1.0);
+        let pos2 = Isometry::from_parts(anchor2.0.into(), axes2.0);
+        Self(FixedJoint::new(pos1, pos2).into())
     }
 
     /// Create a new joint descriptor that builds Revolute joints.
     ///
-    /// A revolute joint removes all degrees of degrees of freedom between the affected
-    /// bodies except for the translation along one axis.
+    /// A revolute joint removes all degrees of freedom between the affected
+    /// bodies except for the rotation along one axis.
     #[cfg(feature = "dim3")]
     pub fn revolute(
         anchor1: &RawVector,
