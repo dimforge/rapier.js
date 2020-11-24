@@ -66,17 +66,25 @@ export function extractJointDescription(joint) {
     let ax2 = joint.axis2() || {x: 0.0, y: 0.0, z: 0.0};
     let fx1 = joint.frameX1() || {x: 0.0, y: 0.0, z: 0.0, w: 1.0};
     let fx2 = joint.frameX2() || {x: 0.0, y: 0.0, z: 0.0, w: 1.0};
-
+    // TODO: put the actual value here.
+    let ta1 = /* joint.tangent1() || */ {x: 0.0, y: 0.0, z: 0.0};
+    let ta2 = /* joint.tangent2() || */ {x: 0.0, y: 0.0, z: 0.0};
+    
     return {
         handle1: joint.bodyHandle1(),
         handle2: joint.bodyHandle2(),
         type: joint.type(),
-        anchor1: {x: a1.x, y: a1.y, z: a1.z},
-        anchor2: {x: a2.x, y: a2.y, z: a2.z},
-        axis1: {x: ax1.x, y: ax1.y, z: ax1.z},
-        axis2: {x: ax2.x, y: ax2.y, z: ax2.z},
-        frameX1: {x: fx1.x, y: fx1.y, z: fx1.z, w: fx1.w},
-        frameX2: {x: fx2.x, y: fx2.y, z: fx2.z, w: fx2.w},
+        anchor1: a1,
+        anchor2: a2,
+        axis1: ax1,
+        axis2: ax2,
+        tangent1: ta1,
+        tangent2: ta2,
+        frameX1: fx1,
+        frameX2: fx2,
+        limitsEnabled: joint.limitsEnabled(),
+        limitsMin: joint.limitsMin(),
+        limitsMax: joint.limitsMax(),
     };
 }
 

@@ -118,12 +118,37 @@ export class Joint {
     /**
      * The second axis of this joint, if any.
      *
-     * For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
+     * For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
      * this returns the application axis on the second rigid-body this joint is attached to, expressed
      * in the local-space of this second rigid-body.
      */
     public axis2(): Vector {
         return VectorOps.fromRaw(this.rawSet.jointAxis2(this.handle))
+    }
+
+    /**
+     * Are the limits enabled for this joint?
+     */
+    public limitsEnabled(): boolean {
+        return this.rawSet.jointLimitsEnabled(this.handle);
+    }
+
+    /**
+     * The min limit of this joint.
+     *
+     * If this joint as a prismatic joint, returns its min limit.
+     */
+    public limitsMin(): number {
+        return this.rawSet.jointLimitsMin(this.handle);
+    }
+
+    /**
+     * The max limit of this joint.
+     *
+     * If this joint as a prismatic joint, returns its max limit.
+     */
+    public limitsMax(): number {
+        return this.rawSet.jointLimitsMax(this.handle);
     }
 }
 
@@ -137,6 +162,8 @@ export class JointParams {
     frame1: Rotation
     frame2: Rotation
     jointType: JointType
+    limitsEnabled: boolean
+    limits: Array<number>
 
     private constructor() {
     }
@@ -178,6 +205,8 @@ export class JointParams {
         let res = new JointParams();
         res.anchor1 = anchor1;
         res.anchor2 = anchor2;
+        res.frame1 = frame1;
+        res.frame2 = frame2;
         res.jointType = JointType.Fixed;
         return res;
     }
@@ -284,6 +313,9 @@ export class JointParams {
         let rawAx1;
         let rawAx2;
         let result;
+        let limitsEnabled = false;
+        let limitsMin = 0.0;
+        let limitsMax = 0.0;
 
         switch (this.jointType) {
             case JointType.Ball:
@@ -300,14 +332,38 @@ export class JointParams {
                 rawAx1 = VectorOps.intoRaw(this.axis1);
                 rawAx2 = VectorOps.intoRaw(this.axis2);
 
+                if (!!this.limitsEnabled) {
+                    limitsEnabled = true;
+                    limitsMin = this.limits[0];
+                    limitsMax = this.limits[1];
+                }
+
                 // #if DIM2
-                result = RawJointParams.prismatic(rawA1, rawAx1, rawA2, rawAx2);
+                result = RawJointParams.prismatic(
+                    rawA1,
+                    rawAx1,
+                    rawA2,
+                    rawAx2,
+                    limitsEnabled,
+                    limitsMin,
+                    limitsMax,
+                );
                 // #endif
 
                 // #if DIM3
                 let rawTa1 = VectorOps.intoRaw(this.tangent1);
                 let rawTa2 = VectorOps.intoRaw(this.tangent2);
-                result = RawJointParams.prismatic(rawA1, rawAx1, rawTa1, rawA2, rawAx2, rawTa2);
+                result = RawJointParams.prismatic(
+                    rawA1,
+                    rawAx1,
+                    rawTa1,
+                    rawA2,
+                    rawAx2,
+                    rawTa2,
+                    limitsEnabled,
+                    limitsMin,
+                    limitsMax,
+                );
                 rawTa1.free();
                 rawTa2.free();
                 // #endif

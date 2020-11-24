@@ -1,55 +1,62 @@
-/*
-fn create_prismatic_joints(
-    bodies: &mut RigidBodySet,
-    colliders: &mut ColliderSet,
-    joints: &mut JointSet,
-    origin: Point3<f32>,
-    num: usize,
+function create_prismatic_joints(
+    RAPIER,
+    world,
+    bodies,
+    colliders,
+    joints,
+    origin,
+    num,
 ) {
     let rad = 0.4;
     let shift = 1.0;
 
-    let ground = RigidBodyBuilder::new_static()
-        .translation(origin.x, origin.y, origin.z)
-        .build();
-    let mut currParent = bodies.insert(ground);
-    let collider = ColliderBuilder::cuboid(rad, rad, rad).build();
-    colliders.insert(collider, currParent, bodies);
+    let groundDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
+        .setTranslation(new RAPIER.Vector3(origin.x, origin.y, origin.z));
+    let currParent = world.createRigidBody(groundDesc);
+    let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+    let collider = world.createCollider(colliderDesc, currParent.handle);
+    bodies.push(currParent);
+    colliders.push(collider);
 
-    for i in 0..num {
-        let z = origin.z + (i + 1) as f32 * shift;
-        let rigid_body = RigidBodyBuilder::new_dynamic()
-            .translation(origin.x, origin.y, z)
-            .build();
-        let curr_child = bodies.insert(rigid_body);
-        let collider = ColliderBuilder::cuboid(rad, rad, rad)
-            .build();
-        colliders.insert(collider, curr_child, bodies);
+    let i;
+    let z;
 
-        let axis = if i % 2 == 0 {
-            Unit::new_normalize(Vector3::new(1.0, 1.0, 0.0))
+    for (i = 0; i < num; ++i) {
+        z = origin.z + (i + 1) * shift;
+        let rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
+            .setTranslation(new RAPIER.Vector3(origin.x, origin.y, z));
+        let currChild = world.createRigidBody(rigidBodyDesc);
+        let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+        let collider = world.createCollider(colliderDesc, currChild.handle);
+
+        bodies.push(currChild);
+        colliders.push(collider);
+
+        let axis;
+
+        if (i % 2 == 0) {
+            axis = new RAPIER.Vector3(1.0, 1.0, 0.0);
         } else {
-            Unit::new_normalize(Vector3::new(-1.0, 1.0, 0.0))
-        };
+            axis = new RAPIER.Vector3(-1.0, 1.0, 0.0);
+        }
 
-        let z = Vector3::z();
-        let mut prism = PrismaticJoint::new(
-            Point3::origin(),
-                axis,
-                z,
-                Point3::new(0.0, 0.0, -shift),
-                axis,
-                z,
+        z = new RAPIER.Vector3(0.0, 0.0, 1.0);
+        let prism = RAPIER.JointParams.prismatic(
+            new RAPIER.Vector3(0.0, 0.0, 0.0),
+            axis,
+            z,
+            new RAPIER.Vector3(0.0, 0.0, -shift),
+            axis,
+            z,
         );
-        prism.limits_enabled = true;
-        prism.limits[0] = -2.0;
-        prism.limits[1] = 2.0;
-        joints.insert(bodies, currParent, curr_child, prism);
+        prism.limitsEnabled = true;
+        prism.limits = [-2.0, 2.0];
+        joints.push(world.createJoint(prism, currParent, currChild));
 
-        currParent = curr_child;
+        currParent = currChild;
     }
 }
-*/
+
 
 function create_revolute_joints(
     RAPIER,
@@ -120,66 +127,77 @@ function create_revolute_joints(
     }
 }
 
-/*
-fn create_fixed_joints(
-    bodies: &mut RigidBodySet,
-    colliders: &mut ColliderSet,
-    joints: &mut JointSet,
-    origin: Point3<f32>,
-    num: usize,
+
+function create_fixed_joints(
+    RAPIER,
+    world,
+    bodies,
+    colliders,
+    joints,
+    origin,
+    num,
 ) {
     let rad = 0.4;
     let shift = 1.0;
+    let i, k;
+    let parents = [];
 
-    let mut parents = Vec::new();
-
-    for k in 0..num {
-        for i in 0..num {
-            let fk = k as f32;
-            let fi = i as f32;
+    for (k = 0; k < num; ++k) {
+        for (i = 0; i < num; ++i) {
+            let fk = k;
+            let fi = i;
 
             // NOTE: the num - 2 test is to avoid two consecutive
             // fixed bodies. Because physx will crash if we add
             // a joint between these.
-            let status = if i == 0 && (k % 4 == 0 && k != num - 2 || k == num - 1) {
-                BodyStatus::Static
-            } else {
-                BodyStatus::Dynamic
-            };
+            let status;
 
-            let rigid_body = RigidBodyBuilder::new(status)
-                .translation(origin.x + fk * shift, origin.y, origin.z + fi * shift)
-                .build();
-            let childHandle = bodies.insert(rigid_body);
-            let collider = ColliderBuilder::ball(rad).build();
-            colliders.insert(collider, childHandle, bodies);
+            if (i == 0 && (k % 4 == 0 && k != num - 2 || k == num - 1)) {
+                status = RAPIER.BodyStatus.Static;
+            } else {
+                status = RAPIER.BodyStatus.Dynamic;
+            }
+
+            let rigidBody = new RAPIER.RigidBodyDesc(status)
+                .setTranslation(new RAPIER.Vector3(origin.x + fk * shift, origin.y, origin.z + fi * shift));
+            let child = world.createRigidBody(rigidBody);
+            let colliderDesc = RAPIER.ColliderDesc.ball(rad);
+            let collider = world.createCollider(colliderDesc, child.handle);
+            bodies.push(child);
+            colliders.push(collider);
 
             // Vertical joint.
-            if i > 0 {
-                let parentHandle = *parents.last().unwrap();
-                let joint = FixedJoint::new(
-                    Isometry3::identity(),
-                        Isometry3::translation(0.0, 0.0, -shift),
+            if (i > 0) {
+                let parent = parents[parents.length - 1];
+                let params = RAPIER.JointParams.fixed(
+                    new RAPIER.Vector3(0.0, 0.0, 0.0),
+                    new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
+                    new RAPIER.Vector3(0.0, 0.0, -shift),
+                    new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
                 );
-                joints.insert(bodies, parentHandle, childHandle, joint);
+
+                joints.push(world.createJoint(params, parent, child));
             }
 
             // Horizontal joint.
-            if k > 0 {
-                let parent_index = parents.len() - num;
-                let parentHandle = parents[parent_index];
-                let joint = FixedJoint::new(
-                    Isometry3::identity(),
-                        Isometry3::translation(-shift, 0.0, 0.0),
+            if (k > 0) {
+                let parent_index = parents.length - num;
+                let parent = parents[parent_index];
+                let params = RAPIER.JointParams.fixed(
+                    new RAPIER.Vector3(0.0, 0.0, 0.0),
+                    new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
+                    new RAPIER.Vector3(-shift, 0.0, 0.0),
+                    new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
                 );
-                joints.insert(bodies, parentHandle, childHandle, joint);
+
+                joints.push(world.createJoint(params, parent, child));
             }
 
-            parents.push(childHandle);
+            parents.push(child);
         }
     }
 }
-*/
+
 
 function create_ball_joints(
     RAPIER,
@@ -247,6 +265,24 @@ export function initWorld(RAPIER, testbed) {
     let colliders = new Array();
     let joints = new Array();
 
+    create_prismatic_joints(
+        RAPIER,
+        world,
+        bodies,
+        colliders,
+        joints,
+        new RAPIER.Vector3(20.0, 10.0, 0.0),
+        5
+    );
+    create_fixed_joints(
+        RAPIER,
+        world,
+        bodies,
+        colliders,
+        joints,
+        new RAPIER.Vector3(0.0, 10.0, 0.0),
+        5
+    );
     create_revolute_joints(
         RAPIER,
         world,

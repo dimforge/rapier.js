@@ -126,7 +126,7 @@ impl RawJointSet {
 
     /// The first axis of this joint, if any.
     ///
-    /// For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
+    /// For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
     /// this returns the application axis on the first rigid-body this joint is attached to, expressed
     /// in the local-space of this first rigid-body.
     pub fn jointAxis1(&self, handle: usize) -> Option<RawVector> {
@@ -140,7 +140,7 @@ impl RawJointSet {
 
     /// The second axis of this joint, if any.
     ///
-    /// For joints where an application axis makes sence (e.g. the revolute and prismatic joins),
+    /// For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
     /// this returns the application axis on the second rigid-body this joint is attached to, expressed
     /// in the local-space of this second rigid-body.
     pub fn jointAxis2(&self, handle: usize) -> Option<RawVector> {
@@ -149,6 +149,30 @@ impl RawJointSet {
             #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(r) => Some(RawVector(*r.local_axis2)),
             JointParams::PrismaticJoint(p) => Some(RawVector(*p.local_axis2())),
+        })
+    }
+
+    /// Are the limits for this joint enabled?
+    pub fn jointLimitsEnabled(&self, handle: usize) -> bool {
+        self.map(handle, |j| match &j.params {
+            JointParams::PrismaticJoint(p) => p.limits_enabled,
+            _ => false,
+        })
+    }
+
+    /// If this is a prismatic joint, returns its lower limit.
+    pub fn jointLimitsMin(&self, handle: usize) -> f32 {
+        self.map(handle, |j| match &j.params {
+            JointParams::PrismaticJoint(p) => p.limits[0],
+            _ => -f32::MAX,
+        })
+    }
+
+    /// If this is a prismatic joint, returns its upper limit.
+    pub fn jointLimitsMax(&self, handle: usize) -> f32 {
+        self.map(handle, |j| match &j.params {
+            JointParams::PrismaticJoint(p) => p.limits[1],
+            _ => f32::MAX,
         })
     }
 }
@@ -179,13 +203,20 @@ impl RawJointParams {
         axis1: &RawVector,
         anchor2: &RawVector,
         axis2: &RawVector,
+        limitsEnabled: bool,
+        limitsMin: f32,
+        limitsMax: f32,
     ) -> Option<RawJointParams> {
         let axis1 = Unit::try_new(axis1.0, 0.0)?;
         let axis2 = Unit::try_new(axis2.0, 0.0)?;
+        let mut joint = PrismaticJoint::new(anchor1.0.into(), axis1, anchor2.0.into(), axis2);
 
-        Some(Self(
-            PrismaticJoint::new(anchor1.0.into(), axis1, anchor2.0.into(), axis2).into(),
-        ))
+        if limitsEnabled {
+            joint.limits_enabled = true;
+            joint.limits = [limitsMin, limitsMax];
+        }
+
+        Some(Self(joint.into()))
     }
 
     /// Creates a new joint descriptor that builds a Prismatic joint.
@@ -202,21 +233,27 @@ impl RawJointParams {
         anchor2: &RawVector,
         axis2: &RawVector,
         tangent2: &RawVector,
+        limitsEnabled: bool,
+        limitsMin: f32,
+        limitsMax: f32,
     ) -> Option<RawJointParams> {
         let axis1 = Unit::try_new(axis1.0, 0.0)?;
         let axis2 = Unit::try_new(axis2.0, 0.0)?;
+        let mut joint = PrismaticJoint::new(
+            anchor1.0.into(),
+            axis1,
+            tangent1.0,
+            anchor2.0.into(),
+            axis2,
+            tangent2.0,
+        );
 
-        Some(Self(
-            PrismaticJoint::new(
-                anchor1.0.into(),
-                axis1,
-                tangent1.0,
-                anchor2.0.into(),
-                axis2,
-                tangent2.0,
-            )
-            .into(),
-        ))
+        if limitsEnabled {
+            joint.limits_enabled = true;
+            joint.limits = [limitsMin, limitsMax];
+        }
+
+        Some(Self(joint.into()))
     }
 
     /// Creates a new joint descriptor that builds a Fixed joint.

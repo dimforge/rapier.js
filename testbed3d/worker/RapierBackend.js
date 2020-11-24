@@ -104,22 +104,35 @@ export class RapierBackend {
 
         switch (joint.type) {
             case this.RAPIER.JointType.Ball:
-                anchor1 = joint.anchor1;
-                anchor2 = joint.anchor2;
-                raAnchor1 = new this.RAPIER.Vector3(anchor1.x, anchor1.y, anchor1.z);
-                raAnchor2 = new this.RAPIER.Vector3(anchor2.x, anchor2.y, anchor2.z);
-                raJointParams = this.RAPIER.JointParams.ball(raAnchor1, raAnchor2);
+                raJointParams = this.RAPIER.JointParams.ball(joint.anchor1, joint.anchor2);
                 break;
             case this.RAPIER.JointType.Revolute:
-                anchor1 = joint.anchor1;
-                anchor2 = joint.anchor2;
-                let axis1 = joint.axis1;
-                let axis2 = joint.axis2;
-                raAnchor1 = new this.RAPIER.Vector3(anchor1.x, anchor1.y, anchor1.z);
-                raAnchor2 = new this.RAPIER.Vector3(anchor2.x, anchor2.y, anchor2.z);
-                let raAxis1 = new this.RAPIER.Vector3(axis1.x, axis1.y, axis1.z);
-                let raAxis2 = new this.RAPIER.Vector3(axis2.x, axis2.y, axis2.z);
-                raJointParams = this.RAPIER.JointParams.revolute(raAnchor1, raAxis1, raAnchor2, raAxis2);
+                raJointParams = this.RAPIER.JointParams.revolute(
+                    joint.anchor1,
+                    joint.axis1,
+                    joint.anchor2,
+                    joint.axis2
+                );
+                break;
+            case this.RAPIER.JointType.Fixed:
+                raJointParams = this.RAPIER.JointParams.fixed(
+                    joint.anchor1,
+                    joint.frameX1,
+                    joint.anchor2,
+                    joint.frameX2,
+                );
+                break;
+            case this.RAPIER.JointType.Prismatic:
+                raJointParams = this.RAPIER.JointParams.prismatic(
+                    joint.anchor1,
+                    joint.axis1,
+                    joint.tangent1,
+                    joint.anchor2,
+                    joint.axis2,
+                    joint.tangent2,
+                );
+                raJointParams.limitsEnabled = joint.limitsEnabled;
+                raJointParams.limits = [joint.limitsMin, joint.limitsMax];
                 break;
         }
 

@@ -31,11 +31,11 @@ export class Testbed {
     constructor(RAPIER, builders, worker) {
         let backends = [
             "rapier",
-            "ammo.js",
-            "ammo.wasm",
-            "cannon.js",
-            "oimo.js",
-            PHYSX_BACKEND_NAME
+            // "ammo.js",
+            // "ammo.wasm",
+            // "cannon.js",
+            // "oimo.js",
+            // PHYSX_BACKEND_NAME
         ];
         let parameters = new SimulationParameters(backends, builders);
         this.gui = new Gui(this, parameters);
@@ -90,7 +90,7 @@ export class Testbed {
                         modifications = this.preTimestepAction();
                     }
                     let stepMessage = this.stepMessage(modifications);
-                    
+
                     this.graphics.applyModifications(this.RAPIER, this.world, modifications);
                     this.worker.postMessage(raycastMessage);
                     this.worker.postMessage(stepMessage);
