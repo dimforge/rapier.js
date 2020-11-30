@@ -1,5 +1,6 @@
 //! Linear algebra primitives.
 
+#[cfg(feature = "dim3")]
 use na::{Quaternion, Unit};
 use rapier::math::{Rotation, Vector};
 use wasm_bindgen::prelude::*;

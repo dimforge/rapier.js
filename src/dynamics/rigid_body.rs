@@ -16,7 +16,7 @@ impl RawRigidBodySet {
 
     /// Put the given rigid-body to sleep.
     pub fn rbSleep(&mut self, handle: usize) {
-        self.map_mut(handle, |mut rb| rb.sleep());
+        self.map_mut(handle, |rb| rb.sleep());
     }
 
     /// Is this rigid-body sleeping?
@@ -59,7 +59,7 @@ impl RawRigidBodySet {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim3")]
     pub fn rbSetTranslation(&mut self, handle: usize, x: f32, y: f32, z: f32, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             let mut pos = *rb.position();
             pos.translation.vector = na::Vector3::new(x, y, z);
             rb.set_position(pos, wakeUp);
@@ -75,7 +75,7 @@ impl RawRigidBodySet {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
     pub fn rbSetTranslation(&mut self, handle: usize, x: f32, y: f32, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             let mut pos = *rb.position();
             pos.translation.vector = na::Vector2::new(x, y);
             rb.set_position(pos, wakeUp);
@@ -96,7 +96,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn rbSetRotation(&mut self, handle: usize, x: f32, y: f32, z: f32, w: f32, wakeUp: bool) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
-            self.map_mut(handle, |mut rb| {
+            self.map_mut(handle, |rb| {
                 let mut pos = *rb.position();
                 pos.rotation = q;
                 rb.set_position(pos, wakeUp);
@@ -112,7 +112,7 @@ impl RawRigidBodySet {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
     pub fn rbSetRotation(&mut self, handle: usize, angle: f32, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             let mut pos = *rb.position();
             pos.rotation = na::UnitComplex::new(angle);
             rb.set_position(pos, wakeUp);
@@ -121,7 +121,7 @@ impl RawRigidBodySet {
 
     /// Sets the linear velocity of this rigid-body.
     pub fn rbSetLinvel(&mut self, handle: usize, linvel: &RawVector, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.set_linvel(linvel.0, wakeUp);
         });
     }
@@ -129,7 +129,7 @@ impl RawRigidBodySet {
     /// Sets the angular velocity of this rigid-body.
     #[cfg(feature = "dim2")]
     pub fn rbSetAngvel(&mut self, handle: usize, angvel: f32, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.set_angvel(angvel, wakeUp);
         });
     }
@@ -137,7 +137,7 @@ impl RawRigidBodySet {
     /// Sets the angular velocity of this rigid-body.
     #[cfg(feature = "dim3")]
     pub fn rbSetAngvel(&mut self, handle: usize, angvel: &RawVector, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.set_angvel(angvel.0, wakeUp);
         });
     }
@@ -156,7 +156,7 @@ impl RawRigidBodySet {
     /// - `z`: the world-space position of the rigid-body along the `z` axis.
     #[cfg(feature = "dim3")]
     pub fn rbSetNextKinematicTranslation(&mut self, handle: usize, x: f32, y: f32, z: f32) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             let mut pos = *rb.predicted_position();
             pos.translation.vector = na::Vector3::new(x, y, z);
             rb.set_next_kinematic_position(pos);
@@ -176,7 +176,7 @@ impl RawRigidBodySet {
     /// - `y`: the world-space position of the rigid-body along the `y` axis.
     #[cfg(feature = "dim2")]
     pub fn rbSetNextKinematicTranslation(&mut self, handle: usize, x: f32, y: f32) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             let mut pos = *rb.predicted_position();
             pos.translation.vector = na::Vector2::new(x, y);
             rb.set_next_kinematic_position(pos);
@@ -199,7 +199,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn rbSetNextKinematicRotation(&mut self, handle: usize, x: f32, y: f32, z: f32, w: f32) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
-            self.map_mut(handle, |mut rb| {
+            self.map_mut(handle, |rb| {
                 let mut pos = *rb.predicted_position();
                 pos.rotation = q;
                 rb.set_next_kinematic_position(pos);
@@ -219,7 +219,7 @@ impl RawRigidBodySet {
     /// - `angle`: the rotation angle, in radians.
     #[cfg(feature = "dim2")]
     pub fn rbSetNextKinematicRotation(&mut self, handle: usize, angle: f32) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             let mut pos = *rb.predicted_position();
             pos.rotation = na::UnitComplex::new(angle);
             rb.set_next_kinematic_position(pos);
@@ -256,7 +256,7 @@ impl RawRigidBodySet {
     /// This methods forces a sleeping rigid-body to wake-up. This is useful, e.g., before modifying
     /// the position of a dynamic body so that it is properly simulated afterwards.
     pub fn rbWakeUp(&mut self, handle: usize) {
-        self.map_mut(handle, |mut rb| rb.wake_up(true))
+        self.map_mut(handle, |rb| rb.wake_up(true))
     }
 
     /// The number of colliders attached to this rigid-body.
@@ -309,7 +309,7 @@ impl RawRigidBodySet {
     /// - `force`: the world-space force to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     pub fn rbApplyForce(&mut self, handle: usize, force: &RawVector, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.apply_force(force.0, wakeUp);
         })
     }
@@ -320,7 +320,7 @@ impl RawRigidBodySet {
     /// - `impulse`: the world-space impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     pub fn rbApplyImpulse(&mut self, handle: usize, impulse: &RawVector, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.apply_impulse(impulse.0, wakeUp);
         })
     }
@@ -332,7 +332,7 @@ impl RawRigidBodySet {
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim2")]
     pub fn rbApplyTorque(&mut self, handle: usize, torque: f32, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.apply_torque(torque, wakeUp);
         })
     }
@@ -344,7 +344,7 @@ impl RawRigidBodySet {
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim3")]
     pub fn rbApplyTorque(&mut self, handle: usize, torque: &RawVector, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.apply_torque(torque.0, wakeUp);
         })
     }
@@ -356,7 +356,7 @@ impl RawRigidBodySet {
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim2")]
     pub fn rbApplyTorqueImpulse(&mut self, handle: usize, torque_impulse: f32, wakeUp: bool) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.apply_torque_impulse(torque_impulse, wakeUp);
         })
     }
@@ -373,7 +373,7 @@ impl RawRigidBodySet {
         torque_impulse: &RawVector,
         wakeUp: bool,
     ) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.apply_torque_impulse(torque_impulse.0, wakeUp);
         })
     }
@@ -391,7 +391,7 @@ impl RawRigidBodySet {
         point: &RawVector,
         wakeUp: bool,
     ) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.apply_force_at_point(force.0, point.0.into(), wakeUp);
         })
     }
@@ -409,7 +409,7 @@ impl RawRigidBodySet {
         point: &RawVector,
         wakeUp: bool,
     ) {
-        self.map_mut(handle, |mut rb| {
+        self.map_mut(handle, |rb| {
             rb.apply_impulse_at_point(impulse.0, point.0.into(), wakeUp);
         })
     }

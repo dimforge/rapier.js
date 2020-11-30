@@ -1,5 +1,9 @@
 use crate::math::RawVector;
-use na::{DMatrix, DVector, Point3};
+#[cfg(feature = "dim3")]
+use na::DMatrix;
+#[cfg(feature = "dim2")]
+use na::DVector;
+use na::Point3;
 use rapier::geometry::ColliderShape;
 use rapier::math::{Point, Vector, DIM};
 use wasm_bindgen::prelude::*;

@@ -1,9 +1,7 @@
 use crate::dynamics::RawJointSet;
 use crate::geometry::RawColliderSet;
 use crate::math::{RawRotation, RawVector};
-use rapier::dynamics::{
-    BodyStatus, MassProperties, RigidBody, RigidBodyBuilder, RigidBodyMut, RigidBodySet,
-};
+use rapier::dynamics::{BodyStatus, MassProperties, RigidBody, RigidBodyBuilder, RigidBodySet};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -44,7 +42,7 @@ impl RawRigidBodySet {
         f(body)
     }
 
-    pub(crate) fn map_mut<T>(&mut self, handle: usize, f: impl FnOnce(RigidBodyMut) -> T) -> T {
+    pub(crate) fn map_mut<T>(&mut self, handle: usize, f: impl FnOnce(&mut RigidBody) -> T) -> T {
         let (body, _) = self.0.get_unknown_gen_mut(handle).expect(
             "Invalid RigidBody reference. It may have been removed from the physics World.",
         );
