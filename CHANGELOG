@@ -1,3 +1,9 @@
+### v0.2.11
+- Fix a bug where removing when immediately adding a collider would cause collisions to
+  fail with the new collider.
+- Fix a regression causing some colliders added after a few timesteps not to be properly
+  taken into account.
+
 ### v0.2.10
 - Fix a bug where removing a collider would result in a rigid-body being removed instead.
 - Fix a determinism issue when running simulation on the Apple M1 processor.
