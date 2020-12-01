@@ -1,3 +1,13 @@
+### v0.2.12
+- Add a boolean argument to `RigidBodyDesc.mass` to indicate if the mass contribution of
+  colliders should be enabled for this rigid-body or not.
+- Add a `RigidBody.lockRotations` method to lock all the rigid-body rotations resulting
+  from forces.
+- Add a `RigidBody.lockTranslations` method to lock all the rigid-body translations resulting
+  from forces.
+- Add a `RigidBody.setPrincipalAngularInertia` method to set the principal inertia of the
+  rigid-body. This gives the ability to lock individual rotation axes of one rigid-body.
+
 ### v0.2.11
 - Fix a bug where removing when immediately adding a collider would cause collisions to
   fail with the new collider.
