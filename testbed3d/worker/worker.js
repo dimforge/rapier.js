@@ -33,7 +33,8 @@ export class Worker {
                     this.backend.free();
 
                 RAPIER.then(R => {
-                    this.backend = backend(R, event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
+                    this.backend = backend(R);
+                    this.backend.restoreSnapshot(event.data.world);
                 });
                 this.stepId = 0;
                 break;

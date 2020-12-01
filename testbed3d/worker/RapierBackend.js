@@ -13,7 +13,6 @@ export class RapierBackend {
                 this.colliderMap.delete(collider);
             }
 
-            this.bodyRevMap.delete(raBody.handle);
             this.bodyMap.delete(handle);
             this.world.removeRigidBody(raBody);
         }
@@ -27,9 +26,7 @@ export class RapierBackend {
             .setLinearDamping(body.linearDamping)
             .setAngularDamping(body.angularDamping);
         let raBody = this.world.createRigidBody(bodyDesc);
-
         this.bodyMap.set(body.handle, raBody);
-        this.bodyRevMap.set(raBody.handle, body.handle);
     }
 
     addCollider(coll) {
@@ -93,7 +90,6 @@ export class RapierBackend {
         }
 
         this.colliderMap.set(coll.handle, raCollider);
-        this.colliderRevMap.set(raCollider.handle, coll.handle);
     }
 
     addJoint(joint) {
@@ -139,23 +135,11 @@ export class RapierBackend {
         this.world.createJoint(raJointParams, raBody1, raBody2);
     }
 
-    constructor(RAPIER, world, bodies, colliders, joints) {
+    constructor(RAPIER) {
         this.colliderMap = new Map();
         this.bodyMap = new Map();
-        this.colliderRevMap = new Map();
-        this.bodyRevMap = new Map();
-        let gravity = world.gravity;
-        let raWorld = new RAPIER.World(gravity);
-        this.world = raWorld;
         this.events = new RAPIER.EventQueue(true);
         this.RAPIER = RAPIER;
-
-        raWorld.maxVelocityIterations = world.maxVelocityIterations;
-        raWorld.maxPositionIterations = world.maxPositionIterations;
-
-        bodies.forEach(body => this.addRigidBody(body));
-        colliders.forEach(coll => this.addCollider(coll));
-        joints.forEach(joint => this.addJoint(joint));
     }
 
     applyModifications(modifications) {
@@ -189,7 +173,10 @@ export class RapierBackend {
         if (!!this.RAPIER && !!snapshot) {
             const oldWorld = this.world;
             this.world = this.RAPIER.World.restoreSnapshot(snapshot);
-            oldWorld.free();
+
+            if (!!oldWorld) {
+                oldWorld.free();
+            }
 
             // Restoring the snapshot creates a new physics world, so this
             // invalidates all our internal references to bodies, colliders, and joints.
@@ -197,14 +184,13 @@ export class RapierBackend {
             this.bodyMap = new Map();
 
             this.world.forEachCollider(collider => {
-                let externalHandle = this.colliderRevMap.get(collider.handle);
-                this.colliderMap.set(externalHandle, collider);
+                this.colliderMap.set(collider.handle, collider);
             });
 
             this.world.forEachRigidBody(body => {
-                let externalHandle = this.bodyRevMap.get(body.handle);
-                this.bodyMap.set(externalHandle, body);
+                this.bodyMap.set(body.handle, body);
             });
+            console.log("Restoring snapshot.");
         }
     }
 

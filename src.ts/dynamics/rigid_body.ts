@@ -483,16 +483,21 @@ export class RigidBodyDesc {
     translation: Vector;
     rotation: Rotation;
     mass: number;
+    collidersMassContributionEnabled: boolean;
     centerOfMass: Vector;
     linvel: Vector;
     // #if DIM2
     angvel: number;
     principalAngularInertia: number;
+    collidersPrincipalAngularInertiaContributionEnabled: boolean;
     // #endif
     // #if DIM3
     angvel: Vector;
     principalAngularInertia: Vector;
     angularInertiaLocalFrame: Rotation;
+    collidersPrincipalAngularInertiaContributionEnabledX: boolean;
+    collidersPrincipalAngularInertiaContributionEnabledY: boolean;
+    collidersPrincipalAngularInertiaContributionEnabledZ: boolean;
     // #endif
     linearDamping: number
     angularDamping: number
@@ -505,15 +510,20 @@ export class RigidBodyDesc {
         this.rotation = RotationOps.identity();
         this.linvel = VectorOps.zeros();
         this.mass = 0.0;
+        this.collidersMassContributionEnabled = true;
         this.centerOfMass = VectorOps.zeros();
         // #if DIM2
         this.angvel = 0.0;
         this.principalAngularInertia = 0.0;
+        this.collidersPrincipalAngularInertiaContributionEnabled = true;
         // #endif
         // #if DIM3
         this.angvel = VectorOps.zeros();
         this.principalAngularInertia = VectorOps.zeros();
         this.angularInertiaLocalFrame = RotationOps.identity();
+        this.collidersPrincipalAngularInertiaContributionEnabledX = true;
+        this.collidersPrincipalAngularInertiaContributionEnabledY = true;
+        this.collidersPrincipalAngularInertiaContributionEnabledZ = true;
         // #endif
         this.linearDamping = 0.0;
         this.angularDamping = 0.0;
@@ -543,20 +553,30 @@ export class RigidBodyDesc {
     /**
      * Sets the mass of the rigid-body being built.
      *
-     * Note that the final mass of the rigid-bodies depends
-     * on the initial mass of the rigid-body (set by this method)
-     * to which is added the contributions of all the colliders with non-zero density
-     * attached to this rigid-body.
+     * Use `this.setMass(0.0, false)` to disable translations for this
+     * collider.
      *
-     * Therefore, if you want your provided mass to be the final
-     * mass of your rigid-body, don't attach colliders to it, or
-     * only attach colliders with densities equal to zero.
+     * Note that if `collidierMassContributionEnabled` is set to `true` then
+     * the final mass of the rigid-bodies depends on the initial mass set by
+     * this method to which is added the contributions of all the colliders
+     * with non-zero density attached to this rigid-body.
      *
      * @param mass − The initial mass of the rigid-body to create.
+     * @param collidersMassContributionEnabled - If `true`, then mass contributions from colliders
+     *   with non-zero densities will be taken into account.
      */
-    public setMass(mass: number): RigidBodyDesc {
+    public setMass(mass: number, collidersMassContributionEnabled: boolean): RigidBodyDesc {
         this.mass = mass;
+        this.collidersMassContributionEnabled = collidersMassContributionEnabled;
         return this;
+    }
+
+    /**
+     * Locks all translations that would have resulted from forces on
+     * the created rigid-body.
+     */
+    public lockTranslations() {
+        return this.setMass(0.0, false);
     }
 
     /**
@@ -603,6 +623,33 @@ export class RigidBodyDesc {
         return this;
     }
 
+    /**
+     * Sets the mass properties of the rigid-body being built.
+     *
+     * Note that if `collidersAngularInertiaContributionEnabled` is `true`,
+     * then the final angular inertia of the rigid-body depends
+     * on the initial angular inertia set by this method to which is
+     * added the contributions of all the colliders with non-zero density
+     * attached to this rigid-body.
+     *
+     * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
+     * @param collidersAngularInertiaContributionEnabled - Should the inertia contribution from collider be taken
+     *    into account by the rigid-body?
+     */
+    public setPrincipalAngularInertia(principalAngularInertia: number, collidersAngularInertiaContributionEnabled: boolean) {
+        this.principalAngularInertia = principalAngularInertia;
+        this.collidersPrincipalAngularInertiaContributionEnabled = collidersAngularInertiaContributionEnabled;
+        return this;
+    }
+
+    /**
+     * Locks all rotations that would have resulted from forces on
+     * the created rigid-body.
+     */
+    public lockRotations() {
+        return this.setPrincipalAngularInertia(0.0, false);
+    }
+
     // #endif
 
     // #if DIM3
@@ -641,6 +688,41 @@ export class RigidBodyDesc {
         this.principalAngularInertia = principalAngularInertia;
         this.angularInertiaLocalFrame = angularInertiaLocalFrame;
         return this;
+    }
+
+
+    /**
+     * Sets the mass properties of the rigid-body being built.
+     *
+     * Note that if any `collidersAngularInertiaContributionEnabled*` is `true`,
+     * then the final angular inertia of the rigid-body for this axis depends
+     * on the initial angular inertia set by this method to which is
+     * added the contributions of all the colliders with non-zero density
+     * attached to this rigid-body.
+     *
+     * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
+     * @param collidersAngularInertiaContributionEnabled - Should the inertia contribution from collider be taken
+     *    into account by the rigid-body?
+     */
+    public setPrincipalAngularInertia(
+        principalAngularInertia: Vector,
+        collidersAngularInertiaContributionEnabledX: boolean,
+        collidersAngularInertiaContributionEnabledY: boolean,
+        collidersAngularInertiaContributionEnabledZ: boolean,
+    ) {
+        this.principalAngularInertia = principalAngularInertia;
+        this.collidersPrincipalAngularInertiaContributionEnabledX = collidersAngularInertiaContributionEnabledX;
+        this.collidersPrincipalAngularInertiaContributionEnabledY = collidersAngularInertiaContributionEnabledY;
+        this.collidersPrincipalAngularInertiaContributionEnabledZ = collidersAngularInertiaContributionEnabledZ;
+        return this;
+    }
+
+    /**
+     * Locks all rotations that would have resulted from forces on
+     * the created rigid-body.
+     */
+    public lockRotations() {
+        return this.setPrincipalAngularInertia(VectorOps.zeros(), false, false, false);
     }
 
     // #endif

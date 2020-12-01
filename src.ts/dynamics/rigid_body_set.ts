@@ -46,16 +46,21 @@ export class RigidBodySet {
             rawTra,
             rawRot,
             desc.mass,
+            desc.collidersMassContributionEnabled,
             rawCom,
             rawLv,
             // #if DIM2
             desc.angvel,
             desc.principalAngularInertia,
+            desc.collidersPrincipalAngularInertiaContributionEnabled,
             // #endif
             // #if DIM3
             rawAv,
             rawPrincipalInertia,
             rawInertiaFrame,
+            desc.collidersPrincipalAngularInertiaContributionEnabledX,
+            desc.collidersPrincipalAngularInertiaContributionEnabledY,
+            desc.collidersPrincipalAngularInertiaContributionEnabledZ,
             // #endif
             desc.linearDamping,
             desc.angularDamping,

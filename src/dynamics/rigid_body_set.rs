@@ -63,11 +63,15 @@ impl RawRigidBodySet {
         translation: &RawVector,
         rotation: &RawRotation,
         mass: f32,
+        colliderMassEnabled: bool,
         centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: &RawVector,
         principalAngularInertia: &RawVector,
         angularInertiaFrame: &RawRotation,
+        colliderPrincipalInertiaEnabledX: bool,
+        colliderPrincipalInertiaEnabledY: bool,
+        colliderPrincipalInertiaEnabledZ: bool,
         linearDamping: f32,
         angularDamping: f32,
         status: RawBodyStatus,
@@ -81,8 +85,16 @@ impl RawRigidBodySet {
             angularInertiaFrame.0,
         );
 
+        let ignored_collider_inertia = na::Vector3::new(
+            colliderPrincipalInertiaEnabledX,
+            colliderPrincipalInertiaEnabledY,
+            colliderPrincipalInertiaEnabledZ,
+        );
+
         let rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
+            .mass(mass, colliderMassEnabled)
+            .principal_angular_inertia(principalAngularInertia.0, ignored_collider_inertia)
             .mass_properties(props)
             .linvel(linvel.0.x, linvel.0.y, linvel.0.z)
             .angvel(angvel.0)
@@ -90,6 +102,7 @@ impl RawRigidBodySet {
             .angular_damping(angularDamping)
             .can_sleep(canSleep)
             .build();
+
         self.0.insert(rigid_body).into_raw_parts().0
     }
 
@@ -99,10 +112,12 @@ impl RawRigidBodySet {
         translation: &RawVector,
         rotation: &RawRotation,
         mass: f32,
+        colliderMassEnabled: bool,
         centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: f32,
         principalAngularInertia: f32,
+        colliderAngularInertiaEnabled: bool,
         linearDamping: f32,
         angularDamping: f32,
         status: RawBodyStatus,
@@ -112,6 +127,8 @@ impl RawRigidBodySet {
         let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
         let rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
+            .mass(mass, colliderMassEnabled)
+            .principal_angular_inertia(principalAngularInertia, colliderAngularInertiaEnabled)
             .mass_properties(props)
             .linvel(linvel.0.x, linvel.0.y)
             .angvel(angvel)

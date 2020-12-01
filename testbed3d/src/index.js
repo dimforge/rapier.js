@@ -7,6 +7,7 @@ import * as Joints from './demos/joints'
 import * as Fountain from './demos/fountain'
 import * as Damping from './demos/damping'
 import * as Heightfield from './demos/heightfield'
+import * as LockedRotations from './demos/lockedRotations'
 
 import('@dimforge/rapier3d').then(RAPIER => {
     let builders = new Map([
@@ -17,6 +18,7 @@ import('@dimforge/rapier3d').then(RAPIER => {
         ['heightfield', Heightfield.initWorld],
         ['joints', Joints.initWorld],
         ['keva tower', Keva.initWorld],
+        ['locked rotations', LockedRotations.initWorld],
         ['pyramid', Pyramid.initWorld],
     ]);
     let worker = new Worker("worker.js");

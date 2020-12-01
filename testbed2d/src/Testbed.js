@@ -115,10 +115,10 @@ export class Testbed {
     constructor(RAPIER, builders, worker) {
         let backends = [
             "rapier",
-            "matter.js",
-            "planck.js",
-            "box2d.js",
-            "box2d.wasm"
+            // "matter.js",
+            // "planck.js",
+            // "box2d.js",
+            // "box2d.wasm"
         ];
         let parameters = new SimulationParameters(backends, builders);
         this.gui = new Gui(this, parameters);
@@ -145,16 +145,18 @@ export class Testbed {
 
             let now = new Date().getTime();
             let stepMessage = this.stepMessage();
+            ;
+            let timestepTimeMS = this.world.timestep * 1000 * 0.75;
 
             /// Don't step the physics world faster than the real world.
-            if (now - this.lastMessageTime >= this.world.timestep * 1000) {
+            if (now - this.lastMessageTime >= timestepTimeMS) {
                 this.worker.postMessage(stepMessage);
                 this.lastMessageTime = now;
             } else {
                 setTimeout(() => {
                     this.worker.postMessage(stepMessage);
                     this.lastMessageTime = new Date().getTime();
-                }, now - this.lastMessageTime);
+                }, timestepTimeMS - (now - this.lastMessageTime));
             }
         };
     }
@@ -190,12 +192,11 @@ export class Testbed {
             this.graphics.addCollider(this.RAPIER, world, coll);
         });
 
-        let desc = extractWorldDescription(world, bodies, colliders, joints);
         let message = {
             type: 'setWorld',
             backend: this.parameters.backend,
             token: this.demoToken,
-            ...desc,
+            world: world.takeSnapshot()
         };
         this.worker.postMessage(message);
         this.worker.postMessage(this.stepMessage());

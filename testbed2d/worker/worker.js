@@ -13,10 +13,10 @@ export class Worker {
         this.postMessage = postMessage;
         this.backends = new Map([
             ["rapier", (R, w, b, c, j) => new RapierBackend(R, w, b, c, j)],
-            ["matter.js", (R, w, b, c, j) => new MatterBackend(R, w, b, c, j)],
-            ["planck.js", (R, w, b, c, j) => new PlanckBackend(R, w, b, c, j)],
-            ["box2d.js", (R, w, b, c, j) => new Box2DJSBackend(R, w, b, c, j)],
-            ["box2d.wasm", (R, w, b, c, j) => new Box2DWASMBackend(R, w, b, c, j)],
+            // ["matter.js", (R, w, b, c, j) => new MatterBackend(R, w, b, c, j)],
+            // ["planck.js", (R, w, b, c, j) => new PlanckBackend(R, w, b, c, j)],
+            // ["box2d.js", (R, w, b, c, j) => new Box2DJSBackend(R, w, b, c, j)],
+            // ["box2d.wasm", (R, w, b, c, j) => new Box2DWASMBackend(R, w, b, c, j)],
         ]);
     }
 
@@ -28,9 +28,9 @@ export class Worker {
                 let backend = this.backends.get(event.data.backend);
                 this.backend = null;
                 RAPIER.then(R => {
-                        this.backend = backend(R, event.data.world, event.data.bodies, event.data.colliders, event.data.joints);
-                    }
-                );
+                    this.backend = backend(R);
+                    this.backend.restoreSnapshot(event.data.world);
+                });
                 this.stepId = 0;
                 break;
             case 'step':

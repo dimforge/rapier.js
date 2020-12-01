@@ -1,6 +1,5 @@
 import {Graphics} from './Graphics'
 import {Gui} from './Gui'
-import {extractWorldDescription} from './PhysicsDescription'
 
 const PHYSX_BACKEND_NAME = "physx.release.wasm";
 
@@ -72,9 +71,9 @@ export class Testbed {
 
             let now = new Date().getTime();
             let raycastMessage = this.raycastMessage();
-
+            let timestepTimeMS = this.world.timestep * 1000 * 0.75;
             /// Don't step the physics world faster than the real world.
-            if (now - this.lastMessageTime >= this.world.timestep * 1000) {
+            if (now - this.lastMessageTime >= timestepTimeMS) {
                 if (!!this.preTimestepAction && this.parameters.running) {
                     modifications = this.preTimestepAction();
                 }
@@ -95,7 +94,7 @@ export class Testbed {
                     this.worker.postMessage(raycastMessage);
                     this.worker.postMessage(stepMessage);
                     this.lastMessageTime = new Date().getTime();
-                }, now - this.lastMessageTime);
+                }, timestepTimeMS - (now - this.lastMessageTime));
             }
         };
 
@@ -149,12 +148,11 @@ export class Testbed {
             this.graphics.addCollider(this.RAPIER, world, coll);
         });
 
-        let desc = extractWorldDescription(world, bodies, colliders, joints);
         let message = {
             type: 'setWorld',
             backend: this.parameters.backend,
             token: this.demoToken,
-            ...desc,
+            world: world.takeSnapshot(),
         };
         this.worker.postMessage(message);
         this.worker.postMessage(this.stepMessage());
