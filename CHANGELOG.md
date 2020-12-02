@@ -1,5 +1,9 @@
+### v0.2.13
+- Fix a bug where `RigidBodyDesc.setMass(m)` with `m != 0.0` would cause the rotations of
+  the created rigid-body to be locked.
+
 ### v0.2.12
-- Add a boolean argument to `RigidBodyDesc.mass` to indicate if the mass contribution of
+- Add a boolean argument to `RigidBodyDesc.setMass` to indicate if the mass contribution of
   colliders should be enabled for this rigid-body or not.
 - Add a `RigidBody.lockRotations` method to lock all the rigid-body rotations resulting
   from forces.
