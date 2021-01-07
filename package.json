@@ -1,0 +1,24 @@
+{
+  "name": "build-rapier",
+  "description": "Build scripts for compatibility package with inlined webassembly as base64.",
+  "private": true,
+  "scripts": {
+    "build-rust-2d": "cd rapier2d ; wasm-pack build --target web",
+    "build-rust-3d": "cd rapier3d ; wasm-pack build --target web",
+    "build-rust": "npm run build-rust-2d && npm run build-rust-3d",
+    "build": "npm run clean && npm run build-rust && webpack",
+    "clean": "rimraf rapier2d/pkg rapier3d/pkg rapier2d/compat rapier3d/compat rapier2d/docs rapier3d/docs",
+    "all": "npm run build"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^7.0.0",
+    "create-file-webpack": "^1.0.2",
+    "file-loader": "^6.2.0",
+    "rimraf": "^3.0.2",
+    "ts-loader": "^8.0.12",
+    "typescript": "^4.1.3",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.3.0"
+  }
+}
