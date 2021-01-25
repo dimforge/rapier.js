@@ -62,16 +62,17 @@ impl RawRigidBodySet {
         &mut self,
         translation: &RawVector,
         rotation: &RawRotation,
+        gravityScale: f32,
         mass: f32,
-        colliderMassEnabled: bool,
+        translationsEnabled: bool,
         centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: &RawVector,
         principalAngularInertia: &RawVector,
         angularInertiaFrame: &RawRotation,
-        colliderPrincipalInertiaEnabledX: bool,
-        colliderPrincipalInertiaEnabledY: bool,
-        colliderPrincipalInertiaEnabledZ: bool,
+        rotationEnabledX: bool,
+        rotationEnabledY: bool,
+        rotationEnabledZ: bool,
         linearDamping: f32,
         angularDamping: f32,
         status: RawBodyStatus,
@@ -85,25 +86,23 @@ impl RawRigidBodySet {
             angularInertiaFrame.0,
         );
 
-        let ignored_collider_inertia = na::Vector3::new(
-            colliderPrincipalInertiaEnabledX,
-            colliderPrincipalInertiaEnabledY,
-            colliderPrincipalInertiaEnabledZ,
-        );
-
-        let rigid_body = RigidBodyBuilder::new(status.into())
+        let mut rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
-            .mass(mass, colliderMassEnabled)
-            .principal_angular_inertia(principalAngularInertia.0, ignored_collider_inertia)
+            .gravity_scale(gravityScale)
+            .mass(mass)
+            .principal_angular_inertia(principalAngularInertia.0)
+            .restrict_rotations(rotationEnabledX, rotationEnabledY, rotationEnabledZ)
             .mass_properties(props)
             .linvel(linvel.0.x, linvel.0.y, linvel.0.z)
             .angvel(angvel.0)
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
-            .can_sleep(canSleep)
-            .build();
+            .can_sleep(canSleep);
+        if !translationsEnabled {
+            rigid_body = rigid_body.lock_translations();
+        }
 
-        self.0.insert(rigid_body).into_raw_parts().0
+        self.0.insert(rigid_body.build()).into_raw_parts().0
     }
 
     #[cfg(feature = "dim2")]
@@ -111,13 +110,14 @@ impl RawRigidBodySet {
         &mut self,
         translation: &RawVector,
         rotation: &RawRotation,
+        gravityScale: f32,
         mass: f32,
-        colliderMassEnabled: bool,
+        transationsEnabled: bool,
         centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: f32,
         principalAngularInertia: f32,
-        colliderAngularInertiaEnabled: bool,
+        rotationsEnabled: bool,
         linearDamping: f32,
         angularDamping: f32,
         status: RawBodyStatus,
@@ -125,18 +125,24 @@ impl RawRigidBodySet {
     ) -> usize {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
-        let rigid_body = RigidBodyBuilder::new(status.into())
+        let mut rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
-            .mass(mass, colliderMassEnabled)
-            .principal_angular_inertia(principalAngularInertia, colliderAngularInertiaEnabled)
+            .gravity_scale(gravityScale)
+            .mass(mass)
+            .principal_angular_inertia(principalAngularInertia)
             .mass_properties(props)
             .linvel(linvel.0.x, linvel.0.y)
             .angvel(angvel)
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
-            .can_sleep(canSleep)
-            .build();
-        self.0.insert(rigid_body).into_raw_parts().0
+            .can_sleep(canSleep);
+        if !transationsEnabled {
+            rigid_body = rigid_body.lock_translations();
+        }
+        if !rotationsEnabled {
+            rigid_body = rigid_body.lock_rotations();
+        }
+        self.0.insert(rigid_body.build()).into_raw_parts().0
     }
 
     pub fn remove(

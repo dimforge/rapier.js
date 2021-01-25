@@ -3,25 +3,6 @@ import {RigidBodyHandle} from '../dynamics'
 import {ColliderHandle} from '../geometry'
 
 /**
- * An enumeration representing the various state of proximity between
- * two colliders.
- */
-export enum Proximity {
-    /**
-     * The sensor is intersecting the other collider.
-     */
-    Intersecting = 0,
-    /**
-     * The sensor is within tolerance margin of the other collider.
-     */
-    WithinMargin = 1,
-    /**
-     * The sensor is disjoint from the other collider.
-     */
-    Disjoint = 2,
-}
-
-/**
  * A structure responsible for collecting events generated
  * by the physics engine.
  *
@@ -65,16 +46,16 @@ export class EventQueue {
     }
 
     /**
-     * Applies the given javascript closure on each proximity event of this collector, then clear
-     * the internal proximity event buffer.
+     * Applies the given javascript closure on each intersection event of this collector, then clear
+     * the internal intersection event buffer.
      *
-     * @param f - JavaScript closure applied to each proximity event. The
+     * @param f - JavaScript closure applied to each intersection event. The
      * closure should take four arguments: two integers representing the handles of the colliders
-     * involved in the proximity, and two `Proximity` enums representing the previous proximity
-     * status and the new proximity status.
+     * involved in the intersection, and a boolean indicating if they started intersecting (true) or
+     * stopped intersecting (false).
      */
-    public drainProximityEvents(f: (handle1: ColliderHandle, handle2: ColliderHandle, prevProx: Proximity, newProx: Proximity) => void) {
-        this.raw.drainProximityEvents(f)
+    public drainIntersectionEvents(f: (handle1: ColliderHandle, handle2: ColliderHandle, intersecting: boolean) => void) {
+        this.raw.drainIntersectionEvents(f)
     }
 
     /**

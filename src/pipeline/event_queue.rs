@@ -1,5 +1,5 @@
 use rapier::crossbeam::channel::Receiver;
-use rapier::geometry::{ContactEvent, ProximityEvent};
+use rapier::geometry::{ContactEvent, IntersectionEvent};
 use rapier::pipeline::ChannelEventCollector;
 use wasm_bindgen::prelude::*;
 
@@ -9,13 +9,13 @@ use wasm_bindgen::prelude::*;
 pub struct RawEventQueue {
     pub(crate) collector: ChannelEventCollector,
     contact_events: Receiver<ContactEvent>,
-    proximity_events: Receiver<ProximityEvent>,
+    proximity_events: Receiver<IntersectionEvent>,
     pub(crate) auto_drain: bool,
 }
 
 // #[wasm_bindgen]
 // /// The proximity state of a sensor collider and another collider.
-// pub enum RawProximity {
+// pub enum RawIntersection {
 //     /// The sensor is intersecting the other collider.
 //     Intersecting = 0,
 //     /// The sensor is within tolerance margin of the other collider.
@@ -89,23 +89,17 @@ impl RawEventQueue {
     /// # Parameters
     /// - `f(handle1, handle2, prev_prox, new_prox)`:  JavaScript closure applied to each proximity event. The
     /// closure should take four arguments: two integers representing the handles of the colliders
-    /// involved in the proximity, and two `RAPIER.Proximity` enums representing the previous proximity
-    /// status and the new proximity status.
-    pub fn drainProximityEvents(&mut self, f: &js_sys::Function) {
+    /// involved in the proximity, and one boolean representing the intersection status.
+    pub fn drainIntersectionEvents(&mut self, f: &js_sys::Function) {
         let this = JsValue::null();
         while let Ok(event) = self.proximity_events.try_recv() {
             let h1 = event.collider1.into_raw_parts().0 as u32;
             let h2 = event.collider2.into_raw_parts().0 as u32;
-            let prev_status = event.prev_status as u32;
-            let new_status = event.new_status as u32;
+            let intersecting = event.intersecting;
 
             let _ = f
                 .bind2(&this, &JsValue::from(h1), &JsValue::from(h2))
-                .call2(
-                    &this,
-                    &JsValue::from(prev_status),
-                    &JsValue::from(new_status),
-                );
+                .call1(&this, &JsValue::from(intersecting));
         }
     }
 

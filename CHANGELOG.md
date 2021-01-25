@@ -1,3 +1,73 @@
+### v0.3.0
+#### Added
+- Added a `RAPIER.version()` function at the root of the package to retrieve the version of Rapier
+  as a string.
+
+Several geometric queries have been added (the same methods have been added to the
+`QueryPipeline` too):
+- `World.intersectionsWithRay`: get all colliders intersecting a ray.
+- `World.intersectionWithShape`: get one collider intersecting a shape.
+- `World.projectPoint`: get the projection of a point on the closest collider.
+- `World.intersectionsWithPoint`: get all the colliders containing a point.
+- `World.castShape`: get the first collider intersecting a shape moving linearly
+  (aka. sweep test).
+- `World.intersectionsWithShape`: get all the colliders intersecting a shape.
+
+Several new shape types are now supported:
+- `RoundCuboid`, `Segment`, `Triangle`, `RoundTriangle`, `ConvexPolygon` (2D only),
+  `RoundConvexPolygon` (2D only), `ConvexPolyhedron` (3D only), `RoundConvexPolyhedron` (3D only),
+  `RoundCone` (3D only).
+
+It is possible to build `ColliderDesc` using these new shapes:
+- `ColliderDesc.roundCuboid`, `ColliderDesc.segment`, `ColliderDesc.triangle`, `ColliderDesc.roundTriangle`,
+  `ColliderDesc.convexHull`, `ColliderDesc.roundConvexHull`,
+  `ColliderDesc.convexPolyline` (2D only), `ColliderDesc.roundConvexPolyline` (2D only),
+  `ColliderDesc.convexMesh` (3D only),`ColliderDesc.roundConvexMesh` (3D only), `ColliderDesc.roundCone` (3D only).
+
+It is possible to specify different rules for combining friction and restitution coefficients
+of the two colliders involved in a contact with:
+- `ColliderDesc.frictionCombineRule`, and `ColliderDesc.restitutionCombineRule`.
+
+Various RigidBody-related getter and setters have been added:
+- `RigidBodyDesc.setGravityScale`, `RigidBody.gravityScale`, `RigidBody.setGravityScale` to get/set the scale
+  factor applied to the gravity affecting a rigid-body. Setting this to 0.0 will make the rigid-body ignore gravity.
+- `RigidBody.setLinearDamping` and `RigidBody.setAngularDamping` to set the linear and angular damping of
+  the rigid-body.
+- `RigidBodyDesc.restrictRotations` to prevent rotations along specific coordinate axes. This replaces the three
+  boolean arguments previously passed to `.setPrincipalAngularInertia`.
+
+#### Breaking changes
+Breaking changes related to rigid-bodies:
+- The `RigidBodyDesc.setTranslation` and `RigidBodyDesc.setLinvel` methods now take the components of the
+  translation directly as arguments instead of a single `Vector`.
+- The `RigidBodyDesc.setMass` takes only one argument now. Use `RigidBodyDesc.lockTranslations` to lock the translational
+  motion of the rigid-body.
+- The `RigidBodyDesc.setPrincipalAngularInertia` no longer have boolean parameters to lock rotations.
+  Use `RigidBodyDesc.lockRotations` or `RigidBodyDesc.restrictRotations` to lock the rotational motion of the rigid-body.
+
+Breaking changes related to colliders:
+- The `ColliderDesc.setTranslation` method now take the components of the
+  translation directly as arguments instead of a single `Vector`.
+- The `roundRadius` fields have been renamed `borderRadius`.
+- The `RawShapeType.Polygon` no longer exists. For a 2D convex polygon, use `RawShapeType.ConvexPolygon`
+  instead.
+- All occurrences of `Trimesh` have been replaced by `TriMesh` (note the change in case).
+
+Breaking changes related to events:
+- Rename all occurrences of `Proximity` to `Intersection`.
+- The `Proximity` enum has been removed.
+- The `drainIntersectionEvents` (previously called `drainProximityEvent`) will now
+  call a callback with arguments `(number, number, boolean)`: two collider handles, and
+  a boolean indicating if they are intersecting.
+
+Breaking changes related to scene queries:
+- The `QueryPipeline.castRay` method now takes two additional parameters: a boolean indicating
+  if the ray should not propagate if it starts inside of a shape, and a bit mask indicating
+  the group the ray is part of and these it interacts with.
+- The `World.castRay` and `QueryPipeline.castRay` now return a struct of type `RayColliderToi`
+  which no longer contains the normal at the hit point. Use the new methods `World.castRayAndGetNormal`
+  or `QueryPipeline.castRayAndGetNormal` in order to retrieve the normal too.
+
 ### v0.2.13
 - Fix a bug where `RigidBodyDesc.setMass(m)` with `m != 0.0` would cause the rotations of
   the created rigid-body to be locked.

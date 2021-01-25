@@ -3,8 +3,7 @@ use crate::math::RawVector;
 use na::DMatrix;
 #[cfg(feature = "dim2")]
 use na::DVector;
-use na::Point3;
-use rapier::geometry::ColliderShape;
+use rapier::geometry::SharedShape;
 use rapier::math::{Point, Vector, DIM};
 use wasm_bindgen::prelude::*;
 
@@ -12,84 +11,176 @@ use wasm_bindgen::prelude::*;
 #[cfg(feature = "dim2")]
 pub enum RawShapeType {
     Ball = 0,
-    Polygon = 1,
-    Cuboid = 2,
-    Capsule = 3,
-    Segment = 4,
-    Triangle = 5,
-    Trimesh = 6,
-    HeightField = 7,
+    Cuboid = 1,
+    Capsule = 2,
+    Segment = 3,
+    Triangle = 4,
+    TriMesh = 5,
+    HeightField = 6,
+    Compound = 7,
+    ConvexPolygon = 8,
+    RoundCuboid = 9,
+    RoundTriangle = 10,
+    RoundConvexPolygon = 11,
 }
 
 #[wasm_bindgen]
 #[cfg(feature = "dim3")]
 pub enum RawShapeType {
     Ball = 0,
-    Polygon = 1,
-    Cuboid = 2,
-    Capsule = 3,
-    Segment = 4,
-    Triangle = 5,
-    Trimesh = 6,
-    HeightField = 7,
-    Cylinder = 8,
-    RoundCylinder = 9,
+    Cuboid = 1,
+    Capsule = 2,
+    Segment = 3,
+    Triangle = 4,
+    TriMesh = 5,
+    HeightField = 6,
+    Compound = 7,
+    ConvexPolyhedron = 8,
+    Cylinder = 9,
     Cone = 10,
+    RoundCuboid = 11,
+    RoundTriangle = 12,
+    RoundCylinder = 13,
+    RoundCone = 14,
+    RoundConvexPolyhedron = 15,
 }
 
 #[wasm_bindgen]
-pub struct RawShape(pub(crate) ColliderShape);
+pub struct RawShape(pub(crate) SharedShape);
 
 #[wasm_bindgen]
 impl RawShape {
-    pub fn cuboid(half_extents: &RawVector) -> Self {
-        Self(ColliderShape::cuboid(half_extents.0))
+    #[cfg(feature = "dim2")]
+    pub fn cuboid(hx: f32, hy: f32) -> Self {
+        Self(SharedShape::cuboid(hx, hy))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn cuboid(hx: f32, hy: f32, hz: f32) -> Self {
+        Self(SharedShape::cuboid(hx, hy, hz))
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn roundCuboid(hx: f32, hy: f32, borderRadius: f32) -> Self {
+        Self(SharedShape::round_cuboid(hx, hy, borderRadius))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn roundCuboid(hx: f32, hy: f32, hz: f32, borderRadius: f32) -> Self {
+        Self(SharedShape::round_cuboid(hx, hy, hz, borderRadius))
     }
 
     pub fn ball(radius: f32) -> Self {
-        Self(ColliderShape::ball(radius))
+        Self(SharedShape::ball(radius))
     }
 
-    pub fn capsule(half_height: f32, radius: f32) -> Self {
-        let p2 = Point::from(Vector::y() * half_height);
+    pub fn capsule(halfHeight: f32, radius: f32) -> Self {
+        let p2 = Point::from(Vector::y() * halfHeight);
         let p1 = -p2;
-        Self(ColliderShape::capsule(p1, p2, radius))
+        Self(SharedShape::capsule(p1, p2, radius))
     }
 
     #[cfg(feature = "dim3")]
-    pub fn cylinder(half_height: f32, radius: f32) -> Self {
-        Self(ColliderShape::cylinder(half_height, radius))
+    pub fn cylinder(halfHeight: f32, radius: f32) -> Self {
+        Self(SharedShape::cylinder(halfHeight, radius))
     }
 
     #[cfg(feature = "dim3")]
-    pub fn roundCylinder(half_height: f32, radius: f32, round_radius: f32) -> Self {
-        Self(ColliderShape::round_cylinder(
-            half_height,
+    pub fn roundCylinder(halfHeight: f32, radius: f32, borderRadius: f32) -> Self {
+        Self(SharedShape::round_cylinder(
+            halfHeight,
             radius,
-            round_radius,
+            borderRadius,
         ))
     }
 
     #[cfg(feature = "dim3")]
-    pub fn cone(half_height: f32, radius: f32) -> Self {
-        Self(ColliderShape::cone(half_height, radius))
+    pub fn cone(halfHeight: f32, radius: f32) -> Self {
+        Self(SharedShape::cone(halfHeight, radius))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn roundCone(halfHeight: f32, radius: f32, borderRadius: f32) -> Self {
+        Self(SharedShape::round_cone(halfHeight, radius, borderRadius))
     }
 
     pub fn trimesh(vertices: Vec<f32>, indices: Vec<u32>) -> Self {
         let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
-        let indices = indices.chunks(3).map(|v| Point3::from_slice(v)).collect();
-        Self(ColliderShape::trimesh(vertices, indices))
+        let indices = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
+        Self(SharedShape::trimesh(vertices, indices))
     }
 
     #[cfg(feature = "dim2")]
     pub fn heightfield(heights: Vec<f32>, scale: &RawVector) -> Self {
         let heights = DVector::from_vec(heights);
-        Self(ColliderShape::heightfield(heights, scale.0))
+        Self(SharedShape::heightfield(heights, scale.0))
     }
 
     #[cfg(feature = "dim3")]
     pub fn heightfield(nrows: u32, ncols: u32, heights: Vec<f32>, scale: &RawVector) -> Self {
         let heights = DMatrix::from_vec(nrows as usize + 1, ncols as usize + 1, heights);
-        Self(ColliderShape::heightfield(heights, scale.0))
+        Self(SharedShape::heightfield(heights, scale.0))
+    }
+
+    pub fn segment(p1: &RawVector, p2: &RawVector) -> Self {
+        Self(SharedShape::segment(p1.0.into(), p2.0.into()))
+    }
+
+    pub fn triangle(p1: &RawVector, p2: &RawVector, p3: &RawVector) -> Self {
+        Self(SharedShape::triangle(p1.0.into(), p2.0.into(), p3.0.into()))
+    }
+
+    pub fn roundTriangle(
+        p1: &RawVector,
+        p2: &RawVector,
+        p3: &RawVector,
+        borderRadius: f32,
+    ) -> Self {
+        Self(SharedShape::round_triangle(
+            p1.0.into(),
+            p2.0.into(),
+            p3.0.into(),
+            borderRadius,
+        ))
+    }
+
+    pub fn convexHull(points: Vec<f32>) -> Option<RawShape> {
+        let points: Vec<_> = points.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        SharedShape::convex_hull(&points).map(|s| Self(s))
+    }
+
+    pub fn roundConvexHull(points: Vec<f32>, borderRadius: f32) -> Option<RawShape> {
+        let points: Vec<_> = points.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        SharedShape::round_convex_hull(&points, borderRadius).map(|s| Self(s))
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn convexPolyline(vertices: Vec<f32>) -> Option<RawShape> {
+        let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        SharedShape::convex_polyline(vertices).map(|s| Self(s))
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn roundConvexPolyline(vertices: Vec<f32>, borderRadius: f32) -> Option<RawShape> {
+        let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        SharedShape::round_convex_polyline(vertices, borderRadius).map(|s| Self(s))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn convexMesh(vertices: Vec<f32>, indices: Vec<u32>) -> Option<RawShape> {
+        let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
+        SharedShape::convex_mesh(vertices, &indices).map(|s| Self(s))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn roundConvexMesh(
+        vertices: Vec<f32>,
+        indices: Vec<u32>,
+        borderRadius: f32,
+    ) -> Option<RawShape> {
+        let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
+        SharedShape::round_convex_mesh(vertices, &indices, borderRadius).map(|s| Self(s))
     }
 }

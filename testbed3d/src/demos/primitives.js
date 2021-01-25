@@ -1,7 +1,7 @@
 import {PhysicsModifications} from "../PhysicsModifications"
 import seedrandom from 'seedrandom'
 
-function generateTrimesh(nsubdivs, wx, wy, wz) {
+function generateTriMesh(nsubdivs, wx, wy, wz) {
     let vertices = [];
     let indices = [];
 
@@ -46,7 +46,7 @@ export function initWorld(RAPIER, testbed) {
     // Create Ground.
     let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
     let body = world.createRigidBody(bodyDesc);
-    let trimesh = generateTrimesh(20, 70.0, 4.0, 70.0)
+    let trimesh = generateTriMesh(20, 70.0, 4.0, 70.0)
     let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
     let collider = world.createCollider(colliderDesc, body.handle);
     bodies.push(body);

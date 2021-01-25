@@ -1,6 +1,7 @@
 use crate::dynamics::RawRigidBodySet;
 use crate::geometry::RawShape;
 use crate::math::{RawRotation, RawVector};
+use rapier::dynamics::CoefficientCombineRule;
 use rapier::geometry::{Collider, ColliderBuilder, ColliderSet, InteractionGroups};
 use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
@@ -41,6 +42,8 @@ impl RawColliderSet {
         density: Option<f32>,
         friction: f32,
         restitution: f32,
+        frictionCombineRule: u32,
+        restitutionCombineRule: u32,
         isSensor: bool,
         collisionGroups: u32,
         solverGroups: u32,
@@ -56,6 +59,26 @@ impl RawColliderSet {
                 .collision_groups(InteractionGroups(collisionGroups))
                 .solver_groups(InteractionGroups(solverGroups))
                 .sensor(isSensor);
+
+            if frictionCombineRule == CoefficientCombineRule::Average as u32 {
+                builder = builder.friction_combine_rule(CoefficientCombineRule::Average)
+            } else if frictionCombineRule == CoefficientCombineRule::Min as u32 {
+                builder = builder.friction_combine_rule(CoefficientCombineRule::Min)
+            } else if frictionCombineRule == CoefficientCombineRule::Multiply as u32 {
+                builder = builder.friction_combine_rule(CoefficientCombineRule::Multiply)
+            } else {
+                builder = builder.friction_combine_rule(CoefficientCombineRule::Max)
+            }
+
+            if restitutionCombineRule == CoefficientCombineRule::Average as u32 {
+                builder = builder.restitution_combine_rule(CoefficientCombineRule::Average)
+            } else if restitutionCombineRule == CoefficientCombineRule::Min as u32 {
+                builder = builder.restitution_combine_rule(CoefficientCombineRule::Min)
+            } else if restitutionCombineRule == CoefficientCombineRule::Multiply as u32 {
+                builder = builder.restitution_combine_rule(CoefficientCombineRule::Multiply)
+            } else {
+                builder = builder.restitution_combine_rule(CoefficientCombineRule::Max)
+            }
 
             if let Some(density) = density {
                 builder = builder.density(density);

@@ -24,11 +24,10 @@ impl RawColliderSet {
     pub fn coShapeType(&self, handle: usize) -> RawShapeType {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::Ball => RawShapeType::Ball,
-            ShapeType::Polygon => RawShapeType::Polygon,
             ShapeType::Cuboid => RawShapeType::Cuboid,
             ShapeType::Capsule => RawShapeType::Capsule,
             ShapeType::Triangle => RawShapeType::Triangle,
-            ShapeType::Trimesh => RawShapeType::Trimesh,
+            ShapeType::TriMesh => RawShapeType::TriMesh,
             ShapeType::HeightField => RawShapeType::HeightField,
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => RawShapeType::Cylinder,
@@ -37,6 +36,7 @@ impl RawColliderSet {
             #[cfg(feature = "dim3")]
             ShapeType::Cone => RawShapeType::Cone,
             ShapeType::Segment => RawShapeType::Segment,
+            _ => panic!("Not yet supported"),
         })
     }
 
@@ -55,7 +55,7 @@ impl RawColliderSet {
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => co.shape().as_cylinder().map(|b| b.radius),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCylinder => co.shape().as_round_cylinder().map(|b| b.cylinder.radius),
+            ShapeType::RoundCylinder => co.shape().as_round_cylinder().map(|b| b.base_shape.radius),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.radius),
             _ => None,
@@ -72,7 +72,7 @@ impl RawColliderSet {
             ShapeType::RoundCylinder => co
                 .shape()
                 .as_round_cylinder()
-                .map(|b| b.cylinder.half_height),
+                .map(|b| b.base_shape.half_height),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.half_height),
             _ => None,
@@ -89,9 +89,9 @@ impl RawColliderSet {
     }
 
     /// The vertices of this triangle mesh if it is one.
-    pub fn coTrimeshVertices(&self, handle: usize) -> Option<Vec<f32>> {
+    pub fn coTriMeshVertices(&self, handle: usize) -> Option<Vec<f32>> {
         self.map(handle, |co| match co.shape().shape_type() {
-            ShapeType::Trimesh => co.shape().as_trimesh().map(|t| {
+            ShapeType::TriMesh => co.shape().as_trimesh().map(|t| {
                 t.vertices()
                     .iter()
                     .flat_map(|p| p.iter())
@@ -103,9 +103,9 @@ impl RawColliderSet {
     }
 
     /// The indices of this triangle mesh if it is one.
-    pub fn coTrimeshIndices(&self, handle: usize) -> Option<Vec<u32>> {
+    pub fn coTriMeshIndices(&self, handle: usize) -> Option<Vec<u32>> {
         self.map(handle, |co| match co.shape().shape_type() {
-            ShapeType::Trimesh => co
+            ShapeType::TriMesh => co
                 .shape()
                 .as_trimesh()
                 .map(|t| t.indices().iter().flat_map(|p| p.iter()).copied().collect()),

@@ -1,7 +1,11 @@
 use crate::dynamics::RawRigidBodySet;
-use crate::geometry::{RawColliderSet, RawRayColliderIntersection};
-use crate::math::RawVector;
-use rapier::geometry::{InteractionGroups, Ray};
+use crate::geometry::{
+    RawColliderSet, RawPointColliderProjection, RawRayColliderIntersection, RawRayColliderToi,
+    RawShape, RawShapeColliderTOI,
+};
+use crate::math::{RawRotation, RawVector};
+use rapier::geometry::{ColliderHandle, InteractionGroups, Ray};
+use rapier::math::Isometry;
 use rapier::pipeline::QueryPipeline;
 use wasm_bindgen::prelude::*;
 
@@ -25,11 +29,181 @@ impl RawQueryPipeline {
         rayOrig: &RawVector,
         rayDir: &RawVector,
         maxToi: f32,
+        solid: bool,
+        groups: u32,
+    ) -> Option<RawRayColliderToi> {
+        let ray = Ray::new(rayOrig.0.into(), rayDir.0);
+        let (handle, toi) =
+            self.0
+                .cast_ray(&colliders.0, &ray, maxToi, solid, InteractionGroups(groups))?;
+        Some(RawRayColliderToi { handle, toi })
+    }
+
+    pub fn castRayAndGetNormal(
+        &self,
+        colliders: &RawColliderSet,
+        rayOrig: &RawVector,
+        rayDir: &RawVector,
+        maxToi: f32,
+        solid: bool,
+        groups: u32,
     ) -> Option<RawRayColliderIntersection> {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
-        let (handle, _, inter) =
-            self.0
-                .cast_ray(&colliders.0, &ray, maxToi, InteractionGroups::all())?;
+        let (handle, inter) = self.0.cast_ray_and_get_normal(
+            &colliders.0,
+            &ray,
+            maxToi,
+            solid,
+            InteractionGroups(groups),
+        )?;
         Some(RawRayColliderIntersection { handle, inter })
+    }
+
+    // The callback is of type (RawRayColliderIntersection) => bool
+    pub fn intersectionsWithRay(
+        &self,
+        colliders: &RawColliderSet,
+        rayOrig: &RawVector,
+        rayDir: &RawVector,
+        maxToi: f32,
+        solid: bool,
+        groups: u32,
+        callback: &js_sys::Function,
+    ) {
+        let ray = Ray::new(rayOrig.0.into(), rayDir.0);
+        let this = JsValue::null();
+        let rcallback = |handle, _, inter| {
+            let result = RawRayColliderIntersection { handle, inter };
+            match callback.call1(&this, &JsValue::from(result)) {
+                Err(_) => true,
+                Ok(val) => val.as_bool().unwrap_or(true),
+            }
+        };
+
+        self.0.intersections_with_ray(
+            &colliders.0,
+            &ray,
+            maxToi,
+            solid,
+            InteractionGroups(groups),
+            rcallback,
+        )
+    }
+
+    pub fn intersectionWithShape(
+        &self,
+        colliders: &RawColliderSet,
+        shapePos: &RawVector,
+        shapeRot: &RawRotation,
+        shape: &RawShape,
+        groups: u32,
+    ) -> Option<usize> {
+        let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
+        self.0
+            .intersection_with_shape(&colliders.0, &pos, &*shape.0, InteractionGroups(groups))
+            .map(|h| h.into_raw_parts().0)
+    }
+
+    pub fn projectPoint(
+        &self,
+        colliders: &RawColliderSet,
+        point: &RawVector,
+        solid: bool,
+        groups: u32,
+    ) -> Option<RawPointColliderProjection> {
+        self.0
+            .project_point(
+                &colliders.0,
+                &point.0.into(),
+                solid,
+                InteractionGroups(groups),
+            )
+            .map(|(handle, proj)| RawPointColliderProjection { handle, proj })
+    }
+
+    // The callback is of type (u32) => bool
+    pub fn intersectionsWithPoint(
+        &self,
+        colliders: &RawColliderSet,
+        point: &RawVector,
+        groups: u32,
+        callback: &js_sys::Function,
+    ) {
+        let this = JsValue::null();
+        let rcallback = |handle: ColliderHandle, _| match callback
+            .call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32))
+        {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
+        };
+
+        self.0.intersections_with_point(
+            &colliders.0,
+            &point.0.into(),
+            InteractionGroups(groups),
+            rcallback,
+        )
+    }
+
+    // /// Projects a point on the scene and get
+    // pub fn projectPointAndGetFeature(
+    //     &self,
+    //     colliders: &ColliderSet,
+    //     point: &Point<Real>,
+    //     groups: InteractionGroups,
+    // ) -> Option<(ColliderHandle, PointProjection, FeatureId)> {
+    // }
+
+    pub fn castShape(
+        &self,
+        colliders: &RawColliderSet,
+        shapePos: &RawVector,
+        shapeRot: &RawRotation,
+        shapeVel: &RawVector,
+        shape: &RawShape,
+        maxToi: f32,
+        targetDistance: f32,
+        groups: u32,
+    ) -> Option<RawShapeColliderTOI> {
+        let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
+        self.0
+            .cast_shape(
+                &colliders.0,
+                &pos,
+                &shapeVel.0,
+                &*shape.0,
+                maxToi,
+                targetDistance,
+                InteractionGroups(groups),
+            )
+            .map(|(handle, toi)| RawShapeColliderTOI { handle, toi })
+    }
+
+    // The callback has type (u32) => boolean
+    pub fn intersectionsWithShape(
+        &self,
+        colliders: &RawColliderSet,
+        shapePos: &RawVector,
+        shapeRot: &RawRotation,
+        shape: &RawShape,
+        groups: u32,
+        callback: &js_sys::Function,
+    ) {
+        let this = JsValue::null();
+        let rcallback = |handle: ColliderHandle, _| match callback
+            .call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32))
+        {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
+        };
+
+        let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
+        self.0.intersections_with_shape(
+            &colliders.0,
+            &pos,
+            &*shape.0,
+            InteractionGroups(groups),
+            rcallback,
+        )
     }
 }

@@ -303,6 +303,22 @@ impl RawRigidBodySet {
         self.map(handle, |rb| rb.angular_damping)
     }
 
+    pub fn rbSetLinearDamping(&mut self, handle: usize, factor: f32) {
+        self.map_mut(handle, |rb| rb.linear_damping = factor);
+    }
+
+    pub fn rbSetAngularDamping(&mut self, handle: usize, factor: f32) {
+        self.map_mut(handle, |rb| rb.angular_damping = factor);
+    }
+
+    pub fn rbGravityScale(&self, handle: usize) -> f32 {
+        self.map(handle, |rb| rb.gravity_scale())
+    }
+
+    pub fn rbSetGravityScale(&mut self, handle: usize, factor: f32, wakeUp: bool) {
+        self.map_mut(handle, |rb| rb.set_gravity_scale(factor, wakeUp));
+    }
+
     /// Applies a force at the center-of-mass of this rigid-body.
     ///
     /// # Parameters

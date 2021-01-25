@@ -47,6 +47,8 @@ export class ColliderSet {
             desc.density,
             desc.friction,
             desc.restitution,
+            desc.frictionCombineRule,
+            desc.restitutionCombineRule,
             desc.isSensor,
             desc.collisionGroups,
             desc.solverGroups,

@@ -294,13 +294,13 @@ export class Graphics {
                 instanceDesc.groupId = CONE_INSTANCE_INDEX;
                 instanceDesc.scale = new THREE.Vector3(cone_rad, cone_height, cone_rad);
                 break;
-            case RAPIER.ShapeType.Trimesh:
+            case RAPIER.ShapeType.TriMesh:
             case RAPIER.ShapeType.HeightField:
                 let geometry = new THREE.BufferGeometry();
                 let vertices;
                 let indices;
 
-                if (collider.shapeType() == RAPIER.ShapeType.Trimesh) {
+                if (collider.shapeType() == RAPIER.ShapeType.TriMesh) {
                     vertices = collider.trimeshVertices();
                     indices = collider.trimeshIndices();
                 } else {
