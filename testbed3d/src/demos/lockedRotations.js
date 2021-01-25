@@ -11,7 +11,7 @@ export function initWorld(RAPIER, testbed) {
     let ground_height = 0.1;
 
     let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
-        .setTranslation(new RAPIER.Vector3(0.0, -ground_height, 0.0));
+        .setTranslation(0.0, -ground_height, 0.0);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(ground_size, ground_height, ground_size);
     let collider = world.createCollider(colliderDesc, body.handle);
@@ -22,9 +22,10 @@ export function initWorld(RAPIER, testbed) {
      * A rectangle that only rotates along the `x` axis.
      */
     bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-        .setTranslation(new RAPIER.Vector3(0.0, 3.0, 0.0))
+        .setTranslation(0.0, 3.0, 0.0)
         .lockTranslations()
-        .setPrincipalAngularInertia(new RAPIER.Vector3(0.0, 0.0, 0.0), true, false, false);
+        .setPrincipalAngularInertia(new RAPIER.Vector3(0.0, 0.0, 0.0))
+        .restrictRotations(true, false, false);
     body = world.createRigidBody(bodyDesc);
     colliderDesc = RAPIER.ColliderDesc.cuboid(0.2, 0.6, 2.0);
     collider = world.createCollider(colliderDesc, body.handle);
@@ -36,7 +37,7 @@ export function initWorld(RAPIER, testbed) {
      * A cylinder that cannot rotate.
      */
     bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-        .setTranslation(new RAPIER.Vector3(0.2, 5.0, 0.4))
+        .setTranslation(0.2, 5.0, 0.4)
         .lockRotations();
     body = world.createRigidBody(bodyDesc);
     colliderDesc = RAPIER.ColliderDesc.cylinder(0.6, 0.4);

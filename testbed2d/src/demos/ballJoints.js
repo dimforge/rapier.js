@@ -16,7 +16,7 @@ export function initWorld(RAPIER, testbed) {
             let status = (k >= numk / 2 - 3 && k <= numk / 2 + 3 && i == 0) ? RAPIER.BodyStatus.Static : RAPIER.BodyStatus.Dynamic;
 
             let bodyDesc = new RAPIER.RigidBodyDesc(status)
-                .setTranslation(new RAPIER.Vector2(k * shift, -i * shift));
+                .setTranslation(k * shift, -i * shift);
             let child = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
             let collider = world.createCollider(colliderDesc, child.handle);

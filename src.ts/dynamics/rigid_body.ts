@@ -575,6 +575,9 @@ export class RigidBodyDesc {
      * Sets the initial translation of the rigid-body to create.
      */
     public setTranslation(x: number, y: number): RigidBodyDesc {
+        if (typeof x != "number" || typeof y != "number")
+            throw TypeError("The translation components must be numbers.");
+
         this.translation = {x: x, y: y};
         return this;
     }
@@ -588,6 +591,9 @@ export class RigidBodyDesc {
      * @param tra - The translation to set.
      */
     public setTranslation(x: number, y: number, z: number): RigidBodyDesc {
+        if (typeof x != "number" || typeof y != "number" || typeof z != "number")
+            throw TypeError("The translation components must be numbers.");
+
         this.translation = {x: x, y: y, z: z};
         return this;
     }
@@ -654,6 +660,9 @@ export class RigidBodyDesc {
      * @param y - The linear velocity to set along the `y` axis.
      */
     public setLinvel(x: number, y: number): RigidBodyDesc {
+        if (typeof x != "number" || typeof y != "number")
+            throw TypeError("The linvel components must be numbers.");
+
         this.linvel = {x: x, y: y};
         return this;
     }
@@ -721,6 +730,9 @@ export class RigidBodyDesc {
      * @param z - The linear velocity to set along the `z` axis.
      */
     public setLinvel(x: number, y: number, z: number): RigidBodyDesc {
+        if (typeof x != "number" || typeof y != "number" || typeof z != "number")
+            throw TypeError("The linvel components must be numbers.");
+
         this.linvel = {x: x, y: y, z: z};
         return this;
     }

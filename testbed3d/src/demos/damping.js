@@ -19,8 +19,8 @@ export function initWorld(RAPIER, testbed) {
 
         // Build the rigid body.
         let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-            .setTranslation(new RAPIER.Vector3(x, y, 0.0))
-            .setLinvel(new RAPIER.Vector3(x * 10.0, y * 10.0, 0.0))
+            .setTranslation(x, y, 0.0)
+            .setLinvel(x * 10.0, y * 10.0, 0.0)
             .setAngvel(new RAPIER.Vector3(0.0, 0.0, 100.0))
             .setLinearDamping((i + 1) * subdiv * 10.0)
             .setAngularDamping((num - i) * subdiv * 10.0);

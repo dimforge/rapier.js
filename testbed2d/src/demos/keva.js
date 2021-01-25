@@ -26,10 +26,10 @@ function buildBlock(
 
             // Build the rigid body.
             let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                .setTranslation(new RAPIER.Vector2(
+                .setTranslation(
                     x + dim.x + shift.x,
                     y + dim.y + shift.y,
-                ));
+                );
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(dim.x, dim.y);
             let collider = world.createCollider(colliderDesc, body.handle);
@@ -52,7 +52,7 @@ export function initWorld(RAPIER, testbed) {
     let groundSize = 150.0;
     let groundHeight = 0.1;
     let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
-        .setTranslation(new RAPIER.Vector2(0.0, -groundHeight, 0.0));
+        .setTranslation(0.0, -groundHeight, 0.0);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
     let collider = world.createCollider(colliderDesc, body.handle);

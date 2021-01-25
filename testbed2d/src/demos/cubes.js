@@ -14,7 +14,7 @@ export function initWorld(RAPIER, testbed) {
 
     grounds.forEach(ground => {
         let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
-            .setTranslation(new RAPIER.Vector2(ground.x, ground.y));
+            .setTranslation(ground.x, ground.y);
         let body = world.createRigidBody(bodyDesc);
         let colliderDesc = RAPIER.ColliderDesc.cuboid(ground.hx, ground.hy);
         let collider = world.createCollider(colliderDesc, body.handle);
@@ -41,7 +41,7 @@ export function initWorld(RAPIER, testbed) {
 
             // Create dynamic cube.
             let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                .setTranslation(new RAPIER.Vector2(x, y));
+                .setTranslation(x, y);
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
             let collider = world.createCollider(colliderDesc, body.handle);

@@ -24,8 +24,8 @@ export function initWorld(RAPIER, testbed) {
         let modifications = new PhysicsModifications();
 
         let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-            .setLinvel(new RAPIER.Vector3(0.0, 15.0, 0.0))
-            .setTranslation(new RAPIER.Vector3(0.0, 10.0, 0.0));
+            .setLinvel(0.0, 15.0, 0.0)
+            .setTranslation(0.0, 10.0, 0.0);
         let colliderDesc;
 
         switch (j % 4) {

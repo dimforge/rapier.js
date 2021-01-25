@@ -11,7 +11,7 @@ function create_prismatic_joints(
     let shift = 1.0;
 
     let groundDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
-        .setTranslation(new RAPIER.Vector3(origin.x, origin.y, origin.z));
+        .setTranslation(origin.x, origin.y, origin.z);
     let currParent = world.createRigidBody(groundDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
     let collider = world.createCollider(colliderDesc, currParent.handle);
@@ -24,7 +24,7 @@ function create_prismatic_joints(
     for (i = 0; i < num; ++i) {
         z = origin.z + (i + 1) * shift;
         let rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-            .setTranslation(new RAPIER.Vector3(origin.x, origin.y, z));
+            .setTranslation(origin.x, origin.y, z);
         let currChild = world.createRigidBody(rigidBodyDesc);
         let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
         let collider = world.createCollider(colliderDesc, currChild.handle);
@@ -71,7 +71,7 @@ function create_revolute_joints(
     let shift = 2.0;
 
     let groundDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
-        .setTranslation(new RAPIER.Vector3(origin.x, origin.y, 0.0));
+        .setTranslation(origin.x, origin.y, 0.0);
     let currParent = world.createRigidBody(groundDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
     let collider = world.createCollider(colliderDesc, currParent.handle);
@@ -96,7 +96,7 @@ function create_revolute_joints(
 
         for (k = 0; k < 4; ++k) {
             let rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                .setTranslation(positions[k]);
+                .setTranslation(positions[k].x, positions[k].y, positions[k].z);
             let rigidBody = world.createRigidBody(rigidBodyDesc);
             let colliderDesc = new RAPIER.ColliderDesc.cuboid(rad, rad, rad);
             let collider = world.createCollider(colliderDesc, rigidBody.handle);
@@ -159,7 +159,7 @@ function create_fixed_joints(
             }
 
             let rigidBody = new RAPIER.RigidBodyDesc(status)
-                .setTranslation(new RAPIER.Vector3(origin.x + fk * shift, origin.y, origin.z + fi * shift));
+                .setTranslation(origin.x + fk * shift, origin.y, origin.z + fi * shift);
             let child = world.createRigidBody(rigidBody);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
             let collider = world.createCollider(colliderDesc, child.handle);
@@ -226,7 +226,7 @@ function create_ball_joints(
             }
 
             let bodyDesc = new RAPIER.RigidBodyDesc(status)
-                .setTranslation(new RAPIER.Vector3(fk * shift, 0.0, fi * shift));
+                .setTranslation(fk * shift, 0.0, fi * shift);
             let child = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
             let collider = world.createCollider(colliderDesc, child.handle);

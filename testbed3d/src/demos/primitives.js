@@ -72,7 +72,7 @@ export function initWorld(RAPIER, testbed) {
 
                 // Create dynamic cube.
                 let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                    .setTranslation(new RAPIER.Vector3(x, y, z));
+                    .setTranslation(x, y, z);
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc;
 

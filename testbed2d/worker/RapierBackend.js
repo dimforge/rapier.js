@@ -19,7 +19,7 @@ export class RapierBackend {
 
     addRigidBody(body) {
         let bodyDesc = new this.RAPIER.RigidBodyDesc(body.type)
-            .setTranslation(body.translation)
+            .setTranslation(body.translation.x, body.translation.y)
             .setLinvel(body.linvel)
             .setAngvel(body.angvel)
             .setLinearDamping(body.linearDamping)

@@ -513,6 +513,9 @@ export class ColliderDesc {
      * Sets the position of the collider to be created relative to the rigid-body it is attached to.
      */
     public setTranslation(x: number, y: number): ColliderDesc {
+        if (typeof x != "number" || typeof y != "number")
+            throw TypeError("The translation components must be numbers.");
+
         this.translation = {x: x, y: y};
         return this;
     }
@@ -524,6 +527,9 @@ export class ColliderDesc {
      * Sets the position of the collider to be created relative to the rigid-body it is attached to.
      */
     public setTranslation(x: number, y: number, z: number): ColliderDesc {
+        if (typeof x != "number" || typeof y != "number" || typeof z != "number")
+            throw TypeError("The translation components must be numbers.");
+        
         this.translation = {x: x, y: y, z: z};
         return this;
     }
