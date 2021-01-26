@@ -570,6 +570,27 @@ export class RigidBodyDesc {
         this.canSleep = true;
     }
 
+    /**
+     * A rigid-body descriptor used to build a dynamic rigid-body.
+     */
+    public static newDynamic(): RigidBodyDesc {
+        return new RigidBodyDesc(BodyStatus.Dynamic)
+    }
+
+    /**
+     * A rigid-body descriptor used to build a kinematic rigid-body.
+     */
+    public static newKinematic(): RigidBodyDesc {
+        return new RigidBodyDesc(BodyStatus.Kinematic)
+    }
+
+    /**
+     * A rigid-body descriptor used to build a static rigid-body.
+     */
+    public static newStatic(): RigidBodyDesc {
+        return new RigidBodyDesc(BodyStatus.Static)
+    }
+
     // #if DIM2
     /**
      * Sets the initial translation of the rigid-body to create.

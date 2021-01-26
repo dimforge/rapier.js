@@ -3,7 +3,7 @@ import {Rotation, RotationOps, Vector, VectorOps} from '../math';
 import {CoefficientCombineRule, RigidBodyHandle} from '../dynamics';
 import {
     InteractionGroups, Shape,
-    Cuboid, Ball, ShapeType, Capsule, TriMesh, Heightfield,
+    Cuboid, Ball, ShapeType, Capsule, TriMesh, Polyline, Heightfield,
     Segment, Triangle, RoundTriangle, RoundCuboid,
     // #if DIM2
     ConvexPolygon, RoundConvexPolygon,
@@ -98,19 +98,19 @@ export class Collider {
     }
 
     /**
-     * If this collider has a triangle mesh shape, this returns the vertex buffer
-     * of the triangle esh.
+     * If this collider has a triangle mesh, polyline, convex polygon, or convex polyhedron shape,
+     * this returns the vertex buffer of said shape.
      */
-    public trimeshVertices(): Float32Array {
-        return this.rawSet.coTriMeshVertices(this.handle);
+    public vertices(): Float32Array {
+        return this.rawSet.coVertices(this.handle);
     }
 
     /**
-     * If this collider has a triangle mesh shape, this returns the index buffer
-     * of the triangle mesh.
+     * If this collider has a triangle mesh, polyline, or convex polyhedron shape,
+     * this returns the index buffer of said shape.
      */
-    public trimeshIndices(): Uint32Array {
-        return this.rawSet.coTriMeshIndices(this.handle);
+    public indices(): Uint32Array {
+        return this.rawSet.coIndices(this.handle);
     }
 
     /**
@@ -278,12 +278,24 @@ export class ColliderDesc {
     }
 
     /**
+     * Creates a new collider descriptor with a polyline shape.
+     *
+     * @param vertices - The coordinates of the polyline's vertices.
+     * @param indices - The indices of the polyline's segments. If this is `null`,
+     *    the vertices are assumed to describe a line strip.
+     */
+    public static polyline(vertices: Float32Array, indices: Uint32Array): ColliderDesc {
+        const shape = new Polyline(vertices, indices);
+        return new ColliderDesc(shape);
+    }
+
+    /**
      * Creates a new collider descriptor with a triangle mesh shape.
      *
      * @param vertices - The coordinates of the triangle mesh's vertices.
      * @param indices - The indices of the triangle mesh's triangles.
      */
-    public static trimesh(vertices: Float32Array, indices: Uint32Array) {
+    public static trimesh(vertices: Float32Array, indices: Uint32Array): ColliderDesc {
         const shape = new TriMesh(vertices, indices);
         return new ColliderDesc(shape);
     }
@@ -407,7 +419,7 @@ export class ColliderDesc {
      *                  provided as a matrix stored in column-major order.
      * @param scale - The scale factor applied to the heightfield.
      */
-    public static heightfield(nrows: number, ncols: number, heights: Float32Array, scale: Vector) {
+    public static heightfield(nrows: number, ncols: number, heights: Float32Array, scale: Vector): ColliderDesc {
         const shape = new Heightfield(nrows, ncols, heights, scale);
         return new ColliderDesc(shape);
     }
@@ -529,7 +541,7 @@ export class ColliderDesc {
     public setTranslation(x: number, y: number, z: number): ColliderDesc {
         if (typeof x != "number" || typeof y != "number" || typeof z != "number")
             throw TypeError("The translation components must be numbers.");
-        
+
         this.translation = {x: x, y: y, z: z};
         return this;
     }

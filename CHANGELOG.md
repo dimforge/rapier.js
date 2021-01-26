@@ -14,13 +14,13 @@ Several geometric queries have been added (the same methods have been added to t
 - `World.intersectionsWithShape`: get all the colliders intersecting a shape.
 
 Several new shape types are now supported:
-- `RoundCuboid`, `Segment`, `Triangle`, `RoundTriangle`, `ConvexPolygon` (2D only),
+- `RoundCuboid`, `Segment`, `Triangle`, `RoundTriangle`, `Polyline`, `ConvexPolygon` (2D only),
   `RoundConvexPolygon` (2D only), `ConvexPolyhedron` (3D only), `RoundConvexPolyhedron` (3D only),
   `RoundCone` (3D only).
 
 It is possible to build `ColliderDesc` using these new shapes:
 - `ColliderDesc.roundCuboid`, `ColliderDesc.segment`, `ColliderDesc.triangle`, `ColliderDesc.roundTriangle`,
-  `ColliderDesc.convexHull`, `ColliderDesc.roundConvexHull`,
+  `ColliderDesc.convexHull`, `ColliderDesc.roundConvexHull`, `ColliderDesc.Polyline`,
   `ColliderDesc.convexPolyline` (2D only), `ColliderDesc.roundConvexPolyline` (2D only),
   `ColliderDesc.convexMesh` (3D only),`ColliderDesc.roundConvexMesh` (3D only), `ColliderDesc.roundCone` (3D only).
 
@@ -29,6 +29,8 @@ of the two colliders involved in a contact with:
 - `ColliderDesc.frictionCombineRule`, and `ColliderDesc.restitutionCombineRule`.
 
 Various RigidBody-related getter and setters have been added:
+- `RigidBodyDesc.newStatic`, `RigidBodyDesc.newDynamic`, and `RigidBodyDesc.newKinematic` are new static method, short equivalent
+  to `new RigidBodyDesc(BodyStatus.Static)`, etc.
 - `RigidBodyDesc.setGravityScale`, `RigidBody.gravityScale`, `RigidBody.setGravityScale` to get/set the scale
   factor applied to the gravity affecting a rigid-body. Setting this to 0.0 will make the rigid-body ignore gravity.
 - `RigidBody.setLinearDamping` and `RigidBody.setAngularDamping` to set the linear and angular damping of

@@ -17,14 +17,15 @@ export enum ShapeType {
     Cuboid = 1,
     Capsule = 2,
     Segment = 3,
-    Triangle = 4,
-    TriMesh = 5,
-    HeightField = 6,
-    // Compound = 7,
-    ConvexPolygon = 8,
-    RoundCuboid = 9,
-    RoundTriangle = 10,
-    RoundConvexPolygon = 11,
+    Polyline = 4,
+    Triangle = 5,
+    TriMesh = 6,
+    HeightField = 7,
+    // Compound = 8,
+    ConvexPolygon = 9,
+    RoundCuboid = 10,
+    RoundTriangle = 11,
+    RoundConvexPolygon = 12,
 }
 
 // #endif
@@ -45,18 +46,19 @@ export enum ShapeType {
     Cuboid = 1,
     Capsule = 2,
     Segment = 3,
-    Triangle = 4,
-    TriMesh = 5,
-    HeightField = 6,
-    // Compound = 7,
-    ConvexPolyhedron = 8,
-    Cylinder = 9,
-    Cone = 10,
-    RoundCuboid = 11,
-    RoundTriangle = 12,
-    RoundCylinder = 13,
-    RoundCone = 14,
-    RoundConvexPolyhedron = 15,
+    Polyline = 4,
+    Triangle = 5,
+    TriMesh = 6,
+    HeightField = 7,
+    // Compound = 8,
+    ConvexPolyhedron = 9,
+    Cylinder = 10,
+    Cone = 11,
+    RoundCuboid = 12,
+    RoundTriangle = 13,
+    RoundCylinder = 14,
+    RoundCone = 15,
+    RoundConvexPolyhedron = 16,
 }
 
 // #endif
@@ -349,6 +351,37 @@ export class RoundTriangle {
 /**
  * A shape that is a triangle mesh.
  */
+export class Polyline {
+    /**
+     * The vertices of the polyline.
+     */
+    readonly vertices: Float32Array;
+
+    /**
+     * The indices of the segments.
+     */
+    readonly indices: Uint32Array;
+
+    /**
+     * Creates a new polyline shape.
+     *
+     * @param vertices - The coordinates of the polyline's vertices.
+     * @param indices - The indices of the polyline's segments. If this is `null` then
+     *    the vertices are assumed to form a line strip.
+     */
+    constructor(vertices: Float32Array, indices: Uint32Array) {
+        this.vertices = vertices;
+        this.indices = !!indices ? indices : new Uint32Array();
+    }
+
+    public intoRaw(): RawShape {
+        return RawShape.polyline(this.vertices, this.indices);
+    }
+}
+
+/**
+ * A shape that is a triangle mesh.
+ */
 export class TriMesh {
     /**
      * The vertices of the triangle mesh.
@@ -570,9 +603,9 @@ export class RoundConvexPolyhedron {
 
     public intoRaw(): RawShape {
         if (!!this.indices) {
-            return RawShape.roundConvexHull(this.vertices, this.borderRadius);
-        } else {
             return RawShape.roundConvexMesh(this.vertices, this.indices, this.borderRadius);
+        } else {
+            return RawShape.roundConvexHull(this.vertices, this.borderRadius);
         }
     }
 }

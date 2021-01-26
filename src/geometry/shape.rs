@@ -14,14 +14,15 @@ pub enum RawShapeType {
     Cuboid = 1,
     Capsule = 2,
     Segment = 3,
-    Triangle = 4,
-    TriMesh = 5,
-    HeightField = 6,
-    Compound = 7,
-    ConvexPolygon = 8,
-    RoundCuboid = 9,
-    RoundTriangle = 10,
-    RoundConvexPolygon = 11,
+    Polyline = 4,
+    Triangle = 5,
+    TriMesh = 6,
+    HeightField = 7,
+    Compound = 8,
+    ConvexPolygon = 9,
+    RoundCuboid = 10,
+    RoundTriangle = 11,
+    RoundConvexPolygon = 12,
 }
 
 #[wasm_bindgen]
@@ -31,18 +32,19 @@ pub enum RawShapeType {
     Cuboid = 1,
     Capsule = 2,
     Segment = 3,
-    Triangle = 4,
-    TriMesh = 5,
-    HeightField = 6,
-    Compound = 7,
-    ConvexPolyhedron = 8,
-    Cylinder = 9,
-    Cone = 10,
-    RoundCuboid = 11,
-    RoundTriangle = 12,
-    RoundCylinder = 13,
-    RoundCone = 14,
-    RoundConvexPolyhedron = 15,
+    Polyline = 4,
+    Triangle = 5,
+    TriMesh = 6,
+    HeightField = 7,
+    Compound = 8,
+    ConvexPolyhedron = 9,
+    Cylinder = 10,
+    Cone = 11,
+    RoundCuboid = 12,
+    RoundTriangle = 13,
+    RoundCylinder = 14,
+    RoundCone = 15,
+    RoundConvexPolyhedron = 16,
 }
 
 #[wasm_bindgen]
@@ -102,6 +104,16 @@ impl RawShape {
     #[cfg(feature = "dim3")]
     pub fn roundCone(halfHeight: f32, radius: f32, borderRadius: f32) -> Self {
         Self(SharedShape::round_cone(halfHeight, radius, borderRadius))
+    }
+
+    pub fn polyline(vertices: Vec<f32>, indices: Vec<u32>) -> Self {
+        let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
+        if indices.is_empty() {
+            Self(SharedShape::polyline(vertices, None))
+        } else {
+            Self(SharedShape::polyline(vertices, Some(indices)))
+        }
     }
 
     pub fn trimesh(vertices: Vec<f32>, indices: Vec<u32>) -> Self {

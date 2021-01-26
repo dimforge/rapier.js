@@ -18,6 +18,7 @@
     "pixi-viewport": "^4.13.2",
     "pixi.js": "^5.3.2",
     "planck-js": "^0.3.21",
+    "seedrandom": "^3.0.5",
     "stats.js": "^0.17.0",
     "three": "0.118",
     "worker-loader": "^2.0.0"
