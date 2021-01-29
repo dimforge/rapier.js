@@ -63,7 +63,10 @@ export class Graphics {
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
         this.renderer = new THREE.WebGLRenderer({antialias: true});
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0xF9F9FF, 1);
+        this.renderer.setClearColor(0x292929, 1);
+        // High pixel Ratio make the rendering extremely slow, so we cap it.
+        const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
+        this.renderer.setPixelRatio(pixelRatio);
         document.body.appendChild(this.renderer.domElement);
 
         let ambientLight = new THREE.AmbientLight(0x606060);
@@ -197,6 +200,14 @@ export class Graphics {
                 instance.instanceMatrix.needsUpdate = true;
                 highlightInstance.instanceMatrix.needsUpdate = true;
             }
+
+            gfx = this.coll2mesh.get(elt.handle);
+
+            if (!!gfx) {
+                gfx.position.set(elt.translation.x, elt.translation.y, elt.translation.z);
+                gfx.quaternion.set(elt.rotation.x, elt.rotation.y, elt.rotation.z, elt.rotation.w);
+                gfx.updateMatrix();
+            }
         })
     }
 
@@ -250,6 +261,7 @@ export class Graphics {
     }
 
     addCollider(RAPIER, world, collider) {
+        this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 2);
         let parentHandle = collider.parent();
         if (!this.rb2colls.get(parentHandle)) {
             this.rb2colls.set(parentHandle, [collider.handle]);
@@ -294,26 +306,29 @@ export class Graphics {
                 instanceDesc.groupId = CONE_INSTANCE_INDEX;
                 instanceDesc.scale = new THREE.Vector3(cone_rad, cone_height, cone_rad);
                 break;
-            case RAPIER.ShapeType.Trimesh:
+            case RAPIER.ShapeType.TriMesh:
             case RAPIER.ShapeType.HeightField:
+            case RAPIER.ShapeType.ConvexPolyhedron:
+            case RAPIER.ShapeType.RoundConvexPolyhedron:
                 let geometry = new THREE.BufferGeometry();
                 let vertices;
                 let indices;
 
-                if (collider.shapeType() == RAPIER.ShapeType.Trimesh) {
-                    vertices = collider.trimeshVertices();
-                    indices = collider.trimeshIndices();
+                if (collider.shapeType() != RAPIER.ShapeType.HeightField) {
+                    vertices = collider.vertices();
+                    indices = collider.indices();
                 } else {
-                    let g = genHeightfieldGeometry(collider, vertices, indices);
+                    let g = genHeightfieldGeometry(collider);
                     vertices = g.vertices;
                     indices = g.indices;
                 }
 
                 geometry.setIndex(Array.from(indices));
                 geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                let color = parent.isStatic() ? 0 : (this.colorIndex + 1);
 
                 let material = new THREE.MeshPhongMaterial({
-                    color: this.colorPalette[0],
+                    color: this.colorPalette[color],
                     side: THREE.DoubleSide,
                     flatShading: true
                 });
@@ -346,6 +361,5 @@ export class Graphics {
         instance.instanceMatrix.needsUpdate = true;
 
         this.coll2instance.set(collider.handle, instanceDesc);
-        this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 2);
     }
 }

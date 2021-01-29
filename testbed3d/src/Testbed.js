@@ -7,7 +7,7 @@ class SimulationParameters {
     constructor(backends, builders) {
         this.backend = 'rapier';
         this.prevBackend = 'rapier';
-        this.demo = 'primitives';
+        this.demo = 'collision groups';
         this.numVelocityIter = 4;
         this.numPositionIter = 1;
         this.running = true;
@@ -135,16 +135,15 @@ export class Testbed {
         this.preTimestepAction = action;
     }
 
-    setWorld(world, bodies, colliders, joints) {
+    setWorld(world) {
         this.preTimestepAction = null;
         this.world = world;
         this.world.maxVelocityIterations = this.parameters.numVelocityIter;
         this.world.maxPositionIterations = this.parameters.numPositionIter;
         this.demoToken += 1;
-        this.joints = !!joints ? joints : new Array();
         this.gui.resetTiming();
 
-        colliders.forEach((coll, i, arr) => {
+        world.forEachCollider(coll => {
             this.graphics.addCollider(this.RAPIER, world, coll);
         });
 

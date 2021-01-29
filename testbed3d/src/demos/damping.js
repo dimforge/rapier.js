@@ -1,8 +1,6 @@
 export function initWorld(RAPIER, testbed) {
     let gravity = new RAPIER.Vector3(0.0, 0.0, 0.0);
     let world = new RAPIER.World(gravity);
-    let bodies = new Array();
-    let colliders = new Array();
 
     /*
      * Create the cubes
@@ -18,9 +16,9 @@ export function initWorld(RAPIER, testbed) {
         let y = Math.cos((i * subdiv * Math.PI * 2.0));
 
         // Build the rigid body.
-        let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-            .setTranslation(new RAPIER.Vector3(x, y, 0.0))
-            .setLinvel(new RAPIER.Vector3(x * 10.0, y * 10.0, 0.0))
+        let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+            .setTranslation(x, y, 0.0)
+            .setLinvel(x * 10.0, y * 10.0, 0.0)
             .setAngvel(new RAPIER.Vector3(0.0, 0.0, 100.0))
             .setLinearDamping((i + 1) * subdiv * 10.0)
             .setAngularDamping((num - i) * subdiv * 10.0);
@@ -28,12 +26,10 @@ export function initWorld(RAPIER, testbed) {
 
         // Build the collider.
         let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-        let collider = world.createCollider(colliderDesc, body.handle);
-        bodies.push(body);
-        colliders.push(collider);
+        world.createCollider(colliderDesc, body.handle);
     }
 
-    testbed.setWorld(world, bodies, colliders);
+    testbed.setWorld(world);
     let cameraPosition = {
         eye: {x: 0, y: 2.0, z: 20},
         target: {x: 0, y: 2.0, z: 0}

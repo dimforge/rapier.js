@@ -1,13 +1,18 @@
 import {RawColliderSet} from "../raw"
 import {Rotation, RotationOps, Vector, VectorOps} from '../math';
+import {CoefficientCombineRule, RigidBodyHandle} from '../dynamics';
 import {
-    InteractionGroups,
-    Cuboid, Ball, ShapeType, Capsule, Trimesh, Heightfield,
+    InteractionGroups, Shape,
+    Cuboid, Ball, ShapeType, Capsule, TriMesh, Polyline, Heightfield,
+    Segment, Triangle, RoundTriangle, RoundCuboid,
+    // #if DIM2
+    ConvexPolygon, RoundConvexPolygon,
+    // #endif
     // #if DIM3
-    Cylinder, RoundCylinder, Cone,
+    Cylinder, RoundCylinder, Cone, RoundCone,
+    ConvexPolyhedron, RoundConvexPolyhedron,
     // #endif
 } from './index';
-import {RigidBody, RigidBodyHandle} from '../dynamics';
 
 /**
  * The integer identifier of a collider added to a `ColliderSet`.
@@ -93,19 +98,19 @@ export class Collider {
     }
 
     /**
-     * If this collider has a triangle mesh shape, this returns the vertex buffer
-     * of the triangle esh.
+     * If this collider has a triangle mesh, polyline, convex polygon, or convex polyhedron shape,
+     * this returns the vertex buffer of said shape.
      */
-    public trimeshVertices(): Float32Array {
-        return this.rawSet.coTrimeshVertices(this.handle);
+    public vertices(): Float32Array {
+        return this.rawSet.coVertices(this.handle);
     }
 
     /**
-     * If this collider has a triangle mesh shape, this returns the index buffer
-     * of the triangle mesh.
+     * If this collider has a triangle mesh, polyline, or convex polyhedron shape,
+     * this returns the index buffer of said shape.
      */
-    public trimeshIndices(): Uint32Array {
-        return this.rawSet.coTrimeshIndices(this.handle);
+    public indices(): Uint32Array {
+        return this.rawSet.coIndices(this.handle);
     }
 
     /**
@@ -183,11 +188,7 @@ export class Collider {
 
 
 export class ColliderDesc {
-    shape: Ball | Cuboid | Capsule | Trimesh | Heightfield
-// #if DIM3
-        | Cylinder | RoundCylinder | Cone
-        // #endif
-    ;
+    shape: Shape;
     density?: number;
     friction: number;
     restitution: number;
@@ -196,17 +197,15 @@ export class ColliderDesc {
     isSensor: boolean;
     collisionGroups: InteractionGroups;
     solverGroups: InteractionGroups;
+    frictionCombineRule: CoefficientCombineRule;
+    restitutionCombineRule: CoefficientCombineRule;
 
     /**
      * Initializes a collider descriptor from the collision shape.
      *
      * @param shape - The shape of the collider being built.
      */
-    constructor(shape: Ball | Cuboid | Capsule | Trimesh | Heightfield
-// #if DIM3
-        | Cylinder | RoundCylinder | Cone
-                // #endif
-    ) {
+    constructor(shape: Shape) {
         this.shape = shape;
         this.density = null;
         this.friction = 0.5;
@@ -216,6 +215,8 @@ export class ColliderDesc {
         this.isSensor = false;
         this.collisionGroups = 0xffff_ffff;
         this.solverGroups = 0xffff_ffff;
+        this.frictionCombineRule = CoefficientCombineRule.Average;
+        this.restitutionCombineRule = CoefficientCombineRule.Average;
     }
 
     /**
@@ -231,11 +232,60 @@ export class ColliderDesc {
     /**
      * Create a new collider descriptor with a capsule shape.
      *
-     * @param half_height - The half-height of the capsule, along the `y` axis.
+     * @param halfHeight - The half-height of the capsule, along the `y` axis.
      * @param radius - The radius of the capsule basis.
      */
-    public static capsule(half_height: number, radius: number): ColliderDesc {
-        const shape = new Capsule(half_height, radius);
+    public static capsule(halfHeight: number, radius: number): ColliderDesc {
+        const shape = new Capsule(halfHeight, radius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new segment shape.
+     *
+     * @param a - The first point of the segment.
+     * @param b - The second point of the segment.
+     */
+    public static segment(a: Vector, b: Vector): ColliderDesc {
+        const shape = new Segment(a, b);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new triangle shape.
+     *
+     * @param a - The first point of the triangle.
+     * @param b - The second point of the triangle.
+     * @param c - The third point of the triangle.
+     */
+    public static triangle(a: Vector, b: Vector, c: Vector): ColliderDesc {
+        const shape = new Triangle(a, b, c);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new triangle shape with round corners.
+     *
+     * @param a - The first point of the triangle.
+     * @param b - The second point of the triangle.
+     * @param c - The third point of the triangle.
+     * @param borderRadius - The radius of the borders of this triangle. In 3D,
+     *   this is also equal to half the thickness of the triangle.
+     */
+    public static roundTriangle(a: Vector, b: Vector, c: Vector, borderRadius: number): ColliderDesc {
+        const shape = new RoundTriangle(a, b, c, borderRadius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor with a polyline shape.
+     *
+     * @param vertices - The coordinates of the polyline's vertices.
+     * @param indices - The indices of the polyline's segments. If this is `null`,
+     *    the vertices are assumed to describe a line strip.
+     */
+    public static polyline(vertices: Float32Array, indices: Uint32Array): ColliderDesc {
+        const shape = new Polyline(vertices, indices);
         return new ColliderDesc(shape);
     }
 
@@ -245,8 +295,8 @@ export class ColliderDesc {
      * @param vertices - The coordinates of the triangle mesh's vertices.
      * @param indices - The indices of the triangle mesh's triangles.
      */
-    public static trimesh(vertices: Float32Array, indices: Uint32Array) {
-        const shape = new Trimesh(vertices, indices);
+    public static trimesh(vertices: Float32Array, indices: Uint32Array): ColliderDesc {
+        const shape = new TriMesh(vertices, indices);
         return new ColliderDesc(shape);
     }
 
@@ -263,13 +313,72 @@ export class ColliderDesc {
     }
 
     /**
+     * Creates a new collider descriptor with a rectangular shape with round borders.
+     *
+     * @param hx - The half-width of the rectangle along its local `x` axis.
+     * @param hy - The half-width of the rectangle along its local `y` axis.
+     * @param borderRadius - The radius of the cuboid's borders.
+     */
+    public static roundCuboid(hx: number, hy: number, borderRadius: number): ColliderDesc {
+        const shape = new RoundCuboid(hx, hy, borderRadius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
      * Creates a new collider descriptor with a heightfield shape.
      *
      * @param heights - The heights of the heightfield, along its local `y` axis.
      * @param scale - The scale factor applied to the heightfield.
      */
-    public static heightfield(heights: Float32Array, scale: Vector) {
+    public static heightfield(heights: Float32Array, scale: Vector): ColliderDesc {
         const shape = new Heightfield(heights, scale);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Computes the convex-hull of the given points and use the resulting
+     * convex polygon as the shape for this new collider descriptor.
+     *
+     * @param points - The point that will be used to compute the convex-hull.
+     */
+    public static convexHull(points: Float32Array): ColliderDesc | null {
+        const shape = new ConvexPolygon(points, false);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor that uses the given set of points assumed
+     * to form a convex polyline (no convex-hull computation will be done).
+     *
+     * @param vertices - The vertices of the convex polyline.
+     */
+    public static convexPolyline(vertices: Float32Array): ColliderDesc | null {
+        const shape = new ConvexPolygon(vertices, true);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Computes the convex-hull of the given points and use the resulting
+     * convex polygon as the shape for this new collider descriptor. A
+     * border is added to that convex polygon to give it round corners.
+     *
+     * @param points - The point that will be used to compute the convex-hull.
+     * @param borderRadius - The radius of the round border added to the convex polygon.
+     */
+    public static roundConvexHull(points: Float32Array, borderRadius: number): ColliderDesc | null {
+        const shape = new RoundConvexPolygon(points, borderRadius, false);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor that uses the given set of points assumed
+     * to form a round convex polyline (no convex-hull computation will be done).
+     *
+     * @param vertices - The vertices of the convex polyline.
+     * @param borderRadius - The radius of the round border added to the convex polyline.
+     */
+    public static roundConvexPolyline(vertices: Float32Array, borderRadius: number): ColliderDesc | null {
+        const shape = new RoundConvexPolygon(vertices, borderRadius, true);
         return new ColliderDesc(shape);
     }
 
@@ -289,6 +398,19 @@ export class ColliderDesc {
     }
 
     /**
+     * Creates a new collider descriptor with a rectangular shape with round borders.
+     *
+     * @param hx - The half-width of the rectangle along its local `x` axis.
+     * @param hy - The half-width of the rectangle along its local `y` axis.
+     * @param hz - The half-width of the rectangle along its local `z` axis.
+     * @param borderRadius - The radius of the cuboid's borders.
+     */
+    public static roundCuboid(hx: number, hy: number, hz: number, borderRadius: number): ColliderDesc {
+        const shape = new RoundCuboid(hx, hy, hz, borderRadius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
      * Creates a new collider descriptor with a heightfield shape.
      *
      * @param nrows − The number of rows in the heights matrix.
@@ -297,7 +419,7 @@ export class ColliderDesc {
      *                  provided as a matrix stored in column-major order.
      * @param scale - The scale factor applied to the heightfield.
      */
-    public static heightfield(nrows: number, ncols: number, heights: Float32Array, scale: Vector) {
+    public static heightfield(nrows: number, ncols: number, heights: Float32Array, scale: Vector): ColliderDesc {
         const shape = new Heightfield(nrows, ncols, heights, scale);
         return new ColliderDesc(shape);
     }
@@ -305,48 +427,126 @@ export class ColliderDesc {
     /**
      * Create a new collider descriptor with a cylinder shape.
      *
-     * @param half_height - The half-height of the cylinder, along the `y` axis.
+     * @param halfHeight - The half-height of the cylinder, along the `y` axis.
      * @param radius - The radius of the cylinder basis.
      */
-    public static cylinder(half_height: number, radius: number): ColliderDesc {
-        const shape = new Cylinder(half_height, radius);
+    public static cylinder(halfHeight: number, radius: number): ColliderDesc {
+        const shape = new Cylinder(halfHeight, radius);
         return new ColliderDesc(shape);
     }
 
     /**
      * Create a new collider descriptor with a cylinder shape with rounded corners.
      *
-     * @param half_height - The half-height of the cylinder, along the `y` axis.
+     * @param halfHeight - The half-height of the cylinder, along the `y` axis.
      * @param radius - The radius of the cylinder basis.
-     * @param round_radius - The radius of the cylinder's rounded edges and vertices.
+     * @param borderRadius - The radius of the cylinder's rounded edges and vertices.
      */
-    public static roundCylinder(half_height: number, radius: number, round_radius: number): ColliderDesc {
-        const shape = new RoundCylinder(half_height, radius, round_radius);
+    public static roundCylinder(halfHeight: number, radius: number, borderRadius: number): ColliderDesc {
+        const shape = new RoundCylinder(halfHeight, radius, borderRadius);
         return new ColliderDesc(shape);
     }
 
     /**
      * Create a new collider descriptor with a cone shape.
      *
-     * @param half_height - The half-height of the cone, along the `y` axis.
+     * @param halfHeight - The half-height of the cone, along the `y` axis.
      * @param radius - The radius of the cone basis.
      */
-    public static cone(half_height: number, radius: number): ColliderDesc {
-        const shape = new Cone(half_height, radius);
+    public static cone(halfHeight: number, radius: number): ColliderDesc {
+        const shape = new Cone(halfHeight, radius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Create a new collider descriptor with a cone shape with rounded corners.
+     *
+     * @param halfHeight - The half-height of the cone, along the `y` axis.
+     * @param radius - The radius of the cone basis.
+     * @param borderRadius - The radius of the cone's rounded edges and vertices.
+     */
+    public static roundCone(halfHeight: number, radius: number, borderRadius: number): ColliderDesc {
+        const shape = new RoundCone(halfHeight, radius, borderRadius);
+        return new ColliderDesc(shape);
+    }
+
+
+    /**
+     * Computes the convex-hull of the given points and use the resulting
+     * convex polyhedron as the shape for this new collider descriptor.
+     *
+     * @param points - The point that will be used to compute the convex-hull.
+     */
+    public static convexHull(points: Float32Array): ColliderDesc | null {
+        const shape = new ConvexPolyhedron(points, null);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor that uses the given set of points assumed
+     * to form a convex polyline (no convex-hull computation will be done).
+     *
+     * @param vertices - The vertices of the convex polyline.
+     */
+    public static convexMesh(vertices: Float32Array, indices: Uint32Array): ColliderDesc | null {
+        const shape = new ConvexPolyhedron(vertices, indices);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Computes the convex-hull of the given points and use the resulting
+     * convex polyhedron as the shape for this new collider descriptor. A
+     * border is added to that convex polyhedron to give it round corners.
+     *
+     * @param points - The point that will be used to compute the convex-hull.
+     * @param borderRadius - The radius of the round border added to the convex polyhedron.
+     */
+    public static roundConvexHull(points: Float32Array, borderRadius: number): ColliderDesc | null {
+        const shape = new RoundConvexPolyhedron(points, null, borderRadius);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor that uses the given set of points assumed
+     * to form a round convex polyline (no convex-hull computation will be done).
+     *
+     * @param vertices - The vertices of the convex polyline.
+     * @param borderRadius - The radius of the round border added to the convex polyline.
+     */
+    public static roundConvexMesh(vertices: Float32Array, indices: Uint32Array, borderRadius: number): ColliderDesc | null {
+        const shape = new RoundConvexPolyhedron(vertices, indices, borderRadius);
         return new ColliderDesc(shape);
     }
 
     // #endif
 
+    // #if DIM2
     /**
      * Sets the position of the collider to be created relative to the rigid-body it is attached to.
-     *
-     * @param tra - The position of the collider to be created relative to the rigid-body it is attached to.
      */
-    public setTranslation(tra: Vector): ColliderDesc {
-        this.translation = tra;
+    public setTranslation(x: number, y: number): ColliderDesc {
+        if (typeof x != "number" || typeof y != "number")
+            throw TypeError("The translation components must be numbers.");
+
+        this.translation = {x: x, y: y};
         return this;
     }
+
+    // #endif
+
+    // #if DIM3
+    /**
+     * Sets the position of the collider to be created relative to the rigid-body it is attached to.
+     */
+    public setTranslation(x: number, y: number, z: number): ColliderDesc {
+        if (typeof x != "number" || typeof y != "number" || typeof z != "number")
+            throw TypeError("The translation components must be numbers.");
+
+        this.translation = {x: x, y: y, z: z};
+        return this;
+    }
+
+    // #endif
 
     /**
      * Sets the rotation of the collider to be created relative to the rigid-body it is attached to.
@@ -403,6 +603,28 @@ export class ColliderDesc {
      */
     public setFriction(friction: number): ColliderDesc {
         this.friction = friction;
+        return this;
+    }
+
+    /**
+     * Sets the rule used to combine the friction coefficients of two colliders
+     * colliders involved in a contact.
+     *
+     * @param rule − The combine rule to apply.
+     */
+    public setFrictionCombineRule(rule: CoefficientCombineRule): ColliderDesc {
+        this.frictionCombineRule = rule;
+        return this;
+    }
+
+    /**
+     * Sets the rule used to combine the restitution coefficients of two colliders
+     * colliders involved in a contact.
+     *
+     * @param rule − The combine rule to apply.
+     */
+    public setRestitutionCombineRule(rule: CoefficientCombineRule): ColliderDesc {
+        this.restitutionCombineRule = rule;
         return this;
     }
 

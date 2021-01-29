@@ -39,14 +39,14 @@ export function extractColliderDescription(coll) {
         meta.roundRadius = roundRadius;
     }
 
-    let vertices = coll.trimeshVertices();
+    let vertices = coll.vertices();
     if (!!vertices) {
-        meta.trimeshVertices = vertices;
+        meta.vertices = vertices;
     }
 
-    let indices = coll.trimeshIndices();
+    let indices = coll.indices();
     if (!!indices) {
-        meta.trimeshIndices = indices;
+        meta.indices = indices;
     }
 
     if (!!coll.heightfieldHeights()) {

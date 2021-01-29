@@ -1,8 +1,6 @@
 function buildBlock(
     RAPIER,
     world,
-    bodies,
-    colliders,
     halfExtents,
     shift,
     numx,
@@ -30,17 +28,15 @@ function buildBlock(
             for (k = 0; k < numz; ++k) {
                 let z = (i % 2) == 0 ? dim.z * k * 2.0 : spacing * k * 2.0;
                 // Build the rigid body.
-                let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                    .setTranslation(new RAPIER.Vector3(
+                let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+                    .setTranslation(
                         x + dim.x + shift.x,
                         y + dim.y + shift.y,
                         z + dim.z + shift.z
-                    ));
+                    );
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc = RAPIER.ColliderDesc.cuboid(dim.x, dim.y, dim.z);
-                let collider = world.createCollider(colliderDesc, body.handle);
-                bodies.push(body);
-                colliders.push(collider);
+                world.createCollider(colliderDesc, body.handle);
             }
         }
     }
@@ -51,17 +47,15 @@ function buildBlock(
     for (i = 0; i < blockWidth / (dim.x * 2.0); ++i) {
         for (j = 0; j < blockWidth / (dim.z * 2.0); ++j) {
             // Build the rigid body.
-            let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                .setTranslation(new RAPIER.Vector3(
+            let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+                .setTranslation(
                     i * dim.x * 2.0 + dim.x + shift.x,
                     dim.y + shift.y + blockHeight,
                     j * dim.z * 2.0 + dim.z + shift.z,
-                ));
+                );
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(dim.x, dim.y, dim.z);
-            let collider = world.createCollider(colliderDesc, body.handle);
-            bodies.push(body);
-            colliders.push(collider);
+            world.createCollider(colliderDesc, body.handle);
         }
     }
 }
@@ -70,19 +64,15 @@ function buildBlock(
 export function initWorld(RAPIER, testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
-    let bodies = new Array();
-    let colliders = new Array();
 
     // Create Ground.
     let groundSize = 50.0;
     let groundHeight = 0.1;
-    let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static)
-        .setTranslation(new RAPIER.Vector3(0.0, -groundHeight, 0.0));
+    let bodyDesc = RAPIER.RigidBodyDesc.newStatic()
+        .setTranslation(0.0, -groundHeight, 0.0);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
-    let collider = world.createCollider(colliderDesc, body.handle);
-    bodies.push(body);
-    colliders.push(collider);
+    world.createCollider(colliderDesc, body.handle);
 
     // Keva tower.
     let halfExtents = new RAPIER.Vector3(0.1, 0.5, 2.0);
@@ -101,8 +91,6 @@ export function initWorld(RAPIER, testbed) {
         buildBlock(
             RAPIER,
             world,
-            bodies,
-            colliders,
             halfExtents,
             new RAPIER.Vector3(-blockWidth / 2.0, blockHeight, -blockWidth / 2.0),
             numx,
@@ -113,7 +101,7 @@ export function initWorld(RAPIER, testbed) {
         numBlocksBuilt += numx * numy * numz;
     }
 
-    testbed.setWorld(world, bodies, colliders);
+    testbed.setWorld(world);
     let cameraPosition = {
         eye: {x: -70.38553832116718, y: 17.893810295517365, z: 29.34767842147597},
         target: {x: 0.5890869353464383, y: 3.132044603021203, z: -0.2899937806661885}

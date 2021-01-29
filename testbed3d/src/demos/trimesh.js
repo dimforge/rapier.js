@@ -1,7 +1,7 @@
 import {PhysicsModifications} from "../PhysicsModifications"
 import seedrandom from 'seedrandom'
 
-function generateTrimesh(nsubdivs, wx, wy, wz) {
+function generateTriMesh(nsubdivs, wx, wy, wz) {
     let vertices = [];
     let indices = [];
 
@@ -40,21 +40,17 @@ function generateTrimesh(nsubdivs, wx, wy, wz) {
 export function initWorld(RAPIER, testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
-    let bodies = new Array();
-    let colliders = new Array();
 
     // Create Ground.
-    let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
+    let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
     let body = world.createRigidBody(bodyDesc);
-    let trimesh = generateTrimesh(20, 70.0, 4.0, 70.0)
+    let trimesh = generateTriMesh(20, 70.0, 4.0, 70.0)
     let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
-    let collider = world.createCollider(colliderDesc, body.handle);
-    bodies.push(body);
-    colliders.push(collider);
+    world.createCollider(colliderDesc, body.handle);
 
     // Dynamic cubes.
-    let num = 6;
-    let numy = 6;
+    let num = 4;
+    let numy = 10;
     let rad = 1.0;
 
     let shift = rad * 2.0 + rad;
@@ -71,12 +67,12 @@ export function initWorld(RAPIER, testbed) {
                 let z = k * shift + offset;
 
                 // Create dynamic cube.
-                let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                    .setTranslation(new RAPIER.Vector3(x, y, z));
+                let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+                    .setTranslation(x, y, z);
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc;
 
-                switch (j % 4) {
+                switch (j % 5) {
                     case 0:
                         colliderDesc
                             = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
@@ -93,18 +89,25 @@ export function initWorld(RAPIER, testbed) {
                         colliderDesc
                             = RAPIER.ColliderDesc.cone(rad, rad);
                         break;
+                    case 4:
+                        colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad / 2.0, rad / 2.0);
+                        world.createCollider(colliderDesc, body.handle);
+                        colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad, rad / 2.0)
+                            .setTranslation(rad, 0.0, 0.0);
+                        world.createCollider(colliderDesc, body.handle);
+                        colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad, rad / 2.0)
+                            .setTranslation(-rad, 0.0, 0.0);
+                        break;
                 }
 
-                let collider = world.createCollider(colliderDesc, body.handle);
-                bodies.push(body);
-                colliders.push(collider);
+                world.createCollider(colliderDesc, body.handle);
             }
         }
 
         offset -= 0.05 * rad * (num - 1.0);
     }
 
-    testbed.setWorld(world, bodies, colliders);
+    testbed.setWorld(world);
 
     let cameraPosition = {
         eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},

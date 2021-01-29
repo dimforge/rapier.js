@@ -1,4 +1,5 @@
 import md5 from 'md5';
+import crc32 from 'buffer-crc32'
 
 export class RapierBackend {
     removeRigidBody(handle) {
@@ -19,7 +20,7 @@ export class RapierBackend {
 
     addRigidBody(body) {
         let bodyDesc = new this.RAPIER.RigidBodyDesc(body.type)
-            .setTranslation(body.translation)
+            .setTranslation(body.translation.x, body.translation.y)
             .setLinvel(body.linvel)
             .setAngvel(body.angvel)
             .setLinearDamping(body.linearDamping)
@@ -66,7 +67,7 @@ export class RapierBackend {
                 hh = coll.halfHeight;
                 colliderDesc = this.RAPIER.ColliderDesc.cone(hh, r);
                 break;
-            case this.RAPIER.ShapeType.Trimesh:
+            case this.RAPIER.ShapeType.TriMesh:
                 let vertices = coll.trimeshVertices;
                 let indices = coll.trimeshIndices;
                 colliderDesc = this.RAPIER.ColliderDesc.trimesh(vertices, indices);

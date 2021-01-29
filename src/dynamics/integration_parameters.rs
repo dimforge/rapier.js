@@ -13,7 +13,7 @@ impl RawIntegrationParameters {
 
     #[wasm_bindgen(getter)]
     pub fn dt(&self) -> f32 {
-        self.0.dt()
+        self.0.dt
     }
 
     #[wasm_bindgen(getter)]
@@ -108,7 +108,7 @@ impl RawIntegrationParameters {
 
     #[wasm_bindgen(setter)]
     pub fn set_dt(&mut self, value: f32) {
-        self.0.set_dt(value)
+        self.0.dt = value;
     }
 
     #[wasm_bindgen(setter)]

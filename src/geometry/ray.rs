@@ -22,3 +22,20 @@ impl RawRayColliderIntersection {
         self.inter.toi
     }
 }
+
+#[wasm_bindgen]
+pub struct RawRayColliderToi {
+    pub(crate) handle: ColliderHandle,
+    pub(crate) toi: f32,
+}
+
+#[wasm_bindgen]
+impl RawRayColliderToi {
+    pub fn colliderHandle(&self) -> usize {
+        self.handle.into_raw_parts().0
+    }
+
+    pub fn toi(&self) -> f32 {
+        self.toi
+    }
+}

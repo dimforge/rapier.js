@@ -1,16 +1,12 @@
 export function initWorld(RAPIER, testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
-    let bodies = new Array();
-    let colliders = new Array();
 
     // Create Ground.
-    let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
+    let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(30.0, 0.1, 30.0);
-    let collider = world.createCollider(colliderDesc, body.handle);
-    bodies.push(body);
-    colliders.push(collider);
+    world.createCollider(colliderDesc, body.handle);
 
     // Dynamic cubes.
     let rad = 0.5;
@@ -30,18 +26,16 @@ export function initWorld(RAPIER, testbed) {
                     - height * rad - center;
 
                 // Create dynamic cube.
-                let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-                    .setTranslation(new RAPIER.Vector3(x, y, z));
+                let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+                    .setTranslation(x, y, z);
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-                let collider = world.createCollider(colliderDesc, body.handle);
-                bodies.push(body);
-                colliders.push(collider);
+                world.createCollider(colliderDesc, body.handle);
             }
         }
     }
 
-    testbed.setWorld(world, bodies, colliders);
+    testbed.setWorld(world);
     let cameraPosition = {
         eye: {x: -31.96000000000001, y: 19.730000000000008, z: -27.86},
         target: {x: -0.0505, y: -0.4126, z: -0.0229}

@@ -1,6 +1,7 @@
 use crate::geometry::{RawColliderSet, RawShapeType};
 use crate::math::{RawRotation, RawVector};
 use rapier::geometry::ShapeType;
+use rapier::math::Point;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -24,19 +25,33 @@ impl RawColliderSet {
     pub fn coShapeType(&self, handle: usize) -> RawShapeType {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::Ball => RawShapeType::Ball,
-            ShapeType::Polygon => RawShapeType::Polygon,
             ShapeType::Cuboid => RawShapeType::Cuboid,
             ShapeType::Capsule => RawShapeType::Capsule,
+            ShapeType::Segment => RawShapeType::Segment,
+            ShapeType::Polyline => RawShapeType::Polyline,
             ShapeType::Triangle => RawShapeType::Triangle,
-            ShapeType::Trimesh => RawShapeType::Trimesh,
+            ShapeType::TriMesh => RawShapeType::TriMesh,
             ShapeType::HeightField => RawShapeType::HeightField,
+            ShapeType::Compound => RawShapeType::Compound,
+            #[cfg(feature = "dim3")]
+            ShapeType::ConvexPolyhedron => RawShapeType::ConvexPolyhedron,
+            #[cfg(feature = "dim2")]
+            ShapeType::ConvexPolygon => RawShapeType::ConvexPolygon,
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => RawShapeType::Cylinder,
             #[cfg(feature = "dim3")]
+            ShapeType::Cone => RawShapeType::Cone,
+            ShapeType::RoundCuboid => RawShapeType::RoundCuboid,
+            ShapeType::RoundTriangle => RawShapeType::RoundTriangle,
+            #[cfg(feature = "dim3")]
             ShapeType::RoundCylinder => RawShapeType::RoundCylinder,
             #[cfg(feature = "dim3")]
-            ShapeType::Cone => RawShapeType::Cone,
-            ShapeType::Segment => RawShapeType::Segment,
+            ShapeType::RoundCone => RawShapeType::RoundCone,
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundConvexPolyhedron => RawShapeType::RoundConvexPolyhedron,
+            #[cfg(feature = "dim2")]
+            ShapeType::RoundConvexPolygon => RawShapeType::RoundConvexPolygon,
+            ShapeType::HalfSpace => panic!("Not yet implemented."),
         })
     }
 
@@ -55,7 +70,7 @@ impl RawColliderSet {
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => co.shape().as_cylinder().map(|b| b.radius),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCylinder => co.shape().as_round_cylinder().map(|b| b.cylinder.radius),
+            ShapeType::RoundCylinder => co.shape().as_round_cylinder().map(|b| b.base_shape.radius),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.radius),
             _ => None,
@@ -72,7 +87,7 @@ impl RawColliderSet {
             ShapeType::RoundCylinder => co
                 .shape()
                 .as_round_cylinder()
-                .map(|b| b.cylinder.half_height),
+                .map(|b| b.base_shape.half_height),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.half_height),
             _ => None,
@@ -88,27 +103,67 @@ impl RawColliderSet {
         })
     }
 
-    /// The vertices of this triangle mesh if it is one.
-    pub fn coTrimeshVertices(&self, handle: usize) -> Option<Vec<f32>> {
+    /// The vertices of this triangle mesh, polyline, convex polyhedron, or convex polyhedron, if it is one.
+    pub fn coVertices(&self, handle: usize) -> Option<Vec<f32>> {
+        let flatten =
+            |vertices: &[Point<f32>]| vertices.iter().flat_map(|p| p.iter()).copied().collect();
         self.map(handle, |co| match co.shape().shape_type() {
-            ShapeType::Trimesh => co.shape().as_trimesh().map(|t| {
-                t.vertices()
+            ShapeType::TriMesh => co.shape().as_trimesh().map(|t| flatten(t.vertices())),
+            #[cfg(feature = "dim2")]
+            ShapeType::Polyline => co.shape().as_polyline().map(|p| flatten(p.vertices())),
+            #[cfg(feature = "dim3")]
+            ShapeType::ConvexPolyhedron => co
+                .shape()
+                .as_convex_polyhedron()
+                .map(|p| flatten(p.points())),
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundConvexPolyhedron => co
+                .shape()
+                .as_round_convex_polyhedron()
+                .map(|p| flatten(p.base_shape.points())),
+            #[cfg(feature = "dim2")]
+            ShapeType::ConvexPolygon => co.shape().as_convex_polygon().map(|p| flatten(p.points())),
+            #[cfg(feature = "dim2")]
+            ShapeType::RoundConvexPolygon => co
+                .shape()
+                .as_round_convex_polygon()
+                .map(|p| flatten(p.base_shape.points())),
+            _ => None,
+        })
+    }
+
+    /// The indices of this triangle mesh, polyline, or convex polyhedron, if it is one.
+    pub fn coIndices(&self, handle: usize) -> Option<Vec<u32>> {
+        self.map(handle, |co| match co.shape().shape_type() {
+            ShapeType::TriMesh => co
+                .shape()
+                .as_trimesh()
+                .map(|t| t.indices().iter().flat_map(|p| p.iter()).copied().collect()),
+            ShapeType::Polyline => co
+                .shape()
+                .as_polyline()
+                .map(|p| p.indices().iter().flat_map(|p| p.iter()).copied().collect()),
+            #[cfg(feature = "dim3")]
+            ShapeType::ConvexPolyhedron => co.shape().as_convex_polyhedron().map(|p| {
+                // TODO: avoid the `.to_trimesh()`.
+                p.to_trimesh()
+                    .1
                     .iter()
                     .flat_map(|p| p.iter())
                     .copied()
                     .collect()
             }),
-            _ => None,
-        })
-    }
-
-    /// The indices of this triangle mesh if it is one.
-    pub fn coTrimeshIndices(&self, handle: usize) -> Option<Vec<u32>> {
-        self.map(handle, |co| match co.shape().shape_type() {
-            ShapeType::Trimesh => co
-                .shape()
-                .as_trimesh()
-                .map(|t| t.indices().iter().flat_map(|p| p.iter()).copied().collect()),
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundConvexPolyhedron => co.shape().as_round_convex_polyhedron().map(|p| {
+                // TODO: avoid the `.to_trimesh()`.
+                p.base_shape
+                    .to_trimesh()
+                    .1
+                    .iter()
+                    .flat_map(|p| p.iter())
+                    .copied()
+                    .collect()
+            }),
             _ => None,
         })
     }

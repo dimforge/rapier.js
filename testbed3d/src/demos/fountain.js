@@ -3,17 +3,13 @@ import {PhysicsModifications} from "../PhysicsModifications"
 export function initWorld(RAPIER, testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
-    let bodies = new Array();
-    let colliders = new Array();
     let removableBodies = new Array();
 
     // Create Ground.
-    let groundBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Static);
+    let groundBodyDesc = RAPIER.RigidBodyDesc.newStatic();
     let groundBody = world.createRigidBody(groundBodyDesc);
     let groundColliderDesc = RAPIER.ColliderDesc.cuboid(40.0, 0.1, 40.0);
-    let groundCollider = world.createCollider(groundColliderDesc, groundBody.handle);
-    bodies.push(groundBody);
-    colliders.push(groundCollider);
+    world.createCollider(groundColliderDesc, groundBody.handle);
 
     // Dynamic cubes.
     let rad = 1.0;
@@ -23,9 +19,9 @@ export function initWorld(RAPIER, testbed) {
         j += 1;
         let modifications = new PhysicsModifications();
 
-        let bodyDesc = new RAPIER.RigidBodyDesc(RAPIER.BodyStatus.Dynamic)
-            .setLinvel(new RAPIER.Vector3(0.0, 15.0, 0.0))
-            .setTranslation(new RAPIER.Vector3(0.0, 10.0, 0.0));
+        let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+            .setLinvel(0.0, 15.0, 0.0)
+            .setTranslation(0.0, 10.0, 0.0);
         let colliderDesc;
 
         switch (j % 4) {
@@ -65,7 +61,7 @@ export function initWorld(RAPIER, testbed) {
         return modifications.commands;
     }
 
-    testbed.setWorld(world, bodies, colliders);
+    testbed.setWorld(world);
     testbed.setpreTimestepAction(spawnBodies);
 
     let cameraPosition = {

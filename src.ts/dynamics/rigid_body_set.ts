@@ -45,22 +45,23 @@ export class RigidBodySet {
         let handle = this.raw.createRigidBody(
             rawTra,
             rawRot,
+            desc.gravityScale,
             desc.mass,
-            desc.collidersMassContributionEnabled,
+            desc.translationsEnabled,
             rawCom,
             rawLv,
             // #if DIM2
             desc.angvel,
             desc.principalAngularInertia,
-            desc.collidersPrincipalAngularInertiaContributionEnabled,
+            desc.rotationsEnabled,
             // #endif
             // #if DIM3
             rawAv,
             rawPrincipalInertia,
             rawInertiaFrame,
-            desc.collidersPrincipalAngularInertiaContributionEnabledX,
-            desc.collidersPrincipalAngularInertiaContributionEnabledY,
-            desc.collidersPrincipalAngularInertiaContributionEnabledZ,
+            desc.rotationsEnabledX,
+            desc.rotationsEnabledY,
+            desc.rotationsEnabledZ,
             // #endif
             desc.linearDamping,
             desc.angularDamping,

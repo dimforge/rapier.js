@@ -20,8 +20,8 @@ export class RapierBackend {
 
     addRigidBody(body) {
         let bodyDesc = new this.RAPIER.RigidBodyDesc(body.type)
-            .setTranslation(body.translation)
-            .setLinvel(body.linvel)
+            .setTranslation(body.translation.x, body.translation.y, body.translation.z)
+            .setLinvel(body.linvel.x, body.linvel.y, body.linvel.z)
             .setAngvel(body.angvel)
             .setLinearDamping(body.linearDamping)
             .setAngularDamping(body.angularDamping);
@@ -67,9 +67,9 @@ export class RapierBackend {
                 hh = coll.halfHeight;
                 colliderDesc = this.RAPIER.ColliderDesc.cone(hh, r);
                 break;
-            case this.RAPIER.ShapeType.Trimesh:
-                let vertices = coll.trimeshVertices;
-                let indices = coll.trimeshIndices;
+            case this.RAPIER.ShapeType.TriMesh:
+                let vertices = coll.vertices;
+                let indices = coll.indices;
                 colliderDesc = this.RAPIER.ColliderDesc.trimesh(vertices, indices);
                 break;
             case this.RAPIER.ShapeType.HeightField:

@@ -9,13 +9,19 @@ var kk = 0;
 
 export class Graphics {
     constructor(simulationParameters) {
+        // High pixel Ratio make the rendering extremely slow, so we cap it.
+        const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
+
         this.coll2gfx = new Map();
         this.colorIndex = 0;
         this.colorPalette = [0xF3D9B1, 0x98C1D9, 0x053C5E, 0x1F7A8C];
         this.renderer = new PIXI.Renderer({
-            backgroundColor: 0xF9F9FF,
+            backgroundColor: 0x292929,
             antialias: true,
+            resolution: pixelRatio,
+            autoResize: true
         });
+
         this.renderer.resize(window.innerWidth, window.innerHeight);
         this.scene = new PIXI.Container();
         document.body.appendChild(this.renderer.view);
@@ -105,9 +111,11 @@ export class Graphics {
     }
 
     addCollider(RAPIER, world, collider) {
+        let i;
         let parent = world.getRigidBody(collider.parent());
         let instance;
         let graphics;
+        let vertices;
         let instanceId = parent.isStatic() ? 0 : (this.colorIndex + 1);
 
         switch (collider.shapeType()) {
@@ -128,6 +136,45 @@ export class Graphics {
                 graphics.scale.y = rad;
                 this.viewport.addChild(graphics);
                 instance.count += 1;
+                break;
+            case RAPIER.ShapeType.Polyline:
+                vertices = Array.from(collider.vertices());
+                graphics = new PIXI.Graphics();
+                graphics.lineStyle(0.2, this.colorPalette[instanceId])
+                    .moveTo(vertices[0], -vertices[1]);
+
+                for (i = 2; i < vertices.length; i += 2) {
+                    graphics.lineTo(vertices[i], -vertices[i + 1]);
+                }
+
+                this.viewport.addChild(graphics);
+                break;
+            case RAPIER.ShapeType.HeightField:
+                let heights = Array.from(collider.heightfieldHeights());
+                let scale = collider.heightfieldScale();
+                let step = scale.x / (heights.length - 1);
+
+                graphics = new PIXI.Graphics();
+                graphics.lineStyle(0.2, this.colorPalette[instanceId])
+                    .moveTo(-scale.x / 2.0, -heights[0] * scale.y);
+
+                for (i = 1; i < heights.length; i += 1) {
+                    graphics.lineTo(-scale.x / 2.0 + i * step, -heights[i] * scale.y);
+                }
+
+                this.viewport.addChild(graphics);
+                break;
+            case RAPIER.ShapeType.ConvexPolygon:
+                vertices = Array.from(collider.vertices());
+                graphics = new PIXI.Graphics();
+                graphics.beginFill(this.colorPalette[instanceId], 1.0);
+                graphics.moveTo(vertices[0], -vertices[1]);
+
+                for (i = 2; i < vertices.length; i += 2) {
+                    graphics.lineTo(vertices[i], -vertices[i + 1]);
+                }
+
+                this.viewport.addChild(graphics);
                 break;
             default:
                 console.log("Unknown shape to render.");
