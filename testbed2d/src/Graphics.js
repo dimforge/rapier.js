@@ -10,7 +10,7 @@ var kk = 0;
 export class Graphics {
     constructor(simulationParameters) {
         // High pixel Ratio make the rendering extremely slow, so we cap it.
-        const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 2) : 1;
+        const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
 
         this.coll2gfx = new Map();
         this.colorIndex = 0;
@@ -152,7 +152,7 @@ export class Graphics {
             case RAPIER.ShapeType.HeightField:
                 let heights = Array.from(collider.heightfieldHeights());
                 let scale = collider.heightfieldScale();
-                let step = scale.x / heights.length;
+                let step = scale.x / (heights.length - 1);
 
                 graphics = new PIXI.Graphics();
                 graphics.lineStyle(0.2, this.colorPalette[instanceId])

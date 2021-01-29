@@ -1,4 +1,5 @@
 import md5 from 'md5';
+import crc32 from 'buffer-crc32'
 
 export class RapierBackend {
     removeRigidBody(handle) {

@@ -68,8 +68,8 @@ export class RapierBackend {
                 colliderDesc = this.RAPIER.ColliderDesc.cone(hh, r);
                 break;
             case this.RAPIER.ShapeType.TriMesh:
-                let vertices = coll.trimeshVertices;
-                let indices = coll.trimeshIndices;
+                let vertices = coll.vertices;
+                let indices = coll.indices;
                 colliderDesc = this.RAPIER.ColliderDesc.trimesh(vertices, indices);
                 break;
             case this.RAPIER.ShapeType.HeightField:

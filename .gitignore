@@ -9,6 +9,8 @@ target
 package-lock.json
 dist
 pkg
+pkg2d
+pkg3d
 docs
 *.swp
 *.d.ts
