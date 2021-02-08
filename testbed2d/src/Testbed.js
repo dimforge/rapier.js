@@ -39,13 +39,13 @@ export class Testbed {
             // "box2d.js",
             // "box2d.wasm"
         ];
+        this.RAPIER = RAPIER;
         let parameters = new SimulationParameters(backends, builders);
         this.gui = new Gui(this, parameters);
         this.graphics = new Graphics();
         this.inhibitLookAt = false;
         this.parameters = parameters;
         this.worker = worker;
-        this.RAPIER = RAPIER;
         this.demoToken = 0;
         this.switchToDemo(builders.keys().next().value);
 
