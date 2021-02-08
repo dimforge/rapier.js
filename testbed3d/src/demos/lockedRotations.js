@@ -20,7 +20,6 @@ export function initWorld(RAPIER, testbed) {
     bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
         .setTranslation(0.0, 3.0, 0.0)
         .lockTranslations()
-        .setPrincipalAngularInertia(new RAPIER.Vector3(0.0, 0.0, 0.0))
         .restrictRotations(true, false, false);
     body = world.createRigidBody(bodyDesc);
     colliderDesc = RAPIER.ColliderDesc.cuboid(0.2, 0.6, 2.0);
