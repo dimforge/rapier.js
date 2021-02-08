@@ -558,9 +558,9 @@ export class ConvexPolyhedron {
 
     public intoRaw(): RawShape {
         if (!!this.indices) {
-            return RawShape.convexHull(this.vertices);
-        } else {
             return RawShape.convexMesh(this.vertices, this.indices);
+        } else {
+            return RawShape.convexHull(this.vertices);
         }
     }
 }

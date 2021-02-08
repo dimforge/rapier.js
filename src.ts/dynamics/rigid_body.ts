@@ -646,21 +646,10 @@ export class RigidBodyDesc {
     /**
      * Sets the mass of the rigid-body being built.
      *
-     * Use `this.setMass(0.0, false)` to disable translations for this
-     * collider.
-     *
-     * Note that if `collidierMassContributionEnabled` is set to `true` then
-     * the final mass of the rigid-bodies depends on the initial mass set by
-     * this method to which is added the contributions of all the colliders
-     * with non-zero density attached to this rigid-body.
-     *
      * @param mass − The initial mass of the rigid-body to create.
-     * @param translationsEnabled - If `true`, then mass contributions from colliders
-     *   with non-zero densities will be taken into account.
      */
-    public setMass(mass: number, translationsEnabled: boolean): RigidBodyDesc {
+    public setMass(mass: number): RigidBodyDesc {
         this.mass = mass;
-        this.translationsEnabled = translationsEnabled;
         return this;
     }
 

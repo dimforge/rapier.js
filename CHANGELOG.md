@@ -1,3 +1,8 @@
+### v0.3.1
+- Fix crash happening when creating a collider with a `ColliderDesc.convexHull` shape.
+- Actually remove the second argument of `RigidBodyDesc.setMass` as mentioned in the 0.3.0 changelog.
+- Improve snapshotting performances.
+
 ### v0.3.0
 #### Added
 - Added a `RAPIER.version()` function at the root of the package to retrieve the version of Rapier
