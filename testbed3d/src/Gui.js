@@ -5,6 +5,7 @@ export class Gui {
     constructor(testbed, simulationParameters) {
         // Timings
         this.stats = new Stats();
+        this.rapierVersion = testbed.RAPIER.version();
         this.maxTimePanelValue = 16.0;
         // NOTE: we add the same panel twice because it appears the memory use panel is missing
         // on firefox. This means that on firefox we have to show the panel 2 instead of the panel
@@ -65,7 +66,8 @@ export class Gui {
     }
 
     setDebugInfos(infos) {
-        let text = "[Step " + infos.stepId + "]";
+        let text = "Version " + this.rapierVersion;
+        text += "<br/>[Step " + infos.stepId + "]";
 
         if (infos.worldHash) {
             text += "<br/>World hash (CRC32): " + infos.worldHash;

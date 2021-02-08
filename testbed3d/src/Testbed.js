@@ -36,13 +36,13 @@ export class Testbed {
             // "oimo.js",
             // PHYSX_BACKEND_NAME
         ];
+        this.RAPIER = RAPIER;
         let parameters = new SimulationParameters(backends, builders);
         this.gui = new Gui(this, parameters);
         this.graphics = new Graphics();
         this.inhibitLookAt = false;
         this.parameters = parameters;
         this.worker = worker;
-        this.RAPIER = RAPIER;
         this.demoToken = 0;
         this.mouse = {x: 0, y: 0};
         this.switchToDemo(builders.keys().next().value);
