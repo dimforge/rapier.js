@@ -51,7 +51,7 @@ impl RawColliderSet {
             ShapeType::RoundConvexPolyhedron => RawShapeType::RoundConvexPolyhedron,
             #[cfg(feature = "dim2")]
             ShapeType::RoundConvexPolygon => RawShapeType::RoundConvexPolygon,
-            ShapeType::HalfSpace => panic!("Not yet implemented."),
+            ShapeType::HalfSpace | ShapeType::Custom => panic!("Not yet implemented."),
         })
     }
 
