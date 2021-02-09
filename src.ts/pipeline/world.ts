@@ -223,7 +223,7 @@ export class World {
      * the velocity solver did not converge entirely. Large values will degrade significantly
      * the performance of the simulation.
      *
-     * To increase realism of the simulation it is recommanded, more efficient, and more effecive,
+     * To increase realism of the simulation it is recommended, more efficient, and more effecive,
      * to increase the number of velocity iterations instead of this number of position iterations.
      *
      * @param niter - The new maximum number of position iterations.
