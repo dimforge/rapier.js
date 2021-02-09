@@ -12,3 +12,8 @@ codegen-units = 1
 #parry2d = { path = "../parry/build/parry2d" }
 #parry3d = { path = "../parry/build/parry3d" }
 #simba = { path = "../simba" }
+
+rapier2d = { git = "https://github.com/dimforge/rapier" }
+rapier3d = { git = "https://github.com/dimforge/rapier" }
+parry2d = { git = "https://github.com/dimforge/parry" }
+parry3d = { git = "https://github.com/dimforge/parry" }
