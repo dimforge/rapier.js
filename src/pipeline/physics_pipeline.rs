@@ -33,8 +33,7 @@ impl RawPhysicsPipeline {
             &mut bodies.0,
             &mut colliders.0,
             &mut joints.0,
-            None,
-            None,
+            &(),
             &(),
         );
     }
@@ -62,8 +61,7 @@ impl RawPhysicsPipeline {
             &mut bodies.0,
             &mut colliders.0,
             &mut joints.0,
-            None,
-            None,
+            &(),
             &eventQueue.collector,
         );
     }

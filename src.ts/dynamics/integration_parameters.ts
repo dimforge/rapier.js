@@ -55,14 +55,6 @@ export class IntegrationParameters {
     }
 
     /**
-     * Contacts at points where the involved bodies have a relative
-     * velocity smaller than this threshold wont be affected by the restitution force (default: `1.0`).
-     */
-    get restitutionVelocityThreshold(): number {
-        return this.raw.restitutionVelocityThreshold;
-    }
-
-    /**
      * Amount of penetration the engine wont attempt to correct (default: `0.001m`).
      */
     get allowedLinearError(): number {
@@ -195,10 +187,6 @@ export class IntegrationParameters {
 
     set warmstartCoeff(value: number) {
         this.raw.warmstartCoeff = value;
-    }
-
-    set restitutionVelocityThreshold(value: number) {
-        this.raw.restitutionVelocityThreshold = value;
     }
 
     set allowedLinearError(value: number) {

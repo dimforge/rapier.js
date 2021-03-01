@@ -1,3 +1,10 @@
+### v0.4.0
+- Fix a bug in ball/convex shape collision detection causing the ball to ignore penetrations
+  with depths greater than its radius.
+
+Breaking changes:
+- Removed `IntegrationParameters.restitutionVelocityThreshold` and `IntegrationParameters.set_restitutionVelocityThreshold`.
+
 ### v0.3.1
 - Fix crash happening when creating a collider with a `ColliderDesc.convexHull` shape.
 - Actually remove the second argument of `RigidBodyDesc.setMass` as mentioned in the 0.3.0 changelog.

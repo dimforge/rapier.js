@@ -37,11 +37,6 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn restitutionVelocityThreshold(&self) -> f32 {
-        self.0.restitution_velocity_threshold
-    }
-
-    #[wasm_bindgen(getter)]
     pub fn allowedLinearError(&self) -> f32 {
         self.0.allowed_linear_error
     }
@@ -129,11 +124,6 @@ impl RawIntegrationParameters {
     #[wasm_bindgen(setter)]
     pub fn set_warmstartCoeff(&mut self, value: f32) {
         self.0.warmstart_coeff = value
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_restitutionVelocityThreshold(&mut self, value: f32) {
-        self.0.restitution_velocity_threshold = value
     }
 
     #[wasm_bindgen(setter)]
