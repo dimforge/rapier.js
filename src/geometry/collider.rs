@@ -216,7 +216,7 @@ impl RawColliderSet {
     }
 
     /// The density of this collider.
-    pub fn coDensity(&self, handle: usize) -> f32 {
+    pub fn coDensity(&self, handle: usize) -> Option<f32> {
         self.map(handle, |co| co.density())
     }
 

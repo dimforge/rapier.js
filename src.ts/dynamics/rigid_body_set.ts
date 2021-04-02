@@ -67,6 +67,7 @@ export class RigidBodySet {
             desc.angularDamping,
             desc.status,
             desc.canSleep,
+            desc.ccdEnabled,
         );
 
         rawTra.free();

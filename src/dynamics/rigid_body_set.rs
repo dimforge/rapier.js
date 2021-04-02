@@ -77,6 +77,7 @@ impl RawRigidBodySet {
         angularDamping: f32,
         status: RawBodyStatus,
         canSleep: bool,
+        ccdEnabled: bool,
     ) -> usize {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::with_principal_inertia_frame(
@@ -89,15 +90,16 @@ impl RawRigidBodySet {
         let mut rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
             .gravity_scale(gravityScale)
-            .mass(mass)
-            .principal_angular_inertia(principalAngularInertia.0)
+            .additional_mass(mass)
+            .additional_principal_angular_inertia(principalAngularInertia.0)
             .restrict_rotations(rotationEnabledX, rotationEnabledY, rotationEnabledZ)
-            .mass_properties(props)
+            .additional_mass_properties(props)
             .linvel(linvel.0.x, linvel.0.y, linvel.0.z)
             .angvel(angvel.0)
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
-            .can_sleep(canSleep);
+            .can_sleep(canSleep)
+            .ccd_enabled(ccdEnabled);
         if !translationsEnabled {
             rigid_body = rigid_body.lock_translations();
         }
@@ -122,20 +124,22 @@ impl RawRigidBodySet {
         angularDamping: f32,
         status: RawBodyStatus,
         canSleep: bool,
+        ccdEnabled: bool,
     ) -> usize {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
         let mut rigid_body = RigidBodyBuilder::new(status.into())
             .position(pos)
             .gravity_scale(gravityScale)
-            .mass(mass)
-            .principal_angular_inertia(principalAngularInertia)
-            .mass_properties(props)
+            .additional_mass(mass)
+            .additional_principal_angular_inertia(principalAngularInertia)
+            .additional_mass_properties(props)
             .linvel(linvel.0.x, linvel.0.y)
             .angvel(angvel)
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
-            .can_sleep(canSleep);
+            .can_sleep(canSleep)
+            .ccd_enabled(ccdEnabled);
         if !transationsEnabled {
             rigid_body = rigid_body.lock_translations();
         }

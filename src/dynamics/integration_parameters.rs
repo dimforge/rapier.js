@@ -17,11 +17,6 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn returnAfterCcdSubstep(&self) -> bool {
-        self.0.return_after_ccd_substep
-    }
-
-    #[wasm_bindgen(getter)]
     pub fn erp(&self) -> f32 {
         self.0.erp
     }
@@ -62,11 +57,6 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn maxStabilizationMultiplier(&self) -> f32 {
-        self.0.max_stabilization_multiplier
-    }
-
-    #[wasm_bindgen(getter)]
     pub fn maxVelocityIterations(&self) -> usize {
         self.0.max_velocity_iterations
     }
@@ -82,33 +72,13 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn maxCcdPositionIterations(&self) -> usize {
-        self.0.max_ccd_position_iterations
-    }
-
-    #[wasm_bindgen(getter)]
     pub fn maxCcdSubsteps(&self) -> usize {
         self.0.max_ccd_substeps
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn multipleCcdSubstepSensorEventsEnabled(&self) -> bool {
-        self.0.multiple_ccd_substep_sensor_events_enabled
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn ccdOnPenetrationEnabled(&self) -> bool {
-        self.0.ccd_on_penetration_enabled
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_dt(&mut self, value: f32) {
         self.0.dt = value;
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_returnAfterCcdSubstep(&mut self, value: bool) {
-        self.0.return_after_ccd_substep = value
     }
 
     #[wasm_bindgen(setter)]
@@ -152,11 +122,6 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_maxStabilizationMultiplier(&mut self, value: f32) {
-        self.0.max_stabilization_multiplier = value
-    }
-
-    #[wasm_bindgen(setter)]
     pub fn set_maxVelocityIterations(&mut self, value: usize) {
         self.0.max_velocity_iterations = value
     }
@@ -172,22 +137,7 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_maxCcdPositionIterations(&mut self, value: usize) {
-        self.0.max_ccd_position_iterations = value
-    }
-
-    #[wasm_bindgen(setter)]
     pub fn set_maxCcdSubsteps(&mut self, value: usize) {
         self.0.max_ccd_substeps = value
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_multipleCcdSubstepSensorEventsEnabled(&mut self, value: bool) {
-        self.0.multiple_ccd_substep_sensor_events_enabled = value
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_ccdOnPenetrationEnabled(&mut self, value: bool) {
-        self.0.ccd_on_penetration_enabled = value
     }
 }

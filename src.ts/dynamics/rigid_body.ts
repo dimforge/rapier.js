@@ -67,26 +67,26 @@ export class RigidBody {
     }
 
     /**
-     * The world-space predicted translation of this rigid-body.
+     * The world-space next translation of this rigid-body.
      *
      * If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
      * method and is used for estimating the kinematic body velocity at the next timestep.
      * For non-kinematic bodies, this value is currently unspecified.
      */
-    public predictedTranslation(): Vector {
-        let res = this.rawSet.rbPredictedTranslation(this.handle);
+    public nextTranslation(): Vector {
+        let res = this.rawSet.rbNextTranslation(this.handle);
         return VectorOps.fromRaw(res);
     }
 
     /**
-     * The world-space predicted orientation of this rigid-body.
+     * The world-space next orientation of this rigid-body.
      *
      * If this rigid-body is kinematic this value is set by the `setNextKinematicRotation`
      * method and is used for estimating the kinematic body velocity at the next timestep.
      * For non-kinematic bodies, this value is currently unspecified.
      */
-    public predictedRotation(): Rotation {
-        let res = this.rawSet.rbPredictedRotation(this.handle);
+    public nextRotation(): Rotation {
+        let res = this.rawSet.rbNextRotation(this.handle);
         return RotationOps.fromRaw(res);
     }
 
@@ -302,6 +302,13 @@ export class RigidBody {
      */
     public wakeUp() {
         this.rawSet.rbWakeUp(this.handle);
+    }
+
+    /**
+     * Is CCD enabled for this rigid-body?
+     */
+    public isCcdEnabled() {
+        this.rawSet.rbIsCcdEnabled(this.handle);
     }
 
     /**
@@ -542,6 +549,7 @@ export class RigidBodyDesc {
     angularDamping: number
     status: BodyStatus;
     canSleep: boolean;
+    ccdEnabled: boolean;
 
     constructor(status: BodyStatus) {
         this.status = status;
@@ -568,6 +576,7 @@ export class RigidBodyDesc {
         this.linearDamping = 0.0;
         this.angularDamping = 0.0;
         this.canSleep = true;
+        this.ccdEnabled = false;
     }
 
     /**
@@ -851,6 +860,16 @@ export class RigidBodyDesc {
      */
     public setCanSleep(can: boolean): RigidBodyDesc {
         this.canSleep = can;
+        return this;
+    }
+
+    /**
+     * Sets whether Continuous Collision Detection (CCD) is enabled for this rigid-body.
+     *
+     * @param enabled - true if the rigid-body has CCD enabled.
+     */
+    public setCcdEnabled(enabled: boolean): RigidBodyDesc {
+        this.ccdEnabled = enabled;
         return this;
     }
 }

@@ -53,7 +53,7 @@ impl RawColliderSet {
         if let Some((_, handle)) = bodies.0.get_unknown_gen(parent) {
             let pos = Isometry::from_parts(translation.0.into(), rotation.0);
             let mut builder = ColliderBuilder::new(shape.0.clone())
-                .position(pos)
+                .position_wrt_parent(pos)
                 .friction(friction)
                 .restitution(restitution)
                 .collision_groups(InteractionGroups(collisionGroups))

@@ -9,11 +9,13 @@ import * as Damping from './demos/damping'
 import * as Heightfield from './demos/heightfield'
 import * as LockedRotations from './demos/lockedRotations'
 import * as ConvexPolyhedron from './demos/convexPolyhedron'
+import * as CCD from './demos/ccd'
 
 import('@dimforge/rapier3d').then(RAPIER => {
     let builders = new Map([
         ['collision groups', CollisionGroups.initWorld],
         ['convex polyhedron', ConvexPolyhedron.initWorld],
+        ['CCD', CCD.initWorld],
         ['damping', Damping.initWorld],
         ['fountain', Fountain.initWorld],
         ['heightfield', Heightfield.initWorld],

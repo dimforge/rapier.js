@@ -1,5 +1,5 @@
 import {
-    RawBroadPhase, RawColliderSet,
+    RawBroadPhase, RawCCDSolver, RawColliderSet,
     RawDeserializedWorld,
     RawIntegrationParameters,
     RawJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
@@ -17,6 +17,7 @@ import {
     RayColliderToi, Shape, ShapeColliderTOI
 } from "../geometry";
 import {
+    CCDSolver,
     IntegrationParameters,
     Joint, JointHandle,
     JointParams,
@@ -46,6 +47,7 @@ export class World {
     bodies: RigidBodySet
     colliders: ColliderSet
     joints: JointSet
+    ccdSolver: CCDSolver
     queryPipeline: QueryPipeline
     physicsPipeline: PhysicsPipeline
     serializationPipeline: SerializationPipeline
@@ -63,6 +65,7 @@ export class World {
         this.bodies.free();
         this.colliders.free();
         this.joints.free();
+        this.ccdSolver.free();
         this.queryPipeline.free();
         this.physicsPipeline.free();
         this.serializationPipeline.free();
@@ -72,6 +75,7 @@ export class World {
         this.narrowPhase = undefined;
         this.bodies = undefined;
         this.colliders = undefined;
+        this.ccdSolver = undefined;
         this.joints = undefined;
         this.queryPipeline = undefined;
         this.physicsPipeline = undefined;
@@ -86,6 +90,7 @@ export class World {
         rawBodies?: RawRigidBodySet,
         rawColliders?: RawColliderSet,
         rawJoints?: RawJointSet,
+        rawCCDSolver?: RawCCDSolver,
         rawQueryPipeline?: RawQueryPipeline,
         rawPhysicsPipeline?: RawPhysicsPipeline,
         rawSerializationPipeline?: RawSerializationPipeline
@@ -97,6 +102,7 @@ export class World {
         this.bodies = new RigidBodySet(rawBodies);
         this.colliders = new ColliderSet(rawColliders);
         this.joints = new JointSet(rawJoints);
+        this.ccdSolver = new CCDSolver(rawCCDSolver);
         this.queryPipeline = new QueryPipeline(rawQueryPipeline);
         this.physicsPipeline = new PhysicsPipeline(rawPhysicsPipeline);
         this.serializationPipeline = new SerializationPipeline(rawSerializationPipeline);
@@ -162,6 +168,7 @@ export class World {
             this.bodies,
             this.colliders,
             this.joints,
+            this.ccdSolver,
             eventQueue,
         );
         this.queryPipeline.update(this.bodies, this.colliders);
@@ -306,8 +313,6 @@ export class World {
     public removeRigidBody(body: RigidBody) {
         this.physicsPipeline.removeRigidBody(
             body.handle,
-            this.broadPhase,
-            this.narrowPhase,
             this.bodies,
             this.colliders,
             this.joints,
@@ -324,8 +329,6 @@ export class World {
     public removeCollider(collider: Collider) {
         this.physicsPipeline.removeCollider(
             collider.handle,
-            this.broadPhase,
-            this.narrowPhase,
             this.bodies,
             this.colliders,
         );

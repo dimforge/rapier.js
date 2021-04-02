@@ -288,7 +288,6 @@ export class QueryPipeline {
             rawVel,
             rawShape,
             maxToi,
-            0.0,
             groups,
         ));
 

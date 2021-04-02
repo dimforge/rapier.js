@@ -1,4 +1,4 @@
-use crate::dynamics::{RawIntegrationParameters, RawJointSet, RawRigidBodySet};
+use crate::dynamics::{RawCCDSolver, RawIntegrationParameters, RawJointSet, RawRigidBodySet};
 use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
 use crate::math::RawVector;
 use crate::pipeline::RawEventQueue;
@@ -24,6 +24,7 @@ impl RawPhysicsPipeline {
         bodies: &mut RawRigidBodySet,
         colliders: &mut RawColliderSet,
         joints: &mut RawJointSet,
+        ccd_solver: &mut RawCCDSolver,
     ) {
         self.0.step(
             &gravity.0,
@@ -33,6 +34,7 @@ impl RawPhysicsPipeline {
             &mut bodies.0,
             &mut colliders.0,
             &mut joints.0,
+            &mut ccd_solver.0,
             &(),
             &(),
         );
@@ -47,6 +49,7 @@ impl RawPhysicsPipeline {
         bodies: &mut RawRigidBodySet,
         colliders: &mut RawColliderSet,
         joints: &mut RawJointSet,
+        ccd_solver: &mut RawCCDSolver,
         eventQueue: &mut RawEventQueue,
     ) {
         if eventQueue.auto_drain {
@@ -61,6 +64,7 @@ impl RawPhysicsPipeline {
             &mut bodies.0,
             &mut colliders.0,
             &mut joints.0,
+            &mut ccd_solver.0,
             &(),
             &eventQueue.collector,
         );
@@ -71,16 +75,16 @@ impl RawPhysicsPipeline {
     pub fn removeRigidBody(
         &mut self,
         handle: usize,
-        broadPhase: &mut RawBroadPhase,
-        narrowPhase: &mut RawNarrowPhase,
+        // broadPhase: &mut RawBroadPhase,
+        // narrowPhase: &mut RawNarrowPhase,
         bodies: &mut RawRigidBodySet,
         colliders: &mut RawColliderSet,
         joints: &mut RawJointSet,
     ) {
         if let Some((_, handle)) = bodies.0.get_unknown_gen(handle) {
             bodies.0.remove(handle, &mut colliders.0, &mut joints.0);
-            broadPhase.0.maintain(&mut colliders.0);
-            narrowPhase.0.maintain(&mut colliders.0, &mut bodies.0);
+            // broadPhase.0.maintain(&mut colliders.0);
+            // narrowPhase.0.maintain(&mut colliders.0, &mut bodies.0);
         }
     }
 
@@ -89,15 +93,15 @@ impl RawPhysicsPipeline {
     pub fn removeCollider(
         &mut self,
         handle: usize,
-        broadPhase: &mut RawBroadPhase,
-        narrowPhase: &mut RawNarrowPhase,
+        // broadPhase: &mut RawBroadPhase,
+        // narrowPhase: &mut RawNarrowPhase,
         bodies: &mut RawRigidBodySet,
         colliders: &mut RawColliderSet,
     ) {
         if let Some((_, handle)) = colliders.0.get_unknown_gen(handle) {
             colliders.0.remove(handle, &mut bodies.0, true);
-            broadPhase.0.maintain(&mut colliders.0);
-            narrowPhase.0.maintain(&mut colliders.0, &mut bodies.0);
+            // broadPhase.0.maintain(&mut colliders.0);
+            // narrowPhase.0.maintain(&mut colliders.0, &mut bodies.0);
         }
     }
 }

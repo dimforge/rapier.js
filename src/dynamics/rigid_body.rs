@@ -34,9 +34,9 @@ impl RawRigidBodySet {
     /// If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
     /// method and is used for estimating the kinematic body velocity at the next timestep.
     /// For non-kinematic bodies, this value is currently unspecified.
-    pub fn rbPredictedTranslation(&self, handle: usize) -> RawVector {
+    pub fn rbNextTranslation(&self, handle: usize) -> RawVector {
         self.map(handle, |rb| {
-            RawVector(rb.predicted_position().translation.vector)
+            RawVector(rb.next_position().translation.vector)
         })
     }
 
@@ -45,8 +45,8 @@ impl RawRigidBodySet {
     /// If this rigid-body is kinematic this value is set by the `setNextKinematicRotation`
     /// method and is used for estimating the kinematic body velocity at the next timestep.
     /// For non-kinematic bodies, this value is currently unspecified.
-    pub fn rbPredictedRotation(&self, handle: usize) -> RawRotation {
-        self.map(handle, |rb| RawRotation(rb.predicted_position().rotation))
+    pub fn rbNextRotation(&self, handle: usize) -> RawRotation {
+        self.map(handle, |rb| RawRotation(rb.next_position().rotation))
     }
 
     /// Sets the translation of this rigid-body.
@@ -157,7 +157,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn rbSetNextKinematicTranslation(&mut self, handle: usize, x: f32, y: f32, z: f32) {
         self.map_mut(handle, |rb| {
-            let mut pos = *rb.predicted_position();
+            let mut pos = *rb.next_position();
             pos.translation.vector = na::Vector3::new(x, y, z);
             rb.set_next_kinematic_position(pos);
         })
@@ -177,7 +177,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim2")]
     pub fn rbSetNextKinematicTranslation(&mut self, handle: usize, x: f32, y: f32) {
         self.map_mut(handle, |rb| {
-            let mut pos = *rb.predicted_position();
+            let mut pos = *rb.next_position();
             pos.translation.vector = na::Vector2::new(x, y);
             rb.set_next_kinematic_position(pos);
         })
@@ -200,7 +200,7 @@ impl RawRigidBodySet {
     pub fn rbSetNextKinematicRotation(&mut self, handle: usize, x: f32, y: f32, z: f32, w: f32) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
             self.map_mut(handle, |rb| {
-                let mut pos = *rb.predicted_position();
+                let mut pos = *rb.next_position();
                 pos.rotation = q;
                 rb.set_next_kinematic_position(pos);
             })
@@ -220,7 +220,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim2")]
     pub fn rbSetNextKinematicRotation(&mut self, handle: usize, angle: f32) {
         self.map_mut(handle, |rb| {
-            let mut pos = *rb.predicted_position();
+            let mut pos = *rb.next_position();
             pos.rotation = na::UnitComplex::new(angle);
             rb.set_next_kinematic_position(pos);
         })
@@ -259,6 +259,11 @@ impl RawRigidBodySet {
         self.map_mut(handle, |rb| rb.wake_up(true))
     }
 
+    /// Is Continuous Collision Detection enabled for this rigid-body?
+    pub fn rbIsCcdEnabled(&self, handle: usize) -> bool {
+        self.map(handle, |rb| rb.is_ccd_enabled())
+    }
+
     /// The number of colliders attached to this rigid-body.
     pub fn rbNumColliders(&self, handle: usize) -> usize {
         self.map(handle, |rb| rb.colliders().len())
@@ -275,7 +280,7 @@ impl RawRigidBodySet {
 
     /// The status of this rigid-body: static, dynamic, or kinematic.
     pub fn rbBodyStatus(&self, handle: usize) -> RawBodyStatus {
-        self.map(handle, |rb| rb.body_status.into())
+        self.map(handle, |rb| rb.body_status().into())
     }
 
     /// Is this rigid-body static?

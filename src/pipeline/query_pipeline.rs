@@ -33,9 +33,14 @@ impl RawQueryPipeline {
         groups: u32,
     ) -> Option<RawRayColliderToi> {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
-        let (handle, toi) =
-            self.0
-                .cast_ray(&colliders.0, &ray, maxToi, solid, InteractionGroups(groups))?;
+        let (handle, toi) = self.0.cast_ray(
+            &colliders.0,
+            &ray,
+            maxToi,
+            solid,
+            InteractionGroups(groups),
+            None,
+        )?;
         Some(RawRayColliderToi { handle, toi })
     }
 
@@ -55,6 +60,7 @@ impl RawQueryPipeline {
             maxToi,
             solid,
             InteractionGroups(groups),
+            None,
         )?;
         Some(RawRayColliderIntersection { handle, inter })
     }
@@ -86,6 +92,7 @@ impl RawQueryPipeline {
             maxToi,
             solid,
             InteractionGroups(groups),
+            None,
             rcallback,
         )
     }
@@ -100,7 +107,13 @@ impl RawQueryPipeline {
     ) -> Option<usize> {
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
         self.0
-            .intersection_with_shape(&colliders.0, &pos, &*shape.0, InteractionGroups(groups))
+            .intersection_with_shape(
+                &colliders.0,
+                &pos,
+                &*shape.0,
+                InteractionGroups(groups),
+                None,
+            )
             .map(|h| h.into_raw_parts().0)
     }
 
@@ -117,6 +130,7 @@ impl RawQueryPipeline {
                 &point.0.into(),
                 solid,
                 InteractionGroups(groups),
+                None,
             )
             .map(|(handle, proj)| RawPointColliderProjection { handle, proj })
     }
@@ -141,6 +155,7 @@ impl RawQueryPipeline {
             &colliders.0,
             &point.0.into(),
             InteractionGroups(groups),
+            None,
             rcallback,
         )
     }
@@ -162,7 +177,6 @@ impl RawQueryPipeline {
         shapeVel: &RawVector,
         shape: &RawShape,
         maxToi: f32,
-        targetDistance: f32,
         groups: u32,
     ) -> Option<RawShapeColliderTOI> {
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
@@ -173,8 +187,8 @@ impl RawQueryPipeline {
                 &shapeVel.0,
                 &*shape.0,
                 maxToi,
-                targetDistance,
                 InteractionGroups(groups),
+                None,
             )
             .map(|(handle, toi)| RawShapeColliderTOI { handle, toi })
     }
@@ -203,6 +217,7 @@ impl RawQueryPipeline {
             &pos,
             &*shape.0,
             InteractionGroups(groups),
+            None,
             rcallback,
         )
     }
