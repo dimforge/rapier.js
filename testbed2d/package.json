@@ -6,12 +6,12 @@
   "license": "Apache v2",
   "main": "dist/rapier-testbed2d.js",
   "scripts": {
-    "build": "rimraf dist pkg && webpack",
+    "build": "rimraf dist pkg && webpack -d",
     "start": "rimraf dist pkg && webpack-dev-server --open -d",
     "test": "cargo test && wasm-pack test --headless"
   },
   "dependencies": {
-    "@dimforge/rapier2d": "^0.5.1",
+    "@dimforge/rapier2d": "^0.5.3",
     "dat.gui": "^0.7.7",
     "matter-js": "^0.14.2",
     "md5": "^2.2.1",

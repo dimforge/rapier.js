@@ -23,7 +23,7 @@ const appConfig = {
     output: {
         path: dist,
         filename: "index.js",
-        globalObject: 'this'
+        // globalObject: 'this'
     },
     plugins: [
         new CopyPlugin([
@@ -46,7 +46,7 @@ const workerConfig = {
     output: {
         path: dist,
         filename: "worker.js",
-        globalObject: 'this'
+        // globalObject: 'this'
     }
 };
 
