@@ -1,3 +1,12 @@
+### v0.5.3
+
+- Fix a crash when loading the WASM file on iOS safari.
+
+### v0.5.2
+
+- Fix a crash that could happen after adding and then removing a collider right away,
+  before stepping the simulation.
+
 ### v0.5.1
 
 - Fix a determinism issue after snapshot restoration.
