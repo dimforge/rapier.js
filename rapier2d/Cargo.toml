@@ -1,6 +1,6 @@
 [package]
 name = "dimforge_rapier2d" # Can't be named rapier2d which conflicts with the dependency.
-version = "0.5.1"
+version = "0.5.3"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 description = "2-dimensional physics engine in Rust - official JS bindings."
 documentation = "http://rapier.rs/rustdoc/rapier2d/index.html"
@@ -23,7 +23,7 @@ required-features = ["dim2"]
 
 
 [dependencies]
-rapier2d = { version = "^0.7.1", features = ["wasm-bindgen", "serde-serialize", "enhanced-determinism"] }
+rapier2d = { version = "^0.7.2", features = ["wasm-bindgen", "serde-serialize", "enhanced-determinism"] }
 ref-cast = "1"
 wasm-bindgen = "0.2"
 js-sys = "0.3"
@@ -34,4 +34,4 @@ crossbeam-channel = "0.4"
 
 [package.metadata.wasm-pack.profile.release]
 # add -g to keep debug symbols
-wasm-opt = ['-O4', "--enable-mutable-globals"] # , '-g']
+wasm-opt = ['-O4'] # , '-g']
