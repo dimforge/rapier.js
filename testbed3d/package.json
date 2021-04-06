@@ -6,12 +6,12 @@
   "license": "Apache v2",
   "main": "dist/rapier-testbed3d.js",
   "scripts": {
-    "build": "rimraf dist pkg && webpack",
-    "start": "rimraf dist pkg && webpack-dev-server --open -d",
+    "build": "rimraf dist pkg && webpack -d",
+    "start": "rimraf dist pkg && webpack-dev-server --open -d --host 0.0.0.0",
     "test": "cargo test && wasm-pack test --headless"
   },
   "dependencies": {
-    "@dimforge/rapier3d": "^0.5.1",
+    "@dimforge/rapier3d": "^0.5.3",
     "buffer-crc32": "^0.2.13",
     "cannon": "^0.6.2",
     "cannon-es": "^0.14.0",
