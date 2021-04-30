@@ -1,8 +1,8 @@
-use crate::dynamics::{RawIntegrationParameters, RawJointSet, RawRigidBodySet};
+use crate::dynamics::{RawIntegrationParameters, RawIslandManager, RawJointSet, RawRigidBodySet};
 use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
 use crate::math::RawVector;
 use js_sys::Uint8Array;
-use rapier::dynamics::{IntegrationParameters, JointSet, RigidBodySet};
+use rapier::dynamics::{IntegrationParameters, IslandManager, JointSet, RigidBodySet};
 use rapier::geometry::{BroadPhase, ColliderSet, NarrowPhase};
 use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
@@ -11,6 +11,7 @@ use wasm_bindgen::prelude::*;
 struct SerializableWorld<'a> {
     gravity: &'a Vector<f32>,
     integration_parameters: &'a IntegrationParameters,
+    islands: &'a IslandManager,
     broad_phase: &'a BroadPhase,
     narrow_phase: &'a NarrowPhase,
     bodies: &'a RigidBodySet,
@@ -22,6 +23,7 @@ struct SerializableWorld<'a> {
 struct DeserializableWorld {
     gravity: Vector<f32>,
     integration_parameters: IntegrationParameters,
+    islands: IslandManager,
     broad_phase: BroadPhase,
     narrow_phase: NarrowPhase,
     bodies: RigidBodySet,
@@ -33,6 +35,7 @@ struct DeserializableWorld {
 pub struct RawDeserializedWorld {
     gravity: Option<RawVector>,
     integrationParameters: Option<RawIntegrationParameters>,
+    islands: Option<RawIslandManager>,
     broadPhase: Option<RawBroadPhase>,
     narrowPhase: Option<RawNarrowPhase>,
     bodies: Option<RawRigidBodySet>,
@@ -48,6 +51,10 @@ impl RawDeserializedWorld {
 
     pub fn takeIntegrationParameters(&mut self) -> Option<RawIntegrationParameters> {
         self.integrationParameters.take()
+    }
+
+    pub fn takeIslandManager(&mut self) -> Option<RawIslandManager> {
+        self.islands.take()
     }
 
     pub fn takeBroadPhase(&mut self) -> Option<RawBroadPhase> {
@@ -85,6 +92,7 @@ impl RawSerializationPipeline {
         &self,
         gravity: &RawVector,
         integrationParameters: &RawIntegrationParameters,
+        islands: &RawIslandManager,
         broadPhase: &RawBroadPhase,
         narrowPhase: &RawNarrowPhase,
         bodies: &RawRigidBodySet,
@@ -94,6 +102,7 @@ impl RawSerializationPipeline {
         let to_serialize = SerializableWorld {
             gravity: &gravity.0,
             integration_parameters: &integrationParameters.0,
+            islands: &islands.0,
             broad_phase: &broadPhase.0,
             narrow_phase: &narrowPhase.0,
             bodies: &bodies.0,
@@ -110,6 +119,7 @@ impl RawSerializationPipeline {
         Some(RawDeserializedWorld {
             gravity: Some(RawVector(d.gravity)),
             integrationParameters: Some(RawIntegrationParameters(d.integration_parameters)),
+            islands: Some(RawIslandManager(d.islands)),
             broadPhase: Some(RawBroadPhase(d.broad_phase)),
             narrowPhase: Some(RawNarrowPhase(d.narrow_phase)),
             bodies: Some(RawRigidBodySet(d.bodies)),

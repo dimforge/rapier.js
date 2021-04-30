@@ -1,6 +1,6 @@
 import {RawPhysicsPipeline} from "../raw";
 import {Vector, VectorOps} from "../math";
-import {IntegrationParameters, JointSet, RigidBodyHandle, RigidBodySet, CCDSolver} from "../dynamics";
+import {IntegrationParameters, JointSet, RigidBodyHandle, RigidBodySet, CCDSolver, IslandManager} from "../dynamics";
 import {BroadPhase, ColliderHandle, ColliderSet, NarrowPhase} from "../geometry";
 import {EventQueue} from "./event_queue";
 
@@ -19,6 +19,7 @@ export class PhysicsPipeline {
     public step(
         gravity: Vector,
         integrationParameters: IntegrationParameters,
+        islands: IslandManager,
         broadPhase: BroadPhase,
         narrowPhase: NarrowPhase,
         bodies: RigidBodySet,
@@ -33,6 +34,7 @@ export class PhysicsPipeline {
             this.raw.stepWithEvents(
                 rawG,
                 integrationParameters.raw,
+                islands.raw,
                 broadPhase.raw,
                 narrowPhase.raw,
                 bodies.raw,
@@ -45,6 +47,7 @@ export class PhysicsPipeline {
             this.raw.step(
                 rawG,
                 integrationParameters.raw,
+                islands.raw,
                 broadPhase.raw,
                 narrowPhase.raw,
                 bodies.raw,
@@ -67,12 +70,14 @@ export class PhysicsPipeline {
      */
     public removeRigidBody(
         handle: RigidBodyHandle,
+        islands: IslandManager,
         bodies: RigidBodySet,
         colliders: ColliderSet,
         joints: JointSet,
     ) {
         this.raw.removeRigidBody(
             handle,
+            islands.raw,
             bodies.raw,
             colliders.raw,
             joints.raw
@@ -87,11 +92,13 @@ export class PhysicsPipeline {
      */
     public removeCollider(
         handle: ColliderHandle,
+        islands: IslandManager,
         bodies: RigidBodySet,
         colliders: ColliderSet,
     ) {
         this.raw.removeCollider(
             handle,
+            islands.raw,
             bodies.raw,
             colliders.raw,
         );

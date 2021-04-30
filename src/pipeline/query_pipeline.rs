@@ -1,4 +1,4 @@
-use crate::dynamics::RawRigidBodySet;
+use crate::dynamics::{RawIslandManager, RawRigidBodySet};
 use crate::geometry::{
     RawColliderSet, RawPointColliderProjection, RawRayColliderIntersection, RawRayColliderToi,
     RawShape, RawShapeColliderTOI,
@@ -19,8 +19,13 @@ impl RawQueryPipeline {
         RawQueryPipeline(QueryPipeline::new())
     }
 
-    pub fn update(&mut self, bodies: &RawRigidBodySet, colliders: &RawColliderSet) {
-        self.0.update(&bodies.0, &colliders.0);
+    pub fn update(
+        &mut self,
+        islands: &RawIslandManager,
+        bodies: &RawRigidBodySet,
+        colliders: &RawColliderSet,
+    ) {
+        self.0.update(&islands.0, &bodies.0, &colliders.0);
     }
 
     pub fn castRay(
@@ -78,7 +83,7 @@ impl RawQueryPipeline {
     ) {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
         let this = JsValue::null();
-        let rcallback = |handle, _, inter| {
+        let rcallback = |handle, inter| {
             let result = RawRayColliderIntersection { handle, inter };
             match callback.call1(&this, &JsValue::from(result)) {
                 Err(_) => true,
@@ -104,7 +109,7 @@ impl RawQueryPipeline {
         shapeRot: &RawRotation,
         shape: &RawShape,
         groups: u32,
-    ) -> Option<usize> {
+    ) -> Option<u32> {
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
         self.0
             .intersection_with_shape(
@@ -144,7 +149,7 @@ impl RawQueryPipeline {
         callback: &js_sys::Function,
     ) {
         let this = JsValue::null();
-        let rcallback = |handle: ColliderHandle, _| match callback
+        let rcallback = |handle: ColliderHandle| match callback
             .call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32))
         {
             Err(_) => true,
@@ -204,7 +209,7 @@ impl RawQueryPipeline {
         callback: &js_sys::Function,
     ) {
         let this = JsValue::null();
-        let rcallback = |handle: ColliderHandle, _| match callback
+        let rcallback = |handle: ColliderHandle| match callback
             .call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32))
         {
             Err(_) => true,

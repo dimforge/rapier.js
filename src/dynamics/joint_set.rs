@@ -1,4 +1,4 @@
-use crate::dynamics::{RawJointParams, RawRigidBodySet};
+use crate::dynamics::{RawIslandManager, RawJointParams, RawRigidBodySet};
 use rapier::dynamics::{Joint, JointSet};
 use wasm_bindgen::prelude::*;
 
@@ -6,7 +6,7 @@ use wasm_bindgen::prelude::*;
 pub struct RawJointSet(pub(crate) JointSet);
 
 impl RawJointSet {
-    pub(crate) fn map<T>(&self, handle: usize, f: impl FnOnce(&Joint) -> T) -> T {
+    pub(crate) fn map<T>(&self, handle: u32, f: impl FnOnce(&Joint) -> T) -> T {
         let (body, _) = self
             .0
             .get_unknown_gen(handle)
@@ -26,9 +26,9 @@ impl RawJointSet {
         &mut self,
         bodies: &mut RawRigidBodySet,
         params: &RawJointParams,
-        parent1: usize,
-        parent2: usize,
-    ) -> usize {
+        parent1: u32,
+        parent2: u32,
+    ) -> u32 {
         // TODO: avoid the unwrap?
         let parent1 = bodies.0.get_unknown_gen(parent1).unwrap().1;
         let parent2 = bodies.0.get_unknown_gen(parent2).unwrap().1;
@@ -39,9 +39,15 @@ impl RawJointSet {
             .0
     }
 
-    pub fn remove(&mut self, handle: usize, bodies: &mut RawRigidBodySet, wakeUp: bool) {
+    pub fn remove(
+        &mut self,
+        handle: u32,
+        islands: &mut RawIslandManager,
+        bodies: &mut RawRigidBodySet,
+        wakeUp: bool,
+    ) {
         if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
-            self.0.remove(handle, &mut bodies.0, wakeUp);
+            self.0.remove(handle, &mut islands.0, &mut bodies.0, wakeUp);
         }
     }
 
@@ -49,7 +55,7 @@ impl RawJointSet {
         self.0.len()
     }
 
-    pub fn contains(&self, handle: usize) -> bool {
+    pub fn contains(&self, handle: u32) -> bool {
         self.0.get_unknown_gen(handle).is_some()
     }
 

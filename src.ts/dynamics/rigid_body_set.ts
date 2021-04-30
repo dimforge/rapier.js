@@ -3,6 +3,7 @@ import {VectorOps, RotationOps} from '../math';
 import {RigidBody, RigidBodyDesc, RigidBodyHandle} from './rigid_body'
 import {ColliderSet} from "../geometry";
 import {JointSet} from "./joint_set";
+import {IslandManager} from "./island_manager";
 
 /**
  * A set of rigid bodies that can be handled by a physics pipeline.
@@ -93,8 +94,8 @@ export class RigidBodySet {
      * @param colliders - The set of colliders that may contain colliders attached to the removed rigid-body.
      * @param joints - The set of joints that may contain joints attached to the removed rigid-body.
      */
-    public remove(handle: RigidBodyHandle, colliders: ColliderSet, joints: JointSet) {
-        this.raw.remove(handle, colliders.raw, joints.raw)
+    public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, joints: JointSet) {
+        this.raw.remove(handle, islands.raw, colliders.raw, joints.raw)
     }
 
     /**
@@ -153,20 +154,9 @@ export class RigidBodySet {
      *
      * @param f - The closure to apply.
      */
-    public forEachActiveRigidBody(f: (body: RigidBody) => void) {
-        this.forEachActiveRigidBodyHandle((handle) => {
+    public forEachActiveRigidBody(islands: IslandManager, f: (body: RigidBody) => void) {
+        islands.forEachActiveRigidBodyHandle((handle) => {
             f(new RigidBody(this.raw, handle))
         })
-    }
-
-    /**
-     * Applies the given closure to the handle of each active rigid-bodies contained by this set.
-     *
-     * A rigid-body is active if it is not sleeping, i.e., if it moved recently.
-     *
-     * @param f - The closure to apply.
-     */
-    public forEachActiveRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
-        this.raw.forEachActiveRigidBodyHandle(f)
     }
 }

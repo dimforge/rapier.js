@@ -1,32 +1,32 @@
-use crate::dynamics::RawJointSet;
+use crate::dynamics::{RawIslandManager, RawJointSet};
 use crate::geometry::RawColliderSet;
 use crate::math::{RawRotation, RawVector};
-use rapier::dynamics::{BodyStatus, MassProperties, RigidBody, RigidBodyBuilder, RigidBodySet};
+use rapier::dynamics::{MassProperties, RigidBody, RigidBodyBuilder, RigidBodySet, RigidBodyType};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub enum RawBodyStatus {
+pub enum RawRigidBodyType {
     Dynamic,
     Static,
     Kinematic,
 }
 
-impl Into<BodyStatus> for RawBodyStatus {
-    fn into(self) -> BodyStatus {
+impl Into<RigidBodyType> for RawRigidBodyType {
+    fn into(self) -> RigidBodyType {
         match self {
-            RawBodyStatus::Dynamic => BodyStatus::Dynamic,
-            RawBodyStatus::Static => BodyStatus::Static,
-            RawBodyStatus::Kinematic => BodyStatus::Kinematic,
+            RawRigidBodyType::Dynamic => RigidBodyType::Dynamic,
+            RawRigidBodyType::Static => RigidBodyType::Static,
+            RawRigidBodyType::Kinematic => RigidBodyType::Kinematic,
         }
     }
 }
 
-impl Into<RawBodyStatus> for BodyStatus {
-    fn into(self) -> RawBodyStatus {
+impl Into<RawRigidBodyType> for RigidBodyType {
+    fn into(self) -> RawRigidBodyType {
         match self {
-            BodyStatus::Dynamic => RawBodyStatus::Dynamic,
-            BodyStatus::Static => RawBodyStatus::Static,
-            BodyStatus::Kinematic => RawBodyStatus::Kinematic,
+            RigidBodyType::Dynamic => RawRigidBodyType::Dynamic,
+            RigidBodyType::Static => RawRigidBodyType::Static,
+            RigidBodyType::Kinematic => RawRigidBodyType::Kinematic,
         }
     }
 }
@@ -35,14 +35,14 @@ impl Into<RawBodyStatus> for BodyStatus {
 pub struct RawRigidBodySet(pub(crate) RigidBodySet);
 
 impl RawRigidBodySet {
-    pub(crate) fn map<T>(&self, handle: usize, f: impl FnOnce(&RigidBody) -> T) -> T {
+    pub(crate) fn map<T>(&self, handle: u32, f: impl FnOnce(&RigidBody) -> T) -> T {
         let (body, _) = self.0.get_unknown_gen(handle).expect(
             "Invalid RigidBody reference. It may have been removed from the physics World.",
         );
         f(body)
     }
 
-    pub(crate) fn map_mut<T>(&mut self, handle: usize, f: impl FnOnce(&mut RigidBody) -> T) -> T {
+    pub(crate) fn map_mut<T>(&mut self, handle: u32, f: impl FnOnce(&mut RigidBody) -> T) -> T {
         let (body, _) = self.0.get_unknown_gen_mut(handle).expect(
             "Invalid RigidBody reference. It may have been removed from the physics World.",
         );
@@ -75,10 +75,10 @@ impl RawRigidBodySet {
         rotationEnabledZ: bool,
         linearDamping: f32,
         angularDamping: f32,
-        status: RawBodyStatus,
+        status: RawRigidBodyType,
         canSleep: bool,
         ccdEnabled: bool,
-    ) -> usize {
+    ) -> u32 {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::with_principal_inertia_frame(
             centerOfMass.0.into(),
@@ -122,10 +122,10 @@ impl RawRigidBodySet {
         rotationsEnabled: bool,
         linearDamping: f32,
         angularDamping: f32,
-        status: RawBodyStatus,
+        status: RawRigidBodyType,
         canSleep: bool,
         ccdEnabled: bool,
-    ) -> usize {
+    ) -> u32 {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
         let mut rigid_body = RigidBodyBuilder::new(status.into())
@@ -151,12 +151,14 @@ impl RawRigidBodySet {
 
     pub fn remove(
         &mut self,
-        handle: usize,
+        handle: u32,
+        islands: &mut RawIslandManager,
         colliders: &mut RawColliderSet,
         joints: &mut RawJointSet,
     ) {
         if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
-            self.0.remove(handle, &mut colliders.0, &mut joints.0);
+            self.0
+                .remove(handle, &mut islands.0, &mut colliders.0, &mut joints.0);
         }
     }
 
@@ -166,7 +168,7 @@ impl RawRigidBodySet {
     }
 
     /// Checks if a rigid-body with the given integer handle exists.
-    pub fn contains(&self, handle: usize) -> bool {
+    pub fn contains(&self, handle: u32) -> bool {
         self.0.get_unknown_gen(handle).is_some()
     }
 
@@ -177,23 +179,6 @@ impl RawRigidBodySet {
     pub fn forEachRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.0.iter() {
-            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
-        }
-    }
-
-    /// Applies the given JavaScript function to the integer handle of each active rigid-body
-    /// managed by this set.
-    ///
-    /// After a short time of inactivity, a rigid-body is automatically deactivated ("asleep") by
-    /// the physics engine in order to save computational power. A sleeping rigid-body never moves
-    /// unless it is moved manually by the user.
-    ///
-    /// # Parameters
-    /// - `f(handle)`: the function to apply to the integer handle of each active rigid-body managed by this
-    ///   set. Called as `f(collider)`.
-    pub fn forEachActiveRigidBodyHandle(&self, f: &js_sys::Function) {
-        let this = JsValue::null();
-        for (handle, _) in self.0.iter_active_dynamic() {
             let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
         }
     }

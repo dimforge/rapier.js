@@ -10,7 +10,7 @@ pub struct RawPointColliderProjection {
 
 #[wasm_bindgen]
 impl RawPointColliderProjection {
-    pub fn colliderHandle(&self) -> usize {
+    pub fn colliderHandle(&self) -> u32 {
         self.handle.into_raw_parts().0
     }
 

@@ -2,6 +2,7 @@ import {RawJointSet} from "../raw"
 import {RigidBodySet} from "./rigid_body_set";
 import {Joint, JointHandle, JointParams} from "./joint";
 import {RigidBody, RigidBodyHandle} from "./rigid_body";
+import {IslandManager} from "./island_manager";
 
 /**
  * A set of joints.
@@ -51,8 +52,8 @@ export class JointSet {
      * @param bodies - The set of rigid-bodies containing the rigid-bodies attached by the removed joint.
      * @param wake_up - If `true`, the rigid-bodies attached by the removed joint will be woken-up automatically.
      */
-    public remove(handle: JointHandle, bodies: RigidBodySet, wake_up: boolean) {
-        this.raw.remove(handle, bodies.raw, wake_up);
+    public remove(handle: JointHandle, islands: IslandManager, bodies: RigidBodySet, wake_up: boolean) {
+        this.raw.remove(handle, islands.raw, bodies.raw, wake_up);
     }
 
     /**

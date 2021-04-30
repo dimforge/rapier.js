@@ -1,7 +1,7 @@
 import {RawColliderSet, RawRigidBodySet} from "../raw"
 import {RotationOps, VectorOps} from '../math';
 import {Collider, ColliderDesc, ColliderHandle} from './index'
-import {RigidBody, RigidBodyHandle} from "../dynamics";
+import {IslandManager, RigidBody, RigidBodyHandle} from "../dynamics";
 import {RigidBodySet} from "../dynamics";
 
 /**
@@ -70,8 +70,8 @@ export class ColliderSet {
      * @param bodies - The set of rigid-body containing the rigid-body the collider is attached to.
      * @param wakeUp - If `true`, the rigid-body the removed collider is attached to will be woken-up automatically.
      */
-    public remove(handle: ColliderHandle, bodies: RigidBodySet, wakeUp: boolean) {
-        this.raw.remove(handle, bodies.raw, wakeUp);
+    public remove(handle: ColliderHandle, islands: IslandManager, bodies: RigidBodySet, wakeUp: boolean) {
+        this.raw.remove(handle, islands.raw, bodies.raw, wakeUp);
     }
 
     /**

@@ -2,7 +2,7 @@ import {
     RawSerializationPipeline,
 } from "../raw";
 import {Vector, VectorOps} from "../math";
-import {IntegrationParameters, JointSet, RigidBodySet} from "../dynamics";
+import {IntegrationParameters, IslandManager, JointSet, RigidBodySet} from "../dynamics";
 import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
 import {World} from "./world";
 
@@ -40,6 +40,7 @@ export class SerializationPipeline {
     public serializeAll(
         gravity: Vector,
         integrationParameters: IntegrationParameters,
+        islands: IslandManager,
         broadPhase: BroadPhase,
         narrowPhase: NarrowPhase,
         bodies: RigidBodySet,
@@ -51,6 +52,7 @@ export class SerializationPipeline {
         const res = this.raw.serializeAll(
             rawGra,
             integrationParameters.raw,
+            islands.raw,
             broadPhase.raw,
             narrowPhase.raw,
             bodies.raw,

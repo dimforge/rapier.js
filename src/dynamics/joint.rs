@@ -22,17 +22,17 @@ pub enum RawJointType {
 #[wasm_bindgen]
 impl RawJointSet {
     /// The unique integer identifier of the first rigid-body this joint it attached to.
-    pub fn jointBodyHandle1(&self, handle: usize) -> usize {
+    pub fn jointBodyHandle1(&self, handle: u32) -> u32 {
         self.map(handle, |j| j.body1.into_raw_parts().0)
     }
 
     /// The unique integer identifier of the second rigid-body this joint is attached to.
-    pub fn jointBodyHandle2(&self, handle: usize) -> usize {
+    pub fn jointBodyHandle2(&self, handle: u32) -> u32 {
         self.map(handle, |j| j.body2.into_raw_parts().0)
     }
 
     /// The type of this joint given as a string.
-    pub fn jointType(&self, handle: usize) -> RawJointType {
+    pub fn jointType(&self, handle: u32) -> RawJointType {
         self.map(handle, |j| match &j.params {
             JointParams::BallJoint(_) => RawJointType::Ball,
             JointParams::FixedJoint(_) => RawJointType::Fixed,
@@ -44,7 +44,7 @@ impl RawJointSet {
 
     /// The rotation quaternion that aligns this joint's first local axis to the `x` axis.
     #[cfg(feature = "dim3")]
-    pub fn jointFrameX1(&self, handle: usize) -> RawRotation {
+    pub fn jointFrameX1(&self, handle: u32) -> RawRotation {
         self.map(handle, |j| {
             let local_axis1 = match &j.params {
                 JointParams::BallJoint(_) => return RawRotation::identity(),
@@ -71,7 +71,7 @@ impl RawJointSet {
 
     /// The rotation matrix that aligns this joint's second local axis to the `x` axis.
     #[cfg(feature = "dim3")]
-    pub fn jointFrameX2(&self, handle: usize) -> RawRotation {
+    pub fn jointFrameX2(&self, handle: u32) -> RawRotation {
         self.map(handle, |j| {
             let local_axis2 = match &j.params {
                 JointParams::BallJoint(_) => return RawRotation::identity(),
@@ -100,7 +100,7 @@ impl RawJointSet {
     ///
     /// The first anchor gives the position of the points application point on the
     /// local frame of the first rigid-body it is attached to.
-    pub fn jointAnchor1(&self, handle: usize) -> RawVector {
+    pub fn jointAnchor1(&self, handle: u32) -> RawVector {
         self.map(handle, |j| match &j.params {
             JointParams::BallJoint(b) => RawVector(b.local_anchor1.coords),
             #[cfg(feature = "dim3")]
@@ -114,7 +114,7 @@ impl RawJointSet {
     ///
     /// The second anchor gives the position of the points application point on the
     /// local frame of the second rigid-body it is attached to.
-    pub fn jointAnchor2(&self, handle: usize) -> RawVector {
+    pub fn jointAnchor2(&self, handle: u32) -> RawVector {
         self.map(handle, |j| match &j.params {
             JointParams::BallJoint(b) => RawVector(b.local_anchor2.coords),
             #[cfg(feature = "dim3")]
@@ -129,7 +129,7 @@ impl RawJointSet {
     /// For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
     /// this returns the application axis on the first rigid-body this joint is attached to, expressed
     /// in the local-space of this first rigid-body.
-    pub fn jointAxis1(&self, handle: usize) -> Option<RawVector> {
+    pub fn jointAxis1(&self, handle: u32) -> Option<RawVector> {
         self.map(handle, |j| match &j.params {
             JointParams::BallJoint(_) | JointParams::FixedJoint(_) => None,
             #[cfg(feature = "dim3")]
@@ -143,7 +143,7 @@ impl RawJointSet {
     /// For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
     /// this returns the application axis on the second rigid-body this joint is attached to, expressed
     /// in the local-space of this second rigid-body.
-    pub fn jointAxis2(&self, handle: usize) -> Option<RawVector> {
+    pub fn jointAxis2(&self, handle: u32) -> Option<RawVector> {
         self.map(handle, |j| match &j.params {
             JointParams::BallJoint(_) | JointParams::FixedJoint(_) => None,
             #[cfg(feature = "dim3")]
@@ -153,7 +153,7 @@ impl RawJointSet {
     }
 
     /// Are the limits for this joint enabled?
-    pub fn jointLimitsEnabled(&self, handle: usize) -> bool {
+    pub fn jointLimitsEnabled(&self, handle: u32) -> bool {
         self.map(handle, |j| match &j.params {
             JointParams::PrismaticJoint(p) => p.limits_enabled,
             _ => false,
@@ -161,7 +161,7 @@ impl RawJointSet {
     }
 
     /// If this is a prismatic joint, returns its lower limit.
-    pub fn jointLimitsMin(&self, handle: usize) -> f32 {
+    pub fn jointLimitsMin(&self, handle: u32) -> f32 {
         self.map(handle, |j| match &j.params {
             JointParams::PrismaticJoint(p) => p.limits[0],
             _ => -f32::MAX,
@@ -169,7 +169,7 @@ impl RawJointSet {
     }
 
     /// If this is a prismatic joint, returns its upper limit.
-    pub fn jointLimitsMax(&self, handle: usize) -> f32 {
+    pub fn jointLimitsMax(&self, handle: u32) -> f32 {
         self.map(handle, |j| match &j.params {
             JointParams::PrismaticJoint(p) => p.limits[1],
             _ => f32::MAX,
