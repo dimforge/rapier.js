@@ -1,5 +1,6 @@
 import md5 from 'md5';
 import crc32 from 'buffer-crc32'
+import * as THREE from "three";
 
 export class RapierBackend {
     removeRigidBody(handle) {
@@ -147,6 +148,25 @@ export class RapierBackend {
             modifications.addRigidBody.forEach(body => this.addRigidBody(body));
             modifications.addCollider.forEach(collider => this.addCollider(collider));
             modifications.removeRigidBody.forEach(handle => this.removeRigidBody(handle));
+            modifications.moveKinematicBody.forEach(obj => {
+               let body = this.world.getRigidBody(obj.handle);
+               if (!!body) {
+                   let nextTra = body.translation();
+                   nextTra.x += obj.deltaTra.x;
+                   nextTra.y += obj.deltaTra.y;
+                   nextTra.z += obj.deltaTra.z;
+                   body.setNextKinematicTranslation(nextTra);
+
+                   let currRot = body.rotation();
+                   currRot = new THREE.Quaternion(currRot.x, currRot.y, currRot.z, currRot.w);
+                   let axis = new THREE.Vector3(obj.deltaRot.x, obj.deltaRot.y, obj.deltaRot.z);
+                   let angle = axis.length();
+                   axis.normalize();
+                   let deltaRot = new THREE.Quaternion();
+                   deltaRot.setFromAxisAngle(axis, angle);
+                   body.setNextKinematicRotation(deltaRot.multiply(currRot));
+               }
+            });
         }
     }
 

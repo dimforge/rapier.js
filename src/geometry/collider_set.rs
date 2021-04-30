@@ -1,4 +1,4 @@
-use crate::dynamics::RawRigidBodySet;
+use crate::dynamics::{RawIslandManager, RawRigidBodySet};
 use crate::geometry::RawShape;
 use crate::math::{RawRotation, RawVector};
 use rapier::dynamics::CoefficientCombineRule;
@@ -10,7 +10,7 @@ use wasm_bindgen::prelude::*;
 pub struct RawColliderSet(pub(crate) ColliderSet);
 
 impl RawColliderSet {
-    pub(crate) fn map<T>(&self, handle: usize, f: impl FnOnce(&Collider) -> T) -> T {
+    pub(crate) fn map<T>(&self, handle: u32, f: impl FnOnce(&Collider) -> T) -> T {
         let (collider, _) = self
             .0
             .get_unknown_gen(handle)
@@ -30,7 +30,7 @@ impl RawColliderSet {
         self.0.len()
     }
 
-    pub fn contains(&self, handle: usize) -> bool {
+    pub fn contains(&self, handle: u32) -> bool {
         self.0.get_unknown_gen(handle).is_some()
     }
 
@@ -47,9 +47,9 @@ impl RawColliderSet {
         isSensor: bool,
         collisionGroups: u32,
         solverGroups: u32,
-        parent: usize,
+        parent: u32,
         bodies: &mut RawRigidBodySet,
-    ) -> Option<usize> {
+    ) -> Option<u32> {
         if let Some((_, handle)) = bodies.0.get_unknown_gen(parent) {
             let pos = Isometry::from_parts(translation.0.into(), rotation.0);
             let mut builder = ColliderBuilder::new(shape.0.clone())
@@ -98,14 +98,20 @@ impl RawColliderSet {
     }
 
     /// Removes a collider from this set and wake-up the rigid-body it is attached to.
-    pub fn remove(&mut self, handle: usize, bodies: &mut RawRigidBodySet, wakeUp: bool) {
+    pub fn remove(
+        &mut self,
+        handle: u32,
+        islands: &mut RawIslandManager,
+        bodies: &mut RawRigidBodySet,
+        wakeUp: bool,
+    ) {
         if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
-            self.0.remove(handle, &mut bodies.0, wakeUp);
+            self.0.remove(handle, &mut islands.0, &mut bodies.0, wakeUp);
         }
     }
 
     /// Checks if a collider with the given integer handle exists.
-    pub fn isHandleValid(&self, handle: usize) -> bool {
+    pub fn isHandleValid(&self, handle: u32) -> bool {
         self.0.get_unknown_gen(handle).is_some()
     }
 

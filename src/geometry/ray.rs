@@ -10,7 +10,7 @@ pub struct RawRayColliderIntersection {
 
 #[wasm_bindgen]
 impl RawRayColliderIntersection {
-    pub fn colliderHandle(&self) -> usize {
+    pub fn colliderHandle(&self) -> u32 {
         self.handle.into_raw_parts().0
     }
 
@@ -31,7 +31,7 @@ pub struct RawRayColliderToi {
 
 #[wasm_bindgen]
 impl RawRayColliderToi {
-    pub fn colliderHandle(&self) -> usize {
+    pub fn colliderHandle(&self) -> u32 {
         self.handle.into_raw_parts().0
     }
 

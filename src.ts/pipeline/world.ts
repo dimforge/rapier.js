@@ -1,7 +1,7 @@
 import {
     RawBroadPhase, RawCCDSolver, RawColliderSet,
     RawDeserializedWorld,
-    RawIntegrationParameters,
+    RawIntegrationParameters, RawIslandManager,
     RawJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
     RawRigidBodySet, RawSerializationPipeline,
 } from "../raw";
@@ -18,7 +18,7 @@ import {
 } from "../geometry";
 import {
     CCDSolver,
-    IntegrationParameters,
+    IntegrationParameters, IslandManager,
     Joint, JointHandle,
     JointParams,
     JointSet,
@@ -42,6 +42,7 @@ import {EventQueue} from "./event_queue";
 export class World {
     gravity: Vector
     integrationParameters: IntegrationParameters
+    islands: IslandManager
     broadPhase: BroadPhase
     narrowPhase: NarrowPhase
     bodies: RigidBodySet
@@ -60,6 +61,7 @@ export class World {
      */
     public free() {
         this.integrationParameters.free();
+        this.islands.free();
         this.broadPhase.free();
         this.narrowPhase.free();
         this.bodies.free();
@@ -71,6 +73,7 @@ export class World {
         this.serializationPipeline.free();
 
         this.integrationParameters = undefined;
+        this.islands = undefined;
         this.broadPhase = undefined;
         this.narrowPhase = undefined;
         this.bodies = undefined;
@@ -85,6 +88,7 @@ export class World {
     constructor(
         gravity: Vector,
         rawIntegrationParameters?: RawIntegrationParameters,
+        rawIslands?: RawIslandManager,
         rawBroadPhase?: RawBroadPhase,
         rawNarrowPhase?: RawNarrowPhase,
         rawBodies?: RawRigidBodySet,
@@ -97,6 +101,7 @@ export class World {
     ) {
         this.gravity = gravity;
         this.integrationParameters = new IntegrationParameters(rawIntegrationParameters);
+        this.islands = new IslandManager(rawIslands);
         this.broadPhase = new BroadPhase(rawBroadPhase);
         this.narrowPhase = new NarrowPhase(rawNarrowPhase);
         this.bodies = new RigidBodySet(rawBodies);
@@ -115,6 +120,7 @@ export class World {
         return new World(
             VectorOps.fromRaw(raw.takeGravity()),
             raw.takeIntegrationParameters(),
+            raw.takeIslandManager(),
             raw.takeBroadPhase(),
             raw.takeNarrowPhase(),
             raw.takeBodies(),
@@ -133,6 +139,7 @@ export class World {
         return this.serializationPipeline.serializeAll(
             this.gravity,
             this.integrationParameters,
+            this.islands,
             this.broadPhase,
             this.narrowPhase,
             this.bodies,
@@ -163,6 +170,7 @@ export class World {
         this.physicsPipeline.step(
             this.gravity,
             this.integrationParameters,
+            this.islands,
             this.broadPhase,
             this.narrowPhase,
             this.bodies,
@@ -171,7 +179,7 @@ export class World {
             this.ccdSolver,
             eventQueue,
         );
-        this.queryPipeline.update(this.bodies, this.colliders);
+        this.queryPipeline.update(this.islands, this.bodies, this.colliders);
     }
 
     /**
@@ -313,6 +321,7 @@ export class World {
     public removeRigidBody(body: RigidBody) {
         this.physicsPipeline.removeRigidBody(
             body.handle,
+            this.islands,
             this.bodies,
             this.colliders,
             this.joints,
@@ -329,6 +338,7 @@ export class World {
     public removeCollider(collider: Collider) {
         this.physicsPipeline.removeCollider(
             collider.handle,
+            this.islands,
             this.bodies,
             this.colliders,
         );
@@ -380,7 +390,7 @@ export class World {
      * @param f - The function to apply to each active rigid-body managed by this physics world. Called as `f(collider)`.
      */
     public forEachActiveRigidBody(f: (body: RigidBody) => void) {
-        this.bodies.forEachActiveRigidBody(f);
+        this.bodies.forEachActiveRigidBody(this.islands, f);
     }
 
     /**
@@ -395,7 +405,7 @@ export class World {
      *   physics world. Called as `f(collider)`.
      */
     public forEachActiveRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
-        this.bodies.forEachActiveRigidBodyHandle(f);
+        this.islands.forEachActiveRigidBodyHandle(f);
     }
 
     /**

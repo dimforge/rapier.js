@@ -6,6 +6,7 @@ export class PhysicsModifications {
             addRigidBody: [],
             addCollider: [],
             removeRigidBody: [],
+            moveKinematicBody: [],
         }
     };
 
@@ -21,5 +22,9 @@ export class PhysicsModifications {
 
     removeRigidBody(handle) {
         this.commands.removeRigidBody.push(handle);
+    }
+
+    moveKinematicBody(handle, deltaTra, deltaRot) {
+        this.commands.moveKinematicBody.push({handle: handle, deltaTra: deltaTra, deltaRot: deltaRot});
     }
 }

@@ -10,6 +10,7 @@ import * as Heightfield from './demos/heightfield'
 import * as LockedRotations from './demos/lockedRotations'
 import * as ConvexPolyhedron from './demos/convexPolyhedron'
 import * as CCD from './demos/ccd'
+import * as Platform from './demos/platform'
 
 import('@dimforge/rapier3d').then(RAPIER => {
     let builders = new Map([
@@ -22,6 +23,7 @@ import('@dimforge/rapier3d').then(RAPIER => {
         ['joints', Joints.initWorld],
         ['keva tower', Keva.initWorld],
         ['locked rotations', LockedRotations.initWorld],
+        ['platform', Platform.initWorld],
         ['pyramid', Pyramid.initWorld],
         ['triangle mesh', Trimesh.initWorld],
     ]);
