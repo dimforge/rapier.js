@@ -371,7 +371,7 @@ export class Polyline {
      */
     constructor(vertices: Float32Array, indices: Uint32Array) {
         this.vertices = vertices;
-        this.indices = !!indices ? indices : new Uint32Array();
+        this.indices = !!indices ? indices : new Uint32Array(0);
     }
 
     public intoRaw(): RawShape {

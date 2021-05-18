@@ -67,9 +67,10 @@ export class Joint {
     // #if DIM3
     /**
      * The rotation quaternion that aligns this joint's first local axis to the `x` axis.
+     * @param target - The target Rotation object to write to.
      */
-    public frameX1(): Rotation {
-        return RotationOps.fromRaw(this.rawSet.jointFrameX1(this.handle));
+    public frameX1(target?: Rotation): Rotation {
+        return RotationOps.fromRaw(this.rawSet.jointFrameX1(this.handle), target);
     }
 
     // #endif
@@ -77,9 +78,10 @@ export class Joint {
     // #if DIM3
     /**
      * The rotation matrix that aligns this joint's second local axis to the `x` axis.
+     * @param target - The target Rotation object to write to.
      */
-    public frameX2(): Rotation {
-        return RotationOps.fromRaw(this.rawSet.jointFrameX2(this.handle));
+    public frameX2(target?: Rotation): Rotation {
+        return RotationOps.fromRaw(this.rawSet.jointFrameX2(this.handle), target);
     }
 
     // #endif
@@ -89,9 +91,10 @@ export class Joint {
      *
      * The first anchor gives the position of the points application point on the
      * local frame of the first rigid-body it is attached to.
+     * @param target - The target Vector object to write to.
      */
-    public anchor1(): Vector {
-        return VectorOps.fromRaw(this.rawSet.jointAnchor1(this.handle));
+    public anchor1(target?: Vector): Vector {
+        return VectorOps.fromRaw(this.rawSet.jointAnchor1(this.handle), target);
     }
 
     /**
@@ -100,8 +103,8 @@ export class Joint {
      * The second anchor gives the position of the points application point on the
      * local frame of the second rigid-body it is attached to.
      */
-    public anchor2(): Vector {
-        return VectorOps.fromRaw(this.rawSet.jointAnchor2(this.handle));
+    public anchor2(target?: Vector): Vector {
+        return VectorOps.fromRaw(this.rawSet.jointAnchor2(this.handle), target);
     }
 
     /**
@@ -111,8 +114,8 @@ export class Joint {
      * this returns the application axis on the first rigid-body this joint is attached to, expressed
      * in the local-space of this first rigid-body.
      */
-    public axis1(): Vector {
-        return VectorOps.fromRaw(this.rawSet.jointAxis1(this.handle));
+    public axis1(target?: Vector): Vector {
+        return VectorOps.fromRaw(this.rawSet.jointAxis1(this.handle), target);
     }
 
     /**
@@ -122,8 +125,8 @@ export class Joint {
      * this returns the application axis on the second rigid-body this joint is attached to, expressed
      * in the local-space of this second rigid-body.
      */
-    public axis2(): Vector {
-        return VectorOps.fromRaw(this.rawSet.jointAxis2(this.handle))
+    public axis2(target?: Vector): Vector {
+        return VectorOps.fromRaw(this.rawSet.jointAxis2(this.handle), target)
     }
 
     /**
