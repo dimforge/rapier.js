@@ -1,3 +1,4 @@
 #!/bin/bash
 
-typedoc --tsconfig tsconfig_typedoc.json
+# NOTE: use typedoc 0.19.2
+npx typedoc --tsconfig tsconfig_typedoc.json
