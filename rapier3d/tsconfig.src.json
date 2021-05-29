@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDirs": ["./pkg", "./pkg/src"]
+  },
+  "files": [
+    "./pkg/src/rapier.ts"
+  ]
+}
