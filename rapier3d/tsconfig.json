@@ -8,9 +8,10 @@
     ],
     "moduleResolution": "node",
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "rootDirs": ["./pkg", "./pkg/src"]
   },
   "files": [
-    "./pkg/rapier.ts"
+    "./pkg/src/rapier.ts"
   ]
 }

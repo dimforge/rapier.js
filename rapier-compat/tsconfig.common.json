@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "es2015",
+    "target": "es5",
+    "lib": [
+      "es5",
+      "DOM"
+    ],
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "declaration": true
+  }
+}
