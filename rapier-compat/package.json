@@ -6,7 +6,7 @@
     "build-rust-2d": "cd ../rapier2d ; wasm-pack build --target web",
     "build-rust-3d": "cd ../rapier3d ; wasm-pack build --target web",
     "build-rust": "npm run build-rust-2d && npm run build-rust-3d",
-    "build": "npm run clean && npm run build-rust && npx webpack",
+    "build": "npm run clean && npm run build-rust && npx webpack --env phase=1 && npx webpack --env phase=2",
     "clean": "npx rimraf ../rapier2d/pkg ../rapier3d/pkg pkg2d pkg3d ../rapier2d/docs ../rapier3d/docs",
     "all": "npm run build"
   },

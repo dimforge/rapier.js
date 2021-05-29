@@ -45,9 +45,10 @@ function copyAndReplace({is2d}) {
                     // copy src.ts into pkg for compiling,
                     // remove sections wrapped in #ifdef DIMx ... #endif
                     // add init() function to rapier.ts
+                    // copy typescript sources into compat to support source mapping (see #3)
                     {
                         from: path.resolve(__dirname, "../src.ts"),
-                        to: path.resolve(__dirname, `../rapier${dim}/pkg/`),
+                        to: path.resolve(__dirname, `./pkg${dim}/`),
                         transform(content, path) {
                             let result = content
                                 .toString()
@@ -58,22 +59,12 @@ function copyAndReplace({is2d}) {
                             }
                             return result;
                         },
-                    },
-                    // copy typescript sources into compat to support source mapping (see #3)
-                    {
-                        from: path.resolve(__dirname, "../src.ts"),
-                        to: path.resolve(__dirname, `../rapier-compat/pkg${dim}`),
-                        transform(content) {
-                            return content
-                                .toString()
-                                .replace(matchOtherDimRegex({is2d}), "");
-                        },
                         filter: (path) => !path.endsWith("raw.ts"),
                     },
                     // copy package.json, adapting entries, LICENSE and README.md
                     {
                         from: path.resolve(__dirname, `../rapier${dim}/pkg/package.json`),
-                        to: path.resolve(__dirname, `../rapier-compat/pkg${dim}/package.json`),
+                        to: path.resolve(__dirname, `./pkg${dim}/package.json`),
                         transform(content) {
                             let config = JSON.parse(content.toString());
                             config.name = `@dimforge/rapier${dim}-compat`;
@@ -88,18 +79,23 @@ function copyAndReplace({is2d}) {
                     },
                     {
                         from: path.resolve(__dirname, `../rapier${dim}/pkg/LICENSE`),
-                        to: path.resolve(__dirname, `../rapier-compat/pkg${dim}`),
+                        to: path.resolve(__dirname, `./pkg${dim}`),
                     },
                     {
                         from: path.resolve(__dirname, `../rapier${dim}/pkg/README.md`),
-                        to: path.resolve(__dirname, `../rapier-compat/pkg${dim}/README.md`),
+                        to: path.resolve(__dirname, `./pkg${dim}/README.md`),
+                    },
+                    {
+                        context: path.resolve(__dirname, `../rapier${dim}/pkg/`),
+                        from: 'rapier_wasm*',
+                        to: path.resolve(__dirname, `./pkg${dim}/`),
                     },
                 ],
             }),
             // ts files import from raw.ts, create the file reexporting the wasm-bindgen exports.
             // the indirection simplifies switching between 2d and 3d
             new CreateFileWebpack({
-                path: `../rapier${dim}/pkg/`,
+                path: path.resolve(__dirname, `./pkg${dim}/`),
                 fileName: "raw.ts",
                 content: `export * from "./rapier_wasm${dim}"`,
             }),
@@ -112,7 +108,7 @@ function compile({is2d}) {
 
     return {
         mode: "production",
-        entry: path.resolve(__dirname, `../rapier${dim}/pkg/rapier.ts`),
+        entry: `./pkg${dim}/rapier.ts`,
 
         module: {
             rules: [
@@ -121,10 +117,7 @@ function compile({is2d}) {
                     loader: "ts-loader",
                     exclude: /node_modules/,
                     options: {
-                        compilerOptions: {
-                            outDir: `../rapier-compat/pkg${dim}`,
-                            lib: ["es5", "DOM"],
-                        },
+                        configFile: `tsconfig.pkg${dim}.json`,
                     },
                 },
             ],
@@ -141,12 +134,18 @@ function compile({is2d}) {
     };
 }
 
-module.exports = [
+// Webpack doesn't really handle files that are both inputs and outputs. Instead, run
+// webpack twice, once to genrate the source, and once to compile it.
+module.exports = env => env.phase === "1" ? [
     // 2d
     copyAndReplace({is2d: true}),
-    compile({is2d: true}),
 
     // 3d
     copyAndReplace({is2d: false}),
+] : [
+    // 2d
+    compile({is2d: true}),
+
+    // 3d
     compile({is2d: false}),
 ];

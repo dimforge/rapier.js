@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "./pkg3d"
+  },
+  "files": [
+    "./pkg3d/rapier.ts"
+  ]
+}
