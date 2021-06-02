@@ -207,7 +207,9 @@ impl RawColliderSet {
 
     /// The unique integer identifier of the rigid-body this collider is attached to.
     pub fn coParent(&self, handle: u32) -> u32 {
-        self.map(handle, |co| co.parent().into_raw_parts().0)
+        self.map(handle, |co| {
+            co.parent().map(|p| p.into_raw_parts().0).unwrap_or(0)
+        })
     }
 
     /// The friction coefficient of this collider.
@@ -222,11 +224,15 @@ impl RawColliderSet {
 
     /// The collision groups of this collider.
     pub fn coCollisionGroups(&self, handle: u32) -> u32 {
-        self.map(handle, |co| co.collision_groups().0)
+        self.map(handle, |co| {
+            super::pack_interaction_groups(co.collision_groups())
+        })
     }
 
     /// The solver groups of this collider.
     pub fn coSolverGroups(&self, handle: u32) -> u32 {
-        self.map(handle, |co| co.solver_groups().0)
+        self.map(handle, |co| {
+            super::pack_interaction_groups(co.solver_groups())
+        })
     }
 }

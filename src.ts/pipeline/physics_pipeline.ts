@@ -3,6 +3,7 @@ import {Vector, VectorOps} from "../math";
 import {IntegrationParameters, JointSet, RigidBodyHandle, RigidBodySet, CCDSolver, IslandManager} from "../dynamics";
 import {BroadPhase, ColliderHandle, ColliderSet, NarrowPhase} from "../geometry";
 import {EventQueue} from "./event_queue";
+import {PhysicsHooks} from "./physics_hooks";
 
 export class PhysicsPipeline {
     raw: RawPhysicsPipeline
@@ -27,6 +28,7 @@ export class PhysicsPipeline {
         joints: JointSet,
         ccdSolver: CCDSolver,
         eventQueue?: EventQueue,
+        hooks?: PhysicsHooks,
     ) {
         let rawG = VectorOps.intoRaw(gravity);
 
@@ -41,7 +43,11 @@ export class PhysicsPipeline {
                 colliders.raw,
                 joints.raw,
                 ccdSolver.raw,
-                eventQueue.raw
+                eventQueue.raw,
+                hooks,
+                !!hooks ? hooks.activeHooks : 0,
+                !!hooks ? hooks.filterContactPair : null,
+                !!hooks ? hooks.filterIntersectionPair : null,
             );
         } else {
             this.raw.step(
