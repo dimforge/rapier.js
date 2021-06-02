@@ -17,3 +17,16 @@ mod point;
 mod ray;
 mod shape;
 mod toi;
+
+use rapier::geometry::InteractionGroups;
+
+pub const fn unpack_interaction_groups(memberships_filter: u32) -> InteractionGroups {
+    InteractionGroups::new(
+        (memberships_filter >> 16) as u32,
+        (memberships_filter & 0x0000_ffff) as u32,
+    )
+}
+
+pub const fn pack_interaction_groups(groups: InteractionGroups) -> u32 {
+    (groups.memberships << 16) | groups.filter
+}

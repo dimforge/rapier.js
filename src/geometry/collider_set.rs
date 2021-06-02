@@ -53,11 +53,11 @@ impl RawColliderSet {
         if let Some((_, handle)) = bodies.0.get_unknown_gen(parent) {
             let pos = Isometry::from_parts(translation.0.into(), rotation.0);
             let mut builder = ColliderBuilder::new(shape.0.clone())
-                .position_wrt_parent(pos)
+                .position(pos)
                 .friction(friction)
                 .restitution(restitution)
-                .collision_groups(InteractionGroups(collisionGroups))
-                .solver_groups(InteractionGroups(solverGroups))
+                .collision_groups(super::unpack_interaction_groups(collisionGroups))
+                .solver_groups(super::unpack_interaction_groups(solverGroups))
                 .sensor(isSensor);
 
             if frictionCombineRule == CoefficientCombineRule::Average as u32 {
@@ -88,7 +88,7 @@ impl RawColliderSet {
 
             Some(
                 self.0
-                    .insert(collider, handle, &mut bodies.0)
+                    .insert_with_parent(collider, handle, &mut bodies.0)
                     .into_raw_parts()
                     .0,
             )
