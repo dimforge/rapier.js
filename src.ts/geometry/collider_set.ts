@@ -52,6 +52,9 @@ export class ColliderSet {
             desc.isSensor,
             desc.collisionGroups,
             desc.solverGroups,
+            desc.activeCollisionTypes,
+            desc.activeHooks,
+            desc.activeEvents,
             parentHandle,
             bodies.raw,
         );

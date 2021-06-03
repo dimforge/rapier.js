@@ -1,16 +1,9 @@
-use crate::math::RawVector;
-use js_sys::{Function, Reflect};
-use rapier::geometry::{ContactManifold, SolverContact, SolverFlags};
-use rapier::math::{Real, Vector};
-use rapier::pipeline::{
-    ContactModificationContext, PairFilterContext, PhysicsHooks, PhysicsHooksFlags,
-};
-use std::sync::{Arc, Mutex, RwLock};
+use rapier::geometry::SolverFlags;
+use rapier::pipeline::{ContactModificationContext, PairFilterContext, PhysicsHooks};
 use wasm_bindgen::prelude::*;
 
 pub struct RawPhysicsHooks {
     pub this: js_sys::Object,
-    pub active_hooks: PhysicsHooksFlags,
     pub filter_contact_pair: js_sys::Function,
     pub filter_intersection_pair: js_sys::Function,
     // pub modify_solver_contacts: &'a js_sys::Function,
@@ -25,10 +18,6 @@ extern "C" {
 }
 
 impl<R, C> PhysicsHooks<R, C> for RawPhysicsHooks {
-    fn active_hooks(&self) -> PhysicsHooksFlags {
-        self.active_hooks
-    }
-
     fn filter_contact_pair(&self, ctxt: &PairFilterContext<R, C>) -> Option<SolverFlags> {
         let rb1 = ctxt
             .rigid_body1
@@ -76,7 +65,7 @@ impl<R, C> PhysicsHooks<R, C> for RawPhysicsHooks {
             .unwrap_or(false)
     }
 
-    fn modify_solver_contacts(&self, ctxt: &mut ContactModificationContext<R, C>) {}
+    fn modify_solver_contacts(&self, _ctxt: &mut ContactModificationContext<R, C>) {}
 }
 
 /* NOTE: the following is an attempt to make contact modification work.

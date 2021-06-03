@@ -4,7 +4,7 @@ use crate::geometry::{
     RawShape, RawShapeColliderTOI,
 };
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::{ColliderHandle, InteractionGroups, Ray};
+use rapier::geometry::{ColliderHandle, Ray};
 use rapier::math::Isometry;
 use rapier::pipeline::QueryPipeline;
 use wasm_bindgen::prelude::*;

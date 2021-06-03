@@ -1,6 +1,7 @@
 import {RawColliderSet} from "../raw"
 import {Rotation, RotationOps, Vector, VectorOps} from '../math';
 import {CoefficientCombineRule, RigidBodyHandle} from '../dynamics';
+import {ActiveHooks, ActiveEvents} from "../pipeline";
 import {
     InteractionGroups, Shape,
     Cuboid, Ball, ShapeType, Capsule, TriMesh, Polyline, Heightfield,
@@ -13,6 +14,32 @@ import {
     ConvexPolyhedron, RoundConvexPolyhedron,
     // #endif
 } from './index';
+
+/// Flags affecting whether or not collision-detection happens between two colliders
+/// depending on the type of rigid-bodies they are attached to.
+export enum ActiveCollisionTypes {
+    /// Enable collision-detection between a collider attached to a dynamic body
+    /// and another collider attached to a dynamic body.
+    DYNAMIC_DYNAMIC = 0b0000_0000_0000_0001,
+    /// Enable collision-detection between a collider attached to a dynamic body
+    /// and another collider attached to a kinematic body.
+    DYNAMIC_KINEMATIC = 0b0000_0000_0000_1100,
+    /// Enable collision-detection between a collider attached to a dynamic body
+    /// and another collider attached to a static body (or not attached to any body).
+    DYNAMIC_STATIC  = 0b0000_0000_0000_0010,
+    /// Enable collision-detection between a collider attached to a kinematic body
+    /// and another collider attached to a kinematic body.
+    KINEMATIC_KINEMATIC = 0b1100_1100_0000_0000,
+
+    /// Enable collision-detection between a collider attached to a kinematic body
+    /// and another collider attached to a static body (or not attached to any body).
+    KINEMATIC_STATIC = 0b0010_0010_0000_0000,
+
+    /// Enable collision-detection between a collider attached to a static body (or
+    /// not attached to any body) and another collider attached to a static body (or
+    /// not attached to any body).
+    STATIC_STATIC = 0b0000_0000_0010_0000
+}
 
 /**
  * The integer identifier of a collider added to a `ColliderSet`.
@@ -184,6 +211,10 @@ export class Collider {
     public solverGroups(): InteractionGroups {
         return this.rawSet.coSolverGroups(this.handle);
     }
+
+    public activeHooks(): ActiveHooks {
+        return this.rawSet.coActiveHooks(this.handle);
+    }
 }
 
 
@@ -199,6 +230,9 @@ export class ColliderDesc {
     solverGroups: InteractionGroups;
     frictionCombineRule: CoefficientCombineRule;
     restitutionCombineRule: CoefficientCombineRule;
+    activeEvents: ActiveEvents;
+    activeHooks: ActiveHooks;
+    activeCollisionTypes: ActiveCollisionTypes;
 
     /**
      * Initializes a collider descriptor from the collision shape.
@@ -217,6 +251,9 @@ export class ColliderDesc {
         this.solverGroups = 0xffff_ffff;
         this.frictionCombineRule = CoefficientCombineRule.Average;
         this.restitutionCombineRule = CoefficientCombineRule.Average;
+        this.activeCollisionTypes = ActiveCollisionTypes.DYNAMIC_DYNAMIC | ActiveCollisionTypes.DYNAMIC_STATIC | ActiveCollisionTypes.DYNAMIC_KINEMATIC;
+        this.activeEvents = 0;
+        this.activeHooks = 0;
     }
 
     /**
@@ -638,7 +675,7 @@ export class ColliderDesc {
      */
     public setCollisionGroups(groups: InteractionGroups): ColliderDesc {
         this.collisionGroups = groups;
-        return this
+        return this;
     }
 
     /**
@@ -652,6 +689,40 @@ export class ColliderDesc {
      */
     public setSolverGroups(groups: InteractionGroups): ColliderDesc {
         this.solverGroups = groups;
-        return this
+        return this;
+    }
+
+    /**
+     * Set the physics hooks active for this collider.
+     *
+     * Use this to enable custom filtering rules for contact/intersecstion pairs involving this collider.
+     *
+     * @param activeHooks - The hooks active for contact/intersection pairs involving this collider.
+     */
+    public setActiveHooks(activeHooks: ActiveHooks): ColliderDesc {
+        this.activeHooks = activeHooks;
+        return this;
+    }
+
+    /**
+     * Set the events active for this collider.
+     *
+     * Use this to enable contact and/or intersection event reporting for this collider.
+     *
+     * @param activeEvents - The events active for contact/intersection pairs involving this collider.
+     */
+    public setActiveEvents(activeEvents: ActiveEvents): ColliderDesc {
+        this.activeEvents = activeEvents;
+        return this;
+    }
+
+    /**
+     * Set the collision types active for this collider.
+     *
+     * @param activeCollisionTypes - The hooks active for contact/intersection pairs involving this collider.
+     */
+    public setActiveCollisionTypes(activeCollisionTypes: ActiveCollisionTypes): ColliderDesc {
+        this.activeCollisionTypes = activeCollisionTypes;
+        return this;
     }
 }

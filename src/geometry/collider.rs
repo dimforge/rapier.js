@@ -235,4 +235,19 @@ impl RawColliderSet {
             super::pack_interaction_groups(co.solver_groups())
         })
     }
+
+    /// The physics hooks enabled for this collider.
+    pub fn coActiveHooks(&self, handle: u32) -> u32 {
+        self.map(handle, |co| co.active_hooks().bits())
+    }
+
+    /// The collision types enabled for this collider.
+    pub fn coActiveCollisionTypes(&self, handle: u32) -> u16 {
+        self.map(handle, |co| co.active_collision_types().bits())
+    }
+
+    /// The events enabled for this collider.
+    pub fn coActiveEvents(&self, handle: u32) -> u32 {
+        self.map(handle, |co| co.active_events().bits())
+    }
 }
