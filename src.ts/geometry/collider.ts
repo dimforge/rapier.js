@@ -38,7 +38,13 @@ export enum ActiveCollisionTypes {
     /// Enable collision-detection between a collider attached to a static body (or
     /// not attached to any body) and another collider attached to a static body (or
     /// not attached to any body).
-    STATIC_STATIC = 0b0000_0000_0010_0000
+    STATIC_STATIC = 0b0000_0000_0010_0000,
+    /// The default active collision types, enabling collisions between a dynamic body
+    /// and another body of any type, but not enabling collisions between two non-dynamic bodies.
+    DEFAULT = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_STATIC,
+    /// Enable collisions between any kind of rigid-bodies (including between two non-dynamic bodies).
+    ALL = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_STATIC | KINEMATIC_KINEMATIC | KINEMATIC_STATIC |
+          KINEMATIC_KINEMATIC,
 }
 
 /**
@@ -251,7 +257,7 @@ export class ColliderDesc {
         this.solverGroups = 0xffff_ffff;
         this.frictionCombineRule = CoefficientCombineRule.Average;
         this.restitutionCombineRule = CoefficientCombineRule.Average;
-        this.activeCollisionTypes = ActiveCollisionTypes.DYNAMIC_DYNAMIC | ActiveCollisionTypes.DYNAMIC_STATIC | ActiveCollisionTypes.DYNAMIC_KINEMATIC;
+        this.activeCollisionTypes = ActiveCollisionTypes.DEFAULT;
         this.activeEvents = 0;
         this.activeHooks = 0;
     }
