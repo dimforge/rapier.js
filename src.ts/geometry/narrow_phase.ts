@@ -79,7 +79,7 @@ export class NarrowPhase {
      * @param collider1 − The first collider involved in the intersection.
      * @param collider2 − The second collider involved in the intersection.
      */
-    public insertectionPair(collider1: ColliderHandle, collider2: ColliderHandle): boolean {
+    public intersectionPair(collider1: ColliderHandle, collider2: ColliderHandle): boolean {
         return this.raw.intersection_pair(collider1, collider2);
     }
 }

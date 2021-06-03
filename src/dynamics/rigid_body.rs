@@ -60,9 +60,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn rbSetTranslation(&mut self, handle: u32, x: f32, y: f32, z: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| {
-            let mut pos = *rb.position();
-            pos.translation.vector = na::Vector3::new(x, y, z);
-            rb.set_position(pos, wakeUp);
+            rb.set_translation(na::Vector3::new(x, y, z), wakeUp);
         })
     }
 
@@ -76,9 +74,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim2")]
     pub fn rbSetTranslation(&mut self, handle: u32, x: f32, y: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| {
-            let mut pos = *rb.position();
-            pos.translation.vector = na::Vector2::new(x, y);
-            rb.set_position(pos, wakeUp);
+            rb.set_translation(na::Vector2::new(x, y), wakeUp);
         })
     }
 
@@ -96,11 +92,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn rbSetRotation(&mut self, handle: u32, x: f32, y: f32, z: f32, w: f32, wakeUp: bool) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
-            self.map_mut(handle, |rb| {
-                let mut pos = *rb.position();
-                pos.rotation = q;
-                rb.set_position(pos, wakeUp);
-            })
+            self.map_mut(handle, |rb| rb.set_rotation(q.scaled_axis(), wakeUp))
         }
     }
 
@@ -112,11 +104,7 @@ impl RawRigidBodySet {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
     pub fn rbSetRotation(&mut self, handle: u32, angle: f32, wakeUp: bool) {
-        self.map_mut(handle, |rb| {
-            let mut pos = *rb.position();
-            pos.rotation = na::UnitComplex::new(angle);
-            rb.set_position(pos, wakeUp);
-        })
+        self.map_mut(handle, |rb| rb.set_rotation(angle, wakeUp))
     }
 
     /// Sets the linear velocity of this rigid-body.
@@ -157,9 +145,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn rbSetNextKinematicTranslation(&mut self, handle: u32, x: f32, y: f32, z: f32) {
         self.map_mut(handle, |rb| {
-            let mut pos = *rb.next_position();
-            pos.translation.vector = na::Vector3::new(x, y, z);
-            rb.set_next_kinematic_position(pos);
+            rb.set_next_kinematic_translation(na::Vector3::new(x, y, z));
         })
     }
 
@@ -177,9 +163,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim2")]
     pub fn rbSetNextKinematicTranslation(&mut self, handle: u32, x: f32, y: f32) {
         self.map_mut(handle, |rb| {
-            let mut pos = *rb.next_position();
-            pos.translation.vector = na::Vector2::new(x, y);
-            rb.set_next_kinematic_position(pos);
+            rb.set_next_kinematic_translation(na::Vector2::new(x, y));
         })
     }
 
@@ -200,9 +184,7 @@ impl RawRigidBodySet {
     pub fn rbSetNextKinematicRotation(&mut self, handle: u32, x: f32, y: f32, z: f32, w: f32) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
             self.map_mut(handle, |rb| {
-                let mut pos = *rb.next_position();
-                pos.rotation = q;
-                rb.set_next_kinematic_position(pos);
+                rb.set_next_kinematic_rotation(q.scaled_axis());
             })
         }
     }
@@ -220,9 +202,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim2")]
     pub fn rbSetNextKinematicRotation(&mut self, handle: u32, angle: f32) {
         self.map_mut(handle, |rb| {
-            let mut pos = *rb.next_position();
-            pos.rotation = na::UnitComplex::new(angle);
-            rb.set_next_kinematic_position(pos);
+            rb.set_next_kinematic_rotation(angle);
         })
     }
 
