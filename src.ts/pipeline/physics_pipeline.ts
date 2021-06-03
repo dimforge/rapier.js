@@ -45,7 +45,6 @@ export class PhysicsPipeline {
                 ccdSolver.raw,
                 eventQueue.raw,
                 hooks,
-                !!hooks ? hooks.activeHooks : 0,
                 !!hooks ? hooks.filterContactPair : null,
                 !!hooks ? hooks.filterIntersectionPair : null,
             );

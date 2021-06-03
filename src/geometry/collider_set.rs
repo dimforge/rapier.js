@@ -1,9 +1,7 @@
 use crate::dynamics::{RawIslandManager, RawRigidBodySet};
 use crate::geometry::RawShape;
 use crate::math::{RawRotation, RawVector};
-use rapier::dynamics::CoefficientCombineRule;
-use rapier::geometry::{Collider, ColliderBuilder, ColliderSet, InteractionGroups};
-use rapier::math::Isometry;
+use rapier::prelude::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -47,6 +45,9 @@ impl RawColliderSet {
         isSensor: bool,
         collisionGroups: u32,
         solverGroups: u32,
+        activeCollisionTypes: u16,
+        activeHooks: u32,
+        activeEvents: u32,
         parent: u32,
         bodies: &mut RawRigidBodySet,
     ) -> Option<u32> {
@@ -58,6 +59,14 @@ impl RawColliderSet {
                 .restitution(restitution)
                 .collision_groups(super::unpack_interaction_groups(collisionGroups))
                 .solver_groups(super::unpack_interaction_groups(solverGroups))
+                .active_hooks(ActiveHooks::from_bits(activeHooks).unwrap_or(ActiveHooks::empty()))
+                .active_events(
+                    ActiveEvents::from_bits(activeEvents).unwrap_or(ActiveEvents::empty()),
+                )
+                .active_collision_types(
+                    ActiveCollisionTypes::from_bits(activeCollisionTypes)
+                        .unwrap_or(ActiveCollisionTypes::empty()),
+                )
                 .sensor(isSensor);
 
             if frictionCombineRule == CoefficientCombineRule::Average as u32 {

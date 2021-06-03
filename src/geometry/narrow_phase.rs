@@ -14,17 +14,15 @@ impl RawNarrowPhase {
     }
 
     pub fn contacts_with(&self, handle1: u32, f: js_sys::Function) {
-        if let Some(pairs) = self.0.contacts_with_unknown_gen(handle1) {
-            let this = JsValue::null();
-            for (h1, h2, _) in pairs {
-                let handle2 = if h1.into_raw_parts().0 == handle1 {
-                    h2.into_raw_parts().0
-                } else {
-                    h1.into_raw_parts().0
-                };
+        let this = JsValue::null();
+        for pair in self.0.contacts_with_unknown_gen(handle1) {
+            let handle2 = if pair.collider1.into_raw_parts().0 == handle1 {
+                pair.collider2.into_raw_parts().0
+            } else {
+                pair.collider1.into_raw_parts().0
+            };
 
-                let _ = f.call1(&this, &JsValue::from(handle2));
-            }
+            let _ = f.call1(&this, &JsValue::from(handle2));
         }
     }
 
@@ -35,18 +33,16 @@ impl RawNarrowPhase {
     }
 
     pub fn intersections_with(&self, handle1: u32, f: js_sys::Function) {
-        if let Some(pairs) = self.0.intersections_with_unknown_gen(handle1) {
-            let this = JsValue::null();
-            for (h1, h2, inter) in pairs {
-                if inter {
-                    let handle2 = if h1.into_raw_parts().0 == handle1 {
-                        h2.into_raw_parts().0
-                    } else {
-                        h1.into_raw_parts().0
-                    };
+        let this = JsValue::null();
+        for (h1, h2, inter) in self.0.intersections_with_unknown_gen(handle1) {
+            if inter {
+                let handle2 = if h1.into_raw_parts().0 == handle1 {
+                    h2.into_raw_parts().0
+                } else {
+                    h1.into_raw_parts().0
+                };
 
-                    let _ = f.call1(&this, &JsValue::from(handle2));
-                }
+                let _ = f.call1(&this, &JsValue::from(handle2));
             }
         }
     }
@@ -69,11 +65,11 @@ pub struct RawContactManifold(*const ContactManifold);
 #[wasm_bindgen]
 impl RawContactPair {
     pub fn collider1(&self) -> u32 {
-        unsafe { (*self.0).pair.collider1.into_raw_parts().0 }
+        unsafe { (*self.0).collider1.into_raw_parts().0 }
     }
 
     pub fn collider2(&self) -> u32 {
-        unsafe { (*self.0).pair.collider2.into_raw_parts().0 }
+        unsafe { (*self.0).collider2.into_raw_parts().0 }
     }
 
     pub fn numContactManifolds(&self) -> usize {

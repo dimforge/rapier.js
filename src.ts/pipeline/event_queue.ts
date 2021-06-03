@@ -2,6 +2,14 @@ import {RawEventQueue} from '../raw'
 import {RigidBodyHandle} from '../dynamics'
 import {ColliderHandle} from '../geometry'
 
+/// Flags indicating what events are enabled for colliders.
+export enum ActiveEvents {
+    /// Enable intersection events.
+    INTERSECTION_EVENTS = 0b0001,
+    /// Enable contact events.
+    CONTACT_EVENTS = 0b0010,
+}
+
 /**
  * A structure responsible for collecting events generated
  * by the physics engine.

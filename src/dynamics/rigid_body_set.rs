@@ -8,7 +8,8 @@ use wasm_bindgen::prelude::*;
 pub enum RawRigidBodyType {
     Dynamic,
     Static,
-    Kinematic,
+    KinematicPositionBased,
+    KinematicVelocityBased,
 }
 
 impl Into<RigidBodyType> for RawRigidBodyType {
@@ -16,7 +17,8 @@ impl Into<RigidBodyType> for RawRigidBodyType {
         match self {
             RawRigidBodyType::Dynamic => RigidBodyType::Dynamic,
             RawRigidBodyType::Static => RigidBodyType::Static,
-            RawRigidBodyType::Kinematic => RigidBodyType::Kinematic,
+            RawRigidBodyType::KinematicPositionBased => RigidBodyType::KinematicPositionBased,
+            RawRigidBodyType::KinematicVelocityBased => RigidBodyType::KinematicVelocityBased,
         }
     }
 }
@@ -26,7 +28,8 @@ impl Into<RawRigidBodyType> for RigidBodyType {
         match self {
             RigidBodyType::Dynamic => RawRigidBodyType::Dynamic,
             RigidBodyType::Static => RawRigidBodyType::Static,
-            RigidBodyType::Kinematic => RawRigidBodyType::Kinematic,
+            RigidBodyType::KinematicPositionBased => RawRigidBodyType::KinematicPositionBased,
+            RigidBodyType::KinematicVelocityBased => RawRigidBodyType::KinematicVelocityBased,
         }
     }
 }
@@ -75,7 +78,7 @@ impl RawRigidBodySet {
         rotationEnabledZ: bool,
         linearDamping: f32,
         angularDamping: f32,
-        status: RawRigidBodyType,
+        rb_type: RawRigidBodyType,
         canSleep: bool,
         ccdEnabled: bool,
     ) -> u32 {
@@ -87,14 +90,14 @@ impl RawRigidBodySet {
             angularInertiaFrame.0,
         );
 
-        let mut rigid_body = RigidBodyBuilder::new(status.into())
+        let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
             .position(pos)
             .gravity_scale(gravityScale)
             .additional_mass(mass)
             .additional_principal_angular_inertia(principalAngularInertia.0)
             .restrict_rotations(rotationEnabledX, rotationEnabledY, rotationEnabledZ)
             .additional_mass_properties(props)
-            .linvel(linvel.0.x, linvel.0.y, linvel.0.z)
+            .linvel(linvel.0)
             .angvel(angvel.0)
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
@@ -122,19 +125,19 @@ impl RawRigidBodySet {
         rotationsEnabled: bool,
         linearDamping: f32,
         angularDamping: f32,
-        status: RawRigidBodyType,
+        rb_type: RawRigidBodyType,
         canSleep: bool,
         ccdEnabled: bool,
     ) -> u32 {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
-        let mut rigid_body = RigidBodyBuilder::new(status.into())
+        let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
             .position(pos)
             .gravity_scale(gravityScale)
             .additional_mass(mass)
             .additional_principal_angular_inertia(principalAngularInertia)
             .additional_mass_properties(props)
-            .linvel(linvel.0.x, linvel.0.y)
+            .linvel(linvel.0)
             .angvel(angvel)
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)

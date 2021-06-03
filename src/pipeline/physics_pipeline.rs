@@ -5,7 +5,6 @@ use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
 use crate::math::RawVector;
 use crate::pipeline::{RawEventQueue, RawPhysicsHooks};
 use crate::rapier::pipeline::PhysicsPipeline;
-use rapier::pipeline::PhysicsHooksFlags;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -58,7 +57,6 @@ impl RawPhysicsPipeline {
         ccd_solver: &mut RawCCDSolver,
         eventQueue: &mut RawEventQueue,
         hookObject: js_sys::Object,
-        activeHooks: u32, // PhysicsHooksFlags
         hookFilterContactPair: js_sys::Function,
         hookFilterIntersectionPair: js_sys::Function,
     ) {
@@ -68,13 +66,11 @@ impl RawPhysicsPipeline {
 
         let hooks = RawPhysicsHooks {
             this: hookObject,
-            active_hooks: PhysicsHooksFlags::from_bits(activeHooks)
-                .unwrap_or(PhysicsHooksFlags::empty()),
             filter_contact_pair: hookFilterContactPair,
             filter_intersection_pair: hookFilterIntersectionPair,
         };
 
-        let hooks = self.0.step(
+        self.0.step(
             &gravity.0,
             &integrationParameters.0,
             &mut islands.0,

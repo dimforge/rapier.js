@@ -48,7 +48,7 @@ impl RawJointSet {
         self.map(handle, |j| {
             let local_axis1 = match &j.params {
                 JointParams::BallJoint(_) => return RawRotation::identity(),
-                JointParams::FixedJoint(f) => return RawRotation(f.local_anchor1.rotation),
+                JointParams::FixedJoint(f) => return RawRotation(f.local_frame1.rotation),
                 #[cfg(feature = "dim3")]
                 JointParams::RevoluteJoint(r) => *r.local_axis1,
                 JointParams::PrismaticJoint(p) => *p.local_axis1(),
@@ -75,7 +75,7 @@ impl RawJointSet {
         self.map(handle, |j| {
             let local_axis2 = match &j.params {
                 JointParams::BallJoint(_) => return RawRotation::identity(),
-                JointParams::FixedJoint(f) => return RawRotation(f.local_anchor2.rotation),
+                JointParams::FixedJoint(f) => return RawRotation(f.local_frame2.rotation),
                 #[cfg(feature = "dim3")]
                 JointParams::RevoluteJoint(r) => *r.local_axis2,
                 JointParams::PrismaticJoint(p) => *p.local_axis2(),
@@ -105,7 +105,7 @@ impl RawJointSet {
             JointParams::BallJoint(b) => RawVector(b.local_anchor1.coords),
             #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(r) => RawVector(r.local_anchor1.coords),
-            JointParams::FixedJoint(f) => RawVector(f.local_anchor1.translation.vector),
+            JointParams::FixedJoint(f) => RawVector(f.local_frame1.translation.vector),
             JointParams::PrismaticJoint(p) => RawVector(p.local_anchor1.coords),
         })
     }
@@ -119,7 +119,7 @@ impl RawJointSet {
             JointParams::BallJoint(b) => RawVector(b.local_anchor2.coords),
             #[cfg(feature = "dim3")]
             JointParams::RevoluteJoint(r) => RawVector(r.local_anchor2.coords),
-            JointParams::FixedJoint(f) => RawVector(f.local_anchor2.translation.vector),
+            JointParams::FixedJoint(f) => RawVector(f.local_frame2.translation.vector),
             JointParams::PrismaticJoint(p) => RawVector(p.local_anchor2.coords),
         })
     }
