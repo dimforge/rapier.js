@@ -10,6 +10,7 @@ export type RigidBodyHandle = number;
 /**
  * The simulation status of a rigid-body.
  */
+// TODO: rename this to RigidBodyType
 export enum BodyStatus {
     /**
      * A `BodyStatus::Dynamic` body can be affected by all external forces.
@@ -20,14 +21,23 @@ export enum BodyStatus {
      */
     Static,
     /**
-     * A `BodyStatus::Kinematic` body cannot be affected by any external forces but can be controlled
+     * A `BodyStatus::KinematicPositionBased` body cannot be affected by any external forces but can be controlled
      * by the user at the position level while keeping realistic one-way interaction with dynamic bodies.
      *
      * One-way interaction means that a kinematic body can push a dynamic body, but a kinematic body
      * cannot be pushed by anything. In other words, the trajectory of a kinematic body can only be
      * modified by the user and is independent from any contact or joint it is involved in.
      */
-    Kinematic,
+    KinematicPositionBased,
+    /**
+     * A `BodyStatus::KinematicVelocityBased` body cannot be affected by any external forces but can be controlled
+     * by the user at the velocity level while keeping realistic one-way interaction with dynamic bodies.
+     *
+     * One-way interaction means that a kinematic body can push a dynamic body, but a kinematic body
+     * cannot be pushed by anything. In other words, the trajectory of a kinematic body can only be
+     * modified by the user and is independent from any contact or joint it is involved in.
+     */
+    KinematicVelocityBased,
 }
 
 /**
@@ -587,10 +597,17 @@ export class RigidBodyDesc {
     }
 
     /**
-     * A rigid-body descriptor used to build a kinematic rigid-body.
+     * A rigid-body descriptor used to build a position-based kinematic rigid-body.
      */
-    public static newKinematic(): RigidBodyDesc {
-        return new RigidBodyDesc(BodyStatus.Kinematic)
+    public static newKinematicPositionBased(): RigidBodyDesc {
+        return new RigidBodyDesc(BodyStatus.KinematicPositionBased)
+    }
+
+    /**
+     * A rigid-body descriptor used to build a velocity-based kinematic rigid-body.
+     */
+    public static newKinematicVelocityBased(): RigidBodyDesc {
+        return new RigidBodyDesc(BodyStatus.KinematicVelocityBased)
     }
 
     /**
