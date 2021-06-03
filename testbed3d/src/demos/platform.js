@@ -42,7 +42,7 @@ export function initWorld(RAPIER, testbed) {
     let world = new RAPIER.World(gravity);
 
     // Create Ground.
-    let bodyDesc = RAPIER.RigidBodyDesc.newKinematic();
+    let bodyDesc = RAPIER.RigidBodyDesc.newKinematicPositionBased();
     let body = world.createRigidBody(bodyDesc);
     let trimesh = generateTriMesh(20, 70.0, 4.0, 70.0)
     let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
