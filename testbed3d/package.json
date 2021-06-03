@@ -11,7 +11,7 @@
     "test": "cargo test && wasm-pack test --headless"
   },
   "dependencies": {
-    "@dimforge/rapier3d": "^0.5.3",
+    "@dimforge/rapier3d": "^0.6.0",
     "buffer-crc32": "^0.2.13",
     "cannon": "^0.6.2",
     "cannon-es": "^0.14.0",

@@ -1,3 +1,31 @@
+### v0.6.0
+#### Breaking changes
+- The `BodyStatus::Kinematic` variant has been replaced by `BodyStatus::KinematicPositionBased` and
+  `BodyStatus::KinematicVelocityBased`. Position-based kinematic bodies are controlled by setting (at each frame) the next
+  kinematic position of the rigid-body (just like before), and the velocity-based kinematic bodies are controlled
+  by setting (at each frame) the velocity of the rigid-body.
+- The `RigidBodyDesc.newKinematic` has been replaced by `RigidBodyDesc.newKinematicPositionBased` and
+  `RigidBodyDesc.newKinematicVelocityBased` in order to build a position-based or velocity-based kinematic body.
+- All contact and intersection events are now disabled by default. The can be enabled for each collider individually
+  by setting its `ActiveEvents`: `ColliderDesc.setActiveEvents(ActiveEvents.PROXIMITY_EVENTS | ActiveEvents.ContactEvents)`.
+
+#### Added
+- It is now possible to read contact information from the narrow-phase using:
+  * `world.narrowPhase.contactsWith(collider1, callback)`
+  * `world.narrowPhase.intersectionsWith(collider1, callback)`
+  * `world.narrowPhase.contactPair(collider1, collider2, callback)`
+  * `world.narrowPhase.intersectionPair(collider1, collider2, callback)`
+- It is now possible to apply custom collision-detection filtering rules (more flexible than collision groups)
+  based on a JS object by doing the following:
+  * Enable physics hooks for the colliders you want the custom rules to apply to:
+    `ColliderDesc.setActiveHooks(ActiveHooks.FILTER_CONTACT_PAIR | ActiveHooks.FILTER_CONTACT_PAIR)`
+  * Define an object that implements the `PhysicsHooks` interface.
+  * Pass and instance of your physics hooks object as the second argument of the `World.step` method.
+- It is now possible to enable collision-detection between two non-dynamic bodies (e.g. between a kinematic
+  body and a static body) by setting the active collision types of a collider:
+  `ColliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)`
+
+
 ### v0.5.3
 
 - Fix a crash when loading the WASM file on iOS safari.
@@ -17,7 +45,7 @@
 - Add `RigidBodyDesc::setCcdEnabled` to enable Continuous Collision Detection (CCD) for this rigid-body. CCD ensures
   that a fast-moving rigid-body doesn't miss a collision (the tunneling problem).
 
-Breaking changes:
+#### Breaking changes:
 
 - Removed multiple fields from `IntegrationParameters`. These were unused parameters.
 
