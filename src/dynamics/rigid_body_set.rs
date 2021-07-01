@@ -81,6 +81,7 @@ impl RawRigidBodySet {
         rb_type: RawRigidBodyType,
         canSleep: bool,
         ccdEnabled: bool,
+        dominanceGroup: i8,
     ) -> u32 {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::with_principal_inertia_frame(
@@ -102,7 +103,8 @@ impl RawRigidBodySet {
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
             .can_sleep(canSleep)
-            .ccd_enabled(ccdEnabled);
+            .ccd_enabled(ccdEnabled)
+            .dominance_group(dominanceGroup);
         if !translationsEnabled {
             rigid_body = rigid_body.lock_translations();
         }
@@ -128,6 +130,7 @@ impl RawRigidBodySet {
         rb_type: RawRigidBodyType,
         canSleep: bool,
         ccdEnabled: bool,
+        dominanceGroup: i8,
     ) -> u32 {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
@@ -142,13 +145,16 @@ impl RawRigidBodySet {
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
             .can_sleep(canSleep)
-            .ccd_enabled(ccdEnabled);
+            .ccd_enabled(ccdEnabled)
+            .dominance_group(dominanceGroup);
+
         if !transationsEnabled {
             rigid_body = rigid_body.lock_translations();
         }
         if !rotationsEnabled {
             rigid_body = rigid_body.lock_rotations();
         }
+
         self.0.insert(rigid_body.build()).into_raw_parts().0
     }
 

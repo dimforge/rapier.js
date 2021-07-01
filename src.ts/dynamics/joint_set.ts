@@ -1,6 +1,17 @@
 import {RawJointSet} from "../raw"
 import {RigidBodySet} from "./rigid_body_set";
-import {Joint, JointHandle, JointParams} from "./joint";
+import {
+    BallJoint,
+    FixedJoint,
+    Joint,
+    JointHandle,
+    JointParams,
+    JointType,
+    PrismaticJoint,
+    // #if DIM3
+    RevoluteJoint
+    // #endif
+} from "./joint";
 import {RigidBody, RigidBodyHandle} from "./rigid_body";
 import {IslandManager} from "./island_manager";
 
@@ -83,7 +94,18 @@ export class JointSet {
      */
     public get(handle: JointHandle): Joint {
         if (this.raw.contains(handle)) {
-            return new Joint(this.raw, handle);
+            switch (this.raw.jointType(handle)) {
+                case JointType.Ball:
+                    return new BallJoint(this.raw, handle);
+                case JointType.Prismatic:
+                    return new PrismaticJoint(this.raw, handle);
+                case JointType.Fixed:
+                    return new FixedJoint(this.raw, handle);
+                // #if DIM3
+                case JointType.Revolute:
+                    return new RevoluteJoint(this.raw, handle);
+                // #endif
+            }
         } else {
             return null;
         }

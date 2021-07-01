@@ -3,7 +3,7 @@ export function extractRigidBodyDescription(body) {
 
     return {
         handle: body.handle,
-        type: body.bodyStatus(),
+        type: body.bodyType(),
         translation: pos,
         linvel: body.linvel(),
         angvel: body.angvel(),

@@ -64,48 +64,4 @@ export class PhysicsPipeline {
 
         rawG.free();
     }
-
-
-    /**
-     * Removes a rigid-body, and everything attached to it, from the given sets.
-     * @param handle - The handle of the rigid-body to remove.
-     * @param bodies - The set containing the rigid-body to remove.
-     * @param colliders - The set containing the colliders attached to the rigid-body to remove.
-     * @param joints - The set containing the joints attached to the rigid-body to remove.
-     */
-    public removeRigidBody(
-        handle: RigidBodyHandle,
-        islands: IslandManager,
-        bodies: RigidBodySet,
-        colliders: ColliderSet,
-        joints: JointSet,
-    ) {
-        this.raw.removeRigidBody(
-            handle,
-            islands.raw,
-            bodies.raw,
-            colliders.raw,
-            joints.raw
-        );
-    }
-
-    /**
-     * Remove a collider.
-     * @param handle - The handle of the collider to remove.
-     * @param bodies - The set of rigid-bodies containing the parent of the collider to remove.
-     * @param colliders - The set of colliders containing the collider to remove.
-     */
-    public removeCollider(
-        handle: ColliderHandle,
-        islands: IslandManager,
-        bodies: RigidBodySet,
-        colliders: ColliderSet,
-    ) {
-        this.raw.removeCollider(
-            handle,
-            islands.raw,
-            bodies.raw,
-            colliders.raw,
-        );
-    }
 }

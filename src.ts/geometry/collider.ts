@@ -95,6 +95,228 @@ export class Collider {
         return this.rawSet.coIsSensor(this.handle);
     }
 
+    public setSensor(isSensor: boolean) {
+        this.rawSet.coSetSensor(this.handle, isSensor);
+    }
+
+    public setShape(shape: Shape) {
+        let rawShape = shape.intoRaw();
+        this.rawSet.coSetShape(this.handle, rawShape);
+        rawShape.free();
+    }
+
+    /**
+     * Sets the restitution coefficient of the collider to be created.
+     *
+     * @param restitution - The restitution coefficient in `[0, 1]`. A value of 0 (the default) means no bouncing behavior
+     *                   while 1 means perfect bouncing (though energy may still be lost due to numerical errors of the
+     *                   constraints solver).
+     */
+    public setRestitution(restitution: number) {
+        this.rawSet.coSetRestitution(this.handle, restitution);
+    }
+
+    /**
+     * Sets the friction coefficient of the collider to be created.
+     *
+     * @param friction - The friction coefficient. Must be greater or equal to 0. This is generally smaller than 1. The
+     *                   higher the coefficient, the stronger friction forces will be for contacts with the collider
+     *                   being built.
+     */
+    public setFriction(friction: number) {
+        this.rawSet.coSetFriction(this.handle, friction);
+    }
+
+    /**
+     * Gets the rule used to combine the friction coefficients of two colliders
+     * colliders involved in a contact.
+     */
+    public frictionCombineRule(): CoefficientCombineRule {
+        return this.rawSet.coFrictionCombineRule(this.handle);
+    }
+
+    /**
+     * Sets the rule used to combine the friction coefficients of two colliders
+     * colliders involved in a contact.
+     *
+     * @param rule − The combine rule to apply.
+     */
+    public setFrictionCombineRule(rule: CoefficientCombineRule) {
+        this.rawSet.coSetFrictionCombineRule(this.handle, rule);
+    }
+
+    /**
+     * Gets the rule used to combine the restitution coefficients of two colliders
+     * colliders involved in a contact.
+     */
+    public restitutionCombineRule(): CoefficientCombineRule {
+        return this.rawSet.coRestitutionCombineRule(this.handle);
+    }
+
+    /**
+     * Sets the rule used to combine the restitution coefficients of two colliders
+     * colliders involved in a contact.
+     *
+     * @param rule − The combine rule to apply.
+     */
+    public setRestitutionCombineRule(rule: CoefficientCombineRule) {
+        this.rawSet.coSetRestitutionCombineRule(this.handle, rule);
+    }
+
+    /**
+     * Sets the collision groups used by this collider.
+     *
+     * Two colliders will interact iff. their collision groups are compatible.
+     * See the documentation of `InteractionGroups` for details on teh used bit pattern.
+     *
+     * @param groups - The collision groups used for the collider being built.
+     */
+    public setCollisionGroups(groups: InteractionGroups) {
+        this.rawSet.coSetCollisionGroups(this.handle, groups);
+    }
+
+    /**
+     * Sets the solver groups used by this collider.
+     *
+     * Forces between two colliders in contact will be computed iff their solver
+     * groups are compatible.
+     * See the documentation of `InteractionGroups` for details on the used bit pattern.
+     *
+     * @param groups - The solver groups used for the collider being built.
+     */
+    public setSolverGroups(groups: InteractionGroups) {
+        this.rawSet.coSetSolverGroups(this.handle, groups);
+    }
+
+    /**
+     * Get the physics hooks active for this collider.
+     */
+    public activeHooks() {
+        this.rawSet.coActiveHooks(this.handle);
+    }
+
+    /**
+     * Set the physics hooks active for this collider.
+     *
+     * Use this to enable custom filtering rules for contact/intersecstion pairs involving this collider.
+     *
+     * @param activeHooks - The hooks active for contact/intersection pairs involving this collider.
+     */
+    public setActiveHooks(activeHooks: ActiveHooks) {
+        this.rawSet.coSetActiveHooks(this.handle, activeHooks);
+    }
+
+    /**
+     * The events active for this collider.
+     */
+    public activeEvents(): ActiveEvents {
+        return this.rawSet.coActiveEvents(this.handle);
+    }
+
+    /**
+     * Set the events active for this collider.
+     *
+     * Use this to enable contact and/or intersection event reporting for this collider.
+     *
+     * @param activeEvents - The events active for contact/intersection pairs involving this collider.
+     */
+    public setActiveEvents(activeEvents: ActiveEvents) {
+        this.rawSet.coSetActiveEvents(this.handle, activeEvents);
+    }
+
+    /**
+     * Gets the collision types active for this collider.
+     */
+    public activeCollisionTypes(): ActiveCollisionTypes {
+        return this.rawSet.coActiveCollisionTypes(this.handle);
+    }
+
+    /**
+     * Set the collision types active for this collider.
+     *
+     * @param activeCollisionTypes - The hooks active for contact/intersection pairs involving this collider.
+     */
+    public setActiveCollisionTypes(activeCollisionTypes: ActiveCollisionTypes) {
+        this.rawSet.coSetActiveCollisionTypes(this.handle, activeCollisionTypes);
+    }
+
+    /**
+     * Sets the translation of this collider.
+     *
+     * @param tra - The world-space position of the collider.
+     */
+    public setTranslation(tra: Vector) {
+        // #if DIM2
+        this.rawSet.coSetTranslation(this.handle, tra.x, tra.y);
+        // #endif
+        // #if DIM3
+        this.rawSet.coSetTranslation(this.handle, tra.x, tra.y, tra.z);
+        // #endif
+    }
+
+    /**
+     * Sets the translation of this collider relative to its parent rigid-body.
+     *
+     * Does nothing if this collider isn't attached to a rigid-body.
+     *
+     * @param tra - The new translation of the collider relative to its parent.
+     */
+    public setTranslationWrtParent(tra: Vector) {
+        // #if DIM2
+        this.rawSet.coSetTranslationWrtParent(this.handle, tra.x, tra.y);
+        // #endif
+        // #if DIM3
+        this.rawSet.coSetTranslationWrtParent(this.handle, tra.x, tra.y, tra.z);
+        // #endif
+    }
+
+    // #if DIM3
+    /**
+     * Sets the rotation quaternion of this collider.
+     *
+     * This does nothing if a zero quaternion is provided.
+     *
+     * @param rotation - The rotation to set.
+     */
+    public setRotation(rot: Rotation) {
+        this.rawSet.coSetRotation(this.handle, rot.x, rot.y, rot.z, rot.w);
+    }
+
+
+    /**
+     * Sets the rotation quaternion of this collider relative to its parent rigid-body.
+     *
+     * This does nothing if a zero quaternion is provided or if this collider isn't
+     * attached to a rigid-body.
+     *
+     * @param rotation - The rotation to set.
+     */
+    public setRotationWrtParent(rot: Rotation) {
+        this.rawSet.coSetRotationWrtParent(this.handle, rot.x, rot.y, rot.z, rot.w);
+    }
+    // #endif
+    // #if DIM2
+    /**
+     * Sets the rotation angle of this collider.
+     *
+     * @param angle - The rotation angle, in radians.
+     */
+    public setRotation(angle: number) {
+        this.rawSet.coSetRotation(this.handle, angle);
+    }
+
+    /**
+     * Sets the rotation angle of this collider relative to its parent rigid-body.
+     *
+     * Does nothing if this collider isn't attached to a rigid-body.
+     *
+     * @param angle - The rotation angle, in radians.
+     */
+    public setRotationWrtParent(angle: number) {
+        this.rawSet.coSetRotationWrtParent(this.handle, angle);
+    }
+    // #endif
+
     /**
      * The type of the shape of this collider.
      */
@@ -212,21 +434,28 @@ export class Collider {
     }
 
     /**
-     * The solver gorups of this collider.
+     * The solver groups of this collider.
      */
     public solverGroups(): InteractionGroups {
         return this.rawSet.coSolverGroups(this.handle);
-    }
-
-    public activeHooks(): ActiveHooks {
-        return this.rawSet.coActiveHooks(this.handle);
     }
 }
 
 
 export class ColliderDesc {
     shape: Shape;
-    density?: number;
+    useMassProps: boolean;
+    mass: number;
+    centerOfMass: Vector;
+    // #if DIM2
+    principalAngularInertia: number;
+    rotationsEnabled: boolean;
+    // #endif
+    // #if DIM3
+    principalAngularInertia: Vector;
+    angularInertiaLocalFrame: Rotation;
+    // #endif
+    density: number;
     friction: number;
     restitution: number;
     rotation: Rotation;
@@ -247,7 +476,8 @@ export class ColliderDesc {
      */
     constructor(shape: Shape) {
         this.shape = shape;
-        this.density = null;
+        this.useMassProps = false;
+        this.density = 1.0;
         this.friction = 0.5;
         this.restitution = 0.0;
         this.rotation = RotationOps.identity();
@@ -260,6 +490,16 @@ export class ColliderDesc {
         this.activeCollisionTypes = ActiveCollisionTypes.DEFAULT;
         this.activeEvents = 0;
         this.activeHooks = 0;
+        this.mass = 0.0;
+        this.centerOfMass = VectorOps.zeros();
+        // #if DIM2
+        this.principalAngularInertia = 0.0;
+        this.rotationsEnabled = true;
+        // #endif
+        // #if DIM3
+        this.principalAngularInertia = VectorOps.zeros();
+        this.angularInertiaLocalFrame = RotationOps.identity();
+        // #endif
     }
 
     /**
@@ -609,7 +849,7 @@ export class ColliderDesc {
      *
      * @param is - Set to `true` of the collider built is to be a sensor.
      */
-    public setIsSensor(is: boolean): ColliderDesc {
+    public setSensor(is: boolean): ColliderDesc {
         this.isSensor = is;
         return this;
     }
@@ -621,9 +861,54 @@ export class ColliderDesc {
      *                  will not affect the mass or angular inertia of the rigid-body it is attached to.
      */
     public setDensity(density: number): ColliderDesc {
+        this.useMassProps = false;
         this.density = density;
         return this;
     }
+
+    // #if DIM2
+    /**
+     * Sets the mass properties of the collider being built.
+     *
+     * This replaces the mass-properties automatically computed from the collider's density and shape.
+     * These mass-properties will be added to the mass-properties of the rigid-body this collider will be attached to.
+     *
+     * @param mass − The mass of the collider to create.
+     * @param centerOfMass − The center-of-mass of the collider to create.
+     * @param principalAngularInertia − The principal angular inertia of the collider to create.
+     */
+    public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number): ColliderDesc {
+        this.useMassProps = true;
+        this.mass = mass;
+        this.centerOfMass = centerOfMass;
+        this.principalAngularInertia = principalAngularInertia;
+        return this;
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * Sets the mass properties of the collider being built.
+     *
+     * This replaces the mass-properties automatically computed from the collider's density and shape.
+     * These mass-properties will be added to the mass-properties of the rigid-body this collider will be attached to.
+     *
+     * @param mass − The mass of the collider to create.
+     * @param centerOfMass − The center-of-mass of the collider to create.
+     * @param principalAngularInertia − The initial principal angular inertia of the collider to create.
+     *                                  These are the eigenvalues of the angular inertia matrix.
+     * @param angularInertiaLocalFrame − The initial local angular inertia frame of the collider to create.
+     *                                   These are the eigenvectors of the angular inertia matrix.
+     */
+    public setAdditionalMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: Vector, angularInertiaLocalFrame: Rotation): ColliderDesc {
+        this.useMassProps = true;
+        this.mass = mass;
+        this.centerOfMass = centerOfMass;
+        this.principalAngularInertia = principalAngularInertia;
+        this.angularInertiaLocalFrame = angularInertiaLocalFrame;
+        return this;
+    }
+    // #endif
 
     /**
      * Sets the restitution coefficient of the collider to be created.

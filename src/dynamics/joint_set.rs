@@ -13,6 +13,14 @@ impl RawJointSet {
             .expect("Invalid Joint reference. It may have been removed from the physics World.");
         f(body)
     }
+
+    pub(crate) fn map_mut<T>(&mut self, handle: u32, f: impl FnOnce(&mut Joint) -> T) -> T {
+        let (body, _) = self
+            .0
+            .get_unknown_gen_mut(handle)
+            .expect("Invalid Joint reference. It may have been removed from the physics World.");
+        f(body)
+    }
 }
 
 #[wasm_bindgen]

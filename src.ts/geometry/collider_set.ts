@@ -33,17 +33,35 @@ export class ColliderSet {
      * @param parentHandle - The inteer handle of the rigid-body this collider is attached to.
      */
     public createCollider(bodies: RigidBodySet, desc: ColliderDesc, parentHandle: RigidBodyHandle): ColliderHandle {
-        if (isNaN(parentHandle))
+        let hasParent = parentHandle != undefined && parentHandle != null;
+
+        if (hasParent && isNaN(parentHandle))
             throw Error("Cannot create a collider with a parent rigid-body handle that is not a number.");
 
         let rawShape = desc.shape.intoRaw();
         let rawTra = VectorOps.intoRaw(desc.translation);
         let rawRot = RotationOps.intoRaw(desc.rotation);
+        let rawCom = VectorOps.intoRaw(desc.centerOfMass);
+
+        // #if DIM3
+        let rawPrincipalInertia = VectorOps.intoRaw(desc.principalAngularInertia);
+        let rawInertiaFrame = RotationOps.intoRaw(desc.angularInertiaLocalFrame);
+        // #endif
 
         let handle = this.raw.createCollider(
             rawShape,
             rawTra,
             rawRot,
+            desc.useMassProps,
+            desc.mass,
+            rawCom,
+            // #if DIM2
+            desc.principalAngularInertia,
+            // #endif
+            // #if DIM3
+            rawPrincipalInertia,
+            rawInertiaFrame,
+            // #endif
             desc.density,
             desc.friction,
             desc.restitution,
@@ -55,13 +73,20 @@ export class ColliderSet {
             desc.activeCollisionTypes,
             desc.activeHooks,
             desc.activeEvents,
-            parentHandle,
+            hasParent,
+            hasParent ? parentHandle : 0,
             bodies.raw,
         );
 
         rawShape.free();
         rawTra.free();
         rawRot.free();
+        rawCom.free();
+
+        // #if DIM3
+        rawPrincipalInertia.free();
+        rawInertiaFrame.free();
+        // #endif
 
         return handle;
     }

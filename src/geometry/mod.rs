@@ -18,6 +18,7 @@ mod ray;
 mod shape;
 mod toi;
 
+use rapier::dynamics::CoefficientCombineRule;
 use rapier::geometry::InteractionGroups;
 
 pub const fn unpack_interaction_groups(memberships_filter: u32) -> InteractionGroups {
@@ -29,4 +30,16 @@ pub const fn unpack_interaction_groups(memberships_filter: u32) -> InteractionGr
 
 pub const fn pack_interaction_groups(groups: InteractionGroups) -> u32 {
     (groups.memberships << 16) | groups.filter
+}
+
+pub const fn combine_rule_from_u32(rule: u32) -> CoefficientCombineRule {
+    if rule == CoefficientCombineRule::Average as u32 {
+        CoefficientCombineRule::Average
+    } else if rule == CoefficientCombineRule::Min as u32 {
+        CoefficientCombineRule::Min
+    } else if rule == CoefficientCombineRule::Multiply as u32 {
+        CoefficientCombineRule::Multiply
+    } else {
+        CoefficientCombineRule::Max
+    }
 }

@@ -4,8 +4,8 @@ use crate::geometry::{
     RawShape, RawShapeColliderTOI,
 };
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::{ColliderHandle, Ray};
-use rapier::math::Isometry;
+use rapier::geometry::{ColliderHandle, Ray, AABB};
+use rapier::math::{Isometry, Point};
 use rapier::pipeline::QueryPipeline;
 use wasm_bindgen::prelude::*;
 
@@ -225,5 +225,26 @@ impl RawQueryPipeline {
             None,
             rcallback,
         )
+    }
+
+    pub fn collidersWithAabbIntersectingAabb(
+        &self,
+        aabbCenter: RawVector,
+        aabbHalfExtents: RawVector,
+        callback: &js_sys::Function,
+    ) {
+        let this = JsValue::null();
+        let rcallback = |handle: &ColliderHandle| match callback
+            .call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32))
+        {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
+        };
+
+        let center = Point::from(aabbCenter.0);
+        let aabb = AABB::new(center - aabbHalfExtents.0, center + aabbHalfExtents.0);
+
+        self.0
+            .colliders_with_aabb_intersecting_aabb(&aabb, rcallback)
     }
 }
