@@ -1,12 +1,14 @@
 use crate::dynamics::RawJointSet;
 use crate::math::{RawRotation, RawVector};
 use na::Unit;
-use rapier::dynamics::{BallJoint, FixedJoint, JointParams, PrismaticJoint};
+use rapier::dynamics::{BallJoint, FixedJoint, JointParams, PrismaticJoint, SpringModel};
 use rapier::math::Isometry;
+#[cfg(feature = "dim2")]
+use rapier::math::Rotation;
 use wasm_bindgen::prelude::*;
 #[cfg(feature = "dim3")]
 use {
-    na::{Matrix3, Rotation3, UnitQuaternion},
+    na::{Matrix3, Quaternion, UnitQuaternion, Vector3},
     rapier::dynamics::RevoluteJoint,
     rapier::utils::WBasis,
 };
@@ -17,6 +19,14 @@ pub enum RawJointType {
     Fixed,
     Prismatic,
     Revolute,
+}
+
+#[wasm_bindgen]
+pub enum RawSpringModel {
+    Disabled,
+    VelocityBased,
+    AccelerationBased,
+    ForceBased,
 }
 
 #[wasm_bindgen]
@@ -58,7 +68,7 @@ impl RawJointSet {
             let basis1a = local_axis1.orthonormal_basis()[0];
             let basis1b = local_axis1.cross(&basis1a);
 
-            let rotmat1 = Rotation3::from_matrix_unchecked(Matrix3::from_columns(&[
+            let rotmat1 = na::Rotation3::from_matrix_unchecked(Matrix3::from_columns(&[
                 local_axis1,
                 basis1a,
                 basis1b,
@@ -85,7 +95,7 @@ impl RawJointSet {
             let basis2a = local_axis2.orthonormal_basis()[0];
             let basis2b = local_axis2.cross(&basis2a);
 
-            let rotmat2 = Rotation3::from_matrix_unchecked(Matrix3::from_columns(&[
+            let rotmat2 = na::Rotation3::from_matrix_unchecked(Matrix3::from_columns(&[
                 local_axis2,
                 basis2a,
                 basis2b,
@@ -173,6 +183,153 @@ impl RawJointSet {
         self.map(handle, |j| match &j.params {
             JointParams::PrismaticJoint(p) => p.limits[1],
             _ => f32::MAX,
+        })
+    }
+
+    pub fn jointConfigureMotorModel(&mut self, handle: u32, model: RawSpringModel) {
+        let model = match model {
+            RawSpringModel::Disabled => SpringModel::Disabled,
+            RawSpringModel::VelocityBased => SpringModel::VelocityBased,
+            RawSpringModel::AccelerationBased => SpringModel::AccelerationBased,
+            RawSpringModel::ForceBased => SpringModel::ForceBased,
+        };
+
+        self.map_mut(handle, |j| match &mut j.params {
+            JointParams::PrismaticJoint(j) => j.configure_motor_model(model),
+            JointParams::BallJoint(j) => j.configure_motor_model(model),
+            #[cfg(feature = "dim3")]
+            JointParams::RevoluteJoint(j) => j.configure_motor_model(model),
+            JointParams::FixedJoint(_) => {}
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn jointConfigureBallMotorVelocity(
+        &mut self,
+        handle: u32,
+        vx: f32,
+        vy: f32,
+        vz: f32,
+        factor: f32,
+    ) {
+        let targetVel = Vector3::new(vx, vy, vz);
+
+        self.map_mut(handle, |j| match &mut j.params {
+            JointParams::BallJoint(j) => j.configure_motor_velocity(targetVel, factor),
+            _ => {}
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn jointConfigureBallMotorPosition(
+        &mut self,
+        handle: u32,
+        qw: f32,
+        qx: f32,
+        qy: f32,
+        qz: f32,
+        stiffness: f32,
+        damping: f32,
+    ) {
+        let quat = Quaternion::new(qw, qx, qy, qz);
+
+        self.map_mut(handle, |j| match &mut j.params {
+            JointParams::BallJoint(j) => {
+                if let Some(unit_quat) = UnitQuaternion::try_new(quat, 1.0e-5) {
+                    j.configure_motor_position(unit_quat, stiffness, damping)
+                }
+            }
+            _ => {}
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn jointConfigureBallMotor(
+        &mut self,
+        handle: u32,
+        qw: f32,
+        qx: f32,
+        qy: f32,
+        qz: f32,
+        vx: f32,
+        vy: f32,
+        vz: f32,
+        stiffness: f32,
+        damping: f32,
+    ) {
+        let quat = Quaternion::new(qw, qx, qy, qz);
+        let vel = Vector3::new(vx, vy, vz);
+
+        self.map_mut(handle, |j| match &mut j.params {
+            JointParams::BallJoint(j) => {
+                if let Some(unit_quat) = UnitQuaternion::try_new(quat, 1.0e-5) {
+                    j.configure_motor(unit_quat, vel, stiffness, damping)
+                }
+            }
+            _ => {}
+        })
+    }
+
+    pub fn jointConfigureUnitMotorVelocity(&mut self, handle: u32, targetVel: f32, factor: f32) {
+        self.map_mut(handle, |j| match &mut j.params {
+            JointParams::PrismaticJoint(j) => j.configure_motor_velocity(targetVel, factor),
+            #[cfg(feature = "dim3")]
+            JointParams::RevoluteJoint(j) => j.configure_motor_velocity(targetVel, factor),
+            JointParams::BallJoint(_j) =>
+            {
+                #[cfg(feature = "dim2")]
+                _j.configure_motor_velocity(targetVel, factor)
+            }
+            JointParams::FixedJoint(_) => {}
+        })
+    }
+
+    pub fn jointConfigureUnitMotorPosition(
+        &mut self,
+        handle: u32,
+        targetPos: f32,
+        stiffness: f32,
+        damping: f32,
+    ) {
+        self.map_mut(handle, |j| match &mut j.params {
+            JointParams::PrismaticJoint(j) => {
+                j.configure_motor_position(targetPos, stiffness, damping)
+            }
+            #[cfg(feature = "dim3")]
+            JointParams::RevoluteJoint(j) => {
+                j.configure_motor_position(targetPos, stiffness, damping)
+            }
+            JointParams::BallJoint(_j) =>
+            {
+                #[cfg(feature = "dim2")]
+                _j.configure_motor_position(Rotation::new(targetPos), stiffness, damping)
+            }
+            JointParams::FixedJoint(_) => {}
+        })
+    }
+
+    pub fn jointConfigureUnitMotor(
+        &mut self,
+        handle: u32,
+        targetPos: f32,
+        targetVel: f32,
+        stiffness: f32,
+        damping: f32,
+    ) {
+        self.map_mut(handle, |j| match &mut j.params {
+            JointParams::PrismaticJoint(j) => {
+                j.configure_motor(targetPos, targetVel, stiffness, damping)
+            }
+            #[cfg(feature = "dim3")]
+            JointParams::RevoluteJoint(j) => {
+                j.configure_motor(targetPos, targetVel, stiffness, damping)
+            }
+            JointParams::BallJoint(_j) =>
+            {
+                #[cfg(feature = "dim2")]
+                _j.configure_motor(Rotation::new(targetPos), targetVel, stiffness, damping)
+            }
+            JointParams::FixedJoint(_) => {}
         })
     }
 }

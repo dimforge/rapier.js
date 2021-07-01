@@ -1,19 +1,104 @@
-use crate::geometry::{RawColliderSet, RawShapeType};
+use crate::geometry::{RawColliderSet, RawShape, RawShapeType};
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::ShapeType;
+use rapier::geometry::{ActiveCollisionTypes, ShapeType};
 use rapier::math::Point;
+use rapier::pipeline::{ActiveEvents, ActiveHooks};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 impl RawColliderSet {
-    /// The world-space translation of this rigid-body.
+    /// The world-space translation of this collider.
     pub fn coTranslation(&self, handle: u32) -> RawVector {
         self.map(handle, |co| co.position().translation.vector.into())
     }
 
-    /// The world-space orientation of this rigid-body.
+    /// The world-space orientation of this collider.
     pub fn coRotation(&self, handle: u32) -> RawRotation {
         self.map(handle, |co| co.position().rotation.into())
+    }
+
+    /// Sets the translation of this collider.
+    ///
+    /// # Parameters
+    /// - `x`: the world-space position of the collider along the `x` axis.
+    /// - `y`: the world-space position of the collider along the `y` axis.
+    /// - `z`: the world-space position of the collider along the `z` axis.
+    /// - `wakeUp`: forces the collider to wake-up so it is properly affected by forces if it
+    /// wasn't moving before modifying its position.
+    #[cfg(feature = "dim3")]
+    pub fn coSetTranslation(&mut self, handle: u32, x: f32, y: f32, z: f32) {
+        self.map_mut(handle, |co| {
+            co.set_translation(na::Vector3::new(x, y, z));
+        })
+    }
+
+    /// Sets the translation of this collider.
+    ///
+    /// # Parameters
+    /// - `x`: the world-space position of the collider along the `x` axis.
+    /// - `y`: the world-space position of the collider along the `y` axis.
+    /// - `wakeUp`: forces the collider to wake-up so it is properly affected by forces if it
+    /// wasn't moving before modifying its position.
+    #[cfg(feature = "dim2")]
+    pub fn coSetTranslation(&mut self, handle: u32, x: f32, y: f32) {
+        self.map_mut(handle, |co| {
+            co.set_translation(na::Vector2::new(x, y));
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn coSetTranslationWrtParent(&mut self, handle: u32, x: f32, y: f32, z: f32) {
+        self.map_mut(handle, |co| {
+            co.set_translation_wrt_parent(na::Vector3::new(x, y, z));
+        })
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn coSetTranslationWrtParent(&mut self, handle: u32, x: f32, y: f32) {
+        self.map_mut(handle, |co| {
+            co.set_translation_wrt_parent(na::Vector2::new(x, y));
+        })
+    }
+
+    /// Sets the rotation quaternion of this collider.
+    ///
+    /// This does nothing if a zero quaternion is provided.
+    ///
+    /// # Parameters
+    /// - `x`: the first vector component of the quaternion.
+    /// - `y`: the second vector component of the quaternion.
+    /// - `z`: the third vector component of the quaternion.
+    /// - `w`: the scalar component of the quaternion.
+    /// - `wakeUp`: forces the collider to wake-up so it is properly affected by forces if it
+    /// wasn't moving before modifying its position.
+    #[cfg(feature = "dim3")]
+    pub fn coSetRotation(&mut self, handle: u32, x: f32, y: f32, z: f32, w: f32) {
+        if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
+            self.map_mut(handle, |co| co.set_rotation(q.scaled_axis()))
+        }
+    }
+
+    /// Sets the rotation angle of this collider.
+    ///
+    /// # Parameters
+    /// - `angle`: the rotation angle, in radians.
+    /// - `wakeUp`: forces the collider to wake-up so it is properly affected by forces if it
+    /// wasn't moving before modifying its position.
+    #[cfg(feature = "dim2")]
+    pub fn coSetRotation(&mut self, handle: u32, angle: f32) {
+        self.map_mut(handle, |co| co.set_rotation(angle))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn coSetRotationWrtParent(&mut self, handle: u32, x: f32, y: f32, z: f32, w: f32) {
+        if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
+            self.map_mut(handle, |co| co.set_rotation_wrt_parent(q.scaled_axis()))
+        }
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn coSetRotationWrtParent(&mut self, handle: u32, angle: f32) {
+        self.map_mut(handle, |co| co.set_rotation_wrt_parent(angle))
     }
 
     /// Is this collider a sensor?
@@ -205,7 +290,7 @@ impl RawColliderSet {
         })
     }
 
-    /// The unique integer identifier of the rigid-body this collider is attached to.
+    /// The unique integer identifier of the collider this collider is attached to.
     pub fn coParent(&self, handle: u32) -> u32 {
         self.map(handle, |co| {
             co.parent().map(|p| p.into_raw_parts().0).unwrap_or(0)
@@ -249,5 +334,64 @@ impl RawColliderSet {
     /// The events enabled for this collider.
     pub fn coActiveEvents(&self, handle: u32) -> u32 {
         self.map(handle, |co| co.active_events().bits())
+    }
+
+    pub fn coSetSensor(&mut self, handle: u32, is_sensor: bool) {
+        self.map_mut(handle, |co| co.set_sensor(is_sensor))
+    }
+
+    pub fn coSetRestitution(&mut self, handle: u32, restitution: f32) {
+        self.map_mut(handle, |co| co.set_restitution(restitution))
+    }
+
+    pub fn coSetFriction(&mut self, handle: u32, friction: f32) {
+        self.map_mut(handle, |co| co.set_friction(friction))
+    }
+
+    pub fn coFrictionCombineRule(&self, handle: u32) -> u32 {
+        self.map(handle, |co| co.friction_combine_rule() as u32)
+    }
+
+    pub fn coSetFrictionCombineRule(&mut self, handle: u32, rule: u32) {
+        let rule = super::combine_rule_from_u32(rule);
+        self.map_mut(handle, |co| co.set_friction_combine_rule(rule))
+    }
+
+    pub fn coRestitutionCombineRule(&self, handle: u32) -> u32 {
+        self.map(handle, |co| co.restitution_combine_rule() as u32)
+    }
+
+    pub fn coSetRestitutionCombineRule(&mut self, handle: u32, rule: u32) {
+        let rule = super::combine_rule_from_u32(rule);
+        self.map_mut(handle, |co| co.set_restitution_combine_rule(rule))
+    }
+
+    pub fn coSetCollisionGroups(&mut self, handle: u32, groups: u32) {
+        let groups = super::unpack_interaction_groups(groups);
+        self.map_mut(handle, |co| co.set_collision_groups(groups))
+    }
+
+    pub fn coSetSolverGroups(&mut self, handle: u32, groups: u32) {
+        let groups = super::unpack_interaction_groups(groups);
+        self.map_mut(handle, |co| co.set_solver_groups(groups))
+    }
+
+    pub fn coSetActiveHooks(&mut self, handle: u32, hooks: u32) {
+        let hooks = ActiveHooks::from_bits(hooks).unwrap_or(ActiveHooks::empty());
+        self.map_mut(handle, |co| co.set_active_hooks(hooks));
+    }
+
+    pub fn coSetActiveEvents(&mut self, handle: u32, events: u32) {
+        let events = ActiveEvents::from_bits(events).unwrap_or(ActiveEvents::empty());
+        self.map_mut(handle, |co| co.set_active_events(events))
+    }
+
+    pub fn coSetActiveCollisionTypes(&mut self, handle: u32, types: u16) {
+        let types = ActiveCollisionTypes::from_bits(types).unwrap_or(ActiveCollisionTypes::empty());
+        self.map_mut(handle, |co| co.set_active_collision_types(types));
+    }
+
+    pub fn coSetShape(&mut self, handle: u32, shape: RawShape) {
+        self.map_mut(handle, |co| co.set_shape(shape.0));
     }
 }

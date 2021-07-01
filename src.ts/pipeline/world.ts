@@ -41,7 +41,7 @@ import {PhysicsHooks} from "./physics_hooks";
  * bodies with contacts, joints, and external forces.
  */
 export class World {
-    gravity: Vector
+    public gravity: Vector
     integrationParameters: IntegrationParameters
     islands: IslandManager
     broadPhase: BroadPhase
@@ -321,10 +321,9 @@ export class World {
      * @param body - The rigid-body to remove.
      */
     public removeRigidBody(body: RigidBody) {
-        this.physicsPipeline.removeRigidBody(
+        this.bodies.remove(
             body.handle,
             this.islands,
-            this.bodies,
             this.colliders,
             this.joints,
         );
@@ -333,16 +332,30 @@ export class World {
     /**
      * Removes the given collider from this physics world.
      *
-     * The rigid-body this collider is attached to will be woken-up.
-     *
-     * @param body - The collider to remove.
+     * @param collider - The collider to remove.
+     * @param wakeUp - If set to `true`, the rigid-body this collider is attached to will be awaken.
      */
-    public removeCollider(collider: Collider) {
-        this.physicsPipeline.removeCollider(
+    public removeCollider(collider: Collider, wakeUp: boolean) {
+        this.colliders.remove(
             collider.handle,
             this.islands,
             this.bodies,
-            this.colliders,
+            wakeUp,
+        );
+    }
+
+    /**
+     * Removes the given joint from this physics world.
+     *
+     * @param joint - The joint to remove.
+     * @param wakeUp - If set to `true`, the rigid-bodies attached by this joint will be awaken.
+     */
+    public removeJoint(joint: Joint, wakeUp: boolean) {
+        this.joints.remove(
+            joint.handle,
+            this.islands,
+            this.bodies,
+            wakeUp,
         );
     }
 
@@ -411,34 +424,44 @@ export class World {
     }
 
     /**
-     * Cast a ray against this physics world and return the first collider it hits.
-     *
-     * This does not compute the normal at the hit point. If the normal is needed, use
-     * `castRayAndGetNormal` instead.
-     * This returns null if no hit is found.
+     * Find the closest intersection between a ray and the physics world.
      *
      * @param ray - The ray to cast.
-     * @param max_toi - The maximum time-of-impact that can be reported by this cast. This effectively
-     *   limits the length of the ray to `ray.dir.norm() * max_toi`. Use `f32::MAX` for an
-     *   unbounded ray.
+     * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
+     *   limits the length of the ray to `ray.dir.norm() * maxToi`.
+     * @param solid - If `false` then the ray will attempt to hit the boundary of a shape, even if its
+     *   origin already lies inside of a shape. In other terms, `true` implies that all shapes are plain,
+     *   whereas `false` implies that all shapes are hollow for this ray-cast.
+     * @param groups - Used to filter the colliders that can or cannot be hit by the ray.
      */
-    public castRay(ray: Ray, maxToi: number): RayColliderToi | null {
-        return this.queryPipeline.castRay(this.colliders, ray, maxToi, true, 0xffff_ffff);
+    public castRay(
+        ray: Ray,
+        maxToi: number,
+        solid: boolean,
+        groups: InteractionGroups
+    ): RayColliderToi | null {
+        return this.queryPipeline.castRay(this.colliders, ray, maxToi, solid, groups);
     }
 
     /**
-     * Cast a ray against this physics world and return the first collider it hits.
+     * Find the closest intersection between a ray and the physics world.
      *
      * This also computes the normal at the hit point.
-     * This returns null if no hit is found.
-     *
      * @param ray - The ray to cast.
-     * @param max_toi - The maximum time-of-impact that can be reported by this cast. This effectively
-     *   limits the length of the ray to `ray.dir.norm() * max_toi`. Use `f32::MAX` for an
-     *   unbounded ray.
+     * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
+     *   limits the length of the ray to `ray.dir.norm() * maxToi`.
+     * @param solid - If `false` then the ray will attempt to hit the boundary of a shape, even if its
+     *   origin already lies inside of a shape. In other terms, `true` implies that all shapes are plain,
+     *   whereas `false` implies that all shapes are hollow for this ray-cast.
+     * @param groups - Used to filter the colliders that can or cannot be hit by the ray.
      */
-    public castRayAndGetNormal(ray: Ray, maxToi: number): RayColliderIntersection | null {
-        return this.queryPipeline.castRayAndGetNormal(this.colliders, ray, maxToi, true, 0xffff_ffff);
+    public castRayAndGetNormal(
+        ray: Ray,
+        maxToi: number,
+        solid: boolean,
+        groups: InteractionGroups
+    ): RayColliderIntersection | null {
+        return this.queryPipeline.castRayAndGetNormal(this.colliders, ray, maxToi, solid, groups);
     }
 
 
@@ -575,5 +598,21 @@ export class World {
         callback: (handle: ColliderHandle) => boolean,
     ) {
         this.queryPipeline.intersectionsWithShape(this.colliders, shapePos, shapeRot, shape, groups, callback);
+    }
+
+    /**
+     * Finds the handles of all the colliders with an AABB intersecting the given AABB.
+     *
+     * @param aabbCenter - The center of the AABB to test.
+     * @param aabbHalfExtents - The half-extents of the AABB to test.
+     * @param callback - The callback that will be called with the handles of all the colliders
+     *                   currently intersecting the given AABB.
+     */
+    public collidersWithAabbIntersectingAabb(
+        aabbCenter: Vector,
+        aabbHalfExtents: Vector,
+        callback: (handle: ColliderHandle) => boolean,
+    ) {
+        this.queryPipeline.collidersWithAabbIntersectingAabb(aabbCenter, aabbHalfExtents, callback);
     }
 }

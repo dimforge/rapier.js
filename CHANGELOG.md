@@ -1,3 +1,7 @@
+### v0.7.0
+- The `World.castRay` and `World.castRayAndGetNormal` methods have a different signature now, making them
+  more flexible.
+
 ### v0.6.0
 #### Breaking changes
 - The `BodyStatus::Kinematic` variant has been replaced by `BodyStatus::KinematicPositionBased` and

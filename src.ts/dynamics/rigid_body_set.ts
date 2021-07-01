@@ -69,6 +69,7 @@ export class RigidBodySet {
             desc.status,
             desc.canSleep,
             desc.ccdEnabled,
+            desc.dominanceGroup,
         );
 
         rawTra.free();

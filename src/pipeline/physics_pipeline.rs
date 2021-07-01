@@ -84,37 +84,4 @@ impl RawPhysicsPipeline {
             &eventQueue.collector,
         );
     }
-
-    // TODO: BREAKING, remove this, and add the corresponding remove/maintain method to the sets
-    // and narrow/broad phases.
-    pub fn removeRigidBody(
-        &mut self,
-        handle: u32,
-        islands: &mut RawIslandManager,
-        bodies: &mut RawRigidBodySet,
-        colliders: &mut RawColliderSet,
-        joints: &mut RawJointSet,
-    ) {
-        if let Some((_, handle)) = bodies.0.get_unknown_gen(handle) {
-            bodies
-                .0
-                .remove(handle, &mut islands.0, &mut colliders.0, &mut joints.0);
-        }
-    }
-
-    // TODO: BREAKING, remove this, and add the corresponding remove/maintain method to the sets
-    // and narrow/broad phases.
-    pub fn removeCollider(
-        &mut self,
-        handle: u32,
-        islands: &mut RawIslandManager,
-        bodies: &mut RawRigidBodySet,
-        colliders: &mut RawColliderSet,
-    ) {
-        if let Some((_, handle)) = colliders.0.get_unknown_gen(handle) {
-            colliders
-                .0
-                .remove(handle, &mut islands.0, &mut bodies.0, true);
-        }
-    }
 }

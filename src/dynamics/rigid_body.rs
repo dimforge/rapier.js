@@ -223,6 +223,40 @@ impl RawRigidBodySet {
         self.map(handle, |rb| RawVector(*rb.angvel()))
     }
 
+    pub fn rbLockTranslations(&mut self, handle: u32, locked: bool, wake_up: bool) {
+        self.map_mut(handle, |rb| rb.lock_translations(locked, wake_up))
+    }
+
+    pub fn rbLockRotations(&mut self, handle: u32, locked: bool, wake_up: bool) {
+        self.map_mut(handle, |rb| rb.lock_translations(locked, wake_up))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn rbRestrictRotations(
+        &mut self,
+        handle: u32,
+        allow_x: bool,
+        allow_y: bool,
+        allow_z: bool,
+        wake_up: bool,
+    ) {
+        self.map_mut(handle, |rb| {
+            rb.restrict_rotations(allow_x, allow_y, allow_z, wake_up)
+        })
+    }
+
+    pub fn rbDominanceGroup(&self, handle: u32) -> i8 {
+        self.map(handle, |rb| rb.dominance_group())
+    }
+
+    pub fn rbSetDominanceGroup(&mut self, handle: u32, group: i8) {
+        self.map_mut(handle, |rb| rb.set_dominance_group(group))
+    }
+
+    pub fn rbEnableCcd(&mut self, handle: u32, enabled: bool) {
+        self.map_mut(handle, |rb| rb.enable_ccd(enabled))
+    }
+
     /// The mass of this rigid-body.
     pub fn rbMass(&self, handle: u32) -> f32 {
         self.map(handle, |rb| rb.mass())
@@ -259,7 +293,7 @@ impl RawRigidBodySet {
     }
 
     /// The status of this rigid-body: static, dynamic, or kinematic.
-    pub fn rbBodyStatus(&self, handle: u32) -> RawRigidBodyType {
+    pub fn rbBodyType(&self, handle: u32) -> RawRigidBodyType {
         self.map(handle, |rb| rb.body_type().into())
     }
 

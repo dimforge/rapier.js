@@ -11,17 +11,17 @@ export type RigidBodyHandle = number;
  * The simulation status of a rigid-body.
  */
 // TODO: rename this to RigidBodyType
-export enum BodyStatus {
+export enum RigidBodyType {
     /**
-     * A `BodyStatus::Dynamic` body can be affected by all external forces.
+     * A `RigidBodyType::Dynamic` body can be affected by all external forces.
      */
     Dynamic = 0,
     /**
-     * A `BodyStatus::Static` body cannot be affected by external forces.
+     * A `RigidBodyType::Static` body cannot be affected by external forces.
      */
     Static,
     /**
-     * A `BodyStatus::KinematicPositionBased` body cannot be affected by any external forces but can be controlled
+     * A `RigidBodyType::KinematicPositionBased` body cannot be affected by any external forces but can be controlled
      * by the user at the position level while keeping realistic one-way interaction with dynamic bodies.
      *
      * One-way interaction means that a kinematic body can push a dynamic body, but a kinematic body
@@ -30,7 +30,7 @@ export enum BodyStatus {
      */
     KinematicPositionBased,
     /**
-     * A `BodyStatus::KinematicVelocityBased` body cannot be affected by any external forces but can be controlled
+     * A `RigidBodyType::KinematicVelocityBased` body cannot be affected by any external forces but can be controlled
      * by the user at the velocity level while keeping realistic one-way interaction with dynamic bodies.
      *
      * One-way interaction means that a kinematic body can push a dynamic body, but a kinematic body
@@ -58,6 +58,65 @@ export class RigidBody {
      */
     public isValid(): boolean {
         return this.rawSet.contains(this.handle);
+    }
+
+    /**
+     * Locks or unlocks the ability of this rigid-body to translate.
+     *
+     * @param locked - If `true`, this rigid-body will no longer translate due to forces and impulses.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     */
+    public lockTranslations(locked: boolean, wakeUp: boolean) {
+        return this.rawSet.rbLockTranslations(this.handle, locked, wakeUp);
+    }
+
+    /**
+     * Locks or unlocks the ability of this rigid-body to rotate.
+     *
+     * @param locked - If `true`, this rigid-body will no longer rotate due to torques and impulses.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     */
+    public lockRotations(locked: boolean, wakeUp: boolean) {
+        return this.rawSet.rbLockRotations(this.handle, locked, wakeUp);
+    }
+
+    // #if DIM3
+    /**
+     * Locks or unlocks the ability of this rigid-body to rotate along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
+     * @param enableZ - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Z coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     */
+    public restrictRotations(enableX: boolean, enableY: boolean, enableZ: boolean, wakeUp: boolean) {
+        return this.rawSet.rbRestrictRotations(this.handle, enableX, enableY, enableZ, wakeUp);
+    }
+    // #endif
+
+    /**
+     * The dominance group, in [-127, +127] this rigid-body is part of.
+     */
+    public dominanceGroup(): number {
+        return this.rawSet.rbDominanceGroup(this.handle);
+    }
+
+    /**
+     * Sets the dominance group of this rigid-body.
+     *
+     * @param group - The dominance group of this rigid-body. Must be a signed integer in the range [-127, +127].
+     */
+    public setDominanceGroup(group: number) {
+        this.rawSet.rbSetDominanceGroup(this.handle, group);
+    }
+
+    /**
+     * Enable or disable CCD (Continuous Collision Detection) for this rigid-body.
+     *
+     * @param enabled - If `true`, CCD will be enabled for this rigid-body.
+     */
+    public enableCcd(enabled: boolean) {
+        this.rawSet.rbEnableCcd(this.handle, enabled)
     }
 
     /**
@@ -338,11 +397,12 @@ export class RigidBody {
         return this.rawSet.rbCollider(this.handle, i);
     }
 
+
     /**
      * The status of this rigid-body: static, dynamic, or kinematic.
      */
-    public bodyStatus(): BodyStatus {
-        return this.rawSet.rbBodyStatus(this.handle);
+    public bodyType(): RigidBodyType {
+        return this.rawSet.rbBodyType(this.handle);
     }
 
     /**
@@ -557,11 +617,12 @@ export class RigidBodyDesc {
     // #endif
     linearDamping: number
     angularDamping: number
-    status: BodyStatus;
+    status: RigidBodyType;
     canSleep: boolean;
     ccdEnabled: boolean;
+    dominanceGroup: number;
 
-    constructor(status: BodyStatus) {
+    constructor(status: RigidBodyType) {
         this.status = status;
         this.translation = VectorOps.zeros();
         this.rotation = RotationOps.identity();
@@ -587,34 +648,40 @@ export class RigidBodyDesc {
         this.angularDamping = 0.0;
         this.canSleep = true;
         this.ccdEnabled = false;
+        this.dominanceGroup = 0;
     }
 
     /**
      * A rigid-body descriptor used to build a dynamic rigid-body.
      */
     public static newDynamic(): RigidBodyDesc {
-        return new RigidBodyDesc(BodyStatus.Dynamic)
+        return new RigidBodyDesc(RigidBodyType.Dynamic)
     }
 
     /**
      * A rigid-body descriptor used to build a position-based kinematic rigid-body.
      */
     public static newKinematicPositionBased(): RigidBodyDesc {
-        return new RigidBodyDesc(BodyStatus.KinematicPositionBased)
+        return new RigidBodyDesc(RigidBodyType.KinematicPositionBased)
     }
 
     /**
      * A rigid-body descriptor used to build a velocity-based kinematic rigid-body.
      */
     public static newKinematicVelocityBased(): RigidBodyDesc {
-        return new RigidBodyDesc(BodyStatus.KinematicVelocityBased)
+        return new RigidBodyDesc(RigidBodyType.KinematicVelocityBased)
     }
 
     /**
      * A rigid-body descriptor used to build a static rigid-body.
      */
     public static newStatic(): RigidBodyDesc {
-        return new RigidBodyDesc(BodyStatus.Static)
+        return new RigidBodyDesc(RigidBodyType.Static)
+    }
+
+    public setDominanceGroup(group: number): RigidBodyDesc {
+        this.dominanceGroup = group;
+        return this;
     }
 
     // #if DIM2
@@ -670,11 +737,11 @@ export class RigidBodyDesc {
     }
 
     /**
-     * Sets the mass of the rigid-body being built.
+     * Sets the initial mass of the rigid-body being built, before adding colliders' contributions.
      *
      * @param mass − The initial mass of the rigid-body to create.
      */
-    public setMass(mass: number): RigidBodyDesc {
+    public setAdditionalMass(mass: number): RigidBodyDesc {
         this.mass = mass;
         return this;
     }
@@ -729,7 +796,7 @@ export class RigidBodyDesc {
      * @param centerOfMass − The initial center-of-mass of the rigid-body to create.
      * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
      */
-    public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number): RigidBodyDesc {
+    public setAdditionalMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number): RigidBodyDesc {
         this.mass = mass;
         this.centerOfMass = centerOfMass;
         this.principalAngularInertia = principalAngularInertia;
@@ -741,7 +808,7 @@ export class RigidBodyDesc {
      *
      * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
      */
-    public setPrincipalAngularInertia(principalAngularInertia: number): RigidBodyDesc {
+    public setAdditionalPrincipalAngularInertia(principalAngularInertia: number): RigidBodyDesc {
         this.principalAngularInertia = principalAngularInertia;
         return this;
     }
@@ -802,7 +869,7 @@ export class RigidBodyDesc {
      * @param angularInertiaLocalFrame − The initial local angular inertia frame of the rigid-body to create.
      *                                   These are the eigenvectors of the angular inertia matrix.
      */
-    public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: Vector, angularInertiaLocalFrame): RigidBodyDesc {
+    public setAdditionalMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: Vector, angularInertiaLocalFrame: Rotation): RigidBodyDesc {
         this.mass = mass;
         this.centerOfMass = centerOfMass;
         this.principalAngularInertia = principalAngularInertia;
@@ -816,7 +883,7 @@ export class RigidBodyDesc {
      *
      * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
      */
-    public setPrincipalAngularInertia(principalAngularInertia: Vector): RigidBodyDesc {
+    public setAdditionalPrincipalAngularInertia(principalAngularInertia: Vector): RigidBodyDesc {
         this.principalAngularInertia = principalAngularInertia;
         return this;
     }

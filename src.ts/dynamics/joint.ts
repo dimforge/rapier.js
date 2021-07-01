@@ -1,6 +1,9 @@
 import {Rotation, Vector, VectorOps, RotationOps} from "../math";
 import {RawJointParams, RawJointSet, RawRigidBodySet} from "../raw";
 import {RigidBodyHandle} from "./rigid_body"
+// #if DIM3
+import {Quaternion} from "../math";
+// #endif
 
 /**
  * The integer identifier of a collider added to a `ColliderSet`.
@@ -25,15 +28,21 @@ export enum JointType {
     // #endif
 }
 
+export enum SpringModel {
+    Disabled,
+    VelocityBased,
+    AccelerationBased,
+    ForceBased,
+}
+
 export class Joint {
-    private rawSet: RawJointSet; // The Joint won't need to free this.
+    protected rawSet: RawJointSet; // The Joint won't need to free this.
     handle: JointHandle;
 
     constructor(rawSet: RawJointSet, handle: JointHandle) {
         this.rawSet = rawSet;
         this.handle = handle;
     }
-
 
     /**
      * Checks if this joint is still valid (i.e. that it has
@@ -125,7 +134,9 @@ export class Joint {
     public axis2(): Vector {
         return VectorOps.fromRaw(this.rawSet.jointAxis2(this.handle))
     }
+}
 
+export class UnitJoint extends Joint {
     /**
      * Are the limits enabled for this joint?
      */
@@ -135,8 +146,6 @@ export class Joint {
 
     /**
      * The min limit of this joint.
-     *
-     * If this joint as a prismatic joint, returns its min limit.
      */
     public limitsMin(): number {
         return this.rawSet.jointLimitsMin(this.handle);
@@ -144,13 +153,61 @@ export class Joint {
 
     /**
      * The max limit of this joint.
-     *
-     * If this joint as a prismatic joint, returns its max limit.
      */
     public limitsMax(): number {
         return this.rawSet.jointLimitsMax(this.handle);
     }
+
+    public configureMotorModel(model: SpringModel) {
+        this.rawSet.jointConfigureMotorModel(this.handle, model);
+    }
+
+    public configureMotorVelocity(targetVel: number, factor: number) {
+        this.rawSet.jointConfigureUnitMotorVelocity(this.handle, targetVel, factor);
+    }
+
+    public configureMotorPosition(targetPos: number, stiffness: number, damping: number) {
+        this.rawSet.jointConfigureUnitMotorPosition(this.handle, targetPos, stiffness, damping);
+    }
+
+    public configureMotor(targetPos: number, targetVel: number, stiffness: number, damping: number) {
+        this.rawSet.jointConfigureUnitMotor(this.handle, targetPos, targetVel, stiffness, damping);
+    }
 }
+
+export class FixedJoint extends Joint {}
+export class PrismaticJoint extends UnitJoint {}
+
+// #if DIM2
+export class BallJoint extends UnitJoint {}
+// #endif
+
+// #if DIM3
+export class BallJoint extends Joint {
+    public configureMotorModel(model: SpringModel) {
+        this.rawSet.jointConfigureMotorModel(this.handle, model);
+    }
+
+    public configureMotorVelocity(targetVel: Vector, factor: number) {
+        this.rawSet.jointConfigureBallMotorVelocity(this.handle, targetVel.x, targetVel.y, targetVel.z, factor);
+    }
+
+    public configureMotorPosition(targetPos: Quaternion, stiffness: number, damping: number) {
+        this.rawSet.jointConfigureBallMotorPosition(this.handle, targetPos.w, targetPos.x, targetPos.y, targetPos.z, stiffness, damping);
+    }
+
+    public configureMotor(targetPos: Quaternion, targetVel: Vector, stiffness: number, damping: number) {
+        this.rawSet.jointConfigureBallMotor(this.handle,
+            targetPos.w, targetPos.x, targetPos.y, targetPos.z,
+            targetVel.x, targetVel.y, targetVel.z,
+            stiffness, damping);
+    }
+}
+
+export class RevoluteJoint extends UnitJoint {}
+// #endif
+
+
 
 export class JointParams {
     anchor1: Vector

@@ -15,29 +15,31 @@ impl RawColliderSet {
             .expect("Invalid Collider reference. It may have been removed from the physics World.");
         f(collider)
     }
+
+    pub(crate) fn map_mut<T>(&mut self, handle: u32, f: impl FnOnce(&mut Collider) -> T) -> T {
+        let (collider, _) = self
+            .0
+            .get_unknown_gen_mut(handle)
+            .expect("Invalid Collider reference. It may have been removed from the physics World.");
+        f(collider)
+    }
 }
 
-#[wasm_bindgen]
 impl RawColliderSet {
-    #[wasm_bindgen(constructor)]
-    pub fn new() -> Self {
-        RawColliderSet(ColliderSet::new())
-    }
-
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn contains(&self, handle: u32) -> bool {
-        self.0.get_unknown_gen(handle).is_some()
-    }
-
-    pub fn createCollider(
+    // This is a workaround because wasm-bindgen doesn't support the `cfg(feature = ...)`
+    // for the method arguments.
+    pub fn do_create_collider(
         &mut self,
         shape: &RawShape,
         translation: &RawVector,
         rotation: &RawRotation,
-        density: Option<f32>,
+        useMassProps: bool,
+        mass: f32,
+        centerOfMass: &RawVector,
+        #[cfg(feature = "dim2")] principalAngularInertia: f32,
+        #[cfg(feature = "dim3")] principalAngularInertia: &RawVector,
+        #[cfg(feature = "dim3")] angularInertiaFrame: &RawRotation,
+        density: f32,
         friction: f32,
         restitution: f32,
         frictionCombineRule: u32,
@@ -48,6 +50,7 @@ impl RawColliderSet {
         activeCollisionTypes: u16,
         activeHooks: u32,
         activeEvents: u32,
+        hasParent: bool,
         parent: u32,
         bodies: &mut RawRigidBodySet,
     ) -> Option<u32> {
@@ -67,43 +70,159 @@ impl RawColliderSet {
                     ActiveCollisionTypes::from_bits(activeCollisionTypes)
                         .unwrap_or(ActiveCollisionTypes::empty()),
                 )
-                .sensor(isSensor);
+                .sensor(isSensor)
+                .friction_combine_rule(super::combine_rule_from_u32(frictionCombineRule))
+                .restitution_combine_rule(super::combine_rule_from_u32(restitutionCombineRule));
 
-            if frictionCombineRule == CoefficientCombineRule::Average as u32 {
-                builder = builder.friction_combine_rule(CoefficientCombineRule::Average)
-            } else if frictionCombineRule == CoefficientCombineRule::Min as u32 {
-                builder = builder.friction_combine_rule(CoefficientCombineRule::Min)
-            } else if frictionCombineRule == CoefficientCombineRule::Multiply as u32 {
-                builder = builder.friction_combine_rule(CoefficientCombineRule::Multiply)
+            if useMassProps {
+                #[cfg(feature = "dim2")]
+                let mprops =
+                    MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
+                #[cfg(feature = "dim3")]
+                let mprops = MassProperties::with_principal_inertia_frame(
+                    centerOfMass.0.into(),
+                    mass,
+                    principalAngularInertia.0,
+                    angularInertiaFrame.0,
+                );
+                builder = builder.mass_properties(mprops);
             } else {
-                builder = builder.friction_combine_rule(CoefficientCombineRule::Max)
-            }
-
-            if restitutionCombineRule == CoefficientCombineRule::Average as u32 {
-                builder = builder.restitution_combine_rule(CoefficientCombineRule::Average)
-            } else if restitutionCombineRule == CoefficientCombineRule::Min as u32 {
-                builder = builder.restitution_combine_rule(CoefficientCombineRule::Min)
-            } else if restitutionCombineRule == CoefficientCombineRule::Multiply as u32 {
-                builder = builder.restitution_combine_rule(CoefficientCombineRule::Multiply)
-            } else {
-                builder = builder.restitution_combine_rule(CoefficientCombineRule::Max)
-            }
-
-            if let Some(density) = density {
                 builder = builder.density(density);
             }
 
             let collider = builder.build();
 
-            Some(
-                self.0
-                    .insert_with_parent(collider, handle, &mut bodies.0)
-                    .into_raw_parts()
-                    .0,
-            )
+            if hasParent {
+                Some(
+                    self.0
+                        .insert_with_parent(collider, handle, &mut bodies.0)
+                        .into_raw_parts()
+                        .0,
+                )
+            } else {
+                Some(self.0.insert(collider).into_raw_parts().0)
+            }
         } else {
             None
         }
+    }
+}
+
+#[wasm_bindgen]
+impl RawColliderSet {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        RawColliderSet(ColliderSet::new())
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn contains(&self, handle: u32) -> bool {
+        self.0.get_unknown_gen(handle).is_some()
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn createCollider(
+        &mut self,
+        shape: &RawShape,
+        translation: &RawVector,
+        rotation: &RawRotation,
+        useMassProps: bool,
+        mass: f32,
+        centerOfMass: &RawVector,
+        principalAngularInertia: f32,
+        density: f32,
+        friction: f32,
+        restitution: f32,
+        frictionCombineRule: u32,
+        restitutionCombineRule: u32,
+        isSensor: bool,
+        collisionGroups: u32,
+        solverGroups: u32,
+        activeCollisionTypes: u16,
+        activeHooks: u32,
+        activeEvents: u32,
+        hasParent: bool,
+        parent: u32,
+        bodies: &mut RawRigidBodySet,
+    ) -> Option<u32> {
+        self.do_create_collider(
+            shape,
+            translation,
+            rotation,
+            useMassProps,
+            mass,
+            centerOfMass,
+            principalAngularInertia,
+            density,
+            friction,
+            restitution,
+            frictionCombineRule,
+            restitutionCombineRule,
+            isSensor,
+            collisionGroups,
+            solverGroups,
+            activeCollisionTypes,
+            activeHooks,
+            activeEvents,
+            hasParent,
+            parent,
+            bodies,
+        )
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn createCollider(
+        &mut self,
+        shape: &RawShape,
+        translation: &RawVector,
+        rotation: &RawRotation,
+        useMassProps: bool,
+        mass: f32,
+        centerOfMass: &RawVector,
+        principalAngularInertia: &RawVector,
+        angularInertiaFrame: &RawRotation,
+        density: f32,
+        friction: f32,
+        restitution: f32,
+        frictionCombineRule: u32,
+        restitutionCombineRule: u32,
+        isSensor: bool,
+        collisionGroups: u32,
+        solverGroups: u32,
+        activeCollisionTypes: u16,
+        activeHooks: u32,
+        activeEvents: u32,
+        hasParent: bool,
+        parent: u32,
+        bodies: &mut RawRigidBodySet,
+    ) -> Option<u32> {
+        self.do_create_collider(
+            shape,
+            translation,
+            rotation,
+            useMassProps,
+            mass,
+            centerOfMass,
+            principalAngularInertia,
+            angularInertiaFrame,
+            density,
+            friction,
+            restitution,
+            frictionCombineRule,
+            restitutionCombineRule,
+            isSensor,
+            collisionGroups,
+            solverGroups,
+            activeCollisionTypes,
+            activeHooks,
+            activeEvents,
+            hasParent,
+            parent,
+            bodies,
+        )
     }
 
     /// Removes a collider from this set and wake-up the rigid-body it is attached to.

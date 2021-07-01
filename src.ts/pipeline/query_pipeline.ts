@@ -335,4 +335,24 @@ export class QueryPipeline {
         rawRot.free();
         rawShape.free();
     }
+
+    /**
+     * Finds the handles of all the colliders with an AABB intersecting the given AABB.
+     *
+     * @param aabbCenter - The center of the AABB to test.
+     * @param aabbHalfExtents - The half-extents of the AABB to test.
+     * @param callback - The callback that will be called with the handles of all the colliders
+     *                   currently intersecting the given AABB.
+     */
+    public collidersWithAabbIntersectingAabb(
+        aabbCenter: Vector,
+        aabbHalfExtents: Vector,
+        callback: (handle: ColliderHandle) => boolean,
+    ) {
+        let rawCenter = VectorOps.intoRaw(aabbCenter);
+        let rawHalfExtents = VectorOps.intoRaw(aabbHalfExtents);
+        this.raw.collidersWithAabbIntersectingAabb(rawCenter, rawHalfExtents, callback);
+        rawCenter.free();
+        rawHalfExtents.free();
+    }
 }
