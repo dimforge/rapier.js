@@ -900,7 +900,7 @@ export class ColliderDesc {
      * @param angularInertiaLocalFrame − The initial local angular inertia frame of the collider to create.
      *                                   These are the eigenvectors of the angular inertia matrix.
      */
-    public setAdditionalMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: Vector, angularInertiaLocalFrame: Rotation): ColliderDesc {
+    public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: Vector, angularInertiaLocalFrame: Rotation): ColliderDesc {
         this.useMassProps = true;
         this.mass = mass;
         this.centerOfMass = centerOfMass;

@@ -1,6 +1,56 @@
 ### v0.7.0
+The typescripts bindings for Rapier have a [brand new user-guide](https://rapier.rs/docs/user_guides/javascript/getting_started_js)
+covering all the features of the physics engine!
+
+### Breaking change
 - The `World.castRay` and `World.castRayAndGetNormal` methods have a different signature now, making them
   more flexible.
+- Rename `ActiveHooks::FILTER_CONTACT_PAIR` to `ActiveHooks.FILTER_CONTACT_PAIRS`.
+- Rename `ActiveHooks::FILTER_INTERSECTION_PAIR` to `ActiveHooks.FILTER_INTERSECTION_PAIRS`.
+- Rename `BodyStatus` to `RigidBodyType`.  
+- Rename `RigidBody.bodyStatus()` to `RigidBody.bodyType()`.
+- Rename `RigidBodyDesc.setMassProperties` to `RigidBodyDesc.setAdditionalMassProperties`.
+- Rename `RigidBodyDesc.setPrincipalAngularInertia` to `RigidBodyDesc.setAdditionalPrincipalAngularInertia`.
+- Rename `ColliderDesc.setIsSensor` to `ColliderDesc.setSensor.
+
+### Added
+- Add `Ray.pointAt(t)` that conveniently computes `ray.origin + ray.dir * t`.
+- Add access to joint motors by defining each joint with its own class deriving from `Joint`. Each joint now
+  have its relevant motor configuration methods: `configurMotorModel, configureMotorVelocity, configureMotorPosition, configureMotor`.
+- Add `World.collidersWithAabbIntersectingAabb` for retrieving the handles of all the colliders intersecting the given AABB.  
+- Add many missing methods for reading/modifying a rigid-body state after its creation:
+  * `RigidBody.lockTranslations`
+  * `RigidBody.lockRotations`
+  * `RigidBody.restrictRotations`
+  * `RigidBody.dominanceGroup`
+  * `RigidBody.setDominanceGroup`
+  * `RigidBody.enableCcd`
+- Add `RigidBodyDesc.setDominanceGroup` for setting the dominance group of the rigid-body being built.  
+- Add many missing methods for reading/modifying a collider state after its creation:
+  * `Collider.setSendor`
+  * `Collider.setShape`
+  * `Collider.setRestitution`
+  * `Collider.setFriction`
+  * `Collider.frictionCombineRule`
+  * `Collider.setFrictionCombineRule`
+  * `Collider.restitutionCombineRule`
+  * `Collider.setRestitutionCombineRule`
+  * `Collider.setCollisionGroups`
+  * `Collider.setSolverGroups`
+  * `Collider.activeHooks`
+  * `Collider.setActiveHooks`
+  * `Collider.activeEvents`
+  * `Collider.setActiveEvents`
+  * `Collider.activeCollisionTypes`
+  * `Collider.setTranslation`
+  * `Collider.setTranslationWrtParent`
+  * `Collider.setRotation`
+  * `Collider.setRotationWrtParent`
+- Add `ColliderDesc.setMassProperties` for setting explicitly the mass properties of the collider being built (instead of relying on density).
+
+### Modified
+- Colliders are no longer required to be attached to a rigid-body. Therefore, the second argument of `World.createCollider`
+  is now optional.
 
 ### v0.6.0
 #### Breaking changes

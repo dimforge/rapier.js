@@ -14,7 +14,7 @@ import {
     NarrowPhase, PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi, Shape, ShapeColliderTOI
+    RayColliderToi, Shape, ShapeColliderTOI, TempContactManifold
 } from "../geometry";
 import {
     CCDSolver,
@@ -264,7 +264,7 @@ export class World {
      * @param desc - The description of the collider.
      * @param parentHandle - The handle of the rigid-body this collider is attached to.
      */
-    public createCollider(desc: ColliderDesc, parentHandle: RigidBodyHandle): Collider {
+    public createCollider(desc: ColliderDesc, parentHandle?: RigidBodyHandle): Collider {
         return this.colliders.get(this.colliders.createCollider(this.bodies, desc, parentHandle));
     }
 
@@ -468,7 +468,6 @@ export class World {
     /**
      * Cast a ray and collects all the intersections between a ray and the scene.
      *
-     * @param colliders - The set of colliders taking part in this pipeline.
      * @param ray - The ray to cast.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the length of the ray to `ray.dir.norm() * maxToi`.
@@ -480,7 +479,6 @@ export class World {
      *   If this callback returns `false`, then the cast will stop and no further hits will be detected/reported.
      */
     public intersectionsWithRay(
-        colliders: ColliderSet,
         ray: Ray,
         maxToi: number,
         solid: boolean,
@@ -493,7 +491,6 @@ export class World {
     /**
      * Gets the handle of up to one collider intersecting the given shape.
      *
-     * @param colliders - The set of colliders taking part in this pipeline.
      * @param shapePos - The position of the shape used for the intersection test.
      * @param shapeRot - The orientation of the shape used for the intersection test.
      * @param shape - The shape used for the intersection test.
@@ -501,7 +498,6 @@ export class World {
      *   hit the colliders with collision groups compatible with the ray's group.
      */
     public intersectionWithShape(
-        colliders: &ColliderSet,
         shapePos: &Vector,
         shapeRot: &Rotation,
         shape: &Shape,
@@ -513,7 +509,6 @@ export class World {
     /**
      * Find the projection of a point on the closest collider.
      *
-     * @param colliders - The set of colliders taking part in this pipeline.
      * @param point - The point to project.
      * @param solid - If this is set to `true` then the collider shapes are considered to
      *   be plain (if the point is located inside of a plain shape, its projection is the point
@@ -524,7 +519,6 @@ export class World {
      *   project on colliders with collision groups compatible with the ray's group.
      */
     public projectPoint(
-        colliders: ColliderSet,
         point: Vector,
         solid: boolean,
         groups: InteractionGroups,
@@ -535,7 +529,6 @@ export class World {
     /**
      * Find all the colliders containing the given point.
      *
-     * @param colliders - The set of colliders taking part in this pipeline.
      * @param point - The point used for the containment test.
      * @param groups - The bit groups and filter associated to the point to test, in order to only
      *   test on colliders with collision groups compatible with the ray's group.
@@ -543,7 +536,6 @@ export class World {
      *   containing the `point`.
      */
     public intersectionsWithPoint(
-        colliders: ColliderSet,
         point: Vector,
         groups: InteractionGroups,
         callback: (ColliderHandle) => boolean,
@@ -556,7 +548,6 @@ export class World {
      * This is similar to ray-casting except that we are casting a whole shape instead of
      * just a point (the ray origin).
      *
-     * @param colliders - The set of colliders taking part in this pipeline.
      * @param shapePos - The initial position of the shape to cast.
      * @param shapeRot - The initial rotation of the shape to cast.
      * @param shapeVel - The constant velocity of the shape to cast (i.e. the cast direction).
@@ -567,7 +558,6 @@ export class World {
      *   test on colliders with collision groups compatible with this group.
      */
     public castShape(
-        colliders: ColliderSet,
         shapePos: Vector,
         shapeRot: Rotation,
         shapeVel: Vector,
@@ -581,7 +571,6 @@ export class World {
     /**
      * Retrieve all the colliders intersecting the given shape.
      *
-     * @param colliders - The set of colliders taking part in this pipeline.
      * @param shapePos - The position of the shape to test.
      * @param shapeRot - The orientation of the shape to test.
      * @param shape - The shape to test.
@@ -590,7 +579,6 @@ export class World {
      * @param callback - A function called with the handles of each collider intersecting the `shape`.
      */
     public intersectionsWithShape(
-        colliders: ColliderSet,
         shapePos: Vector,
         shapeRot: Rotation,
         shape: Shape,
@@ -615,4 +603,45 @@ export class World {
     ) {
         this.queryPipeline.collidersWithAabbIntersectingAabb(aabbCenter, aabbHalfExtents, callback);
     }
+
+    /**
+     * Enumerates all the colliders potentially in contact with the given collider.
+     *
+     * @param collider1 - The second collider involved in the contact.
+     * @param f - Closure that will be called on each collider that is in contact with `collider1`.
+     */
+    public contactsWith(collider1: ColliderHandle, f: (collider2: ColliderHandle) => void) {
+        this.narrowPhase.contactsWith(collider1, f);
+    }
+
+    /**
+     * Enumerates all the colliders intersecting the given colliders, assuming one of them
+     * is a sensor.
+     */
+    public intersectionsWith(collider1: ColliderHandle, f: (collider2: ColliderHandle) => void) {
+        this.narrowPhase.intersectionsWith(collider1, f);
+    }
+
+    /**
+     * Iterates through all the contact manifolds between the given pair of colliders.
+     *
+     * @param collider1 - The first collider involved in the contact.
+     * @param collider2 - The second collider involved in the contact.
+     * @param f - Closure that will be called on each contact manifold between the two colliders. If the second argument
+     *            passed to this closure is `true`, then the contact manifold data is flipped, i.e., methods like `localNormal1`
+     *            actually apply to the `collider2` and fields like `localNormal2` apply to the `collider1`.
+     */
+    public contactPair(collider1: ColliderHandle, collider2: ColliderHandle, f: (manifold: TempContactManifold, flipped: boolean) => void) {
+        this.narrowPhase.contactPair(collider1, collider2, f);
+    }
+
+    /**
+     * Returns `true` if `collider1` and `collider2` intersect and at least one of them is a sensor.
+     * @param collider1 − The first collider involved in the intersection.
+     * @param collider2 − The second collider involved in the intersection.
+     */
+    public intersectionPair(collider1: ColliderHandle, collider2: ColliderHandle): boolean {
+        return this.narrowPhase.intersectionPair(collider1, collider2);
+    }
+
 }
