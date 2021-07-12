@@ -42,7 +42,7 @@ impl RawJointSet {
         let parent2 = bodies.0.get_unknown_gen(parent2).unwrap().1;
 
         self.0
-            .insert(&mut bodies.0, parent1, parent2, params.0.clone())
+            .insert(parent1, parent2, params.0.clone())
             .into_raw_parts()
             .0
     }

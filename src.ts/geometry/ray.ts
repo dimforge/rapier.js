@@ -9,11 +9,11 @@ export class Ray {
     /**
      * The starting point of the ray.
      */
-    origin: Vector
+    public origin: Vector
     /**
      * The direction of propagation of the ray.
      */
-    dir: Vector
+    public dir: Vector
 
     /**
      * Builds a ray from its origin and direction.
@@ -25,6 +25,16 @@ export class Ray {
         this.origin = origin;
         this.dir = dir;
     }
+
+    public pointAt(t: number): Vector {
+        return {
+            x: this.origin.x + this.dir.x * t,
+            y: this.origin.y + this.dir.y * t,
+            // #if DIM3
+            z: this.origin.z + this.dir.z * t,
+            // #endif
+        }
+    };
 }
 
 /**
