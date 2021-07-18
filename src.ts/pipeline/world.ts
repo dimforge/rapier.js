@@ -483,7 +483,7 @@ export class World {
         maxToi: number,
         solid: boolean,
         groups: InteractionGroups,
-        callback: (RayColliderIntersection) => boolean,
+        callback: (intersect: RayColliderIntersection) => boolean,
     ) {
         this.queryPipeline.intersectionsWithRay(this.colliders, ray, maxToi, solid, groups, callback)
     }
@@ -538,7 +538,7 @@ export class World {
     public intersectionsWithPoint(
         point: Vector,
         groups: InteractionGroups,
-        callback: (ColliderHandle) => boolean,
+        callback: (handle: ColliderHandle) => boolean,
     ) {
         this.queryPipeline.intersectionsWithPoint(this.colliders, point, groups, callback);
     }

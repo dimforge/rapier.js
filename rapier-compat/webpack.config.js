@@ -15,8 +15,8 @@ function initCode({is2d}) {
 
     return `
 // @ts-ignore
-import wasmBase64 from "url-loader!./rapier_wasm${dim}_bg.wasm";
-import wasmInit from "./rapier_wasm${dim}";
+import wasmBase64 from "url-loader!../pkg${dim}/rapier_wasm${dim}_bg.wasm";
+import wasmInit from "../pkg${dim}/rapier_wasm${dim}";
 
 /**
  * Initializes RAPIER.
@@ -42,13 +42,12 @@ function copyAndReplace({is2d}) {
         plugins: [
             new CopyPlugin({
                 patterns: [
-                    // copy src.ts into pkg for compiling,
+                    // copy src.ts into ./srcNd for compiling,
                     // remove sections wrapped in #ifdef DIMx ... #endif
                     // add init() function to rapier.ts
-                    // copy typescript sources into compat to support source mapping (see #3)
                     {
                         from: path.resolve(__dirname, "../src.ts"),
-                        to: path.resolve(__dirname, `./pkg${dim}/`),
+                        to: path.resolve(__dirname, `./src${dim}/`),
                         transform(content, path) {
                             let result = content
                                 .toString()
@@ -95,9 +94,9 @@ function copyAndReplace({is2d}) {
             // ts files import from raw.ts, create the file reexporting the wasm-bindgen exports.
             // the indirection simplifies switching between 2d and 3d
             new CreateFileWebpack({
-                path: path.resolve(__dirname, `./pkg${dim}/`),
+                path: path.resolve(__dirname, `./src${dim}/`),
                 fileName: "raw.ts",
-                content: `export * from "./rapier_wasm${dim}"`,
+                content: `export * from "../pkg${dim}/rapier_wasm${dim}"`,
             }),
         ],
     };
@@ -108,7 +107,8 @@ function compile({is2d}) {
 
     return {
         mode: "production",
-        entry: `./pkg${dim}/rapier.ts`,
+        devtool: 'source-map',
+        entry: `./src${dim}/rapier.ts`,
 
         module: {
             rules: [

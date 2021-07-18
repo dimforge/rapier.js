@@ -1,4 +1,4 @@
-import {RawQueryPipeline} from "../raw";
+import {RawQueryPipeline, RawRayColliderIntersection} from "../raw";
 import {
     ColliderHandle,
     ColliderSet,
@@ -135,11 +135,11 @@ export class QueryPipeline {
         maxToi: number,
         solid: boolean,
         groups: InteractionGroups,
-        callback: (RayColliderIntersection) => boolean,
+        callback: (intersect: RayColliderIntersection) => boolean,
     ) {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
-        let rawCallback = (rawInter) => {
+        let rawCallback = (rawInter: RawRayColliderIntersection) => {
             return callback(RayColliderIntersection.fromRaw(rawInter));
         };
 
@@ -238,7 +238,7 @@ export class QueryPipeline {
         colliders: ColliderSet,
         point: Vector,
         groups: InteractionGroups,
-        callback: (ColliderHandle) => boolean,
+        callback: (handle: ColliderHandle) => boolean,
     ) {
         let rawPoint = VectorOps.intoRaw(point);
 
