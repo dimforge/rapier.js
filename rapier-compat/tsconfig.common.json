@@ -2,11 +2,15 @@
   "compilerOptions": {
     "module": "es2015",
     "target": "es5",
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictFunctionTypes": true,
     "lib": [
       "es5",
       "DOM"
     ],
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "sourceMap": true,
     "declaration": true
   }

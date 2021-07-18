@@ -12,7 +12,6 @@ import {
     RevoluteJoint
     // #endif
 } from "./joint";
-import {RigidBody, RigidBodyHandle} from "./rigid_body";
 import {IslandManager} from "./island_manager";
 
 /**
@@ -117,7 +116,7 @@ export class JointSet {
      * @param f - The closure to apply.
      */
     public forEachJoint(f: (handle: Joint) => void) {
-        this.raw.forEachJointHandle(handle => {
+        this.raw.forEachJointHandle((handle: number) => {
             f(new Joint(this.raw, handle))
         });
     }

@@ -11,6 +11,8 @@ dist
 pkg
 pkg2d
 pkg3d
+src2d
+src3d
 docs
 *.swp
 *.d.ts
