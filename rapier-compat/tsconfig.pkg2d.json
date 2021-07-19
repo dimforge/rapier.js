@@ -1,10 +1,8 @@
 {
   "extends": "./tsconfig.common.json",
   "compilerOptions": {
-    "rootDir": "./src2d",
-    "outDir": "./pkg2d"
+    "rootDir": "./gen2d",
+    "outDir": "."
   },
-  "files": [
-    "./src2d/rapier.ts"
-  ]
+  "files": ["./gen2d/rapier.ts"]
 }
