@@ -1,6 +1,6 @@
 import {RawColliderSet, RawRigidBodySet} from "../raw"
 import {RotationOps, VectorOps} from '../math';
-import {Collider, ColliderDesc, ColliderHandle} from './index'
+import {Collider, ColliderDesc, ColliderHandle} from './collider'
 import {IslandManager, RigidBody, RigidBodyHandle} from "../dynamics";
 import {RigidBodySet} from "../dynamics";
 

@@ -2,8 +2,9 @@ import {RawColliderSet} from "../raw"
 import {Rotation, RotationOps, Vector, VectorOps} from '../math';
 import {CoefficientCombineRule, RigidBodyHandle} from '../dynamics';
 import {ActiveHooks, ActiveEvents} from "../pipeline";
+import {InteractionGroups} from './interaction_groups';
 import {
-    InteractionGroups, Shape,
+    Shape,
     Cuboid, Ball, ShapeType, Capsule, TriMesh, Polyline, Heightfield,
     Segment, Triangle, RoundTriangle, RoundCuboid,
     // #if DIM2
@@ -13,7 +14,7 @@ import {
     Cylinder, RoundCylinder, Cone, RoundCone,
     ConvexPolyhedron, RoundConvexPolyhedron,
     // #endif
-} from './index';
+} from './shape';
 
 /// Flags affecting whether or not collision-detection happens between two colliders
 /// depending on the type of rigid-bodies they are attached to.

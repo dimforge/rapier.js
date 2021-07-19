@@ -27,7 +27,7 @@ import {
     RigidBodyHandle,
     RigidBodySet
 } from "../dynamics";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
+import {Rotation, Vector, VectorOps} from "../math";
 import {PhysicsPipeline} from "./physics_pipeline";
 import {QueryPipeline} from "./query_pipeline";
 import {SerializationPipeline} from "./serialization_pipeline";
