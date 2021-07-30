@@ -6,7 +6,7 @@
     "build-rust-2d": "wasm-pack build ../rapier2d --target web",
     "build-rust-3d": "wasm-pack build ../rapier3d --target web",
     "build-rust": "npm run build-rust-2d && npm run build-rust-3d",
-    "build": "npm run clean && npm run build-rust && npm run webpack",
+    "build": "npm run clean && npm run build-rust && npm run webpack-inline",
     "clean": "npx rimraf ../rapier2d/pkg ../rapier3d/pkg pkg2d pkg3d ../rapier2d/docs ../rapier3d/docs",
     "webpack": "npx webpack --env phase=src && npx webpack --env phase=compile",
     "webpack-inline": "npx webpack --env phase=src && npx webpack --env phase=compileInlined",
