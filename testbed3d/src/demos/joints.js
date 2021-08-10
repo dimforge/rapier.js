@@ -132,15 +132,15 @@ function create_fixed_joints(
             // NOTE: the num - 2 test is to avoid two consecutive
             // fixed bodies. Because physx will crash if we add
             // a joint between these.
-            let status;
+            let bodyType;
 
             if (i == 0 && (k % 4 == 0 && k != num - 2 || k == num - 1)) {
-                status = RAPIER.BodyStatus.Static;
+                bodyType = RAPIER.RigidBodyType.Static;
             } else {
-                status = RAPIER.BodyStatus.Dynamic;
+                bodyType = RAPIER.RigidBodyType.Dynamic;
             }
 
-            let rigidBody = new RAPIER.RigidBodyDesc(status)
+            let rigidBody = new RAPIER.RigidBodyDesc(bodyType)
                 .setTranslation(origin.x + fk * shift, origin.y, origin.z + fi * shift);
             let child = world.createRigidBody(rigidBody);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
@@ -194,15 +194,15 @@ function create_ball_joints(
             let fk = k;
             let fi = i;
 
-            let status;
+            let bodyType;
 
             if (i == 0 && (k % 4 == 0 || k == num - 1)) {
-                status = RAPIER.BodyStatus.Static;
+                bodyType = RAPIER.RigidBodyType.Static;
             } else {
-                status = RAPIER.BodyStatus.Dynamic;
+                bodyType = RAPIER.RigidBodyType.Dynamic;
             }
 
-            let bodyDesc = new RAPIER.RigidBodyDesc(status)
+            let bodyDesc = new RAPIER.RigidBodyDesc(bodyType)
                 .setTranslation(fk * shift, 0.0, fi * shift);
             let child = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
