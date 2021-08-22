@@ -1,5 +1,7 @@
 const { base64 } = require("rollup-plugin-base64");
 import { terser } from 'rollup-plugin-terser';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import filesize from "rollup-plugin-filesize";
 import copy from "rollup-plugin-copy";
@@ -52,6 +54,8 @@ const config = (dim) => ({
     }),
     base64({ include: "**/*.wasm" }),
     terser(),
+    nodeResolve(),
+    commonjs(),
     typescript({
       tsconfig: path.resolve(__dirname, `tsconfig.pkg${dim}.json`),
       include: [`./gen${dim}/**/*.ts`, `./src${dim}/*`],
