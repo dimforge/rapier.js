@@ -1,3 +1,7 @@
+### 0.7.2 (rapier-compat only)
+### Modified
+- The `rapier-compat` packages don’t need the `Buffer` polyfill anymore.
+
 ### 0.7.1
 ### Modified
 - Update to use Rapier 0.11.0.
