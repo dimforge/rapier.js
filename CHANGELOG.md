@@ -1,3 +1,7 @@
+### 0.7.3 - WIP 
+### Fixed
+- The `collider.halfExtents()` methods now returns a valid value for round cuboids.
+
 ### 0.7.2 (rapier-compat only)
 ### Modified
 - The `rapier-compat` packages don’t need the `Buffer` polyfill anymore.
