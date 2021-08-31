@@ -144,6 +144,7 @@ impl RawColliderSet {
     pub fn coHalfExtents(&self, handle: u32) -> Option<RawVector> {
         self.map(handle, |co| {
             co.shape().as_cuboid().map(|c| c.half_extents.into())
+                .or_else(|| co.shape().as_round_cuboid().map(|c| c.base_shape.half_extents.into()))
         })
     }
 
