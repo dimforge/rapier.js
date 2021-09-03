@@ -54,56 +54,50 @@ impl RawColliderSet {
         parent: u32,
         bodies: &mut RawRigidBodySet,
     ) -> Option<u32> {
-        if let Some((_, handle)) = bodies.0.get_unknown_gen(parent) {
-            let pos = Isometry::from_parts(translation.0.into(), rotation.0);
-            let mut builder = ColliderBuilder::new(shape.0.clone())
-                .position(pos)
-                .friction(friction)
-                .restitution(restitution)
-                .collision_groups(super::unpack_interaction_groups(collisionGroups))
-                .solver_groups(super::unpack_interaction_groups(solverGroups))
-                .active_hooks(ActiveHooks::from_bits(activeHooks).unwrap_or(ActiveHooks::empty()))
-                .active_events(
-                    ActiveEvents::from_bits(activeEvents).unwrap_or(ActiveEvents::empty()),
-                )
-                .active_collision_types(
-                    ActiveCollisionTypes::from_bits(activeCollisionTypes)
-                        .unwrap_or(ActiveCollisionTypes::empty()),
-                )
-                .sensor(isSensor)
-                .friction_combine_rule(super::combine_rule_from_u32(frictionCombineRule))
-                .restitution_combine_rule(super::combine_rule_from_u32(restitutionCombineRule));
+        let pos = Isometry::from_parts(translation.0.into(), rotation.0);
+        let mut builder = ColliderBuilder::new(shape.0.clone())
+            .position(pos)
+            .friction(friction)
+            .restitution(restitution)
+            .collision_groups(super::unpack_interaction_groups(collisionGroups))
+            .solver_groups(super::unpack_interaction_groups(solverGroups))
+            .active_hooks(ActiveHooks::from_bits(activeHooks).unwrap_or(ActiveHooks::empty()))
+            .active_events(ActiveEvents::from_bits(activeEvents).unwrap_or(ActiveEvents::empty()))
+            .active_collision_types(
+                ActiveCollisionTypes::from_bits(activeCollisionTypes)
+                    .unwrap_or(ActiveCollisionTypes::empty()),
+            )
+            .sensor(isSensor)
+            .friction_combine_rule(super::combine_rule_from_u32(frictionCombineRule))
+            .restitution_combine_rule(super::combine_rule_from_u32(restitutionCombineRule));
 
-            if useMassProps {
-                #[cfg(feature = "dim2")]
-                let mprops =
-                    MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
-                #[cfg(feature = "dim3")]
-                let mprops = MassProperties::with_principal_inertia_frame(
-                    centerOfMass.0.into(),
-                    mass,
-                    principalAngularInertia.0,
-                    angularInertiaFrame.0,
-                );
-                builder = builder.mass_properties(mprops);
-            } else {
-                builder = builder.density(density);
-            }
-
-            let collider = builder.build();
-
-            if hasParent {
-                Some(
-                    self.0
-                        .insert_with_parent(collider, handle, &mut bodies.0)
-                        .into_raw_parts()
-                        .0,
-                )
-            } else {
-                Some(self.0.insert(collider).into_raw_parts().0)
-            }
+        if useMassProps {
+            #[cfg(feature = "dim2")]
+            let mprops = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
+            #[cfg(feature = "dim3")]
+            let mprops = MassProperties::with_principal_inertia_frame(
+                centerOfMass.0.into(),
+                mass,
+                principalAngularInertia.0,
+                angularInertiaFrame.0,
+            );
+            builder = builder.mass_properties(mprops);
         } else {
-            None
+            builder = builder.density(density);
+        }
+
+        let collider = builder.build();
+
+        if hasParent {
+            let (_, handle) = bodies.0.get_unknown_gen(parent)?;
+            Some(
+                self.0
+                    .insert_with_parent(collider, handle, &mut bodies.0)
+                    .into_raw_parts()
+                    .0,
+            )
+        } else {
+            Some(self.0.insert(collider).into_raw_parts().0)
         }
     }
 }
