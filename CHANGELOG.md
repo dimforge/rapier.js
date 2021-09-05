@@ -1,4 +1,13 @@
-### 0.7.3 - WIP 
+
+### 0.7.5
+### Fixed
+- Fixed an issue where a collider with no parent attached would not be created
+  under some conditions.
+
+### 0.7.4
+This release was broken and has been unpublished.
+
+### 0.7.3
 ### Fixed
 - The `collider.halfExtents()` methods now returns a valid value for round cuboids.
 
