@@ -8,7 +8,8 @@
     "build-rust": "npm run build-rust-2d && npm run build-rust-3d",
     "build-genjs": "sh ./gen_src.sh",
     "build-js": "rollup --config rollup.config.js",
-    "build": "npm run clean && npm run build-rust && npm run build-genjs && npm run build-js",
+    "fix-raw-file": "sh ./fix_raw_file.sh",
+    "build": "npm run clean && npm run build-rust && npm run build-genjs && npm run build-js && npm run fix-raw-file",
     "clean": "npx rimraf ../rapier2d/pkg ../rapier3d/pkg pkg2d pkg3d gen2d gen3d ../rapier2d/docs ../rapier3d/docs",
     "test": "jest --detectOpenHandles",
     "all": "npm run build"
