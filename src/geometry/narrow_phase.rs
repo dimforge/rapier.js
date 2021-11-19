@@ -100,7 +100,7 @@ impl RawContactManifold {
     }
 
     pub fn local_n2(&self) -> RawVector {
-        unsafe { (*self.0).local_n1.into() }
+        unsafe { (*self.0).local_n2.into() }
     }
 
     pub fn subshape1(&self) -> u32 {
@@ -108,7 +108,7 @@ impl RawContactManifold {
     }
 
     pub fn subshape2(&self) -> u32 {
-        unsafe { (*self.0).subshape1 }
+        unsafe { (*self.0).subshape2 }
     }
 
     pub fn num_contacts(&self) -> usize {
@@ -120,7 +120,7 @@ impl RawContactManifold {
     }
 
     pub fn contact_local_p2(&self, i: usize) -> Option<RawVector> {
-        unsafe { (*self.0).points.get(i).map(|c| c.local_p1.coords.into()) }
+        unsafe { (*self.0).points.get(i).map(|c| c.local_p2.coords.into()) }
     }
 
     pub fn contact_dist(&self, i: usize) -> Real {

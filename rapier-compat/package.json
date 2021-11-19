@@ -20,7 +20,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.4",
-    "@rollup/plugin-typescript": "^8.2.3",
+    "@rollup/plugin-typescript": "=8.2.3",
     "@types/jest": "^26.0.24",
     "jest": "^27.0.6",
     "jest-cli": "^27.0.6",
