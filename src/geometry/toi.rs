@@ -23,7 +23,7 @@ impl RawShapeColliderTOI {
     }
 
     pub fn witness2(&self) -> RawVector {
-        self.toi.witness1.coords.into()
+        self.toi.witness2.coords.into()
     }
 
     pub fn normal1(&self) -> RawVector {
@@ -31,6 +31,6 @@ impl RawShapeColliderTOI {
     }
 
     pub fn normal2(&self) -> RawVector {
-        self.toi.normal1.into_inner().into()
+        self.toi.normal2.into_inner().into()
     }
 }
