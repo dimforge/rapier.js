@@ -421,6 +421,13 @@ export class Collider {
     }
 
     /**
+     * The restitution coefficient of this collider.
+     */
+    public restitution(): number {
+        return this.rawSet.coRestitution(this.handle);
+    }
+
+    /**
      * The density of this collider.
      */
     public density(): number {

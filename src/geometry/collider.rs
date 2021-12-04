@@ -308,6 +308,10 @@ impl RawColliderSet {
     pub fn coFriction(&self, handle: u32) -> f32 {
         self.map(handle, |co| co.material().friction)
     }
+    /// The restitution coefficient of this collider.
+    pub fn coRestitution(&self, handle: u32) -> f32 {
+        self.map(handle, |co| co.material().restitution)
+    }
 
     /// The density of this collider.
     pub fn coDensity(&self, handle: u32) -> Option<f32> {
