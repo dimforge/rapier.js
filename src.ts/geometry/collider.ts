@@ -193,7 +193,7 @@ export class Collider {
      * Get the physics hooks active for this collider.
      */
     public activeHooks() {
-        this.rawSet.coActiveHooks(this.handle);
+        return this.rawSet.coActiveHooks(this.handle);
     }
 
     /**
