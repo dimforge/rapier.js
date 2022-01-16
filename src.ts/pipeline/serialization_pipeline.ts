@@ -2,7 +2,7 @@ import {
     RawSerializationPipeline,
 } from "../raw";
 import {Vector, VectorOps} from "../math";
-import {IntegrationParameters, IslandManager, JointSet, RigidBodySet} from "../dynamics";
+import {IntegrationParameters, IslandManager, ImpulseJointSet, MultibodyJointSet, RigidBodySet} from "../dynamics";
 import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
 import {World} from "./world";
 
@@ -35,7 +35,8 @@ export class SerializationPipeline {
      * @param narrowPhase - The narrow-phase of the simulation.
      * @param bodies - The rigid-bodies taking part into the simulation.
      * @param colliders - The colliders taking part into the simulation.
-     * @param joints - The joints taking part into the simulation.
+     * @param impulseJoints - The impulse joints taking part into the simulation.
+     * @param multibodyJoints - The multibody joints taking part into the simulation.
      */
     public serializeAll(
         gravity: Vector,
@@ -45,7 +46,8 @@ export class SerializationPipeline {
         narrowPhase: NarrowPhase,
         bodies: RigidBodySet,
         colliders: ColliderSet,
-        joints: JointSet,
+        impulseJoints: ImpulseJointSet,
+        multibodyJoints: MultibodyJointSet,
     ): Uint8Array {
         let rawGra = VectorOps.intoRaw(gravity);
 
@@ -57,7 +59,8 @@ export class SerializationPipeline {
             narrowPhase.raw,
             bodies.raw,
             colliders.raw,
-            joints.raw,
+            impulseJoints.raw,
+            multibodyJoints.raw,
         );
         rawGra.free();
 

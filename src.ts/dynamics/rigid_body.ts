@@ -80,7 +80,31 @@ export class RigidBody {
         return this.rawSet.rbLockRotations(this.handle, locked, wakeUp);
     }
 
+    // #if DIM2
+    /**
+     * Locks or unlocks the ability of this rigid-body to translation along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     */
+    public restrictTranslations(enableX: boolean, enableY: boolean, wakeUp: boolean) {
+        return this.rawSet.rbRestrictTranslations(this.handle, enableX, enableY, wakeUp);
+    }
+    // #endif
     // #if DIM3
+    /**
+     * Locks or unlocks the ability of this rigid-body to translate along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer translate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer translate due to torques and impulses, along the Y coordinate axis.
+     * @param enableZ - If `false`, this rigid-body will no longer translate due to torques and impulses, along the Z coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     */
+    public restrictTranslations(enableX: boolean, enableY: boolean, enableZ: boolean, wakeUp: boolean) {
+        return this.rawSet.rbRestrictTranslations(this.handle, enableX, enableY, enableZ, wakeUp);
+    }
+
     /**
      * Locks or unlocks the ability of this rigid-body to rotate along individual coordinate axes.
      *
@@ -599,8 +623,9 @@ export class RigidBodyDesc {
     rotation: Rotation;
     gravityScale: number;
     mass: number;
-    translationsEnabled: boolean;
     centerOfMass: Vector;
+    translationsEnabledX: boolean;
+    translationsEnabledY: boolean;
     linvel: Vector;
     // #if DIM2
     angvel: number;
@@ -611,6 +636,7 @@ export class RigidBodyDesc {
     angvel: Vector;
     principalAngularInertia: Vector;
     angularInertiaLocalFrame: Rotation;
+    translationsEnabledZ: boolean;
     rotationsEnabledX: boolean;
     rotationsEnabledY: boolean;
     rotationsEnabledZ: boolean;
@@ -629,8 +655,9 @@ export class RigidBodyDesc {
         this.gravityScale = 1.0;
         this.linvel = VectorOps.zeros();
         this.mass = 0.0;
-        this.translationsEnabled = true;
         this.centerOfMass = VectorOps.zeros();
+        this.translationsEnabledX = true;
+        this.translationsEnabledY = true;
         // #if DIM2
         this.angvel = 0.0;
         this.principalAngularInertia = 0.0;
@@ -640,6 +667,7 @@ export class RigidBodyDesc {
         this.angvel = VectorOps.zeros();
         this.principalAngularInertia = VectorOps.zeros();
         this.angularInertiaLocalFrame = RotationOps.identity();
+        this.translationsEnabledZ = true;
         this.rotationsEnabledX = true;
         this.rotationsEnabledY = true;
         this.rotationsEnabledZ = true;
@@ -746,15 +774,6 @@ export class RigidBodyDesc {
         return this;
     }
 
-    /**
-     * Locks all translations that would have resulted from forces on
-     * the created rigid-body.
-     */
-    public lockTranslations(): RigidBodyDesc {
-        this.translationsEnabled = false;
-        return this;
-    }
-
     // #if DIM2
     /**
      * Sets the initial linear velocity of the rigid-body to create.
@@ -811,6 +830,25 @@ export class RigidBodyDesc {
     public setAdditionalPrincipalAngularInertia(principalAngularInertia: number): RigidBodyDesc {
         this.principalAngularInertia = principalAngularInertia;
         return this;
+    }
+
+    /**
+     * Allow translation of this rigid-body only along specific axes.
+     * @param translationsEnabledX - Are translations along the X axis enabled?
+     * @param translationsEnabledY - Are translations along the y axis enabled?
+     */
+    public restrictTranslations(translationsEnabledX: boolean, translationsEnabledY: boolean): RigidBodyDesc {
+        this.translationsEnabledX = translationsEnabledX;
+        this.translationsEnabledY = translationsEnabledY;
+        return this;
+    }
+
+    /**
+     * Locks all translations that would have resulted from forces on
+     * the created rigid-body.
+     */
+    public lockTranslations(): RigidBodyDesc {
+        return this.restrictTranslations(false, false);
     }
 
     /**
@@ -887,6 +925,28 @@ export class RigidBodyDesc {
         this.principalAngularInertia = principalAngularInertia;
         return this;
     }
+
+    /**
+     * Allow translation of this rigid-body only along specific axes.
+     * @param translationsEnabledX - Are translations along the X axis enabled?
+     * @param translationsEnabledY - Are translations along the y axis enabled?
+     * @param translationsEnabledZ - Are translations along the Z axis enabled?
+     */
+    public restrictTranslations(translationsEnabledX: boolean, translationsEnabledY: boolean, translationsEnabledZ: boolean): RigidBodyDesc {
+        this.translationsEnabledX = translationsEnabledX;
+        this.translationsEnabledY = translationsEnabledY;
+        this.translationsEnabledZ = translationsEnabledZ;
+        return this;
+    }
+
+    /**
+     * Locks all translations that would have resulted from forces on
+     * the created rigid-body.
+     */
+    public lockTranslations(): RigidBodyDesc {
+        return this.restrictTranslations(false, false, false);
+    }
+
 
     /**
      * Allow rotation of this rigid-body only along specific axes.

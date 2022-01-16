@@ -5,7 +5,7 @@ import * as Pyramid from './demos/pyramid'
 import * as Keva from './demos/keva'
 import * as Heightfield from './demos/heightfield'
 import * as Polyline from './demos/polyline'
-import * as SphericalJoints from './demos/SphericalJoints'
+import * as RevoluteJoints from './demos/revoluteJoints'
 import * as LockedRotations from './demos/lockedRotations'
 import * as ConvexPolygons from './demos/convexPolygons'
 
@@ -15,7 +15,7 @@ import('@dimforge/rapier2d').then(RAPIER => {
         ['convex polygons', ConvexPolygons.initWorld],
         ['cubes', Cubes.initWorld],
         ['heightfield', Heightfield.initWorld],
-        ['joints: ball', SphericalJoints.initWorld],
+        ['joints: revolute', RevoluteJoints.initWorld],
         ['keva tower', Keva.initWorld],
         ['locked rotations', LockedRotations.initWorld],
         ['polyline', Polyline.initWorld],

@@ -1,17 +1,18 @@
-import {RawImpulseJointSet} from "../raw"
+import {RawMultibodyJointSet} from "../raw"
 import {RigidBodySet} from "./rigid_body_set";
 import {
-    SphericalJoint,
-    FixedJoint,
-    Joint,
-    JointHandle,
-    JointData,
-    JointType,
-    PrismaticJoint,
+    MultibodyJoint,
+    MultibodyJointHandle,
+    RevoluteMultibodyJoint,
+    FixedMultibodyJoint,
+    PrismaticMultibodyJoint,
     // #if DIM3
-    RevoluteJoint
+    SphericalMultibodyJoint
     // #endif
-} from "./joint";
+} from "./multibody_joint";
+import {
+    JointData, JointType
+} from "./impulse_joint";
 import {IslandManager} from "./island_manager";
 
 /**
@@ -20,8 +21,8 @@ import {IslandManager} from "./island_manager";
  * To avoid leaking WASM resources, this MUST be freed manually with `jointSet.free()`
  * once you are done using it (and all the joints it created).
  */
-export class JointSet {
-    raw: RawImpulseJointSet;
+export class MultibodyJointSet {
+    raw: RawMultibodyJointSet;
 
     /**
      * Release the WASM memory occupied by this joint set.
@@ -31,8 +32,8 @@ export class JointSet {
         this.raw = undefined;
     }
 
-    constructor(raw?: RawImpulseJointSet) {
-        this.raw = raw || new RawImpulseJointSet();
+    constructor(raw?: RawMultibodyJointSet) {
+        this.raw = raw || new RawMultibodyJointSet();
     }
 
     /**
@@ -62,23 +63,23 @@ export class JointSet {
      * @param bodies - The set of rigid-bodies containing the rigid-bodies attached by the removed joint.
      * @param wake_up - If `true`, the rigid-bodies attached by the removed joint will be woken-up automatically.
      */
-    public remove(handle: JointHandle, islands: IslandManager, bodies: RigidBodySet, wake_up: boolean) {
+    public remove(handle: MultibodyJointHandle, islands: IslandManager, bodies: RigidBodySet, wake_up: boolean) {
         this.raw.remove(handle, islands.raw, bodies.raw, wake_up);
     }
 
-    /**
-     * The number of joints on this set.
-     */
-    public len(): number {
-        return this.raw.len();
-    }
+    // /**
+    //  * The number of joints on this set.
+    //  */
+    // public len(): number {
+    //     return this.raw.len();
+    // }
 
     /**
      * Does this set contain a joint with the given handle?
      *
      * @param handle - The joint handle to check.
      */
-    public contains(handle: JointHandle): boolean {
+    public contains(handle: MultibodyJointHandle): boolean {
         return this.raw.contains(handle);
     }
 
@@ -91,18 +92,18 @@ export class JointSet {
      *
      * @param handle - The integer handle of the joint to retrieve.
      */
-    public get(handle: JointHandle): Joint {
+    public get(handle: MultibodyJointHandle): MultibodyJoint {
         if (this.raw.contains(handle)) {
             switch (this.raw.jointType(handle)) {
-                case JointType.Ball:
-                    return new SphericalJoint(this.raw, handle);
-                case JointType.Prismatic:
-                    return new PrismaticJoint(this.raw, handle);
-                case JointType.Fixed:
-                    return new FixedJoint(this.raw, handle);
-                // #if DIM3
                 case JointType.Revolute:
-                    return new RevoluteJoint(this.raw, handle);
+                    return new RevoluteMultibodyJoint(this.raw, handle);
+                case JointType.Prismatic:
+                    return new PrismaticMultibodyJoint(this.raw, handle);
+                case JointType.Fixed:
+                    return new FixedMultibodyJoint(this.raw, handle);
+                // #if DIM3
+                case JointType.Spherical:
+                    return new SphericalMultibodyJoint(this.raw, handle);
                 // #endif
             }
         } else {
@@ -115,9 +116,9 @@ export class JointSet {
      *
      * @param f - The closure to apply.
      */
-    public forEachJoint(f: (handle: Joint) => void) {
+    public forEachJoint(f: (handle: MultibodyJoint) => void) {
         this.raw.forEachJointHandle((handle: number) => {
-            f(new Joint(this.raw, handle))
+            f(new MultibodyJoint(this.raw, handle))
         });
     }
 
@@ -126,7 +127,7 @@ export class JointSet {
      *
      * @param f - The closure to apply.
      */
-    public forEachJointHandle(f: (handle: JointHandle) => void) {
+    public forEachJointHandle(f: (handle: MultibodyJointHandle) => void) {
         this.raw.forEachJointHandle(f);
     }
 }

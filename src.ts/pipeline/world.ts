@@ -2,7 +2,7 @@ import {
     RawBroadPhase, RawCCDSolver, RawColliderSet,
     RawDeserializedWorld,
     RawIntegrationParameters, RawIslandManager,
-    RawImpulseJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
+    RawImpulseJointSet, RawMultibodyJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
     RawRigidBodySet, RawSerializationPipeline,
 } from "../raw";
 
@@ -19,9 +19,11 @@ import {
 import {
     CCDSolver,
     IntegrationParameters, IslandManager,
-    Joint, JointHandle,
+    ImpulseJoint, ImpulseJointHandle,
+    MultibodyJoint, MultibodyJointHandle,
     JointData,
-    JointSet,
+    ImpulseJointSet,
+    MultibodyJointSet,
     RigidBody,
     RigidBodyDesc,
     RigidBodyHandle,
@@ -48,7 +50,8 @@ export class World {
     narrowPhase: NarrowPhase
     bodies: RigidBodySet
     colliders: ColliderSet
-    joints: JointSet
+    impulseJoints: ImpulseJointSet
+    multibodyJoints: MultibodyJointSet
     ccdSolver: CCDSolver
     queryPipeline: QueryPipeline
     physicsPipeline: PhysicsPipeline
@@ -67,7 +70,8 @@ export class World {
         this.narrowPhase.free();
         this.bodies.free();
         this.colliders.free();
-        this.joints.free();
+        this.impulseJoints.free();
+        this.multibodyJoints.free();
         this.ccdSolver.free();
         this.queryPipeline.free();
         this.physicsPipeline.free();
@@ -80,7 +84,8 @@ export class World {
         this.bodies = undefined;
         this.colliders = undefined;
         this.ccdSolver = undefined;
-        this.joints = undefined;
+        this.impulseJoints = undefined;
+        this.multibodyJoints = undefined;
         this.queryPipeline = undefined;
         this.physicsPipeline = undefined;
         this.serializationPipeline = undefined;
@@ -94,7 +99,8 @@ export class World {
         rawNarrowPhase?: RawNarrowPhase,
         rawBodies?: RawRigidBodySet,
         rawColliders?: RawColliderSet,
-        rawJoints?: RawImpulseJointSet,
+        rawImpulseJoints?: RawImpulseJointSet,
+        rawMultibodyJoints?: RawMultibodyJointSet,
         rawCCDSolver?: RawCCDSolver,
         rawQueryPipeline?: RawQueryPipeline,
         rawPhysicsPipeline?: RawPhysicsPipeline,
@@ -107,7 +113,8 @@ export class World {
         this.narrowPhase = new NarrowPhase(rawNarrowPhase);
         this.bodies = new RigidBodySet(rawBodies);
         this.colliders = new ColliderSet(rawColliders);
-        this.joints = new JointSet(rawJoints);
+        this.impulseJoints = new ImpulseJointSet(rawImpulseJoints);
+        this.multibodyJoints = new MultibodyJointSet(rawMultibodyJoints);
         this.ccdSolver = new CCDSolver(rawCCDSolver);
         this.queryPipeline = new QueryPipeline(rawQueryPipeline);
         this.physicsPipeline = new PhysicsPipeline(rawPhysicsPipeline);
@@ -126,7 +133,8 @@ export class World {
             raw.takeNarrowPhase(),
             raw.takeBodies(),
             raw.takeColliders(),
-            raw.takeJoints(),
+            raw.takeImpulseJoints(),
+            raw.takeMultibodyJoints(),
         );
     }
 
@@ -145,7 +153,8 @@ export class World {
             this.narrowPhase,
             this.bodies,
             this.colliders,
-            this.joints,
+            this.impulseJoints,
+            this.multibodyJoints,
         );
     }
 
@@ -176,7 +185,8 @@ export class World {
             this.narrowPhase,
             this.bodies,
             this.colliders,
-            this.joints,
+            this.impulseJoints,
+            this.multibodyJoints,
             this.ccdSolver,
             eventQueue,
             hooks,
@@ -227,27 +237,41 @@ export class World {
     }
 
     /**
-     * The maximum position iterations the position-based constraint regularization solver can make.
+     * The maximum velocity iterations the velocity-based friction constraint solver can make.
      */
-    get maxPositionIterations(): number {
-        return this.integrationParameters.maxPositionIterations;
+    get maxVelocityFrictionIterations(): number {
+        return this.integrationParameters.maxVelocityFrictionIterations;
     }
 
     /**
-     * Sets the maximum number of position iterations (default: 1).
+     * Sets the maximum number of velocity iterations for friction (default: 8).
      *
-     * The greater this value is, the less penetrations will be visible after one timestep where
-     * the velocity solver did not converge entirely. Large values will degrade significantly
-     * the performance of the simulation.
+     * The greater this value is, the most realistic friction will be.
+     * However a greater number of iterations is more computationally intensive.
      *
-     * To increase realism of the simulation it is recommended, more efficient, and more effecive,
-     * to increase the number of velocity iterations instead of this number of position iterations.
-     *
-     * @param niter - The new maximum number of position iterations.
+     * @param niter - The new maximum number of velocity iterations.
      */
-    set maxPositionIterations(niter: number) {
-        this.integrationParameters.maxPositionIterations = niter;
+    set maxVelocityFrictionIterations(niter: number) {
+        this.integrationParameters.maxVelocityFrictionIterations = niter;
     }
+
+    /**
+     * The maximum velocity iterations the velocity-based constraint solver can make to attempt to remove
+     * the energy introduced by constraint stabilization.
+     */
+    get maxStabilizationIterations(): number {
+        return this.integrationParameters.maxStabilizationIterations;
+    }
+
+    /**
+     * Sets the maximum number of velocity iterations for stabilization (default: 1).
+     *
+     * @param niter - The new maximum number of velocity iterations.
+     */
+    set maxStabilizationIterations(niter: number) {
+        this.integrationParameters.maxStabilizationIterations = niter;
+    }
+
 
     /**
      * Creates a new rigid-body from the given rigd-body descriptior.
@@ -269,19 +293,36 @@ export class World {
     }
 
     /**
-     * Creates a new joint from the given joint descriptior.
+     * Creates a new impulse joint from the given joint descriptor.
      *
-     * @param joint - The description of the joint to create.
+     * @param params - The description of the joint to create.
      * @param parent1 - The first rigid-body attached to this joint.
      * @param parent2 - The second rigid-body attached to this joint.
      */
-    public createJoint(
+    public createImpulseJoint(
         params: JointData,
         parent1: RigidBody,
         parent2: RigidBody
-    ): Joint {
-        return this.joints.get(
-            this.joints.createJoint(this.bodies, params, parent1.handle, parent2.handle)
+    ): ImpulseJoint {
+        return this.impulseJoints.get(
+            this.impulseJoints.createJoint(this.bodies, params, parent1.handle, parent2.handle)
+        );
+    }
+
+    /**
+     * Creates a new multibody joint from the given joint descriptor.
+     *
+     * @param params - The description of the joint to create.
+     * @param parent1 - The first rigid-body attached to this joint.
+     * @param parent2 - The second rigid-body attached to this joint.
+     */
+    public createMultibodyJoint(
+        params: JointData,
+        parent1: RigidBody,
+        parent2: RigidBody
+    ): MultibodyJoint {
+        return this.multibodyJoints.get(
+            this.multibodyJoints.createJoint(this.bodies, params, parent1.handle, parent2.handle)
         );
     }
 
@@ -304,12 +345,21 @@ export class World {
     }
 
     /**
-     * Retrieves a joint from its handle.
+     * Retrieves an impulse joint from its handle.
      *
-     * @param handle - The integer handle of the rigid-body to retrieve.
+     * @param handle - The integer handle of the impulse joint to retrieve.
      */
-    public getJoint(handle: JointHandle): Joint {
-        return this.joints.get(handle);
+    public getImpulseJoint(handle: ImpulseJointHandle): ImpulseJoint {
+        return this.impulseJoints.get(handle);
+    }
+
+    /**
+     * Retrieves an multibody joint from its handle.
+     *
+     * @param handle - The integer handle of the multibody joint to retrieve.
+     */
+    public getMultibodyJoint(handle: MultibodyJointHandle): MultibodyJoint {
+        return this.multibodyJoints.get(handle);
     }
 
     /**
@@ -325,7 +375,8 @@ export class World {
             body.handle,
             this.islands,
             this.colliders,
-            this.joints,
+            this.impulseJoints,
+            this.multibodyJoints,
         );
     }
 
@@ -345,13 +396,28 @@ export class World {
     }
 
     /**
-     * Removes the given joint from this physics world.
+     * Removes the given impulse joint from this physics world.
      *
-     * @param joint - The joint to remove.
+     * @param joint - The impulse joint to remove.
      * @param wakeUp - If set to `true`, the rigid-bodies attached by this joint will be awaken.
      */
-    public removeJoint(joint: Joint, wakeUp: boolean) {
-        this.joints.remove(
+    public removeImpulseJoint(joint: ImpulseJoint, wakeUp: boolean) {
+        this.impulseJoints.remove(
+            joint.handle,
+            this.islands,
+            this.bodies,
+            wakeUp,
+        );
+    }
+
+    /**
+     * Removes the given multibody joint from this physics world.
+     *
+     * @param joint - The multibody joint to remove.
+     * @param wakeUp - If set to `true`, the rigid-bodies attached by this joint will be awaken.
+     */
+    public removeMultibodyJoint(joint: MultibodyJoint, wakeUp: boolean) {
+        this.multibodyJoints.remove(
             joint.handle,
             this.islands,
             this.bodies,

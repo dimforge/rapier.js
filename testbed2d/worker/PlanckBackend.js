@@ -52,7 +52,7 @@ export class PlanckBackend {
                     let revJoint = PLANCK.RevoluteJoint({}, b2Body1, b2Body2);
                     revJoint.m_localAnchorA = new PLANCK.Vec2(joint.anchor1.x, joint.anchor1.y);
                     revJoint.m_localAnchorB = new PLANCK.Vec2(joint.anchor2.x, joint.anchor2.y);
-                    this.world.createJoint(revJoint);
+                    this.world.createImpulseJoint(revJoint);
                     break;
                 default:
                     return;

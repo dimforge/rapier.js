@@ -3,17 +3,74 @@ use na::Unit;
 #[cfg(feature = "dim3")]
 use rapier::dynamics::SphericalJoint;
 use rapier::dynamics::{
-    FixedJoint, JointAxis, JointData, MotorModel, PrismaticJoint, RevoluteJoint,
+    FixedJoint, JointAxesMask, JointAxis, JointData, MotorModel, PrismaticJoint, RevoluteJoint,
 };
 use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub enum RawJointType {
-    Ball,
+    Spherical,
     Fixed,
     Prismatic,
     Revolute,
+    Generic,
+}
+
+/// The type of this joint.
+#[cfg(feature = "dim2")]
+impl From<JointAxesMask> for RawJointType {
+    fn from(ty: JointAxesMask) -> RawJointType {
+        let rev_axes = JointAxesMask::X | JointAxesMask::Y;
+        let pri_axes = JointAxesMask::Y | JointAxesMask::ANG_X;
+        let fix_axes = JointAxesMask::X | JointAxesMask::Y | JointAxesMask::ANG_X;
+
+        if ty == rev_axes {
+            RawJointType::Revolute
+        } else if ty == pri_axes {
+            RawJointType::Prismatic
+        } else if ty == fix_axes {
+            RawJointType::Fixed
+        } else {
+            RawJointType::Generic
+        }
+    }
+}
+
+/// The type of this joint.
+#[cfg(feature = "dim3")]
+impl From<JointAxesMask> for RawJointType {
+    fn from(ty: JointAxesMask) -> RawJointType {
+        let rev_axes = JointAxesMask::X
+            | JointAxesMask::Y
+            | JointAxesMask::Z
+            | JointAxesMask::ANG_Y
+            | JointAxesMask::ANG_Z;
+        let pri_axes = JointAxesMask::Y
+            | JointAxesMask::Z
+            | JointAxesMask::ANG_X
+            | JointAxesMask::ANG_Y
+            | JointAxesMask::ANG_Z;
+        let sph_axes = JointAxesMask::ANG_X | JointAxesMask::ANG_Y | JointAxesMask::ANG_Z;
+        let fix_axes = JointAxesMask::X
+            | JointAxesMask::Y
+            | JointAxesMask::Z
+            | JointAxesMask::ANG_X
+            | JointAxesMask::ANG_Y
+            | JointAxesMask::ANG_Z;
+
+        if ty == rev_axes {
+            RawJointType::Revolute
+        } else if ty == pri_axes {
+            RawJointType::Prismatic
+        } else if ty == sph_axes {
+            RawJointType::Spherical
+        } else if ty == fix_axes {
+            RawJointType::Fixed
+        } else {
+            RawJointType::Generic
+        }
+    }
 }
 
 #[wasm_bindgen]

@@ -2,13 +2,14 @@ import {RawRigidBodySet} from "../raw"
 import {VectorOps, RotationOps} from '../math';
 import {RigidBody, RigidBodyDesc, RigidBodyHandle} from './rigid_body'
 import {ColliderSet} from "../geometry";
-import {JointSet} from "./joint_set";
+import {ImpulseJointSet} from "./impulse_joint_set";
+import {MultibodyJointSet} from "./multibody_joint_set";
 import {IslandManager} from "./island_manager";
 
 /**
  * A set of rigid bodies that can be handled by a physics pipeline.
  *
- * To avoid leaking WASM resources, this MUST be freed manually with `jointSet.free()`
+ * To avoid leaking WASM resources, this MUST be freed manually with `rigidBodySet.free()`
  * once you are done using it (and all the rigid-bodies it created).
  */
 export class RigidBodySet {
@@ -48,18 +49,22 @@ export class RigidBodySet {
             rawRot,
             desc.gravityScale,
             desc.mass,
-            desc.translationsEnabled,
             rawCom,
             rawLv,
             // #if DIM2
             desc.angvel,
             desc.principalAngularInertia,
+            desc.translationsEnabledX,
+            desc.translationsEnabledY,
             desc.rotationsEnabled,
             // #endif
             // #if DIM3
             rawAv,
             rawPrincipalInertia,
             rawInertiaFrame,
+            desc.translationsEnabledX,
+            desc.translationsEnabledY,
+            desc.translationsEnabledZ,
             desc.rotationsEnabledX,
             desc.rotationsEnabledY,
             desc.rotationsEnabledZ,
@@ -93,10 +98,11 @@ export class RigidBodySet {
      *
      * @param handle - The integer handle of the rigid-body to remove.
      * @param colliders - The set of colliders that may contain colliders attached to the removed rigid-body.
-     * @param joints - The set of joints that may contain joints attached to the removed rigid-body.
+     * @param impulseJoints - The set of impulse joints that may contain joints attached to the removed rigid-body.
+     * @param multibodyJoints - The set of multibody joints that may contain joints attached to the removed rigid-body.
      */
-    public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, joints: JointSet) {
-        this.raw.remove(handle, islands.raw, colliders.raw, joints.raw)
+    public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, impulseJoints: ImpulseJointSet, multibodyJoints) {
+        this.raw.remove(handle, islands.raw, colliders.raw, impulseJoints.raw, multibodyJoints.raw)
     }
 
     /**

@@ -35,15 +35,12 @@ function create_prismatic_joints(
         z = new RAPIER.Vector3(0.0, 0.0, 1.0);
         let prism = RAPIER.JointData.prismatic(
             new RAPIER.Vector3(0.0, 0.0, 0.0),
-            axis,
-            z,
             new RAPIER.Vector3(0.0, 0.0, -shift),
             axis,
-            z,
         );
         prism.limitsEnabled = true;
         prism.limits = [-2.0, 2.0];
-        world.createJoint(prism, currParent, currChild);
+        world.createImpulseJoint(prism, currParent, currChild);
 
         currParent = currChild;
     }
@@ -97,16 +94,16 @@ function create_revolute_joints(
         z = new RAPIER.Vector3(0.0, 0.0, 1.0);
 
         let revs = [
-            RAPIER.JointData.revolute(o, z, new RAPIER.Vector3(0.0, 0.0, -shift), z),
-            RAPIER.JointData.revolute(o, x, new RAPIER.Vector3(-shift, 0.0, 0.0), x),
-            RAPIER.JointData.revolute(o, z, new RAPIER.Vector3(0.0, 0.0, -shift), z),
-            RAPIER.JointData.revolute(o, x, new RAPIER.Vector3(shift, 0.0, 0.0), x),
+            RAPIER.JointData.revolute(o, new RAPIER.Vector3(0.0, 0.0, -shift), z),
+            RAPIER.JointData.revolute(o, new RAPIER.Vector3(-shift, 0.0, 0.0), x),
+            RAPIER.JointData.revolute(o, new RAPIER.Vector3(0.0, 0.0, -shift), z),
+            RAPIER.JointData.revolute(o, new RAPIER.Vector3(shift, 0.0, 0.0), x),
         ];
 
-        world.createJoint(revs[0], currParent, parents[0]);
-        world.createJoint(revs[1], parents[0], parents[1]);
-        world.createJoint(revs[2], parents[1], parents[2]);
-        world.createJoint(revs[3], parents[2], parents[3]);
+        world.createImpulseJoint(revs[0], currParent, parents[0]);
+        world.createImpulseJoint(revs[1], parents[0], parents[1]);
+        world.createImpulseJoint(revs[2], parents[1], parents[2]);
+        world.createImpulseJoint(revs[3], parents[2], parents[3]);
 
         currParent = parents[3];
     }
@@ -156,7 +153,7 @@ function create_fixed_joints(
                     new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
                 );
 
-                world.createJoint(params, parent, child);
+                world.createImpulseJoint(params, parent, child);
             }
 
             // Horizontal joint.
@@ -170,7 +167,7 @@ function create_fixed_joints(
                     new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
                 );
 
-                world.createJoint(params, parent, child);
+                world.createImpulseJoint(params, parent, child);
             }
 
             parents.push(child);
@@ -214,16 +211,16 @@ function create_ball_joints(
             if (i > 0) {
                 let parent =
                     parents[parents.length - 1];
-                let params = RAPIER.JointData.ball(o, new RAPIER.Vector3(0.0, 0.0, -shift));
-                world.createJoint(params, parent, child);
+                let params = RAPIER.JointData.spherical(o, new RAPIER.Vector3(0.0, 0.0, -shift));
+                world.createImpulseJoint(params, parent, child);
             }
 
             // Horizontal joint.
             if (k > 0) {
                 let parent_index = parents.length - num;
                 let parent = parents[parent_index];
-                let params = RAPIER.JointData.ball(o, new RAPIER.Vector3(-shift, 0.0, 0.0));
-                world.createJoint(params, parent, child);
+                let params = RAPIER.JointData.spherical(o, new RAPIER.Vector3(-shift, 0.0, 0.0));
+                world.createImpulseJoint(params, parent, child);
             }
 
             parents.push(child);

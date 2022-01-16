@@ -1,6 +1,6 @@
 import {RawPhysicsPipeline} from "../raw";
 import {Vector, VectorOps} from "../math";
-import {IntegrationParameters, JointSet, RigidBodyHandle, RigidBodySet, CCDSolver, IslandManager} from "../dynamics";
+import {IntegrationParameters, ImpulseJointSet, MultibodyJointSet, RigidBodyHandle, RigidBodySet, CCDSolver, IslandManager} from "../dynamics";
 import {BroadPhase, ColliderHandle, ColliderSet, NarrowPhase} from "../geometry";
 import {EventQueue} from "./event_queue";
 import {PhysicsHooks} from "./physics_hooks";
@@ -25,7 +25,8 @@ export class PhysicsPipeline {
         narrowPhase: NarrowPhase,
         bodies: RigidBodySet,
         colliders: ColliderSet,
-        joints: JointSet,
+        impulseJoints: ImpulseJointSet,
+        multibodyJoints: MultibodyJointSet,
         ccdSolver: CCDSolver,
         eventQueue?: EventQueue,
         hooks?: PhysicsHooks,
@@ -41,7 +42,8 @@ export class PhysicsPipeline {
                 narrowPhase.raw,
                 bodies.raw,
                 colliders.raw,
-                joints.raw,
+                impulseJoints.raw,
+                multibodyJoints.raw,
                 ccdSolver.raw,
                 eventQueue.raw,
                 hooks,
@@ -57,7 +59,8 @@ export class PhysicsPipeline {
                 narrowPhase.raw,
                 bodies.raw,
                 colliders.raw,
-                joints.raw,
+                impulseJoints.raw,
+                multibodyJoints.raw,
                 ccdSolver.raw,
             )
         }

@@ -101,7 +101,7 @@ export class RapierBackend {
 
         switch (joint.type) {
             case this.RAPIER.JointType.Ball:
-                raJointData = this.RAPIER.JointData.ball(joint.anchor1, joint.anchor2);
+                raJointData = this.RAPIER.JointData.spherical(joint.anchor1, joint.anchor2);
                 break;
             case this.RAPIER.JointType.Revolute:
                 raJointData = this.RAPIER.JointData.revolute(
@@ -133,7 +133,7 @@ export class RapierBackend {
                 break;
         }
 
-        this.world.createJoint(raJointData, raBody1, raBody2);
+        this.world.createImpulseJoint(raJointData, raBody1, raBody2);
     }
 
     constructor(RAPIER) {
