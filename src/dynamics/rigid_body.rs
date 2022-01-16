@@ -227,6 +227,33 @@ impl RawRigidBodySet {
         self.map_mut(handle, |rb| rb.lock_translations(locked, wake_up))
     }
 
+    #[cfg(feature = "dim2")]
+    pub fn rbRestrictTranslations(
+        &mut self,
+        handle: u32,
+        allow_x: bool,
+        allow_y: bool,
+        wake_up: bool,
+    ) {
+        self.map_mut(handle, |rb| {
+            rb.restrict_translations(allow_x, allow_y, wake_up)
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn rbRestrictTranslations(
+        &mut self,
+        handle: u32,
+        allow_x: bool,
+        allow_y: bool,
+        allow_z: bool,
+        wake_up: bool,
+    ) {
+        self.map_mut(handle, |rb| {
+            rb.restrict_translations(allow_x, allow_y, allow_z, wake_up)
+        })
+    }
+
     pub fn rbLockRotations(&mut self, handle: u32, locked: bool, wake_up: bool) {
         self.map_mut(handle, |rb| rb.lock_translations(locked, wake_up))
     }

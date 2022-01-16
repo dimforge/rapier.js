@@ -1,5 +1,5 @@
 import {Rotation, Vector, VectorOps, RotationOps} from "../math";
-import {RawJointData, RawImpulseJointSet, RawRigidBodySet} from "../raw";
+import {RawJointData, RawImpulseJointSet, RawRigidBodySet, RawJointAxis} from "../raw";
 import {RigidBodyHandle} from "./rigid_body"
 // #if DIM3
 import {Quaternion} from "../math";
@@ -8,38 +8,38 @@ import {Quaternion} from "../math";
 /**
  * The integer identifier of a collider added to a `ColliderSet`.
  */
-export type JointHandle = number;
+export type ImpulseJointHandle = number;
 
 /**
  * An enum grouping all possible types of joints:
- * - `Ball`: A Ball joint that removes all relative linear degrees of freedom between the affected bodies.
+ *
+ * - `Revolute`: A revolute joint that removes all degrees of freedom between the affected
+ *               bodies except for the rotation along one axis.
  * - `Fixed`: A fixed joint that removes all relative degrees of freedom between the affected bodies.
  * - `Prismatic`: A prismatic joint that removes all degrees of freedom between the affected
  *                bodies except for the translation along one axis.
- * - `Revolute`: (3D only) A revolute joint that removes all degrees of freedom between the affected
- *               bodies except for the rotation along one axis.
+ * - `Spherical`: (3D only) A spherical joint that removes all relative linear degrees of freedom between the affected bodies.
  */
 export enum JointType {
-    Ball,
+    Revolute,
     Fixed,
     Prismatic,
     // #if DIM3
-    Revolute,
+    Spherical,
     // #endif
 }
 
 export enum MotorModel {
-    Disabled,
     VelocityBased,
     AccelerationBased,
-    ForceBased,
+    // ForceBased,
 }
 
-export class Joint {
-    protected rawSet: RawImpulseJointSet; // The Joint won't need to free this.
-    handle: JointHandle;
+export class ImpulseJoint {
+    protected rawSet: RawImpulseJointSet; // The ImpulseJoint won't need to free this.
+    handle: ImpulseJointHandle;
 
-    constructor(rawSet: RawImpulseJointSet, handle: JointHandle) {
+    constructor(rawSet: RawImpulseJointSet, handle: ImpulseJointHandle) {
         this.rawSet = rawSet;
         this.handle = handle;
     }
@@ -112,78 +112,70 @@ export class Joint {
     public anchor2(): Vector {
         return VectorOps.fromRaw(this.rawSet.jointAnchor2(this.handle));
     }
-
-    /**
-     * The first axis of this joint, if any.
-     *
-     * For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
-     * this returns the application axis on the first rigid-body this joint is attached to, expressed
-     * in the local-space of this first rigid-body.
-     */
-    public axis1(): Vector {
-        return VectorOps.fromRaw(this.rawSet.jointAxis1(this.handle));
-    }
-
-    /**
-     * The second axis of this joint, if any.
-     *
-     * For joints where an application axis makes sense (e.g. the revolute and prismatic joins),
-     * this returns the application axis on the second rigid-body this joint is attached to, expressed
-     * in the local-space of this second rigid-body.
-     */
-    public axis2(): Vector {
-        return VectorOps.fromRaw(this.rawSet.jointAxis2(this.handle))
-    }
 }
 
-export class UnitJoint extends Joint {
+export class UnitImpulseJoint extends ImpulseJoint {
+    /**
+     * The axis left free by this joint.
+     */
+    protected rawAxis?(): RawJointAxis;
+
     /**
      * Are the limits enabled for this joint?
      */
     public limitsEnabled(): boolean {
-        return this.rawSet.jointLimitsEnabled(this.handle);
+        return this.rawSet.jointLimitsEnabled(this.handle, this.rawAxis());
     }
 
     /**
      * The min limit of this joint.
      */
     public limitsMin(): number {
-        return this.rawSet.jointLimitsMin(this.handle);
+        return this.rawSet.jointLimitsMin(this.handle, this.rawAxis());
     }
 
     /**
      * The max limit of this joint.
      */
     public limitsMax(): number {
-        return this.rawSet.jointLimitsMax(this.handle);
+        return this.rawSet.jointLimitsMax(this.handle, this.rawAxis());
     }
 
     public configureMotorModel(model: MotorModel) {
-        this.rawSet.jointConfigureMotorModel(this.handle, model);
+        this.rawSet.jointConfigureMotorModel(this.handle, this.rawAxis(), model);
     }
 
     public configureMotorVelocity(targetVel: number, factor: number) {
-        this.rawSet.jointConfigureUnitMotorVelocity(this.handle, targetVel, factor);
+        this.rawSet.jointConfigureMotorVelocity(this.handle, this.rawAxis(), targetVel, factor);
     }
 
     public configureMotorPosition(targetPos: number, stiffness: number, damping: number) {
-        this.rawSet.jointConfigureUnitMotorPosition(this.handle, targetPos, stiffness, damping);
+        this.rawSet.jointConfigureMotorPosition(this.handle, this.rawAxis(), targetPos, stiffness, damping);
     }
 
     public configureMotor(targetPos: number, targetVel: number, stiffness: number, damping: number) {
-        this.rawSet.jointConfigureUnitMotor(this.handle, targetPos, targetVel, stiffness, damping);
+        this.rawSet.jointConfigureMotor(this.handle, this.rawAxis(), targetPos, targetVel, stiffness, damping);
     }
 }
 
-export class FixedJoint extends Joint {}
-export class PrismaticJoint extends UnitJoint {}
+export class FixedImpulseJoint extends ImpulseJoint {
+}
 
-// #if DIM2
-export class SphericalJoint extends UnitJoint {}
-// #endif
+export class PrismaticImpulseJoint extends UnitImpulseJoint {
+    public rawAxis(): RawJointAxis {
+        return RawJointAxis.X;
+    }
+}
+
+export class RevoluteImpulseJoint extends UnitImpulseJoint {
+    public rawAxis(): RawJointAxis {
+        return RawJointAxis.AngX;
+    }
+}
 
 // #if DIM3
-export class SphericalJoint extends Joint {
+export class SphericalImpulseJoint extends ImpulseJoint {
+    /* Unsupported by this alpha release.
     public configureMotorModel(model: MotorModel) {
         this.rawSet.jointConfigureMotorModel(this.handle, model);
     }
@@ -202,9 +194,8 @@ export class SphericalJoint extends Joint {
             targetVel.x, targetVel.y, targetVel.z,
             stiffness, damping);
     }
+     */
 }
-
-export class RevoluteJoint extends UnitJoint {}
 // #endif
 
 
@@ -212,10 +203,7 @@ export class RevoluteJoint extends UnitJoint {}
 export class JointData {
     anchor1: Vector
     anchor2: Vector
-    axis1: Vector
-    axis2: Vector
-    tangent1: Vector
-    tangent2: Vector
+    axis: Vector
     frame1: Rotation
     frame2: Rotation
     jointType: JointType
@@ -223,26 +211,6 @@ export class JointData {
     limits: Array<number>
 
     private constructor() {
-    }
-
-    /**
-     * Create a new joint descriptor that builds Ball joints.
-     *
-     * A ball joints allows three relative rotational degrees of freedom
-     * by preventing any relative translation between the anchors of the
-     * two attached rigid-bodies.
-     *
-     * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
-     *                  local-space of the rigid-body.
-     * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
-     *                  local-space of the rigid-body.
-     */
-    public static ball(anchor1: Vector, anchor2: Vector): JointData {
-        let res = new JointData();
-        res.anchor1 = anchor1;
-        res.anchor2 = anchor2;
-        res.jointType = JointType.Ball;
-        return res;
     }
 
     /**
@@ -269,6 +237,27 @@ export class JointData {
     }
 
     // #if DIM2
+
+    /**
+     * Create a new joint descriptor that builds revolute joints.
+     *
+     * A revolute joint allows three relative rotational degrees of freedom
+     * by preventing any relative translation between the anchors of the
+     * two attached rigid-bodies.
+     *
+     * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     */
+    public static revolute(anchor1: Vector, anchor2: Vector): JointData {
+        let res = new JointData();
+        res.anchor1 = anchor1;
+        res.anchor2 = anchor2;
+        res.jointType = JointType.Revolute;
+        return res;
+    }
+
     /**
      * Creates a new joint descriptor that builds a Prismatic joint.
      *
@@ -277,17 +266,15 @@ export class JointData {
      *
      * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.
-     * @param axis1 - Axis of the joint, expressed in the local-space of the first rigid-body it is attached to.
      * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.
-     * @param axis2 - Axis of the joint, expressed in the local-space of the second rigid-body it is attached to.
+     * @param axis - Axis of the joint, expressed in the local-space of the rigid-bodies it is attached to.
      */
-    public static prismatic(anchor1: Vector, axis1: Vector, anchor2: Vector, axis2: Vector): JointData {
+    public static prismatic(anchor1: Vector, anchor2: Vector, axis: Vector): JointData {
         let res = new JointData();
         res.anchor1 = anchor1;
-        res.axis1 = axis1;
         res.anchor2 = anchor2;
-        res.axis2 = axis2;
+        res.axis = axis;
         res.jointType = JointType.Prismatic;
         return res;
     }
@@ -295,6 +282,25 @@ export class JointData {
     // #endif
 
     // #if DIM3
+    /**
+     * Create a new joint descriptor that builds spherical joints.
+     *
+     * A spherical joint allows three relative rotational degrees of freedom
+     * by preventing any relative translation between the anchors of the
+     * two attached rigid-bodies.
+     *
+     * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     */
+    public static spherical(anchor1: Vector, anchor2: Vector): JointData {
+        let res = new JointData();
+        res.anchor1 = anchor1;
+        res.anchor2 = anchor2;
+        res.jointType = JointType.Spherical;
+        return res;
+    }
 
     /**
      * Creates a new joint descriptor that builds a Prismatic joint.
@@ -304,32 +310,19 @@ export class JointData {
      *
      * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.
-     * @param axis1 - Axis of the joint, expressed in the local-space of the first rigid-body it is attached to.
-     * @param tangent1 - A vector orthogonal to `axis1`. It is used to compute a basis orthonormal
-     *                   to the joint's axis. If this tangent is set to the zero vector, the orthonormal
-     *                   basis will be automatically computed arbitrarily.
      * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.
-     * @param axis2 - Axis of the joint, expressed in the local-space of the second rigid-body it is attached to.
-     * @param tangent2 - A vector orthogonal to `axis2`. It is used to compute a basis orthonormal
-     *                   to the joint's axis. If this tangent is set to the zero vector, the orthonormal
-     *                   basis will be automatically computed arbitrarily.
+     * @param axis - Axis of the joint, expressed in the local-space of the rigid-bodies it is attached to.
      */
     public static prismatic(
         anchor1: Vector,
-        axis1: Vector,
-        tangent1: Vector,
         anchor2: Vector,
-        axis2: Vector,
-        tangent2: Vector,
+        axis: Vector,
     ): JointData {
         let res = new JointData();
         res.anchor1 = anchor1;
-        res.axis1 = axis1;
-        res.tangent1 = tangent1;
         res.anchor2 = anchor2;
-        res.axis2 = axis2;
-        res.tangent2 = tangent2;
+        res.axis = axis;
         res.jointType = JointType.Prismatic;
         return res;
     }
@@ -342,22 +335,19 @@ export class JointData {
      *
      * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.
-     * @param axis1 - Axis of the joint, expressed in the local-space of the first rigid-body it is attached to.
      * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.
-     * @param axis2 - Axis of the joint, expressed in the local-space of the second rigid-body it is attached to.
+     * @param axis - Axis of the joint, expressed in the local-space of the rigid-bodies it is attached to.
      */
     public static revolute(
         anchor1: Vector,
-        axis1: Vector,
         anchor2: Vector,
-        axis2: Vector,
+        axis: Vector,
     ): JointData {
         let res = new JointData();
         res.anchor1 = anchor1;
         res.anchor2 = anchor2;
-        res.axis1 = axis1;
-        res.axis2 = axis2;
+        res.axis = axis;
         res.jointType = JointType.Revolute;
         return res;
     }
@@ -367,17 +357,13 @@ export class JointData {
     public intoRaw(): RawJointData {
         let rawA1 = VectorOps.intoRaw(this.anchor1);
         let rawA2 = VectorOps.intoRaw(this.anchor2);
-        let rawAx1;
-        let rawAx2;
+        let rawAx;
         let result;
         let limitsEnabled = false;
         let limitsMin = 0.0;
         let limitsMax = 0.0;
 
         switch (this.jointType) {
-            case JointType.Ball:
-                result = RawJointData.ball(rawA1, rawA2);
-                break;
             case JointType.Fixed:
                 let rawFra1 = RotationOps.intoRaw(this.frame1);
                 let rawFra2 = RotationOps.intoRaw(this.frame2);
@@ -386,8 +372,7 @@ export class JointData {
                 rawFra2.free();
                 break;
             case JointType.Prismatic:
-                rawAx1 = VectorOps.intoRaw(this.axis1);
-                rawAx2 = VectorOps.intoRaw(this.axis2);
+                rawAx = VectorOps.intoRaw(this.axis);
 
                 if (!!this.limitsEnabled) {
                     limitsEnabled = true;
@@ -398,9 +383,8 @@ export class JointData {
                 // #if DIM2
                 result = RawJointData.prismatic(
                     rawA1,
-                    rawAx1,
                     rawA2,
-                    rawAx2,
+                    rawAx,
                     limitsEnabled,
                     limitsMin,
                     limitsMax,
@@ -408,33 +392,31 @@ export class JointData {
                 // #endif
 
                 // #if DIM3
-                let rawTa1 = VectorOps.intoRaw(this.tangent1);
-                let rawTa2 = VectorOps.intoRaw(this.tangent2);
                 result = RawJointData.prismatic(
                     rawA1,
-                    rawAx1,
-                    rawTa1,
                     rawA2,
-                    rawAx2,
-                    rawTa2,
+                    rawAx,
                     limitsEnabled,
                     limitsMin,
                     limitsMax,
                 );
-                rawTa1.free();
-                rawTa2.free();
                 // #endif
 
-                rawAx1.free();
-                rawAx2.free();
+                rawAx.free();
                 break;
-            // #if DIM3
+            // #if DIM2
             case JointType.Revolute:
-                rawAx1 = VectorOps.intoRaw(this.axis1);
-                rawAx2 = VectorOps.intoRaw(this.axis2);
-                result = RawJointData.revolute(rawA1, rawAx1, rawA2, rawAx2);
-                rawAx1.free();
-                rawAx2.free();
+                result = RawJointData.revolute(rawA1, rawA2);
+                break;
+            // #endif
+            // #if DIM3
+            case JointType.Spherical:
+                result = RawJointData.spherical(rawA1, rawA2);
+                break;
+            case JointType.Revolute:
+                rawAx = VectorOps.intoRaw(this.axis);
+                result = RawJointData.revolute(rawA1, rawA2, rawAx);
+                rawAx.free();
                 break;
             // #endif
         }

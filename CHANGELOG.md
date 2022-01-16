@@ -1,3 +1,28 @@
+### 0.8.0-alpha.0 (2022-01-16)
+This release updates to Rapier 0.12.0-alpha.0 which contains:
+- A **complete rewrite** of the joint and contact constraint solver.
+- The support for locking individual translation axes.
+- The support for multibody joint.
+
+This is an **alpha** release because the new solver still needs some tuning,
+and the spherical joint motors/limits is currently not working.
+
+#### Breaking changes
+- In 3D: renamed `BallJoint` to `SphericalJoint`.
+- In 2D: renamed `BallJoint` to `RevoluteJoint`.
+- Remove the joint motors and limits for the spherical joint (this is a temporary removal until with leave alpha).
+- All the joint-related structures and methods (`RevoluteJoint`, `PrismaticJoint`, `createJoint`, etc.) have renamed to
+  include `impulse` in the names: `RevoluteImpulseJoint`, `PrismaticImpulseJoint`, `createImpulseJoint`, etc. This is
+  to differentiate them from the new multibody joints.
+- Remove from the integration parameters all the parameters that are no longer meaningful (`maxPositionIterations`,
+  `jointErp`, `warmstartCoeff`, `allowedAngularError`, `maxLinearCorrection`, `maxAngularCorrection`).
+
+#### Added
+- Add multibody joints. They are created the same way as impulse joints, except that they are created
+  by `world.createMultibodyJoint` instead of `world.createImpulseJoint`.
+- Add the ability to lock individual translation axes. Use `rigidBody.restrictTranslation`.
+
+
 ### 0.7.6
 This release updates to Rapier 0.11.1 which contains several bug fixes.
 

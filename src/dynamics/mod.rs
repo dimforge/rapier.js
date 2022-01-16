@@ -15,6 +15,7 @@ mod impulse_joint_set;
 mod integration_parameters;
 mod island_manager;
 mod joint;
+mod multibody_joint;
 mod multibody_joint_set;
 mod rigid_body;
 mod rigid_body_set;

@@ -81,6 +81,14 @@ impl RawIntegrationParameters {
         self.0.max_velocity_iterations = value
     }
     #[wasm_bindgen(setter)]
+    pub fn set_maxVelocityFrictionIterations(&mut self, value: usize) {
+        self.0.max_velocity_friction_iterations = value
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_maxStabilizationIterations(&mut self, value: usize) {
+        self.0.max_stabilization_iterations = value
+    }
+    #[wasm_bindgen(setter)]
     pub fn set_minIslandSize(&mut self, value: usize) {
         self.0.min_island_size = value
     }

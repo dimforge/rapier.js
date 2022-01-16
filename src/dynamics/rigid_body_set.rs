@@ -67,12 +67,14 @@ impl RawRigidBodySet {
         rotation: &RawRotation,
         gravityScale: f32,
         mass: f32,
-        translationsEnabled: bool,
         centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: &RawVector,
         principalAngularInertia: &RawVector,
         angularInertiaFrame: &RawRotation,
+        translationEnabledX: bool,
+        translationEnabledY: bool,
+        translationEnabledZ: bool,
         rotationEnabledX: bool,
         rotationEnabledY: bool,
         rotationEnabledZ: bool,
@@ -91,11 +93,16 @@ impl RawRigidBodySet {
             angularInertiaFrame.0,
         );
 
-        let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
+        let rigid_body = RigidBodyBuilder::new(rb_type.into())
             .position(pos)
             .gravity_scale(gravityScale)
             .additional_mass(mass)
             .additional_principal_angular_inertia(principalAngularInertia.0)
+            .restrict_translations(
+                translationEnabledX,
+                translationEnabledY,
+                translationEnabledZ,
+            )
             .restrict_rotations(rotationEnabledX, rotationEnabledY, rotationEnabledZ)
             .additional_mass_properties(props)
             .linvel(linvel.0)
@@ -105,9 +112,6 @@ impl RawRigidBodySet {
             .can_sleep(canSleep)
             .ccd_enabled(ccdEnabled)
             .dominance_group(dominanceGroup);
-        if !translationsEnabled {
-            rigid_body = rigid_body.lock_translations();
-        }
 
         self.0.insert(rigid_body.build()).into_raw_parts().0
     }
@@ -119,11 +123,12 @@ impl RawRigidBodySet {
         rotation: &RawRotation,
         gravityScale: f32,
         mass: f32,
-        transationsEnabled: bool,
         centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: f32,
         principalAngularInertia: f32,
+        translationEnabledX: bool,
+        translationEnabledY: bool,
         rotationsEnabled: bool,
         linearDamping: f32,
         angularDamping: f32,
@@ -140,6 +145,7 @@ impl RawRigidBodySet {
             .additional_mass(mass)
             .additional_principal_angular_inertia(principalAngularInertia)
             .additional_mass_properties(props)
+            .restrict_translations(translationEnabledX, translationEnabledY)
             .linvel(linvel.0)
             .angvel(angvel)
             .linear_damping(linearDamping)
@@ -148,9 +154,6 @@ impl RawRigidBodySet {
             .ccd_enabled(ccdEnabled)
             .dominance_group(dominanceGroup);
 
-        if !transationsEnabled {
-            rigid_body = rigid_body.lock_translations();
-        }
         if !rotationsEnabled {
             rigid_body = rigid_body.lock_rotations();
         }
