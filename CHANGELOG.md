@@ -22,6 +22,10 @@ and the spherical joint motors/limits is currently not working.
   by `world.createMultibodyJoint` instead of `world.createImpulseJoint`.
 - Add the ability to lock individual translation axes. Use `rigidBody.restrictTranslation`.
 
+#### Fixed
+- Fixed an issue with velocity-based kinematic bodies applying kinematic rotation improperly.
+- Fixed the second witness points and normals returned by shape-casts.
+- Fixed the second local contact normal and points returned by contact manifolds.
 
 ### 0.7.6
 This release updates to Rapier 0.11.1 which contains several bug fixes.
