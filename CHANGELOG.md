@@ -255,7 +255,7 @@ Breaking changes related to scene queries:
 
 - Fix a bug where removing a collider would result in a rigid-body being removed instead.
 - Fix a determinism issue when running simulation on the Apple M1 processor.
-- Add `JointParams.prismatic` and `JointParams.fixed` for creating prismatic joint or fixed joints.
+- Add `JointData.prismatic` and `JointData.fixed` for creating prismatic joint or fixed joints.
 
 ### v0.2.9
 

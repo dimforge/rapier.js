@@ -1,5 +1,5 @@
 import {Rotation, Vector, VectorOps, RotationOps} from "../math";
-import {RawJointParams, RawJointSet, RawRigidBodySet} from "../raw";
+import {RawJointData, RawImpulseJointSet, RawRigidBodySet} from "../raw";
 import {RigidBodyHandle} from "./rigid_body"
 // #if DIM3
 import {Quaternion} from "../math";
@@ -28,7 +28,7 @@ export enum JointType {
     // #endif
 }
 
-export enum SpringModel {
+export enum MotorModel {
     Disabled,
     VelocityBased,
     AccelerationBased,
@@ -36,10 +36,10 @@ export enum SpringModel {
 }
 
 export class Joint {
-    protected rawSet: RawJointSet; // The Joint won't need to free this.
+    protected rawSet: RawImpulseJointSet; // The Joint won't need to free this.
     handle: JointHandle;
 
-    constructor(rawSet: RawJointSet, handle: JointHandle) {
+    constructor(rawSet: RawImpulseJointSet, handle: JointHandle) {
         this.rawSet = rawSet;
         this.handle = handle;
     }
@@ -158,7 +158,7 @@ export class UnitJoint extends Joint {
         return this.rawSet.jointLimitsMax(this.handle);
     }
 
-    public configureMotorModel(model: SpringModel) {
+    public configureMotorModel(model: MotorModel) {
         this.rawSet.jointConfigureMotorModel(this.handle, model);
     }
 
@@ -179,12 +179,12 @@ export class FixedJoint extends Joint {}
 export class PrismaticJoint extends UnitJoint {}
 
 // #if DIM2
-export class BallJoint extends UnitJoint {}
+export class SphericalJoint extends UnitJoint {}
 // #endif
 
 // #if DIM3
-export class BallJoint extends Joint {
-    public configureMotorModel(model: SpringModel) {
+export class SphericalJoint extends Joint {
+    public configureMotorModel(model: MotorModel) {
         this.rawSet.jointConfigureMotorModel(this.handle, model);
     }
 
@@ -209,7 +209,7 @@ export class RevoluteJoint extends UnitJoint {}
 
 
 
-export class JointParams {
+export class JointData {
     anchor1: Vector
     anchor2: Vector
     axis1: Vector
@@ -237,8 +237,8 @@ export class JointParams {
      * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
      *                  local-space of the rigid-body.
      */
-    public static ball(anchor1: Vector, anchor2: Vector): JointParams {
-        let res = new JointParams();
+    public static ball(anchor1: Vector, anchor2: Vector): JointData {
+        let res = new JointData();
         res.anchor1 = anchor1;
         res.anchor2 = anchor2;
         res.jointType = JointType.Ball;
@@ -258,8 +258,8 @@ export class JointParams {
      *                  local-space of the rigid-body.
      * @param frame2 - The reference orientation of the joint wrt. the second rigid-body.
      */
-    public static fixed(anchor1: Vector, frame1: Rotation, anchor2: Vector, frame2: Rotation): JointParams {
-        let res = new JointParams();
+    public static fixed(anchor1: Vector, frame1: Rotation, anchor2: Vector, frame2: Rotation): JointData {
+        let res = new JointData();
         res.anchor1 = anchor1;
         res.anchor2 = anchor2;
         res.frame1 = frame1;
@@ -282,8 +282,8 @@ export class JointParams {
      *                  local-space of the rigid-body.
      * @param axis2 - Axis of the joint, expressed in the local-space of the second rigid-body it is attached to.
      */
-    public static prismatic(anchor1: Vector, axis1: Vector, anchor2: Vector, axis2: Vector): JointParams {
-        let res = new JointParams();
+    public static prismatic(anchor1: Vector, axis1: Vector, anchor2: Vector, axis2: Vector): JointData {
+        let res = new JointData();
         res.anchor1 = anchor1;
         res.axis1 = axis1;
         res.anchor2 = anchor2;
@@ -322,8 +322,8 @@ export class JointParams {
         anchor2: Vector,
         axis2: Vector,
         tangent2: Vector,
-    ): JointParams {
-        let res = new JointParams();
+    ): JointData {
+        let res = new JointData();
         res.anchor1 = anchor1;
         res.axis1 = axis1;
         res.tangent1 = tangent1;
@@ -352,8 +352,8 @@ export class JointParams {
         axis1: Vector,
         anchor2: Vector,
         axis2: Vector,
-    ): JointParams {
-        let res = new JointParams();
+    ): JointData {
+        let res = new JointData();
         res.anchor1 = anchor1;
         res.anchor2 = anchor2;
         res.axis1 = axis1;
@@ -364,7 +364,7 @@ export class JointParams {
 
     // #endif
 
-    public intoRaw(): RawJointParams {
+    public intoRaw(): RawJointData {
         let rawA1 = VectorOps.intoRaw(this.anchor1);
         let rawA2 = VectorOps.intoRaw(this.anchor2);
         let rawAx1;
@@ -376,12 +376,12 @@ export class JointParams {
 
         switch (this.jointType) {
             case JointType.Ball:
-                result = RawJointParams.ball(rawA1, rawA2);
+                result = RawJointData.ball(rawA1, rawA2);
                 break;
             case JointType.Fixed:
                 let rawFra1 = RotationOps.intoRaw(this.frame1);
                 let rawFra2 = RotationOps.intoRaw(this.frame2);
-                result = RawJointParams.fixed(rawA1, rawFra1, rawA2, rawFra2);
+                result = RawJointData.fixed(rawA1, rawFra1, rawA2, rawFra2);
                 rawFra1.free();
                 rawFra2.free();
                 break;
@@ -396,7 +396,7 @@ export class JointParams {
                 }
 
                 // #if DIM2
-                result = RawJointParams.prismatic(
+                result = RawJointData.prismatic(
                     rawA1,
                     rawAx1,
                     rawA2,
@@ -410,7 +410,7 @@ export class JointParams {
                 // #if DIM3
                 let rawTa1 = VectorOps.intoRaw(this.tangent1);
                 let rawTa2 = VectorOps.intoRaw(this.tangent2);
-                result = RawJointParams.prismatic(
+                result = RawJointData.prismatic(
                     rawA1,
                     rawAx1,
                     rawTa1,
@@ -432,7 +432,7 @@ export class JointParams {
             case JointType.Revolute:
                 rawAx1 = VectorOps.intoRaw(this.axis1);
                 rawAx2 = VectorOps.intoRaw(this.axis2);
-                result = RawJointParams.revolute(rawA1, rawAx1, rawA2, rawAx2);
+                result = RawJointData.revolute(rawA1, rawAx1, rawA2, rawAx2);
                 rawAx1.free();
                 rawAx2.free();
                 break;

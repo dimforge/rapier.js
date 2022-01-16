@@ -97,14 +97,14 @@ export class RapierBackend {
         let raBody1 = this.bodyMap.get(joint.handle1);
         let raBody2 = this.bodyMap.get(joint.handle2);
         let anchor1, anchor2, raAnchor1, raAnchor2;
-        let raJointParams;
+        let raJointData;
 
         switch (joint.type) {
             case this.RAPIER.JointType.Ball:
-                raJointParams = this.RAPIER.JointParams.ball(joint.anchor1, joint.anchor2);
+                raJointData = this.RAPIER.JointData.ball(joint.anchor1, joint.anchor2);
                 break;
             case this.RAPIER.JointType.Revolute:
-                raJointParams = this.RAPIER.JointParams.revolute(
+                raJointData = this.RAPIER.JointData.revolute(
                     joint.anchor1,
                     joint.axis1,
                     joint.anchor2,
@@ -112,7 +112,7 @@ export class RapierBackend {
                 );
                 break;
             case this.RAPIER.JointType.Fixed:
-                raJointParams = this.RAPIER.JointParams.fixed(
+                raJointData = this.RAPIER.JointData.fixed(
                     joint.anchor1,
                     joint.frameX1,
                     joint.anchor2,
@@ -120,7 +120,7 @@ export class RapierBackend {
                 );
                 break;
             case this.RAPIER.JointType.Prismatic:
-                raJointParams = this.RAPIER.JointParams.prismatic(
+                raJointData = this.RAPIER.JointData.prismatic(
                     joint.anchor1,
                     joint.axis1,
                     joint.tangent1,
@@ -128,12 +128,12 @@ export class RapierBackend {
                     joint.axis2,
                     joint.tangent2,
                 );
-                raJointParams.limitsEnabled = joint.limitsEnabled;
-                raJointParams.limits = [joint.limitsMin, joint.limitsMax];
+                raJointData.limitsEnabled = joint.limitsEnabled;
+                raJointData.limits = [joint.limitsMin, joint.limitsMax];
                 break;
         }
 
-        this.world.createJoint(raJointParams, raBody1, raBody2);
+        this.world.createJoint(raJointData, raBody1, raBody2);
     }
 
     constructor(RAPIER) {

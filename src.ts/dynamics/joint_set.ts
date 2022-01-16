@@ -1,11 +1,11 @@
-import {RawJointSet} from "../raw"
+import {RawImpulseJointSet} from "../raw"
 import {RigidBodySet} from "./rigid_body_set";
 import {
-    BallJoint,
+    SphericalJoint,
     FixedJoint,
     Joint,
     JointHandle,
-    JointParams,
+    JointData,
     JointType,
     PrismaticJoint,
     // #if DIM3
@@ -21,7 +21,7 @@ import {IslandManager} from "./island_manager";
  * once you are done using it (and all the joints it created).
  */
 export class JointSet {
-    raw: RawJointSet;
+    raw: RawImpulseJointSet;
 
     /**
      * Release the WASM memory occupied by this joint set.
@@ -31,8 +31,8 @@ export class JointSet {
         this.raw = undefined;
     }
 
-    constructor(raw?: RawJointSet) {
-        this.raw = raw || new RawJointSet();
+    constructor(raw?: RawImpulseJointSet) {
+        this.raw = raw || new RawImpulseJointSet();
     }
 
     /**
@@ -45,7 +45,7 @@ export class JointSet {
      */
     public createJoint(
         bodies: RigidBodySet,
-        desc: JointParams,
+        desc: JointData,
         parent1: number,
         parent2: number
     ): number {
@@ -95,7 +95,7 @@ export class JointSet {
         if (this.raw.contains(handle)) {
             switch (this.raw.jointType(handle)) {
                 case JointType.Ball:
-                    return new BallJoint(this.raw, handle);
+                    return new SphericalJoint(this.raw, handle);
                 case JointType.Prismatic:
                     return new PrismaticJoint(this.raw, handle);
                 case JointType.Fixed:

@@ -22,16 +22,6 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn jointErp(&self) -> f32 {
-        self.0.joint_erp
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn warmstartCoeff(&self) -> f32 {
-        self.0.warmstart_coeff
-    }
-
-    #[wasm_bindgen(getter)]
     pub fn allowedLinearError(&self) -> f32 {
         self.0.allowed_linear_error
     }
@@ -42,28 +32,18 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn allowedAngularError(&self) -> f32 {
-        self.0.allowed_angular_error
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn maxLinearCorrection(&self) -> f32 {
-        self.0.max_linear_correction
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn maxAngularCorrection(&self) -> f32 {
-        self.0.max_angular_correction
-    }
-
-    #[wasm_bindgen(getter)]
     pub fn maxVelocityIterations(&self) -> usize {
         self.0.max_velocity_iterations
     }
 
     #[wasm_bindgen(getter)]
-    pub fn maxPositionIterations(&self) -> usize {
-        self.0.max_position_iterations
+    pub fn maxVelocityFrictionIterations(&self) -> usize {
+        self.0.max_velocity_friction_iterations
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn maxStabilizationIterations(&self) -> usize {
+        self.0.max_stabilization_iterations
     }
 
     #[wasm_bindgen(getter)]
@@ -87,16 +67,6 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_jointErp(&mut self, value: f32) {
-        self.0.joint_erp = value
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_warmstartCoeff(&mut self, value: f32) {
-        self.0.warmstart_coeff = value
-    }
-
-    #[wasm_bindgen(setter)]
     pub fn set_allowedLinearError(&mut self, value: f32) {
         self.0.allowed_linear_error = value
     }
@@ -107,30 +77,9 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_allowedAngularError(&mut self, value: f32) {
-        self.0.allowed_angular_error = value
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_maxLinearCorrection(&mut self, value: f32) {
-        self.0.max_linear_correction = value
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_maxAngularCorrection(&mut self, value: f32) {
-        self.0.max_angular_correction = value
-    }
-
-    #[wasm_bindgen(setter)]
     pub fn set_maxVelocityIterations(&mut self, value: usize) {
         self.0.max_velocity_iterations = value
     }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_maxPositionIterations(&mut self, value: usize) {
-        self.0.max_position_iterations = value
-    }
-
     #[wasm_bindgen(setter)]
     pub fn set_minIslandSize(&mut self, value: usize) {
         self.0.min_island_size = value

@@ -24,8 +24,8 @@ export function initWorld(RAPIER, testbed) {
                 let parent = bodies[bodies.length - 1];
                 let anchor1 = new RAPIER.Vector2(0.0, 0.0);
                 let anchor2 = new RAPIER.Vector2(0.0, shift);
-                let jointParams = RAPIER.JointParams.ball(anchor1, anchor2);
-                world.createJoint(jointParams, parent, child);
+                let JointData = RAPIER.JointData.ball(anchor1, anchor2);
+                world.createJoint(JointData, parent, child);
             }
 
             // Horizontal joint.
@@ -34,8 +34,8 @@ export function initWorld(RAPIER, testbed) {
                 let parent = bodies[parentIndex];
                 let anchor1 = new RAPIER.Vector2(0.0, 0.0);
                 let anchor2 = new RAPIER.Vector2(-shift, 0.0);
-                let jointParams = RAPIER.JointParams.ball(anchor1, anchor2);
-                world.createJoint(jointParams, parent, child);
+                let JointData = RAPIER.JointData.ball(anchor1, anchor2);
+                world.createJoint(JointData, parent, child);
             }
 
             bodies.push(child);
