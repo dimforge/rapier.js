@@ -1,11 +1,12 @@
-use crate::dynamics::{RawIslandManager, RawJointParams, RawRigidBodySet};
-use rapier::dynamics::{Joint, JointSet};
+use crate::dynamics::{RawIslandManager, RawJointData, RawRigidBodySet};
+use rapier::dynamics::MultibodyJointSet;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub struct RawJointSet(pub(crate) JointSet);
+pub struct RawMultibodyJointSet(pub(crate) MultibodyJointSet);
 
-impl RawJointSet {
+/*
+impl RawMultibodyJointSet {
     pub(crate) fn map<T>(&self, handle: u32, f: impl FnOnce(&Joint) -> T) -> T {
         let (body, _) = self
             .0
@@ -22,18 +23,19 @@ impl RawJointSet {
         f(body)
     }
 }
+ */
 
 #[wasm_bindgen]
-impl RawJointSet {
+impl RawMultibodyJointSet {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        RawJointSet(JointSet::new())
+        RawMultibodyJointSet(MultibodyJointSet::new())
     }
 
     pub fn createJoint(
         &mut self,
         bodies: &mut RawRigidBodySet,
-        params: &RawJointParams,
+        params: &RawJointData,
         parent1: u32,
         parent2: u32,
     ) -> u32 {
@@ -43,8 +45,8 @@ impl RawJointSet {
 
         self.0
             .insert(parent1, parent2, params.0.clone())
-            .into_raw_parts()
-            .0
+            .map(|h| h.into_raw_parts().0)
+            .unwrap_or(u32::MAX)
     }
 
     pub fn remove(
@@ -54,13 +56,9 @@ impl RawJointSet {
         bodies: &mut RawRigidBodySet,
         wakeUp: bool,
     ) {
-        if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
+        if let Some((_, _, handle)) = self.0.get_unknown_gen(handle) {
             self.0.remove(handle, &mut islands.0, &mut bodies.0, wakeUp);
         }
-    }
-
-    pub fn len(&self) -> usize {
-        self.0.len()
     }
 
     pub fn contains(&self, handle: u32) -> bool {
@@ -73,7 +71,7 @@ impl RawJointSet {
     /// - `f(handle)`: the function to apply to the integer handle of each joint managed by this set. Called as `f(collider)`.
     pub fn forEachJointHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
-        for (handle, _) in self.0.iter() {
+        for (handle, _, _) in self.0.iter() {
             let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
         }
     }

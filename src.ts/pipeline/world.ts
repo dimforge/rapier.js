@@ -2,7 +2,7 @@ import {
     RawBroadPhase, RawCCDSolver, RawColliderSet,
     RawDeserializedWorld,
     RawIntegrationParameters, RawIslandManager,
-    RawJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
+    RawImpulseJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
     RawRigidBodySet, RawSerializationPipeline,
 } from "../raw";
 
@@ -20,7 +20,7 @@ import {
     CCDSolver,
     IntegrationParameters, IslandManager,
     Joint, JointHandle,
-    JointParams,
+    JointData,
     JointSet,
     RigidBody,
     RigidBodyDesc,
@@ -94,7 +94,7 @@ export class World {
         rawNarrowPhase?: RawNarrowPhase,
         rawBodies?: RawRigidBodySet,
         rawColliders?: RawColliderSet,
-        rawJoints?: RawJointSet,
+        rawJoints?: RawImpulseJointSet,
         rawCCDSolver?: RawCCDSolver,
         rawQueryPipeline?: RawQueryPipeline,
         rawPhysicsPipeline?: RawPhysicsPipeline,
@@ -276,7 +276,7 @@ export class World {
      * @param parent2 - The second rigid-body attached to this joint.
      */
     public createJoint(
-        params: JointParams,
+        params: JointData,
         parent1: RigidBody,
         parent2: RigidBody
     ): Joint {

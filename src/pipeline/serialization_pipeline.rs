@@ -1,8 +1,13 @@
-use crate::dynamics::{RawIntegrationParameters, RawIslandManager, RawJointSet, RawRigidBodySet};
+use crate::dynamics::{
+    RawImpulseJointSet, RawIntegrationParameters, RawIslandManager, RawMultibodyJointSet,
+    RawRigidBodySet,
+};
 use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
 use crate::math::RawVector;
 use js_sys::Uint8Array;
-use rapier::dynamics::{IntegrationParameters, IslandManager, JointSet, RigidBodySet};
+use rapier::dynamics::{
+    ImpulseJointSet, IntegrationParameters, IslandManager, MultibodyJointSet, RigidBodySet,
+};
 use rapier::geometry::{BroadPhase, ColliderSet, NarrowPhase};
 use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
@@ -16,7 +21,8 @@ struct SerializableWorld<'a> {
     narrow_phase: &'a NarrowPhase,
     bodies: &'a RigidBodySet,
     colliders: &'a ColliderSet,
-    joints: &'a JointSet,
+    impulse_joints: &'a ImpulseJointSet,
+    multibody_joints: &'a MultibodyJointSet,
 }
 
 #[derive(Deserialize)]
@@ -28,7 +34,8 @@ struct DeserializableWorld {
     narrow_phase: NarrowPhase,
     bodies: RigidBodySet,
     colliders: ColliderSet,
-    joints: JointSet,
+    impulse_joints: ImpulseJointSet,
+    multibody_joints: MultibodyJointSet,
 }
 
 #[wasm_bindgen]
@@ -40,7 +47,8 @@ pub struct RawDeserializedWorld {
     narrowPhase: Option<RawNarrowPhase>,
     bodies: Option<RawRigidBodySet>,
     colliders: Option<RawColliderSet>,
-    joints: Option<RawJointSet>,
+    impulse_joints: Option<RawImpulseJointSet>,
+    multibody_joints: Option<RawMultibodyJointSet>,
 }
 
 #[wasm_bindgen]
@@ -73,8 +81,12 @@ impl RawDeserializedWorld {
         self.colliders.take()
     }
 
-    pub fn takeJoints(&mut self) -> Option<RawJointSet> {
-        self.joints.take()
+    pub fn takeImpulseJoints(&mut self) -> Option<RawImpulseJointSet> {
+        self.impulse_joints.take()
+    }
+
+    pub fn takeMultibodyJoints(&mut self) -> Option<RawMultibodyJointSet> {
+        self.multibody_joints.take()
     }
 }
 
@@ -97,7 +109,8 @@ impl RawSerializationPipeline {
         narrowPhase: &RawNarrowPhase,
         bodies: &RawRigidBodySet,
         colliders: &RawColliderSet,
-        joints: &RawJointSet,
+        impulse_joints: &RawImpulseJointSet,
+        multibody_joints: &RawMultibodyJointSet,
     ) -> Option<Uint8Array> {
         let to_serialize = SerializableWorld {
             gravity: &gravity.0,
@@ -107,7 +120,8 @@ impl RawSerializationPipeline {
             narrow_phase: &narrowPhase.0,
             bodies: &bodies.0,
             colliders: &colliders.0,
-            joints: &joints.0,
+            impulse_joints: &impulse_joints.0,
+            multibody_joints: &multibody_joints.0,
         };
         let snap = bincode::serialize(&to_serialize).ok()?;
         Some(Uint8Array::from(&snap[..]))
@@ -124,7 +138,8 @@ impl RawSerializationPipeline {
             narrowPhase: Some(RawNarrowPhase(d.narrow_phase)),
             bodies: Some(RawRigidBodySet(d.bodies)),
             colliders: Some(RawColliderSet(d.colliders)),
-            joints: Some(RawJointSet(d.joints)),
+            impulse_joints: Some(RawImpulseJointSet(d.impulse_joints)),
+            multibody_joints: Some(RawMultibodyJointSet(d.multibody_joints)),
         })
     }
 }

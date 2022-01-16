@@ -33,7 +33,7 @@ function create_prismatic_joints(
         }
 
         z = new RAPIER.Vector3(0.0, 0.0, 1.0);
-        let prism = RAPIER.JointParams.prismatic(
+        let prism = RAPIER.JointData.prismatic(
             new RAPIER.Vector3(0.0, 0.0, 0.0),
             axis,
             z,
@@ -97,10 +97,10 @@ function create_revolute_joints(
         z = new RAPIER.Vector3(0.0, 0.0, 1.0);
 
         let revs = [
-            RAPIER.JointParams.revolute(o, z, new RAPIER.Vector3(0.0, 0.0, -shift), z),
-            RAPIER.JointParams.revolute(o, x, new RAPIER.Vector3(-shift, 0.0, 0.0), x),
-            RAPIER.JointParams.revolute(o, z, new RAPIER.Vector3(0.0, 0.0, -shift), z),
-            RAPIER.JointParams.revolute(o, x, new RAPIER.Vector3(shift, 0.0, 0.0), x),
+            RAPIER.JointData.revolute(o, z, new RAPIER.Vector3(0.0, 0.0, -shift), z),
+            RAPIER.JointData.revolute(o, x, new RAPIER.Vector3(-shift, 0.0, 0.0), x),
+            RAPIER.JointData.revolute(o, z, new RAPIER.Vector3(0.0, 0.0, -shift), z),
+            RAPIER.JointData.revolute(o, x, new RAPIER.Vector3(shift, 0.0, 0.0), x),
         ];
 
         world.createJoint(revs[0], currParent, parents[0]);
@@ -149,7 +149,7 @@ function create_fixed_joints(
             // Vertical joint.
             if (i > 0) {
                 let parent = parents[parents.length - 1];
-                let params = RAPIER.JointParams.fixed(
+                let params = RAPIER.JointData.fixed(
                     new RAPIER.Vector3(0.0, 0.0, 0.0),
                     new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
                     new RAPIER.Vector3(0.0, 0.0, -shift),
@@ -163,7 +163,7 @@ function create_fixed_joints(
             if (k > 0) {
                 let parent_index = parents.length - num;
                 let parent = parents[parent_index];
-                let params = RAPIER.JointParams.fixed(
+                let params = RAPIER.JointData.fixed(
                     new RAPIER.Vector3(0.0, 0.0, 0.0),
                     new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
                     new RAPIER.Vector3(-shift, 0.0, 0.0),
@@ -214,7 +214,7 @@ function create_ball_joints(
             if (i > 0) {
                 let parent =
                     parents[parents.length - 1];
-                let params = RAPIER.JointParams.ball(o, new RAPIER.Vector3(0.0, 0.0, -shift));
+                let params = RAPIER.JointData.ball(o, new RAPIER.Vector3(0.0, 0.0, -shift));
                 world.createJoint(params, parent, child);
             }
 
@@ -222,7 +222,7 @@ function create_ball_joints(
             if (k > 0) {
                 let parent_index = parents.length - num;
                 let parent = parents[parent_index];
-                let params = RAPIER.JointParams.ball(o, new RAPIER.Vector3(-shift, 0.0, 0.0));
+                let params = RAPIER.JointData.ball(o, new RAPIER.Vector3(-shift, 0.0, 0.0));
                 world.createJoint(params, parent, child);
             }
 

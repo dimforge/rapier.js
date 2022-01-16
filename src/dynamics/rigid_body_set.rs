@@ -1,4 +1,4 @@
-use crate::dynamics::{RawIslandManager, RawJointSet};
+use crate::dynamics::{RawImpulseJointSet, RawIslandManager, RawMultibodyJointSet};
 use crate::geometry::RawColliderSet;
 use crate::math::{RawRotation, RawVector};
 use rapier::dynamics::{MassProperties, RigidBody, RigidBodyBuilder, RigidBodySet, RigidBodyType};
@@ -163,11 +163,17 @@ impl RawRigidBodySet {
         handle: u32,
         islands: &mut RawIslandManager,
         colliders: &mut RawColliderSet,
-        joints: &mut RawJointSet,
+        joints: &mut RawImpulseJointSet,
+        articulations: &mut RawMultibodyJointSet,
     ) {
         if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
-            self.0
-                .remove(handle, &mut islands.0, &mut colliders.0, &mut joints.0);
+            self.0.remove(
+                handle,
+                &mut islands.0,
+                &mut colliders.0,
+                &mut joints.0,
+                &mut articulations.0,
+            );
         }
     }
 
