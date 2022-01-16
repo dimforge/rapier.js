@@ -101,7 +101,7 @@ export class RigidBodySet {
      * @param impulseJoints - The set of impulse joints that may contain joints attached to the removed rigid-body.
      * @param multibodyJoints - The set of multibody joints that may contain joints attached to the removed rigid-body.
      */
-    public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, impulseJoints: ImpulseJointSet, multibodyJoints) {
+    public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, impulseJoints: ImpulseJointSet, multibodyJoints: MultibodyJointSet) {
         this.raw.remove(handle, islands.raw, colliders.raw, impulseJoints.raw, multibodyJoints.raw)
     }
 
