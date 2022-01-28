@@ -402,7 +402,7 @@ impl RawColliderSet {
         self.map_mut(handle, |co| co.set_active_collision_types(types));
     }
 
-    pub fn coSetShape(&mut self, handle: u32, shape: RawShape) {
-        self.map_mut(handle, |co| co.set_shape(shape.0));
+    pub fn coSetShape(&mut self, handle: u32, shape: &RawShape) {
+        self.map_mut(handle, |co| co.set_shape(shape.0.clone()));
     }
 }
