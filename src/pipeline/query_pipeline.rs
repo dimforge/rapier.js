@@ -229,8 +229,8 @@ impl RawQueryPipeline {
 
     pub fn collidersWithAabbIntersectingAabb(
         &self,
-        aabbCenter: RawVector,
-        aabbHalfExtents: RawVector,
+        aabbCenter: &RawVector,
+        aabbHalfExtents: &RawVector,
         callback: &js_sys::Function,
     ) {
         let this = JsValue::null();
