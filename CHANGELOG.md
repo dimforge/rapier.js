@@ -1,3 +1,9 @@
+### 0.8.0-alpha.1 (2022-01-28)
+#### Fixed
+- Fix a crash when calling `collider.setShape`.
+- Fix a crash when calling `world.collidersWithAabbIntersectingAabb`.
+- Fix damping not being applied properly to some rigid-bodies.
+
 ### 0.8.0-alpha.0 (2022-01-16)
 This release updates to Rapier 0.12.0-alpha.0 which contains:
 - A **complete rewrite** of the joint and contact constraint solver.
