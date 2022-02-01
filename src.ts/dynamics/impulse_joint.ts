@@ -21,12 +21,12 @@ export type ImpulseJointHandle = number;
  * - `Spherical`: (3D only) A spherical joint that removes all relative linear degrees of freedom between the affected bodies.
  */
 export enum JointType {
-    Revolute,
-    Fixed,
-    Prismatic,
     // #if DIM3
-    Spherical,
+    Spherical = 0,
     // #endif
+    Fixed = 1,
+    Prismatic,
+    Revolute
 }
 
 export enum MotorModel {
