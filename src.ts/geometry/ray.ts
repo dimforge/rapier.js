@@ -1,6 +1,6 @@
-import {Vector, VectorOps} from "../math";
-import {RawRayColliderIntersection, RawRayColliderToi} from "../raw";
-import {ColliderHandle} from "./collider";
+import { Vector, VectorOps } from "../math";
+import { RawRayColliderIntersection, RawRayColliderToi, RawRayIntersection } from "../raw";
+import { ColliderHandle } from "./collider";
 
 /**
  * A ray. This is a directed half-line.
@@ -37,8 +37,42 @@ export class Ray {
     };
 }
 
+
 /**
  * The intersection between a ray and a collider.
+ */
+export class RayIntersection {
+    /**
+     * The time-of-impact of the ray with the collider.
+     *
+     * The hit point is obtained from the ray's origin and direction: `origin + dir * toi`.
+     */
+    toi: number
+    /**
+     * The normal of the collider at the hit point.
+     */
+    normal: Vector
+
+    constructor(toi: number, normal: Vector) {
+        this.toi = toi;
+        this.normal = normal;
+    }
+
+    public static fromRaw(raw: RawRayIntersection): RayIntersection {
+        if (!raw)
+            return null;
+
+        const result = new RayIntersection(
+            raw.toi(),
+            VectorOps.fromRaw(raw.normal())
+        );
+        raw.free();
+        return result;
+    }
+}
+
+/**
+ * The intersection between a ray and a collider (includes the collider handle).
  */
 export class RayColliderIntersection {
     /**

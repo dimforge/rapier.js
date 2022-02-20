@@ -1,6 +1,8 @@
-use crate::geometry::{RawColliderSet, RawShape, RawShapeType};
+use crate::geometry::{
+    RawColliderSet, RawPointProjection, RawRayIntersection, RawShape, RawShapeType,
+};
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::{ActiveCollisionTypes, ShapeType};
+use rapier::geometry::{ActiveCollisionTypes, Ray, ShapeType};
 use rapier::math::Point;
 use rapier::pipeline::{ActiveEvents, ActiveHooks};
 use wasm_bindgen::prelude::*;
@@ -345,6 +347,82 @@ impl RawColliderSet {
     /// The events enabled for this collider.
     pub fn coActiveEvents(&self, handle: u32) -> u32 {
         self.map(handle, |co| co.active_events().bits())
+    }
+
+    pub fn coContainsPoint(&self, handle: u32, point: &RawVector) -> bool {
+        self.map(handle, |co| {
+            co.shape().contains_point(co.position(), &point.0.into())
+        })
+    }
+
+    pub fn coProjectPoint(
+        &self,
+        handle: u32,
+        point: &RawVector,
+        solid: bool,
+    ) -> RawPointProjection {
+        self.map(handle, |co| {
+            RawPointProjection(
+                co.shape()
+                    .project_point(co.position(), &point.0.into(), solid),
+            )
+        })
+    }
+
+    pub fn coIntersectsRay(
+        &self,
+        handle: u32,
+        ray_orig: &RawVector,
+        ray_dir: &RawVector,
+        max_toi: f32,
+    ) -> bool {
+        self.map(handle, |co| {
+            co.shape().intersects_ray(
+                co.position(),
+                &Ray::new(ray_orig.0.into(), ray_dir.0),
+                max_toi,
+            )
+        })
+    }
+
+    pub fn coCastRay(
+        &self,
+        handle: u32,
+        ray_orig: &RawVector,
+        ray_dir: &RawVector,
+        max_toi: f32,
+        solid: bool,
+    ) -> f32 {
+        self.map(handle, |co| {
+            co.shape()
+                .cast_ray(
+                    co.position(),
+                    &Ray::new(ray_orig.0.into(), ray_dir.0.into()),
+                    max_toi,
+                    solid,
+                )
+                .unwrap_or(-1.0) // Negative value = no hit.
+        })
+    }
+
+    pub fn coCastRayAndGetNormal(
+        &self,
+        handle: u32,
+        ray_orig: &RawVector,
+        ray_dir: &RawVector,
+        max_toi: f32,
+        solid: bool,
+    ) -> Option<RawRayIntersection> {
+        self.map(handle, |co| {
+            co.shape()
+                .cast_ray_and_get_normal(
+                    co.position(),
+                    &Ray::new(ray_orig.0.into(), ray_dir.0.into()),
+                    max_toi,
+                    solid,
+                )
+                .map(|inter| RawRayIntersection(inter))
+        })
     }
 
     pub fn coSetSensor(&mut self, handle: u32, is_sensor: bool) {
