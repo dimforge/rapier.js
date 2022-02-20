@@ -9,11 +9,21 @@ use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+#[cfg(feature = "dim2")]
 pub enum RawJointType {
-    Spherical,
+    Revolute,
     Fixed,
     Prismatic,
+    Generic,
+}
+
+#[wasm_bindgen]
+#[cfg(feature = "dim3")]
+pub enum RawJointType {
     Revolute,
+    Fixed,
+    Prismatic,
+    Spherical,
     Generic,
 }
 
