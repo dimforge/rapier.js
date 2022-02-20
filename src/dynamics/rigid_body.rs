@@ -255,7 +255,7 @@ impl RawRigidBodySet {
     }
 
     pub fn rbLockRotations(&mut self, handle: u32, locked: bool, wake_up: bool) {
-        self.map_mut(handle, |rb| rb.lock_translations(locked, wake_up))
+        self.map_mut(handle, |rb| rb.lock_rotations(locked, wake_up))
     }
 
     #[cfg(feature = "dim3")]
