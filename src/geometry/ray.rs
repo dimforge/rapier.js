@@ -3,6 +3,20 @@ use rapier::geometry::{ColliderHandle, RayIntersection};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+pub struct RawRayIntersection(pub(crate) RayIntersection);
+
+#[wasm_bindgen]
+impl RawRayIntersection {
+    pub fn normal(&self) -> RawVector {
+        self.0.normal.into()
+    }
+
+    pub fn toi(&self) -> f32 {
+        self.0.toi
+    }
+}
+
+#[wasm_bindgen]
 pub struct RawRayColliderIntersection {
     pub(crate) handle: ColliderHandle,
     pub(crate) inter: RayIntersection,

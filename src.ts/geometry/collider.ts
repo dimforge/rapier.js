@@ -1,8 +1,8 @@
-import {RawColliderSet} from "../raw"
-import {Rotation, RotationOps, Vector, VectorOps} from '../math';
-import {CoefficientCombineRule, RigidBodyHandle} from '../dynamics';
-import {ActiveHooks, ActiveEvents} from "../pipeline";
-import {InteractionGroups} from './interaction_groups';
+import { RawColliderSet } from "../raw"
+import { Rotation, RotationOps, Vector, VectorOps } from '../math';
+import { CoefficientCombineRule, RigidBodyHandle } from '../dynamics';
+import { ActiveHooks, ActiveEvents } from "../pipeline";
+import { InteractionGroups } from './interaction_groups';
 import {
     Shape,
     Cuboid, Ball, ShapeType, Capsule, TriMesh, Polyline, Heightfield,
@@ -15,6 +15,7 @@ import {
     ConvexPolyhedron, RoundConvexPolyhedron,
     // #endif
 } from './shape';
+import { PointProjection, Ray, RayIntersection } from ".";
 
 /// Flags affecting whether or not collision-detection happens between two colliders
 /// depending on the type of rigid-bodies they are attached to.
@@ -27,7 +28,7 @@ export enum ActiveCollisionTypes {
     DYNAMIC_KINEMATIC = 0b0000_0000_0000_1100,
     /// Enable collision-detection between a collider attached to a dynamic body
     /// and another collider attached to a static body (or not attached to any body).
-    DYNAMIC_STATIC  = 0b0000_0000_0000_0010,
+    DYNAMIC_STATIC = 0b0000_0000_0000_0010,
     /// Enable collision-detection between a collider attached to a kinematic body
     /// and another collider attached to a kinematic body.
     KINEMATIC_KINEMATIC = 0b1100_1100_0000_0000,
@@ -45,7 +46,7 @@ export enum ActiveCollisionTypes {
     DEFAULT = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_STATIC,
     /// Enable collisions between any kind of rigid-bodies (including between two non-dynamic bodies).
     ALL = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_STATIC | KINEMATIC_KINEMATIC | KINEMATIC_STATIC |
-          KINEMATIC_KINEMATIC,
+    KINEMATIC_KINEMATIC,
 }
 
 /**
@@ -447,6 +448,110 @@ export class Collider {
     public solverGroups(): InteractionGroups {
         return this.rawSet.coSolverGroups(this.handle);
     }
+
+    /**
+     * Tests if this collider contains a point.
+     *
+     * @param point - The point to test.
+     */
+    public containsPoint(
+        point: Vector,
+    ): boolean {
+        let rawPoint = VectorOps.intoRaw(point);
+        let result = this.rawSet.coContainsPoint(
+            this.handle,
+            rawPoint,
+        );
+
+        rawPoint.free();
+
+        return result;
+    }
+
+    /**
+     * Find the projection of a point on this collider.
+     *
+     * @param point - The point to project.
+     * @param solid - If this is set to `true` then the collider shapes are considered to
+     *   be plain (if the point is located inside of a plain shape, its projection is the point
+     *   itself). If it is set to `false` the collider shapes are considered to be hollow
+     *   (if the point is located inside of an hollow shape, it is projected on the shape's
+     *   boundary).
+     */
+    public projectPoint(
+        point: Vector,
+        solid: boolean,
+    ): PointProjection | null {
+        let rawPoint = VectorOps.intoRaw(point);
+        let result = PointProjection.fromRaw(this.rawSet.coProjectPoint(
+            this.handle,
+            rawPoint,
+            solid,
+        ));
+
+        rawPoint.free();
+
+        return result;
+    }
+
+
+    /**
+     * Tests if this collider intersects the given ray.
+     *
+     * @param ray - The ray to cast.
+     * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
+     *   limits the length of the ray to `ray.dir.norm() * maxToi`.
+     */
+    public intersectsRay(
+        ray: Ray,
+        maxToi: number,
+    ): boolean {
+        let rawOrig = VectorOps.intoRaw(ray.origin);
+        let rawDir = VectorOps.intoRaw(ray.dir);
+        let result = this.rawSet.coIntersectsRay(
+            this.handle,
+            rawOrig,
+            rawDir,
+            maxToi,
+        );
+
+        rawOrig.free();
+        rawDir.free();
+
+        return result;
+    }
+
+    /**
+     * Find the closest intersection between a ray and this collider.
+     *
+     * This also computes the normal at the hit point.
+     * @param ray - The ray to cast.
+     * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
+     *   limits the length of the ray to `ray.dir.norm() * maxToi`.
+     * @param solid - If `false` then the ray will attempt to hit the boundary of a shape, even if its
+     *   origin already lies inside of a shape. In other terms, `true` implies that all shapes are plain,
+     *   whereas `false` implies that all shapes are hollow for this ray-cast.
+     */
+    public castRayAndGetNormal(
+        ray: Ray,
+        maxToi: number,
+        solid: boolean,
+    ): RayIntersection | null {
+        let rawOrig = VectorOps.intoRaw(ray.origin);
+        let rawDir = VectorOps.intoRaw(ray.dir);
+        let result = RayIntersection.fromRaw(this.rawSet.coCastRayAndGetNormal(
+            this.handle,
+            rawOrig,
+            rawDir,
+            maxToi,
+            solid,
+        ));
+
+        rawOrig.free();
+        rawDir.free();
+
+        return result;
+    }
 }
 
 
@@ -819,7 +924,7 @@ export class ColliderDesc {
         if (typeof x != "number" || typeof y != "number")
             throw TypeError("The translation components must be numbers.");
 
-        this.translation = {x: x, y: y};
+        this.translation = { x: x, y: y };
         return this;
     }
 
@@ -833,7 +938,7 @@ export class ColliderDesc {
         if (typeof x != "number" || typeof y != "number" || typeof z != "number")
             throw TypeError("The translation components must be numbers.");
 
-        this.translation = {x: x, y: y, z: z};
+        this.translation = { x: x, y: y, z: z };
         return this;
     }
 
