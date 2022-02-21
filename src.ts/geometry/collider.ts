@@ -15,7 +15,8 @@ import {
     ConvexPolyhedron, RoundConvexPolyhedron,
     // #endif
 } from './shape';
-import { PointProjection, Ray, RayIntersection } from ".";
+import { Ray, RayIntersection } from "./ray";
+import { PointProjection } from "./point";
 
 /// Flags affecting whether or not collision-detection happens between two colliders
 /// depending on the type of rigid-bodies they are attached to.
@@ -513,6 +514,39 @@ export class Collider {
             rawOrig,
             rawDir,
             maxToi,
+        );
+
+        rawOrig.free();
+        rawDir.free();
+
+        return result;
+    }
+
+    /*
+     * Find the closest intersection between a ray and this collider.
+     *
+     * This also computes the normal at the hit point.
+     * @param ray - The ray to cast.
+     * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
+     *   limits the length of the ray to `ray.dir.norm() * maxToi`.
+     * @param solid - If `false` then the ray will attempt to hit the boundary of a shape, even if its
+     *   origin already lies inside of a shape. In other terms, `true` implies that all shapes are plain,
+     *   whereas `false` implies that all shapes are hollow for this ray-cast.
+     * @returns The time-of-impact between this collider and the ray, or `-1` if there is no intersection.
+     */
+    public castRay(
+        ray: Ray,
+        maxToi: number,
+        solid: boolean,
+    ): number {
+        let rawOrig = VectorOps.intoRaw(ray.origin);
+        let rawDir = VectorOps.intoRaw(ray.dir);
+        let result = this.rawSet.coCastRay(
+            this.handle,
+            rawOrig,
+            rawDir,
+            maxToi,
+            solid,
         );
 
         rawOrig.free();
