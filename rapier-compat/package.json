@@ -3,8 +3,8 @@
   "description": "Build scripts for compatibility package with inlined webassembly as base64.",
   "private": true,
   "scripts": {
-    "build-rust-2d": "cd ../rapier2d ; wasm-pack build --target web",
-    "build-rust-3d": "cd ../rapier3d ; wasm-pack build --target web",
+    "build-rust-2d": "cd ../rapier2d && wasm-pack build --target web",
+    "build-rust-3d": "cd ../rapier3d && wasm-pack build --target web",
     "build-rust": "npm run build-rust-2d && npm run build-rust-3d",
     "build-genjs": "sh ./gen_src.sh",
     "build-js": "rollup --config rollup.config.js",
