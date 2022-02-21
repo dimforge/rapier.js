@@ -7,15 +7,15 @@ codegen-units = 1
 #lto = true
 
 [patch.crates-io]
-#rapier2d = { path = "../rapier/crates/rapier2d" }
-#rapier3d = { path = "../rapier/crates/rapier3d" }
+# rapier2d = { path = "../rapier/crates/rapier2d" }
+# rapier3d = { path = "../rapier/crates/rapier3d" }
 #parry2d = { path = "../parry/crates/parry2d" }
 #parry3d = { path = "../parry/crates/parry3d" }
 #nalgebra = { path = "../nalgebra" }
 #simba = { path = "../simba" }
 
 #nalgebra = { git = "https://github.com/dimforge/nalgebra", branch = "dev" }
-rapier2d = { git = "https://github.com/dimforge/rapier", rev = "8e824929d5e4a8dca98472652bdf137e479abaad" }
-rapier3d = { git = "https://github.com/dimforge/rapier", rev = "8e824929d5e4a8dca98472652bdf137e479abaad" }
+rapier2d = { git = "https://github.com/dimforge/rapier", rev = "a3190846b7fb5214ccd4a12a2f5e8150e323df12" }
+rapier3d = { git = "https://github.com/dimforge/rapier", rev = "a3190846b7fb5214ccd4a12a2f5e8150e323df12" }
 #parry2d = { git = "https://github.com/dimforge/parry" }
 #parry3d = { git = "https://github.com/dimforge/parry" }
