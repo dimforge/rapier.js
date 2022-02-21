@@ -616,6 +616,22 @@ export class RigidBody {
         rawImpulse.free();
         rawPoint.free();
     }
+
+    /**
+     * An arbitrary user-defined 32-bit integer
+     */
+    public get userData(): number {
+        return this.rawSet.rbUserData(this.handle);
+    }
+
+    /**
+     * Sets the user-defined 32-bit integer of this rigid-body.
+     * 
+     * @param userData - The user-defined 32-bit integer to set.
+     */
+    public set userData(value: number) {
+        this.rawSet.rbSetUserData(this.handle, value);
+    }
 }
 
 export class RigidBodyDesc {

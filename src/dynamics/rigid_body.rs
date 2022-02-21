@@ -470,4 +470,19 @@ impl RawRigidBodySet {
             rb.apply_impulse_at_point(impulse.0, point.0.into(), wakeUp);
         })
     }
+
+    /// An arbitrary user-defined 32-bit integer
+    pub fn rbUserData(&self, handle: u32) -> u32 {
+        self.map(handle, |rb| rb.user_data as u32)
+    }
+
+    /// Sets the user-defined 32-bit integer of this rigid-body.
+    ///
+    /// # Parameters
+    /// - `data`: an arbitrary user-defined 32-bit integer.
+    pub fn rbSetUserData(&mut self, handle: u32, data: u32) {
+        self.map_mut(handle, |rb| {
+            rb.user_data = data as u128;
+        })
+    }
 }
