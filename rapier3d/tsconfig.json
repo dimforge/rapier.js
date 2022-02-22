@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "outDir": "./pkg",
-    "module": "es2015",
-    "target": "es5",
+    "module": "es6",
+    "target": "es6",
     "lib": [
-      "es5"
+      "es6"
     ],
     "moduleResolution": "node",
     "sourceMap": true,

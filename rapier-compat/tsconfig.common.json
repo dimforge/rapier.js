@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "module": "es2015",
-    "target": "es5",
+    "module": "ES6",
+    "target": "es6",
     "noEmitOnError": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictFunctionTypes": true,
     "lib": [
-      "es5",
+      "es6",
       "DOM"
     ],
     "moduleResolution": "node",
