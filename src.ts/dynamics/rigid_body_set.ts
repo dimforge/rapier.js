@@ -14,17 +14,21 @@ import {IslandManager} from "./island_manager";
  */
 export class RigidBodySet {
     raw: RawRigidBodySet;
+    userDataSet: Map<RigidBodyHandle, unknown>;
 
     /**
      * Release the WASM memory occupied by this rigid-body set.
      */
     public free() {
         this.raw.free();
+        this.userDataSet.clear();
         this.raw = undefined;
+        this.userDataSet = undefined;
     }
 
     constructor(raw?: RawRigidBodySet) {
         this.raw = raw || new RawRigidBodySet();
+        this.userDataSet = new Map<RigidBodyHandle, unknown>();
     }
 
     /**
@@ -77,6 +81,9 @@ export class RigidBodySet {
             desc.dominanceGroup,
         );
 
+        if (desc.userData !== undefined)
+            this.userDataSet.set(handle, desc.userData);
+
         rawTra.free();
         rawRot.free();
         rawLv.free();
@@ -103,6 +110,7 @@ export class RigidBodySet {
      */
     public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, impulseJoints: ImpulseJointSet, multibodyJoints: MultibodyJointSet) {
         this.raw.remove(handle, islands.raw, colliders.raw, impulseJoints.raw, multibodyJoints.raw)
+        this.userDataSet.delete(handle);
     }
 
     /**
@@ -125,13 +133,11 @@ export class RigidBodySet {
      * Gets the rigid-body with the given handle.
      *
      * @param handle - The handle of the rigid-body to retrieve.
+     * @param checkExists - In some cases you might be sure that the body is in the list, so ignore (false) the check for better performance. default true.
      */
-    public get(handle: RigidBodyHandle): RigidBody {
-        if (this.raw.contains(handle)) {
-            return new RigidBody(this.raw, handle);
-        } else {
-            return null;
-        }
+    public get(handle: RigidBodyHandle, checkExists?: boolean): RigidBody {
+        if (checkExists !== false && !this.raw.contains(handle)) return null;
+        return new RigidBody(this, handle);
     }
 
     /**
@@ -141,8 +147,8 @@ export class RigidBodySet {
      */
     public forEachRigidBody(f: (body: RigidBody) => void) {
         this.forEachRigidBodyHandle((handle) => {
-            f(new RigidBody(this.raw, handle))
-        })
+            f(this.get(handle, false));
+        });
     }
 
     /**
@@ -163,7 +169,7 @@ export class RigidBodySet {
      */
     public forEachActiveRigidBody(islands: IslandManager, f: (body: RigidBody) => void) {
         islands.forEachActiveRigidBodyHandle((handle) => {
-            f(new RigidBody(this.raw, handle))
-        })
+            f(this.get(handle, false));
+        });
     }
 }
