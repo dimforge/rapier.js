@@ -188,16 +188,30 @@ impl RawColliderSet {
         })
     }
 
-    /// The radius of the round edges of this collider if it is a round cylinder.
+    /// The radius of the round edges of this collider.
     pub fn coRoundRadius(&self, handle: u32) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
+            ShapeType::RoundCuboid => co.shape().as_round_cuboid().map(|b| b.border_radius),
+            ShapeType::RoundTriangle => co.shape().as_round_triangle().map(|b| b.border_radius),
             #[cfg(feature = "dim3")]
             ShapeType::RoundCylinder => co.shape().as_round_cylinder().map(|b| b.border_radius),
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundCone => co.shape().as_round_cone().map(|b| b.border_radius),
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundConvexPolyhedron => co
+                .shape()
+                .as_round_convex_polyhedron()
+                .map(|b| b.border_radius),
+            #[cfg(feature = "dim2")]
+            ShapeType::RoundConvexPolygon => co
+                .shape()
+                .as_round_convex_polygon()
+                .map(|b| b.border_radius),
             _ => None,
         })
     }
 
-    /// The vertices of this triangle mesh, polyline, convex polyhedron, or convex polyhedron, if it is one.
+    /// The vertices of this triangle mesh, polyline, convex polyhedron, segment, triangle or convex polyhedron, if it is one.
     pub fn coVertices(&self, handle: u32) -> Option<Vec<f32>> {
         let flatten =
             |vertices: &[Point<f32>]| vertices.iter().flat_map(|p| p.iter()).copied().collect();
@@ -222,6 +236,12 @@ impl RawColliderSet {
                 .shape()
                 .as_round_convex_polygon()
                 .map(|p| flatten(p.base_shape.points())),
+            ShapeType::Segment => co.shape().as_segment().map(|s| flatten(&[s.a, s.b])),
+            ShapeType::RoundTriangle => co
+                .shape()
+                .as_round_triangle()
+                .map(|t| flatten(&[t.base_shape.a, t.base_shape.b, t.base_shape.c])),
+            ShapeType::Triangle => co.shape().as_triangle().map(|t| flatten(&[t.a, t.b, t.c])),
             _ => None,
         })
     }
