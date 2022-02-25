@@ -1,10 +1,11 @@
 use crate::geometry::{
-    RawColliderSet, RawPointProjection, RawRayIntersection, RawShape, RawShapeType,
+    RawColliderSet, RawPointProjection, RawRayIntersection, RawShapeTOI, RawShapeColliderTOI, RawShape, RawShapeType,
 };
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::{ActiveCollisionTypes, Ray, ShapeType};
-use rapier::math::Point;
+use rapier::geometry::{ActiveCollisionTypes, Ray, ShapeType };
+use rapier::math::{Isometry, Point};
 use rapier::pipeline::{ActiveEvents, ActiveHooks};
+use rapier::parry::query;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -370,6 +371,68 @@ impl RawColliderSet {
     pub fn coContainsPoint(&self, handle: u32, point: &RawVector) -> bool {
         self.map(handle, |co| {
             co.shape().contains_point(co.position(), &point.0.into())
+        })
+    }
+
+    pub fn coCastShape(
+        &self,
+        handle: u32,
+        shapeVel: &RawVector,
+        shape2: &RawShape,
+        shape2Pos: &RawVector,
+        shape2Rot: &RawRotation,
+        shape2Vel: &RawVector,
+        max_toi: f32,
+    ) -> Option<RawShapeTOI> {
+        let pos2 = Isometry::from_parts(shape2Pos.0.into(), shape2Rot.0);
+        self.map(handle, |co| {
+            query::time_of_impact(
+                co.position(),
+                &shapeVel.0,
+                co.shape(),
+                &pos2,
+                &shape2Vel.0,
+                &*shape2.0,
+                max_toi,
+            )
+            .unwrap_or(None)
+            .map_or(None, |toi| {
+                Some(RawShapeTOI {
+                    toi
+                })
+            })
+        })
+    }
+
+    pub fn coCastCollider(
+        &self,
+        handle: u32,
+        shapeVel: &RawVector,
+        collider2Handle: u32,
+        collider2ShapeVel: &RawVector,
+        max_toi: f32,
+    ) -> Option<RawShapeColliderTOI> {
+        let (co2, co2Handle) = self.0.get_unknown_gen(collider2Handle).expect(
+            "Invalid Collider reference. It may have been removed from the physics World.",
+        );
+
+        self.map(handle, |co| {
+            query::time_of_impact(
+                co.position(),
+                &shapeVel.0,
+                co.shape(),
+                co2.position(),
+                &collider2ShapeVel.0,
+                co2.shape(),
+                max_toi,
+            )
+            .unwrap_or(None)
+            .map_or(None, |toi| {
+                Some(RawShapeColliderTOI {
+                    handle: co2Handle,
+                    toi
+                })
+            })
         })
     }
 
