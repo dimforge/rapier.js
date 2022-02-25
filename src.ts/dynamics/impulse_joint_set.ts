@@ -117,7 +117,7 @@ export class ImpulseJointSet {
      */
     public forEachJoint(f: (handle: ImpulseJoint) => void) {
         this.raw.forEachJointHandle((handle: number) => {
-            f(new ImpulseJoint(this.raw, handle))
+            f(this.get(handle));
         });
     }
 
