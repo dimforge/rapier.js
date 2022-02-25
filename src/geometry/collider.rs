@@ -1,11 +1,12 @@
 use crate::geometry::{
-    RawColliderSet, RawPointProjection, RawRayIntersection, RawShapeTOI, RawShapeColliderTOI, RawShape, RawShapeType,
+    RawColliderSet, RawPointProjection, RawRayIntersection, RawShape, RawShapeColliderTOI,
+    RawShapeTOI, RawShapeType,
 };
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::{ActiveCollisionTypes, Ray, ShapeType };
+use rapier::geometry::{ActiveCollisionTypes, Ray, ShapeType};
 use rapier::math::{Isometry, Point};
-use rapier::pipeline::{ActiveEvents, ActiveHooks};
 use rapier::parry::query;
+use rapier::pipeline::{ActiveEvents, ActiveHooks};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -396,11 +397,7 @@ impl RawColliderSet {
                 max_toi,
             )
             .unwrap_or(None)
-            .map_or(None, |toi| {
-                Some(RawShapeTOI {
-                    toi
-                })
-            })
+            .map_or(None, |toi| Some(RawShapeTOI { toi }))
         })
     }
 
@@ -412,9 +409,10 @@ impl RawColliderSet {
         collider2ShapeVel: &RawVector,
         max_toi: f32,
     ) -> Option<RawShapeColliderTOI> {
-        let (co2, co2Handle) = self.0.get_unknown_gen(collider2Handle).expect(
-            "Invalid Collider reference. It may have been removed from the physics World.",
-        );
+        let (co2, co2Handle) = self
+            .0
+            .get_unknown_gen(collider2Handle)
+            .expect("Invalid Collider reference. It may have been removed from the physics World.");
 
         self.map(handle, |co| {
             query::time_of_impact(
@@ -430,7 +428,7 @@ impl RawColliderSet {
             .map_or(None, |toi| {
                 Some(RawShapeColliderTOI {
                     handle: co2Handle,
-                    toi
+                    toi,
                 })
             })
         })
