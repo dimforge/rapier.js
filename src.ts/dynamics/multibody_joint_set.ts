@@ -118,7 +118,7 @@ export class MultibodyJointSet {
      */
     public forEachJoint(f: (handle: MultibodyJoint) => void) {
         this.raw.forEachJointHandle((handle: number) => {
-            f(new MultibodyJoint(this.raw, handle))
+            f(this.get(handle));
         });
     }
 
