@@ -1,11 +1,12 @@
 use crate::dynamics::{RawIslandManager, RawRigidBodySet};
 use crate::geometry::{
     RawColliderSet, RawPointColliderProjection, RawRayColliderIntersection, RawRayColliderToi,
-    RawShape, RawShapeColliderTOI,
+    RawShape, RawShapeColliderTOI, RawShapeTOI,
 };
 use crate::math::{RawRotation, RawVector};
 use rapier::geometry::{ColliderHandle, Ray, AABB};
 use rapier::math::{Isometry, Point};
+use rapier::parry::query;
 use rapier::pipeline::QueryPipeline;
 use wasm_bindgen::prelude::*;
 
@@ -173,6 +174,34 @@ impl RawQueryPipeline {
     //     groups: InteractionGroups,
     // ) -> Option<(ColliderHandle, PointProjection, FeatureId)> {
     // }
+
+    pub fn sweepBetween(
+        &self,
+        shape1: &RawShape,
+        shapePos1: &RawVector,
+        shapeRot1: &RawRotation,
+        shapeVel1: &RawVector,
+        shape2: &RawShape,
+        shapePos2: &RawVector,
+        shapeRot2: &RawRotation,
+        shapeVel2: &RawVector,
+        maxToi: f32,
+    ) -> Option<RawShapeTOI> {
+        let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
+        let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
+
+        query::time_of_impact(
+            &pos1,
+            &shapeVel1.0,
+            &*shape1.0,
+            &pos2,
+            &shapeVel2.0,
+            &*shape2.0,
+            maxToi,
+        )
+        .unwrap_or(None)
+        .map_or(None, |toi| Some(RawShapeTOI { toi }))
+    }
 
     pub fn castShape(
         &self,
