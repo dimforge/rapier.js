@@ -5,7 +5,7 @@ import {
     InteractionGroups, PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi, Shape, ShapeColliderTOI
+    RayColliderToi, Shape, ShapeColliderTOI, ShapeTOI
 } from "../geometry";
 import {IslandManager, RigidBodySet} from "../dynamics";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
@@ -250,6 +250,52 @@ export class QueryPipeline {
         );
 
         rawPoint.free();
+    }
+
+    public sweepBetween(
+        shape1: Shape,
+        shapePos1: Vector,
+        shapeRot1: Rotation,
+        shapeVel1: Vector,
+        shape2: Shape,
+        shapePos2: Vector,
+        shapeRot2: Rotation,
+        shapeVel2: Vector,
+        maxToi: number
+    ): ShapeTOI | null {
+        let rawPos1 = VectorOps.intoRaw(shapePos1);
+        let rawRot1 = RotationOps.intoRaw(shapeRot1);
+        let rawVel1 = VectorOps.intoRaw(shapeVel1);
+        let rawPos2 = VectorOps.intoRaw(shapePos2);
+        let rawRot2 = RotationOps.intoRaw(shapeRot2);
+        let rawVel2 = VectorOps.intoRaw(shapeVel2);
+
+        let rawShape1 = shape1.intoRaw();
+        let rawShape2 = shape2.intoRaw();
+
+        let result = ShapeTOI.fromRaw(this.raw.sweepBetween(
+            rawShape1,
+            rawPos1,
+            rawRot1,
+            rawVel1,
+            rawShape2,
+            rawPos2,
+            rawRot2,
+            rawVel2,
+            maxToi
+        ));
+
+        rawPos1.free();
+        rawRot1.free();
+        rawVel1.free();
+        rawPos2.free();
+        rawRot2.free();
+        rawVel2.free();
+
+        rawShape1.free();
+        rawShape2.free();
+
+        return result;
     }
 
     /**
