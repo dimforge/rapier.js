@@ -203,6 +203,21 @@ impl RawQueryPipeline {
         .map_or(None, |toi| Some(RawShapeTOI { toi }))
     }
 
+    pub fn intersectsBetween(
+        &self,
+        shape1: &RawShape,
+        shapePos1: &RawVector,
+        shapeRot1: &RawRotation,
+        shape2: &RawShape,
+        shapePos2: &RawVector,
+        shapeRot2: &RawRotation,
+    ) -> bool {
+        let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
+        let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
+
+        query::intersection_test(&pos1, &*shape1.0, &pos2, &*shape2.0).unwrap()
+    }
+
     pub fn castShape(
         &self,
         colliders: &RawColliderSet,
