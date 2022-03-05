@@ -298,6 +298,42 @@ export class QueryPipeline {
         return result;
     }
 
+    public intersectsBetween(
+        shape1: Shape,
+        shapePos1: Vector,
+        shapeRot1: Rotation,
+        shape2: Shape,
+        shapePos2: Vector,
+        shapeRot2: Rotation
+    ): boolean {
+        let rawPos1 = VectorOps.intoRaw(shapePos1);
+        let rawRot1 = RotationOps.intoRaw(shapeRot1);
+        let rawPos2 = VectorOps.intoRaw(shapePos2);
+        let rawRot2 = RotationOps.intoRaw(shapeRot2);
+
+        let rawShape1 = shape1.intoRaw();
+        let rawShape2 = shape2.intoRaw();
+
+        let result = this.raw.intersectsBetween(
+            rawShape1,
+            rawPos1,
+            rawRot1,
+            rawShape2,
+            rawPos2,
+            rawRot2
+        );
+
+        rawPos1.free();
+        rawRot1.free();
+        rawPos2.free();
+        rawRot2.free();
+
+        rawShape1.free();
+        rawShape2.free();
+
+        return result;
+    }
+
     /**
      * Casts a shape at a constant linear velocity and retrieve the first collider it hits.
      * This is similar to ray-casting except that we are casting a whole shape instead of
