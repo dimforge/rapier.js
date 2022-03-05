@@ -300,9 +300,9 @@ impl RawColliderSet {
     }
 
     /// The unique integer identifier of the collider this collider is attached to.
-    pub fn coParent(&self, handle: u32) -> u32 {
+    pub fn coParent(&self, handle: u32) -> Option<u32> {
         self.map(handle, |co| {
-            co.parent().map(|p| p.into_raw_parts().0).unwrap_or(0)
+            co.parent().map(|p| p.into_raw_parts().0)
         })
     }
 

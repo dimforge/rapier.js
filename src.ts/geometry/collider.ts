@@ -411,7 +411,7 @@ export class Collider {
     /**
      * The unique integer identifier of the rigid-body this collider is attached to.
      */
-    public parent(): RigidBodyHandle {
+    public parent(): RigidBodyHandle | undefined {
         return this.rawSet.coParent(this.handle);
     }
 
