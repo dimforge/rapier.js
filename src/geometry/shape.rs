@@ -1,10 +1,12 @@
-use crate::math::RawVector;
+use crate::geometry::RawShapeTOI;
+use crate::math::{RawRotation, RawVector};
 #[cfg(feature = "dim3")]
 use na::DMatrix;
 #[cfg(feature = "dim2")]
 use na::DVector;
 use rapier::geometry::SharedShape;
-use rapier::math::{Point, Vector, DIM};
+use rapier::math::{Isometry, Point, Vector, DIM};
+use rapier::parry::query;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -194,5 +196,47 @@ impl RawShape {
         let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
         let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
         SharedShape::round_convex_mesh(vertices, &indices, borderRadius).map(|s| Self(s))
+    }
+
+    pub fn castShape(
+        &self,
+        shapePos1: &RawVector,
+        shapeRot1: &RawRotation,
+        shapeVel1: &RawVector,
+        shape2: &RawShape,
+        shapePos2: &RawVector,
+        shapeRot2: &RawRotation,
+        shapeVel2: &RawVector,
+        maxToi: f32,
+    ) -> Option<RawShapeTOI> {
+        let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
+        let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
+
+        query::time_of_impact(
+            &pos1,
+            &shapeVel1.0,
+            &*self.0,
+            &pos2,
+            &shapeVel2.0,
+            &*shape2.0,
+            maxToi,
+        )
+        .ok()
+        .flatten()
+        .map(|toi| RawShapeTOI { toi })
+    }
+
+    pub fn intersectsShape(
+        &self,
+        shapePos1: &RawVector,
+        shapeRot1: &RawRotation,
+        shape2: &RawShape,
+        shapePos2: &RawVector,
+        shapeRot2: &RawRotation,
+    ) -> bool {
+        let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
+        let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
+
+        query::intersection_test(&pos1, &*self.0, &pos2, &*shape2.0).unwrap_or(false)
     }
 }

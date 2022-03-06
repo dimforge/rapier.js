@@ -1,4 +1,4 @@
-import {RawQueryPipeline, RawRayColliderIntersection} from "../raw";
+import { RawQueryPipeline, RawRayColliderIntersection } from "../raw";
 import {
     ColliderHandle,
     ColliderSet,
@@ -7,8 +7,8 @@ import {
     RayColliderIntersection,
     RayColliderToi, Shape, ShapeColliderTOI, ShapeTOI
 } from "../geometry";
-import {IslandManager, RigidBodySet} from "../dynamics";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
+import { IslandManager, RigidBodySet } from "../dynamics";
+import { Rotation, RotationOps, Vector, VectorOps } from "../math";
 
 /**
  * A pipeline for performing queries on all the colliders of a scene.
@@ -168,10 +168,10 @@ export class QueryPipeline {
      *   hit the colliders with collision groups compatible with the ray's group.
      */
     public intersectionWithShape(
-        colliders: &ColliderSet,
-        shapePos: &Vector,
-        shapeRot: &Rotation,
-        shape: &Shape,
+        colliders: ColliderSet,
+        shapePos: Vector,
+        shapeRot: Rotation,
+        shape: Shape,
         groups: InteractionGroups,
     ): ColliderHandle | null {
         let rawPos = VectorOps.intoRaw(shapePos);
@@ -250,88 +250,6 @@ export class QueryPipeline {
         );
 
         rawPoint.free();
-    }
-
-    public sweepBetween(
-        shape1: Shape,
-        shapePos1: Vector,
-        shapeRot1: Rotation,
-        shapeVel1: Vector,
-        shape2: Shape,
-        shapePos2: Vector,
-        shapeRot2: Rotation,
-        shapeVel2: Vector,
-        maxToi: number
-    ): ShapeTOI | null {
-        let rawPos1 = VectorOps.intoRaw(shapePos1);
-        let rawRot1 = RotationOps.intoRaw(shapeRot1);
-        let rawVel1 = VectorOps.intoRaw(shapeVel1);
-        let rawPos2 = VectorOps.intoRaw(shapePos2);
-        let rawRot2 = RotationOps.intoRaw(shapeRot2);
-        let rawVel2 = VectorOps.intoRaw(shapeVel2);
-
-        let rawShape1 = shape1.intoRaw();
-        let rawShape2 = shape2.intoRaw();
-
-        let result = ShapeTOI.fromRaw(this.raw.sweepBetween(
-            rawShape1,
-            rawPos1,
-            rawRot1,
-            rawVel1,
-            rawShape2,
-            rawPos2,
-            rawRot2,
-            rawVel2,
-            maxToi
-        ));
-
-        rawPos1.free();
-        rawRot1.free();
-        rawVel1.free();
-        rawPos2.free();
-        rawRot2.free();
-        rawVel2.free();
-
-        rawShape1.free();
-        rawShape2.free();
-
-        return result;
-    }
-
-    public intersectsBetween(
-        shape1: Shape,
-        shapePos1: Vector,
-        shapeRot1: Rotation,
-        shape2: Shape,
-        shapePos2: Vector,
-        shapeRot2: Rotation
-    ): boolean {
-        let rawPos1 = VectorOps.intoRaw(shapePos1);
-        let rawRot1 = RotationOps.intoRaw(shapeRot1);
-        let rawPos2 = VectorOps.intoRaw(shapePos2);
-        let rawRot2 = RotationOps.intoRaw(shapeRot2);
-
-        let rawShape1 = shape1.intoRaw();
-        let rawShape2 = shape2.intoRaw();
-
-        let result = this.raw.intersectsBetween(
-            rawShape1,
-            rawPos1,
-            rawRot1,
-            rawShape2,
-            rawPos2,
-            rawRot2
-        );
-
-        rawPos1.free();
-        rawRot1.free();
-        rawPos2.free();
-        rawRot2.free();
-
-        rawShape1.free();
-        rawShape2.free();
-
-        return result;
     }
 
     /**

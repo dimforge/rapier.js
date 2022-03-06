@@ -29,12 +29,12 @@ import {
     RigidBodyHandle,
     RigidBodySet
 } from "../dynamics";
-import {Rotation, Vector, VectorOps} from "../math";
-import {PhysicsPipeline} from "./physics_pipeline";
-import {QueryPipeline} from "./query_pipeline";
-import {SerializationPipeline} from "./serialization_pipeline";
-import {EventQueue} from "./event_queue";
-import {PhysicsHooks} from "./physics_hooks";
+import { Rotation, Vector, VectorOps } from "../math";
+import { PhysicsPipeline } from "./physics_pipeline";
+import { QueryPipeline } from "./query_pipeline";
+import { SerializationPipeline } from "./serialization_pipeline";
+import { EventQueue } from "./event_queue";
+import { PhysicsHooks } from "./physics_hooks";
 
 /**
  * The physics world.
@@ -564,9 +564,9 @@ export class World {
      *   hit the colliders with collision groups compatible with the ray's group.
      */
     public intersectionWithShape(
-        shapePos: &Vector,
-        shapeRot: &Rotation,
-        shape: &Shape,
+        shapePos: Vector,
+        shapeRot: Rotation,
+        shape: Shape,
         groups: InteractionGroups,
     ): ColliderHandle | null {
         return this.queryPipeline.intersectionWithShape(this.colliders, shapePos, shapeRot, shape, groups);
@@ -607,31 +607,6 @@ export class World {
         callback: (handle: ColliderHandle) => boolean,
     ) {
         this.queryPipeline.intersectionsWithPoint(this.colliders, point, groups, callback);
-    }
-
-    public sweepBetween(
-        shape1: Shape,
-        shapePos1: Vector,
-        shapeRot1: Rotation,
-        shapeVel1: Vector,
-        shape2: Shape,
-        shapePos2: Vector,
-        shapeRot2: Rotation,
-        shapeVel2: Vector,
-        maxToi: number
-    ): ShapeTOI | null {
-        return this.queryPipeline.sweepBetween(shape1, shapePos1, shapeRot1, shapeVel1, shape2, shapePos2, shapeRot2, shapeVel2, maxToi);
-    }
-
-    public intersectsBetween(
-        shape1: Shape,
-        shapePos1: Vector,
-        shapeRot1: Rotation,
-        shape2: Shape,
-        shapePos2: Vector,
-        shapeRot2: Rotation
-    ): boolean {
-        return this.queryPipeline.intersectsBetween(shape1, shapePos1, shapeRot1, shape2, shapePos2, shapeRot2);
     }
 
     /**
