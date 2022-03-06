@@ -378,7 +378,7 @@ impl RawColliderSet {
     pub fn coCastShape(
         &self,
         handle: u32,
-        shapeVel: &RawVector,
+        colliderVel: &RawVector,
         shape2: &RawShape,
         shape2Pos: &RawVector,
         shape2Rot: &RawRotation,
@@ -389,7 +389,7 @@ impl RawColliderSet {
         self.map(handle, |co| {
             query::time_of_impact(
                 co.position(),
-                &shapeVel.0,
+                &colliderVel.0,
                 co.shape(),
                 &pos2,
                 &shape2Vel.0,
@@ -404,9 +404,9 @@ impl RawColliderSet {
     pub fn coCastCollider(
         &self,
         handle: u32,
-        shapeVel: &RawVector,
+        collider1Vel: &RawVector,
         collider2Handle: u32,
-        collider2ShapeVel: &RawVector,
+        collider2Vel: &RawVector,
         max_toi: f32,
     ) -> Option<RawShapeColliderTOI> {
         let (co2, co2Handle) = self
@@ -417,10 +417,10 @@ impl RawColliderSet {
         self.map(handle, |co| {
             query::time_of_impact(
                 co.position(),
-                &shapeVel.0,
+                &collider1Vel.0,
                 co.shape(),
                 co2.position(),
-                &collider2ShapeVel.0,
+                &collider2Vel.0,
                 co2.shape(),
                 max_toi,
             )
