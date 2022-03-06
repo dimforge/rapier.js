@@ -1,8 +1,8 @@
-import {Rotation, Vector, VectorOps, RotationOps} from "../math";
-import {RawJointData, RawImpulseJointSet, RawRigidBodySet, RawJointAxis} from "../raw";
-import {RigidBodyHandle} from "./rigid_body"
+import { Rotation, Vector, VectorOps, RotationOps } from "../math";
+import { RawGenericJoint, RawImpulseJointSet, RawRigidBodySet, RawJointAxis } from "../raw";
+import { RigidBodyHandle } from "./rigid_body"
 // #if DIM3
-import {Quaternion} from "../math";
+import { Quaternion } from "../math";
 // #endif
 
 /**
@@ -30,9 +30,8 @@ export enum JointType {
 }
 
 export enum MotorModel {
-    VelocityBased,
     AccelerationBased,
-    // ForceBased,
+    ForceBased,
 }
 
 export class ImpulseJoint {
@@ -354,7 +353,7 @@ export class JointData {
 
     // #endif
 
-    public intoRaw(): RawJointData {
+    public intoRaw(): RawGenericJoint {
         let rawA1 = VectorOps.intoRaw(this.anchor1);
         let rawA2 = VectorOps.intoRaw(this.anchor2);
         let rawAx;
@@ -367,7 +366,7 @@ export class JointData {
             case JointType.Fixed:
                 let rawFra1 = RotationOps.intoRaw(this.frame1);
                 let rawFra2 = RotationOps.intoRaw(this.frame2);
-                result = RawJointData.fixed(rawA1, rawFra1, rawA2, rawFra2);
+                result = RawGenericJoint.fixed(rawA1, rawFra1, rawA2, rawFra2);
                 rawFra1.free();
                 rawFra2.free();
                 break;
@@ -381,7 +380,7 @@ export class JointData {
                 }
 
                 // #if DIM2
-                result = RawJointData.prismatic(
+                result = RawGenericJoint.prismatic(
                     rawA1,
                     rawA2,
                     rawAx,
@@ -392,7 +391,7 @@ export class JointData {
                 // #endif
 
                 // #if DIM3
-                result = RawJointData.prismatic(
+                result = RawGenericJoint.prismatic(
                     rawA1,
                     rawA2,
                     rawAx,
@@ -406,16 +405,16 @@ export class JointData {
                 break;
             // #if DIM2
             case JointType.Revolute:
-                result = RawJointData.revolute(rawA1, rawA2);
+                result = RawGenericJoint.revolute(rawA1, rawA2);
                 break;
             // #endif
             // #if DIM3
             case JointType.Spherical:
-                result = RawJointData.spherical(rawA1, rawA2);
+                result = RawGenericJoint.spherical(rawA1, rawA2);
                 break;
             case JointType.Revolute:
                 rawAx = VectorOps.intoRaw(this.axis);
-                result = RawJointData.revolute(rawA1, rawA2, rawAx);
+                result = RawGenericJoint.revolute(rawA1, rawA2, rawAx);
                 rawAx.free();
                 break;
             // #endif

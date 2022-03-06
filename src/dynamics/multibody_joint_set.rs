@@ -1,4 +1,4 @@
-use crate::dynamics::{RawIslandManager, RawJointData, RawRigidBodySet};
+use crate::dynamics::{RawIslandManager, RawGenericJoint, RawRigidBodySet};
 use rapier::dynamics::{MultibodyJoint, MultibodyJointSet};
 use wasm_bindgen::prelude::*;
 
@@ -37,7 +37,7 @@ impl RawMultibodyJointSet {
     pub fn createJoint(
         &mut self,
         bodies: &mut RawRigidBodySet,
-        params: &RawJointData,
+        params: &RawGenericJoint,
         parent1: u32,
         parent2: u32,
     ) -> u32 {

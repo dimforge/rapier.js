@@ -176,6 +176,7 @@ impl RawRigidBodySet {
                 &mut colliders.0,
                 &mut joints.0,
                 &mut articulations.0,
+                true,
             );
         }
     }
