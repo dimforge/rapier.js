@@ -3,7 +3,8 @@ use na::Unit;
 #[cfg(feature = "dim3")]
 use rapier::dynamics::SphericalJointBuilder;
 use rapier::dynamics::{
-    FixedJointBuilder, JointAxesMask, JointAxis, GenericJoint, MotorModel, PrismaticJointBuilder, RevoluteJointBuilder,
+    FixedJointBuilder, GenericJoint, JointAxesMask, JointAxis, MotorModel, PrismaticJointBuilder,
+    RevoluteJointBuilder,
 };
 use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;

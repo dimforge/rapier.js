@@ -1,4 +1,4 @@
-use crate::dynamics::{RawIslandManager, RawGenericJoint, RawRigidBodySet};
+use crate::dynamics::{RawGenericJoint, RawIslandManager, RawRigidBodySet};
 use rapier::dynamics::{MultibodyJoint, MultibodyJointSet};
 use wasm_bindgen::prelude::*;
 
