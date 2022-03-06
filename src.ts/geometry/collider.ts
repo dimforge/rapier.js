@@ -526,31 +526,31 @@ export class Collider {
     /*
      * Computes the smallest time between this and the given shape under translational movement are separated by a distance smaller or equal to distance.
      *
-     * @param shapeVel - The constant velocity of the current shape to cast (i.e. the cast direction).
+     * @param collider1Vel - The constant velocity of the current shape to cast (i.e. the cast direction).
      * @param shape2 - The shape to cast against.
      * @param shape2Pos - The position of the second shape.
      * @param shape2Rot - The rotation of the second shape.
      * @param shape2Vel - The constant velocity of the second shape.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
-     *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
+     *   limits the distance traveled by the shape to `collider1Vel.norm() * maxToi`.
      */
     public castShape(
-        shapeVel: Vector,
+        collider1Vel: Vector,
         shape2: Shape,
         shape2Pos: Vector,
         shape2Rot: Rotation,
         shape2Vel: Vector,
         maxToi: number,
     ): ShapeTOI | null {
-        let rawShapeVel = VectorOps.intoRaw(shapeVel);
+        let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawShape2Pos = VectorOps.intoRaw(shape2Pos);
         let rawShape2Rot = RotationOps.intoRaw(shape2Rot);
         let rawShape2Vel = VectorOps.intoRaw(shape2Vel);
         let rawShape2 = shape2.intoRaw();
-        
+
         let result = ShapeTOI.fromRaw(this.rawSet.coCastShape(
             this.handle,
-            rawShapeVel,
+            rawCollider1Vel,
             rawShape2,
             rawShape2Pos,
             rawShape2Rot,
@@ -558,7 +558,7 @@ export class Collider {
             maxToi
         ));
 
-        rawShapeVel.free();
+        rawCollider1Vel.free();
         rawShape2Pos.free();
         rawShape2Rot.free();
         rawShape2Vel.free();
@@ -570,31 +570,31 @@ export class Collider {
     /*
      * Computes the smallest time between this and the given collider under translational movement are separated by a distance smaller or equal to distance.
      *
-     * @param shapeVel - The constant velocity of the current collider to cast (i.e. the cast direction).
+     * @param collider1Vel - The constant velocity of the current collider to cast (i.e. the cast direction).
      * @param collider2 - The collider to cast against.
-     * @param collider2ShapeVel - The constant velocity of the second collider.
+     * @param collider2Vel - The constant velocity of the second collider.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
      */
     public castCollider(
-        shapeVel: Vector,
+        collider1Vel: Vector,
         collider2Handle: ColliderHandle,
-        collider2ShapeVel: Vector,
+        collider2Vel: Vector,
         maxToi: number,
     ): ShapeColliderTOI | null {
-        let rawShapeVel = VectorOps.intoRaw(shapeVel);
-        let rawShape2Vel = VectorOps.intoRaw(collider2ShapeVel);
-        
+        let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
+        let rawCollider2Vel = VectorOps.intoRaw(collider2Vel);
+
         let result = ShapeColliderTOI.fromRaw(this.rawSet.coCastCollider(
             this.handle,
-            rawShapeVel,
+            rawCollider1Vel,
             collider2Handle,
-            rawShape2Vel,
+            rawCollider2Vel,
             maxToi
         ));
 
-        rawShapeVel.free();
-        rawShape2Vel.free();
+        rawCollider1Vel.free();
+        rawCollider2Vel.free();
 
         return result;
     }
