@@ -1,9 +1,9 @@
 use crate::math::{RawRotation, RawVector};
 use na::Unit;
 #[cfg(feature = "dim3")]
-use rapier::dynamics::SphericalJoint;
+use rapier::dynamics::SphericalJointBuilder;
 use rapier::dynamics::{
-    FixedJoint, JointAxesMask, JointAxis, JointData, MotorModel, PrismaticJoint, RevoluteJoint,
+    FixedJointBuilder, JointAxesMask, JointAxis, GenericJoint, MotorModel, PrismaticJointBuilder, RevoluteJointBuilder,
 };
 use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
@@ -85,16 +85,15 @@ impl From<JointAxesMask> for RawJointType {
 
 #[wasm_bindgen]
 pub enum RawMotorModel {
-    VelocityBased,
     AccelerationBased,
-    // ForceBased,
+    ForceBased,
 }
 
 impl From<RawMotorModel> for MotorModel {
     fn from(model: RawMotorModel) -> MotorModel {
         match model {
-            RawMotorModel::VelocityBased => MotorModel::VelocityBased,
             RawMotorModel::AccelerationBased => MotorModel::AccelerationBased,
+            RawMotorModel::ForceBased => MotorModel::ForceBased,
         }
     }
 }
@@ -137,10 +136,10 @@ impl From<RawJointAxis> for JointAxis {
 }
 
 #[wasm_bindgen]
-pub struct RawJointData(pub(crate) JointData);
+pub struct RawGenericJoint(pub(crate) GenericJoint);
 
 #[wasm_bindgen]
-impl RawJointData {
+impl RawGenericJoint {
     /// Create a new joint descriptor that builds spehrical joints.
     ///
     /// A spherical joints allows three relative rotational degrees of freedom
@@ -149,7 +148,7 @@ impl RawJointData {
     #[cfg(feature = "dim3")]
     pub fn spherical(anchor1: &RawVector, anchor2: &RawVector) -> Self {
         Self(
-            SphericalJoint::new()
+            SphericalJointBuilder::new()
                 .local_anchor1(anchor1.0.into())
                 .local_anchor2(anchor2.0.into())
                 .into(),
@@ -170,14 +169,14 @@ impl RawJointData {
         limitsEnabled: bool,
         limitsMin: f32,
         limitsMax: f32,
-    ) -> Option<RawJointData> {
+    ) -> Option<RawGenericJoint> {
         let axis = Unit::try_new(axis.0, 0.0)?;
-        let mut joint = PrismaticJoint::new(axis)
+        let mut joint = PrismaticJointBuilder::new(axis)
             .local_anchor1(anchor1.0.into())
             .local_anchor2(anchor2.0.into());
 
         if limitsEnabled {
-            joint = joint.limit_axis([limitsMin, limitsMax]);
+            joint = joint.limits([limitsMin, limitsMax]);
         }
 
         Some(Self(joint.into()))
@@ -197,14 +196,14 @@ impl RawJointData {
         limitsEnabled: bool,
         limitsMin: f32,
         limitsMax: f32,
-    ) -> Option<RawJointData> {
+    ) -> Option<RawGenericJoint> {
         let axis = Unit::try_new(axis.0, 0.0)?;
-        let mut joint = PrismaticJoint::new(axis)
+        let mut joint = PrismaticJointBuilder::new(axis)
             .local_anchor1(anchor1.0.into())
             .local_anchor2(anchor2.0.into());
 
         if limitsEnabled {
-            joint = joint.limit_axis([limitsMin, limitsMax]);
+            joint = joint.limits([limitsMin, limitsMax]);
         }
 
         Some(Self(joint.into()))
@@ -218,11 +217,11 @@ impl RawJointData {
         axes1: &RawRotation,
         anchor2: &RawVector,
         axes2: &RawRotation,
-    ) -> RawJointData {
+    ) -> RawGenericJoint {
         let pos1 = Isometry::from_parts(anchor1.0.into(), axes1.0);
         let pos2 = Isometry::from_parts(anchor2.0.into(), axes2.0);
         Self(
-            FixedJoint::new()
+            FixedJointBuilder::new()
                 .local_frame1(pos1)
                 .local_frame2(pos2)
                 .into(),
@@ -234,9 +233,9 @@ impl RawJointData {
     /// A revolute joint removes all degrees of freedom between the affected
     /// bodies except for the rotation.
     #[cfg(feature = "dim2")]
-    pub fn revolute(anchor1: &RawVector, anchor2: &RawVector) -> Option<RawJointData> {
+    pub fn revolute(anchor1: &RawVector, anchor2: &RawVector) -> Option<RawGenericJoint> {
         Some(Self(
-            RevoluteJoint::new()
+            RevoluteJointBuilder::new()
                 .local_anchor1(anchor1.0.into())
                 .local_anchor2(anchor2.0.into())
                 .into(),
@@ -252,10 +251,10 @@ impl RawJointData {
         anchor1: &RawVector,
         anchor2: &RawVector,
         axis: &RawVector,
-    ) -> Option<RawJointData> {
+    ) -> Option<RawGenericJoint> {
         let axis = Unit::try_new(axis.0, 0.0)?;
         Some(Self(
-            RevoluteJoint::new(axis)
+            RevoluteJointBuilder::new(axis)
                 .local_anchor1(anchor1.0.into())
                 .local_anchor2(anchor2.0.into())
                 .into(),

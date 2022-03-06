@@ -1,4 +1,4 @@
-import {PhysicsModifications} from "../PhysicsModifications"
+import { PhysicsModifications } from "../PhysicsModifications"
 import seedrandom from 'seedrandom'
 
 function generateTriMesh(nsubdivs, wx, wy, wz) {
@@ -47,14 +47,14 @@ export function initWorld(RAPIER, testbed) {
     let trimesh = generateTriMesh(20, 70.0, 4.0, 70.0)
     let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
     world.createCollider(colliderDesc, body.handle);
-    let t =  0.0;
+    let t = 0.0;
 
     let movePlatform = () => {
         let modifications = new PhysicsModifications();
         t += 0.016;
         let dy = Math.sin(t) * 0.1;
         let dang = Math.sin(t) * 0.002;
-        modifications.moveKinematicBody(body.handle, {x: 0.0, y: dy, z: 0.0}, {x: 0.0, y: dang, z: 0.0});
+        modifications.moveKinematicBody(body.handle, { x: 0.0, y: dy, z: 0.0 }, { x: 0.0, y: dang, z: 0.0 });
         return modifications.commands;
     }
 
@@ -78,8 +78,7 @@ export function initWorld(RAPIER, testbed) {
 
                 // Create dynamic cube.
                 let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
-                    .setTranslation(x, y, z)
-                    .restrictTranslations(false, true, true);
+                    .setTranslation(x, y, z);
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc;
 
@@ -122,8 +121,8 @@ export function initWorld(RAPIER, testbed) {
     testbed.setpreTimestepAction(movePlatform);
 
     let cameraPosition = {
-        eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},
-        target: {x: 0.0, y: 0.0, z: 0.0}
+        eye: { x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844 },
+        target: { x: 0.0, y: 0.0, z: 0.0 }
     };
     testbed.lookAt(cameraPosition)
 }

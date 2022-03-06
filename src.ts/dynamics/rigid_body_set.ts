@@ -1,10 +1,10 @@
-import {RawRigidBodySet} from "../raw"
-import {VectorOps, RotationOps} from '../math';
-import {RigidBody, RigidBodyDesc, RigidBodyHandle} from './rigid_body'
-import {ColliderSet} from "../geometry";
-import {ImpulseJointSet} from "./impulse_joint_set";
-import {MultibodyJointSet} from "./multibody_joint_set";
-import {IslandManager} from "./island_manager";
+import { RawRigidBodySet } from "../raw"
+import { VectorOps, RotationOps } from '../math';
+import { RigidBody, RigidBodyDesc, RigidBodyHandle } from './rigid_body'
+import { ColliderSet } from "../geometry";
+import { ImpulseJointSet } from "./impulse_joint_set";
+import { MultibodyJointSet } from "./multibody_joint_set";
+import { IslandManager } from "./island_manager";
 
 /**
  * A set of rigid bodies that can be handled by a physics pipeline.
