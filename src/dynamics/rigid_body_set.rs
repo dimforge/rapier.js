@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 pub enum RawRigidBodyType {
     Dynamic,
-    Static,
+    Fixed,
     KinematicPositionBased,
     KinematicVelocityBased,
 }
@@ -16,7 +16,7 @@ impl Into<RigidBodyType> for RawRigidBodyType {
     fn into(self) -> RigidBodyType {
         match self {
             RawRigidBodyType::Dynamic => RigidBodyType::Dynamic,
-            RawRigidBodyType::Static => RigidBodyType::Static,
+            RawRigidBodyType::Fixed => RigidBodyType::Fixed,
             RawRigidBodyType::KinematicPositionBased => RigidBodyType::KinematicPositionBased,
             RawRigidBodyType::KinematicVelocityBased => RigidBodyType::KinematicVelocityBased,
         }
@@ -27,7 +27,7 @@ impl Into<RawRigidBodyType> for RigidBodyType {
     fn into(self) -> RawRigidBodyType {
         match self {
             RigidBodyType::Dynamic => RawRigidBodyType::Dynamic,
-            RigidBodyType::Static => RawRigidBodyType::Static,
+            RigidBodyType::Fixed => RawRigidBodyType::Fixed,
             RigidBodyType::KinematicPositionBased => RawRigidBodyType::KinematicPositionBased,
             RigidBodyType::KinematicVelocityBased => RawRigidBodyType::KinematicVelocityBased,
         }

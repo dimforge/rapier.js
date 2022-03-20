@@ -1,3 +1,8 @@
+### 0.8.0-alpha.2 (2022-03-20)
+The changelog hasn’t been updated yet.
+For an overview of the changes, refer to the changelog for the unreleased Rust version:
+https://github.com/dimforge/rapier/blob/master/CHANGELOG.md#unreleased
+
 ### 0.8.0-alpha.1 (2022-01-28)
 #### Fixed
 - Fix a crash when calling `collider.setShape`.

@@ -1,13 +1,11 @@
-import {RawEventQueue} from '../raw'
-import {RigidBodyHandle} from '../dynamics'
-import {ColliderHandle} from '../geometry'
+import { RawEventQueue } from '../raw'
+import { RigidBodyHandle } from '../dynamics'
+import { ColliderHandle } from '../geometry'
 
 /// Flags indicating what events are enabled for colliders.
 export enum ActiveEvents {
-    /// Enable intersection events.
-    INTERSECTION_EVENTS = 0b0001,
-    /// Enable contact events.
-    CONTACT_EVENTS = 0b0010,
+    /// Enable collision events.
+    COLLISION_EVENTS = 0b0001,
 }
 
 /**
@@ -41,29 +39,16 @@ export class EventQueue {
     }
 
     /**
-     * Applies the given javascript closure on each contact event of this collector, then clear
-     * the internal contact event buffer.
+     * Applies the given javascript closure on each collision event of this collector, then clear
+     * the internal collision event buffer.
      *
-     * @param f - JavaScript closure applied to each contact event. The
-     * closure should take three arguments: two integers representing the handles of the colliders
-     * involved in the contact, and a boolean indicating if the contact started (true) or stopped
+     * @param f - JavaScript closure applied to each collision event. The
+     * closure must take three arguments: two integers representing the handles of the colliders
+     * involved in the collision, and a boolean indicating if the collision started (true) or stopped
      * (false).
      */
-    public drainContactEvents(f: (handle1: ColliderHandle, handle2: ColliderHandle, started: boolean) => void) {
-        this.raw.drainContactEvents(f)
-    }
-
-    /**
-     * Applies the given javascript closure on each intersection event of this collector, then clear
-     * the internal intersection event buffer.
-     *
-     * @param f - JavaScript closure applied to each intersection event. The
-     * closure should take four arguments: two integers representing the handles of the colliders
-     * involved in the intersection, and a boolean indicating if they started intersecting (true) or
-     * stopped intersecting (false).
-     */
-    public drainIntersectionEvents(f: (handle1: ColliderHandle, handle2: ColliderHandle, intersecting: boolean) => void) {
-        this.raw.drainIntersectionEvents(f)
+    public drainCollisionEvents(f: (handle1: ColliderHandle, handle2: ColliderHandle, started: boolean) => void) {
+        this.raw.drainCollisionEvents(f)
     }
 
     /**

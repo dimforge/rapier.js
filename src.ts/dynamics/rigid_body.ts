@@ -1,6 +1,6 @@
-import {RawRigidBodySet} from "../raw"
-import {Rotation, RotationOps, Vector, VectorOps} from '../math';
-import {ColliderHandle} from "../geometry";
+import { RawRigidBodySet } from "../raw"
+import { Rotation, RotationOps, Vector, VectorOps } from '../math';
+import { ColliderHandle } from "../geometry";
 
 /**
  * The integer identifier of a collider added to a `ColliderSet`.
@@ -17,9 +17,9 @@ export enum RigidBodyType {
      */
     Dynamic = 0,
     /**
-     * A `RigidBodyType::Static` body cannot be affected by external forces.
+     * A `RigidBodyType::Fixed` body cannot be affected by external forces.
      */
-    Static,
+    Fixed,
     /**
      * A `RigidBodyType::KinematicPositionBased` body cannot be affected by any external forces but can be controlled
      * by the user at the position level while keeping realistic one-way interaction with dynamic bodies.
@@ -446,8 +446,8 @@ export class RigidBody {
     /**
      * Is this rigid-body static?
      */
-    public isStatic(): boolean {
-        return this.rawSet.rbIsStatic(this.handle);
+    public isFixed(): boolean {
+        return this.rawSet.rbIsFixed(this.handle);
     }
 
     /**
@@ -497,14 +497,32 @@ export class RigidBody {
     }
 
     /**
-     * Applies a force at the center-of-mass of this rigid-body.
+     * Resets to zero the user forces (but not torques) applied to this rigid-body.
      *
-     * @param force - the world-space force to apply on the rigid-body.
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
-    public applyForce(force: Vector, wakeUp: boolean) {
+    public resetForces(wakeUp: boolean) {
+        this.rawSet.rbResetForces(this.handle, wakeUp);
+    }
+
+    /**
+     * Resets to zero the user torques applied to this rigid-body.
+     *
+     * @param wakeUp - should the rigid-body be automatically woken-up?
+     */
+    public resetTorques(wakeUp: boolean) {
+        this.rawSet.rbResetForces(this.handle, wakeUp);
+    }
+
+    /**
+     * Adds a force at the center-of-mass of this rigid-body.
+     *
+     * @param force - the world-space force to add to the rigid-body.
+     * @param wakeUp - should the rigid-body be automatically woken-up?
+     */
+    public addForce(force: Vector, wakeUp: boolean) {
         const rawForce = VectorOps.intoRaw(force);
-        this.rawSet.rbApplyForce(this.handle, rawForce, wakeUp);
+        this.rawSet.rbAddForce(this.handle, rawForce, wakeUp);
         rawForce.free();
     }
 
@@ -525,27 +543,27 @@ export class RigidBody {
 
     // #if DIM2
     /**
-     * Applies a torque at the center-of-mass of this rigid-body.
+     * Adds a torque at the center-of-mass of this rigid-body.
      *
-     * @param torque - the torque to apply on the rigid-body.
+     * @param torque - the torque to add to the rigid-body.
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
-    public applyTorque(torque: number, wakeUp: boolean) {
-        this.rawSet.rbApplyTorque(this.handle, torque, wakeUp);
+    public addTorque(torque: number, wakeUp: boolean) {
+        this.rawSet.rbAddTorque(this.handle, torque, wakeUp);
     }
 
     // #endif
 
     // #if DIM3
     /**
-     * Applies a torque at the center-of-mass of this rigid-body.
+     * Adds a torque at the center-of-mass of this rigid-body.
      *
-     * @param torque - the world-space torque to apply on the rigid-body.
+     * @param torque - the world-space torque to add to the rigid-body.
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
-    public applyTorque(torque: Vector, wakeUp: boolean) {
+    public addTorque(torque: Vector, wakeUp: boolean) {
         const rawTorque = VectorOps.intoRaw(torque);
-        this.rawSet.rbApplyTorque(this.handle, rawTorque, wakeUp);
+        this.rawSet.rbAddTorque(this.handle, rawTorque, wakeUp);
         rawTorque.free();
     }
 
@@ -580,20 +598,20 @@ export class RigidBody {
     // #endif
 
     /**
-     * Applies a force at the given world-space point of this rigid-body.
+     * Adds a force at the given world-space point of this rigid-body.
      *
-     * @param force - the world-space force to apply on the rigid-body.
+     * @param force - the world-space force to add to the rigid-body.
      * @param point - the world-space point where the impulse is to be applied on the rigid-body.
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
-    public applyForceAtPoint(
+    public addForceAtPoint(
         force: Vector,
         point: Vector,
         wakeUp: boolean,
     ) {
         const rawForce = VectorOps.intoRaw(force);
         const rawPoint = VectorOps.intoRaw(point);
-        this.rawSet.rbApplyForceAtPoint(this.handle, rawForce, rawPoint, wakeUp);
+        this.rawSet.rbAddForceAtPoint(this.handle, rawForce, rawPoint, wakeUp);
         rawForce.free();
         rawPoint.free();
     }
@@ -698,12 +716,44 @@ export class RigidBodyDesc {
     /**
      * A rigid-body descriptor used to build a dynamic rigid-body.
      */
+    public static dynamic(): RigidBodyDesc {
+        return new RigidBodyDesc(RigidBodyType.Dynamic)
+    }
+
+    /**
+     * A rigid-body descriptor used to build a position-based kinematic rigid-body.
+     */
+    public static kinematicPositionBased(): RigidBodyDesc {
+        return new RigidBodyDesc(RigidBodyType.KinematicPositionBased)
+    }
+
+    /**
+     * A rigid-body descriptor used to build a velocity-based kinematic rigid-body.
+     */
+    public static kinematicVelocityBased(): RigidBodyDesc {
+        return new RigidBodyDesc(RigidBodyType.KinematicVelocityBased)
+    }
+
+    /**
+     * A rigid-body descriptor used to build a fixed rigid-body.
+     */
+    public static fixed(): RigidBodyDesc {
+        return new RigidBodyDesc(RigidBodyType.Fixed)
+    }
+
+    /**
+     * A rigid-body descriptor used to build a dynamic rigid-body.
+     * 
+     * @deprecated The method has been renamed to `.dynamic()`.
+     */
     public static newDynamic(): RigidBodyDesc {
         return new RigidBodyDesc(RigidBodyType.Dynamic)
     }
 
     /**
      * A rigid-body descriptor used to build a position-based kinematic rigid-body.
+     * 
+     * @deprecated The method has been renamed to `.kinematicPositionBased()`.
      */
     public static newKinematicPositionBased(): RigidBodyDesc {
         return new RigidBodyDesc(RigidBodyType.KinematicPositionBased)
@@ -711,16 +761,20 @@ export class RigidBodyDesc {
 
     /**
      * A rigid-body descriptor used to build a velocity-based kinematic rigid-body.
+     * 
+     * @deprecated The method has been renamed to `.kinematicVelocityBased()`.
      */
     public static newKinematicVelocityBased(): RigidBodyDesc {
         return new RigidBodyDesc(RigidBodyType.KinematicVelocityBased)
     }
 
     /**
-     * A rigid-body descriptor used to build a static rigid-body.
+     * A rigid-body descriptor used to build a fixed rigid-body.
+     * 
+     * @deprecated The method has been renamed to `.fixed()`.
      */
     public static newStatic(): RigidBodyDesc {
-        return new RigidBodyDesc(RigidBodyType.Static)
+        return new RigidBodyDesc(RigidBodyType.Fixed)
     }
 
     public setDominanceGroup(group: number): RigidBodyDesc {
@@ -736,7 +790,7 @@ export class RigidBodyDesc {
         if (typeof x != "number" || typeof y != "number")
             throw TypeError("The translation components must be numbers.");
 
-        this.translation = {x: x, y: y};
+        this.translation = { x: x, y: y };
         return this;
     }
 
@@ -752,7 +806,7 @@ export class RigidBodyDesc {
         if (typeof x != "number" || typeof y != "number" || typeof z != "number")
             throw TypeError("The translation components must be numbers.");
 
-        this.translation = {x: x, y: y, z: z};
+        this.translation = { x: x, y: y, z: z };
         return this;
     }
 
@@ -801,7 +855,7 @@ export class RigidBodyDesc {
         if (typeof x != "number" || typeof y != "number")
             throw TypeError("The linvel components must be numbers.");
 
-        this.linvel = {x: x, y: y};
+        this.linvel = { x: x, y: y };
         return this;
     }
 
@@ -890,7 +944,7 @@ export class RigidBodyDesc {
         if (typeof x != "number" || typeof y != "number" || typeof z != "number")
             throw TypeError("The linvel components must be numbers.");
 
-        this.linvel = {x: x, y: y, z: z};
+        this.linvel = { x: x, y: y, z: z };
         return this;
     }
 

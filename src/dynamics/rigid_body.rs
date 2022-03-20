@@ -319,14 +319,14 @@ impl RawRigidBodySet {
         self.map(handle, |rb| rb.colliders()[at].into_raw_parts().0)
     }
 
-    /// The status of this rigid-body: static, dynamic, or kinematic.
+    /// The status of this rigid-body: fixed, dynamic, or kinematic.
     pub fn rbBodyType(&self, handle: u32) -> RawRigidBodyType {
         self.map(handle, |rb| rb.body_type().into())
     }
 
-    /// Is this rigid-body static?
-    pub fn rbIsStatic(&self, handle: u32) -> bool {
-        self.map(handle, |rb| rb.is_static())
+    /// Is this rigid-body fixed?
+    pub fn rbIsFixed(&self, handle: u32) -> bool {
+        self.map(handle, |rb| rb.is_fixed())
     }
 
     /// Is this rigid-body kinematic?
@@ -365,14 +365,28 @@ impl RawRigidBodySet {
         self.map_mut(handle, |rb| rb.set_gravity_scale(factor, wakeUp));
     }
 
-    /// Applies a force at the center-of-mass of this rigid-body.
+    /// Resets to zero all user-added forces added to this rigid-body.
+    pub fn rbResetForces(&mut self, handle: u32, wakeUp: bool) {
+        self.map_mut(handle, |rb| {
+            rb.reset_forces(wakeUp);
+        })
+    }
+
+    /// Resets to zero all user-added torques added to this rigid-body.
+    pub fn rbResetTorques(&mut self, handle: u32, wakeUp: bool) {
+        self.map_mut(handle, |rb| {
+            rb.reset_torques(wakeUp);
+        })
+    }
+
+    /// Adds a force at the center-of-mass of this rigid-body.
     ///
     /// # Parameters
     /// - `force`: the world-space force to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn rbApplyForce(&mut self, handle: u32, force: &RawVector, wakeUp: bool) {
+    pub fn rbAddForce(&mut self, handle: u32, force: &RawVector, wakeUp: bool) {
         self.map_mut(handle, |rb| {
-            rb.apply_force(force.0, wakeUp);
+            rb.add_force(force.0, wakeUp);
         })
     }
 
@@ -387,27 +401,27 @@ impl RawRigidBodySet {
         })
     }
 
-    /// Applies a torque at the center-of-mass of this rigid-body.
+    /// Adds a torque at the center-of-mass of this rigid-body.
     ///
     /// # Parameters
     /// - `torque`: the torque to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim2")]
-    pub fn rbApplyTorque(&mut self, handle: u32, torque: f32, wakeUp: bool) {
+    pub fn rbAddTorque(&mut self, handle: u32, torque: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| {
-            rb.apply_torque(torque, wakeUp);
+            rb.add_torque(torque, wakeUp);
         })
     }
 
-    /// Applies a torque at the center-of-mass of this rigid-body.
+    /// Adds a torque at the center-of-mass of this rigid-body.
     ///
     /// # Parameters
     /// - `torque`: the world-space torque to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim3")]
-    pub fn rbApplyTorque(&mut self, handle: u32, torque: &RawVector, wakeUp: bool) {
+    pub fn rbAddTorque(&mut self, handle: u32, torque: &RawVector, wakeUp: bool) {
         self.map_mut(handle, |rb| {
-            rb.apply_torque(torque.0, wakeUp);
+            rb.add_torque(torque.0, wakeUp);
         })
     }
 
@@ -435,13 +449,13 @@ impl RawRigidBodySet {
         })
     }
 
-    /// Applies a force at the given world-space point of this rigid-body.
+    /// Adds a force at the given world-space point of this rigid-body.
     ///
     /// # Parameters
     /// - `force`: the world-space force to apply on the rigid-body.
     /// - `point`: the world-space point where the impulse is to be applied on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn rbApplyForceAtPoint(
+    pub fn rbAddForceAtPoint(
         &mut self,
         handle: u32,
         force: &RawVector,
@@ -449,7 +463,7 @@ impl RawRigidBodySet {
         wakeUp: bool,
     ) {
         self.map_mut(handle, |rb| {
-            rb.apply_force_at_point(force.0, point.0.into(), wakeUp);
+            rb.add_force_at_point(force.0, point.0.into(), wakeUp);
         })
     }
 
