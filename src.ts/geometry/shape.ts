@@ -471,7 +471,7 @@ export class Polyline extends Shape {
      * @param indices - The indices of the polyline's segments. If this is `null` then
      *    the vertices are assumed to form a line strip.
      */
-    constructor(vertices: Float32Array, indices: Uint32Array) {
+    constructor(vertices: Float32Array, indices?: Uint32Array) {
         super();
         this.vertices = vertices;
         this.indices = !!indices ? indices : new Uint32Array(0);
@@ -646,7 +646,7 @@ export class ConvexPolyhedron extends Shape {
     /**
      * The indices of the convex polygon.
      */
-    readonly indices: Uint32Array | null;
+    readonly indices?: Uint32Array | null;
 
 
     /**
@@ -658,7 +658,7 @@ export class ConvexPolyhedron extends Shape {
      *   automatically. Otherwise, it will be assumed that the mesh you provide
      *   is already convex.
      */
-    constructor(vertices: Float32Array, indices: Uint32Array | null) {
+    constructor(vertices: Float32Array, indices?: Uint32Array | null) {
         super();
         this.vertices = vertices;
         this.indices = indices;
