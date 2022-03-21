@@ -369,7 +369,7 @@ export class Collider {
      * If this collider has a triangle mesh, polyline, or convex polyhedron shape,
      * this returns the index buffer of said shape.
      */
-    public indices(): Uint32Array {
+    public indices(): Uint32Array | undefined {
         return this.rawSet.coIndices(this.handle);
     }
 
@@ -835,10 +835,10 @@ export class ColliderDesc {
      * Creates a new collider descriptor with a polyline shape.
      *
      * @param vertices - The coordinates of the polyline's vertices.
-     * @param indices - The indices of the polyline's segments. If this is `null`,
+     * @param indices - The indices of the polyline's segments. If this is `undefined` or `null`,
      *    the vertices are assumed to describe a line strip.
      */
-    public static polyline(vertices: Float32Array, indices: Uint32Array): ColliderDesc {
+    public static polyline(vertices: Float32Array, indices?: Uint32Array | null): ColliderDesc {
         const shape = new Polyline(vertices, indices);
         return new ColliderDesc(shape);
     }
@@ -1042,7 +1042,7 @@ export class ColliderDesc {
      *
      * @param vertices - The vertices of the convex polyline.
      */
-    public static convexMesh(vertices: Float32Array, indices: Uint32Array): ColliderDesc | null {
+    public static convexMesh(vertices: Float32Array, indices?: Uint32Array | null): ColliderDesc | null {
         const shape = new ConvexPolyhedron(vertices, indices);
         return new ColliderDesc(shape);
     }
@@ -1067,7 +1067,7 @@ export class ColliderDesc {
      * @param vertices - The vertices of the convex polyline.
      * @param borderRadius - The radius of the round border added to the convex polyline.
      */
-    public static roundConvexMesh(vertices: Float32Array, indices: Uint32Array, borderRadius: number): ColliderDesc | null {
+    public static roundConvexMesh(vertices: Float32Array, indices: Uint32Array | null, borderRadius: number): ColliderDesc | null {
         const shape = new RoundConvexPolyhedron(vertices, indices, borderRadius);
         return new ColliderDesc(shape);
     }
