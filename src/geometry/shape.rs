@@ -1,4 +1,4 @@
-use crate::geometry::RawShapeTOI;
+use crate::geometry::{RawShapeContact, RawShapeTOI};
 use crate::math::{RawRotation, RawVector};
 #[cfg(feature = "dim3")]
 use na::DMatrix;
@@ -238,5 +238,23 @@ impl RawShape {
         let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
 
         query::intersection_test(&pos1, &*self.0, &pos2, &*shape2.0).unwrap_or(false)
+    }
+
+    pub fn contactShape(
+        &self,
+        shapePos1: &RawVector,
+        shapeRot1: &RawRotation,
+        shape2: &RawShape,
+        shapePos2: &RawVector,
+        shapeRot2: &RawRotation,
+        prediction: f32,
+    ) -> Option<RawShapeContact> {
+        let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
+        let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
+
+        query::contact(&pos1, &*self.0, &pos2, &*shape2.0, prediction)
+            .ok()
+            .flatten()
+            .map(|contact| RawShapeContact { contact })
     }
 }
