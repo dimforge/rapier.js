@@ -1,4 +1,4 @@
-import { RawRigidBodySet } from "../raw"
+import { RigidBodySet } from "./rigid_body_set";
 import { Rotation, RotationOps, Vector, VectorOps } from '../math';
 import { ColliderHandle } from "../geometry";
 
@@ -44,11 +44,11 @@ export enum RigidBodyType {
  * A rigid-body.
  */
 export class RigidBody {
-    private rawSet: RawRigidBodySet; // The RigidBody won't need to free this.
+    private rbSet: RigidBodySet;  // The RigidBody won't need to free this.
     readonly handle: RigidBodyHandle;
 
-    constructor(rawSet: RawRigidBodySet, handle: RigidBodyHandle) {
-        this.rawSet = rawSet;
+    constructor(rawSet: RigidBodySet, handle: RigidBodyHandle) {
+        this.rbSet = rawSet;
         this.handle = handle;
     }
 
@@ -57,7 +57,7 @@ export class RigidBody {
      * not been deleted from the rigid-body set yet.
      */
     public isValid(): boolean {
-        return this.rawSet.contains(this.handle);
+        return this.rbSet.raw.contains(this.handle);
     }
 
     /**
@@ -67,7 +67,7 @@ export class RigidBody {
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
     public lockTranslations(locked: boolean, wakeUp: boolean) {
-        return this.rawSet.rbLockTranslations(this.handle, locked, wakeUp);
+        return this.rbSet.raw.rbLockTranslations(this.handle, locked, wakeUp);
     }
 
     /**
@@ -77,7 +77,7 @@ export class RigidBody {
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
     public lockRotations(locked: boolean, wakeUp: boolean) {
-        return this.rawSet.rbLockRotations(this.handle, locked, wakeUp);
+        return this.rbSet.raw.rbLockRotations(this.handle, locked, wakeUp);
     }
 
     // #if DIM2
@@ -89,7 +89,7 @@ export class RigidBody {
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
     public restrictTranslations(enableX: boolean, enableY: boolean, wakeUp: boolean) {
-        return this.rawSet.rbRestrictTranslations(this.handle, enableX, enableY, wakeUp);
+        return this.rbSet.raw.rbRestrictTranslations(this.handle, enableX, enableY, wakeUp);
     }
     // #endif
     // #if DIM3
@@ -102,7 +102,7 @@ export class RigidBody {
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
     public restrictTranslations(enableX: boolean, enableY: boolean, enableZ: boolean, wakeUp: boolean) {
-        return this.rawSet.rbRestrictTranslations(this.handle, enableX, enableY, enableZ, wakeUp);
+        return this.rbSet.raw.rbRestrictTranslations(this.handle, enableX, enableY, enableZ, wakeUp);
     }
 
     /**
@@ -114,7 +114,7 @@ export class RigidBody {
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
     public restrictRotations(enableX: boolean, enableY: boolean, enableZ: boolean, wakeUp: boolean) {
-        return this.rawSet.rbRestrictRotations(this.handle, enableX, enableY, enableZ, wakeUp);
+        return this.rbSet.raw.rbRestrictRotations(this.handle, enableX, enableY, enableZ, wakeUp);
     }
     // #endif
 
@@ -122,7 +122,7 @@ export class RigidBody {
      * The dominance group, in [-127, +127] this rigid-body is part of.
      */
     public dominanceGroup(): number {
-        return this.rawSet.rbDominanceGroup(this.handle);
+        return this.rbSet.raw.rbDominanceGroup(this.handle);
     }
 
     /**
@@ -131,7 +131,7 @@ export class RigidBody {
      * @param group - The dominance group of this rigid-body. Must be a signed integer in the range [-127, +127].
      */
     public setDominanceGroup(group: number) {
-        this.rawSet.rbSetDominanceGroup(this.handle, group);
+        this.rbSet.raw.rbSetDominanceGroup(this.handle, group);
     }
 
     /**
@@ -140,14 +140,14 @@ export class RigidBody {
      * @param enabled - If `true`, CCD will be enabled for this rigid-body.
      */
     public enableCcd(enabled: boolean) {
-        this.rawSet.rbEnableCcd(this.handle, enabled)
+        this.rbSet.raw.rbEnableCcd(this.handle, enabled)
     }
 
     /**
      * The world-space translation of this rigid-body.
      */
     public translation(): Vector {
-        let res = this.rawSet.rbTranslation(this.handle);
+        let res = this.rbSet.raw.rbTranslation(this.handle);
         return VectorOps.fromRaw(res);
     }
 
@@ -155,7 +155,7 @@ export class RigidBody {
      * The world-space orientation of this rigid-body.
      */
     public rotation(): Rotation {
-        let res = this.rawSet.rbRotation(this.handle);
+        let res = this.rbSet.raw.rbRotation(this.handle);
         return RotationOps.fromRaw(res);
     }
 
@@ -167,7 +167,7 @@ export class RigidBody {
      * For non-kinematic bodies, this value is currently unspecified.
      */
     public nextTranslation(): Vector {
-        let res = this.rawSet.rbNextTranslation(this.handle);
+        let res = this.rbSet.raw.rbNextTranslation(this.handle);
         return VectorOps.fromRaw(res);
     }
 
@@ -179,7 +179,7 @@ export class RigidBody {
      * For non-kinematic bodies, this value is currently unspecified.
      */
     public nextRotation(): Rotation {
-        let res = this.rawSet.rbNextRotation(this.handle);
+        let res = this.rbSet.raw.rbNextRotation(this.handle);
         return RotationOps.fromRaw(res);
     }
 
@@ -192,10 +192,10 @@ export class RigidBody {
      */
     public setTranslation(tra: Vector, wakeUp: boolean,) {
         // #if DIM2
-        this.rawSet.rbSetTranslation(this.handle, tra.x, tra.y, wakeUp);
+        this.rbSet.raw.rbSetTranslation(this.handle, tra.x, tra.y, wakeUp);
         // #endif
         // #if DIM3
-        this.rawSet.rbSetTranslation(this.handle, tra.x, tra.y, tra.z, wakeUp);
+        this.rbSet.raw.rbSetTranslation(this.handle, tra.x, tra.y, tra.z, wakeUp);
         // #endif
     }
 
@@ -207,7 +207,7 @@ export class RigidBody {
      */
     public setLinvel(vel: Vector, wakeUp: boolean) {
         let rawVel = VectorOps.intoRaw(vel);
-        this.rawSet.rbSetLinvel(this.handle, rawVel, wakeUp);
+        this.rbSet.raw.rbSetLinvel(this.handle, rawVel, wakeUp);
         rawVel.free();
     }
 
@@ -216,7 +216,7 @@ export class RigidBody {
      * this rigid-body.
      */
     public gravityScale(): number {
-        return this.rawSet.rbGravityScale(this.handle);
+        return this.rbSet.raw.rbGravityScale(this.handle);
     }
 
     /**
@@ -228,7 +228,7 @@ export class RigidBody {
      * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
      */
     public setGravityScale(factor: number, wakeUp: boolean) {
-        this.rawSet.rbSetGravityScale(this.handle, factor, wakeUp);
+        this.rbSet.raw.rbSetGravityScale(this.handle, factor, wakeUp);
     }
 
     // #if DIM3
@@ -242,7 +242,7 @@ export class RigidBody {
      * wasn't moving before modifying its position.
      */
     public setRotation(rot: Rotation, wakeUp: boolean) {
-        this.rawSet.rbSetRotation(this.handle, rot.x, rot.y, rot.z, rot.w, wakeUp);
+        this.rbSet.raw.rbSetRotation(this.handle, rot.x, rot.y, rot.z, rot.w, wakeUp);
     }
 
     /**
@@ -253,7 +253,7 @@ export class RigidBody {
      */
     public setAngvel(vel: Vector, wakeUp: boolean) {
         let rawVel = VectorOps.intoRaw(vel);
-        this.rawSet.rbSetAngvel(this.handle, rawVel, wakeUp);
+        this.rbSet.raw.rbSetAngvel(this.handle, rawVel, wakeUp);
         rawVel.free();
     }
 
@@ -268,7 +268,7 @@ export class RigidBody {
      * wasn't moving before modifying its position.
      */
     public setRotation(angle: number, wakeUp: boolean) {
-        this.rawSet.rbSetRotation(this.handle, angle, wakeUp);
+        this.rbSet.raw.rbSetRotation(this.handle, angle, wakeUp);
     }
 
     /**
@@ -278,7 +278,7 @@ export class RigidBody {
      * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
      */
     public setAngvel(vel: number, wakeUp: boolean) {
-        this.rawSet.rbSetAngvel(this.handle, vel, wakeUp);
+        this.rbSet.raw.rbSetAngvel(this.handle, vel, wakeUp);
     }
 
     // #endif
@@ -296,10 +296,10 @@ export class RigidBody {
      */
     public setNextKinematicTranslation(t: Vector) {
         // #if DIM2
-        this.rawSet.rbSetNextKinematicTranslation(this.handle, t.x, t.y);
+        this.rbSet.raw.rbSetNextKinematicTranslation(this.handle, t.x, t.y);
         // #endif
         // #if DIM3
-        this.rawSet.rbSetNextKinematicTranslation(this.handle, t.x, t.y, t.z);
+        this.rbSet.raw.rbSetNextKinematicTranslation(this.handle, t.x, t.y, t.z);
         // #endif
     }
 
@@ -316,7 +316,7 @@ export class RigidBody {
      * @param rot - The kinematic rotation to set.
      */
     public setNextKinematicRotation(rot: Rotation) {
-        this.rawSet.rbSetNextKinematicRotation(this.handle, rot.x, rot.y, rot.z, rot.w);
+        this.rbSet.raw.rbSetNextKinematicRotation(this.handle, rot.x, rot.y, rot.z, rot.w);
     }
 
     // #endif
@@ -334,7 +334,7 @@ export class RigidBody {
      * @param angle - The kinematic rotation angle, in radians.
      */
     public setNextKinematicRotation(angle: number) {
-        this.rawSet.rbSetNextKinematicRotation(this.handle, angle);
+        this.rbSet.raw.rbSetNextKinematicRotation(this.handle, angle);
     }
 
     // #endif
@@ -343,7 +343,7 @@ export class RigidBody {
      * The linear velocity of this rigid-body.
      */
     public linvel(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbLinvel(this.handle));
+        return VectorOps.fromRaw(this.rbSet.raw.rbLinvel(this.handle));
     }
 
     // #if DIM3
@@ -351,7 +351,7 @@ export class RigidBody {
      * The angular velocity of this rigid-body.
      */
     public angvel(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbAngvel(this.handle));
+        return VectorOps.fromRaw(this.rbSet.raw.rbAngvel(this.handle));
     }
 
     // #endif
@@ -361,7 +361,7 @@ export class RigidBody {
      * The angular velocity of this rigid-body.
      */
     public angvel(): number {
-        return this.rawSet.rbAngvel(this.handle);
+        return this.rbSet.raw.rbAngvel(this.handle);
     }
 
     // #endif
@@ -370,7 +370,7 @@ export class RigidBody {
      * The mass of this rigid-body.
      */
     public mass(): number {
-        return this.rawSet.rbMass(this.handle);
+        return this.rbSet.raw.rbMass(this.handle);
     }
 
     /**
@@ -381,7 +381,7 @@ export class RigidBody {
      * external forces like contacts.
      */
     public sleep() {
-        this.rawSet.rbSleep(this.handle);
+        this.rbSet.raw.rbSleep(this.handle);
     }
 
     /**
@@ -394,21 +394,21 @@ export class RigidBody {
      * the position of a dynamic body so that it is properly simulated afterwards.
      */
     public wakeUp() {
-        this.rawSet.rbWakeUp(this.handle);
+        this.rbSet.raw.rbWakeUp(this.handle);
     }
 
     /**
      * Is CCD enabled for this rigid-body?
      */
     public isCcdEnabled() {
-        this.rawSet.rbIsCcdEnabled(this.handle);
+        this.rbSet.raw.rbIsCcdEnabled(this.handle);
     }
 
     /**
      * The number of colliders attached to this rigid-body.
      */
     public numColliders(): number {
-        return this.rawSet.rbNumColliders(this.handle);
+        return this.rbSet.raw.rbNumColliders(this.handle);
     }
 
     /**
@@ -418,7 +418,7 @@ export class RigidBody {
      *         This index is **not** the same as the unique identifier of the collider.
      */
     public collider(i: number): ColliderHandle {
-        return this.rawSet.rbCollider(this.handle, i);
+        return this.rbSet.raw.rbCollider(this.handle, i);
     }
 
 
@@ -426,56 +426,56 @@ export class RigidBody {
      * The status of this rigid-body: static, dynamic, or kinematic.
      */
     public bodyType(): RigidBodyType {
-        return this.rawSet.rbBodyType(this.handle);
+        return this.rbSet.raw.rbBodyType(this.handle);
     }
 
     /**
      * Is this rigid-body sleeping?
      */
     public isSleeping(): boolean {
-        return this.rawSet.rbIsSleeping(this.handle);
+        return this.rbSet.raw.rbIsSleeping(this.handle);
     }
 
     /**
      * Is the velocity of this rigid-body not zero?
      */
     public isMoving(): boolean {
-        return this.rawSet.rbIsMoving(this.handle);
+        return this.rbSet.raw.rbIsMoving(this.handle);
     }
 
     /**
      * Is this rigid-body static?
      */
     public isFixed(): boolean {
-        return this.rawSet.rbIsFixed(this.handle);
+        return this.rbSet.raw.rbIsFixed(this.handle);
     }
 
     /**
      * Is this rigid-body kinematic?
      */
     public isKinematic(): boolean {
-        return this.rawSet.rbIsKinematic(this.handle);
+        return this.rbSet.raw.rbIsKinematic(this.handle);
     }
 
     /**
      * Is this rigid-body dynamic?
      */
     public isDynamic(): boolean {
-        return this.rawSet.rbIsDynamic(this.handle);
+        return this.rbSet.raw.rbIsDynamic(this.handle);
     }
 
     /**
      * The linear damping coefficient of this rigid-body.
      */
     public linearDamping(): number {
-        return this.rawSet.rbLinearDamping(this.handle);
+        return this.rbSet.raw.rbLinearDamping(this.handle);
     }
 
     /**
      * The angular damping coefficient of this rigid-body.
      */
     public angularDamping(): number {
-        return this.rawSet.rbAngularDamping(this.handle);
+        return this.rbSet.raw.rbAngularDamping(this.handle);
     }
 
     /**
@@ -484,7 +484,7 @@ export class RigidBody {
      * @param factor - The damping factor to set.
      */
     public setLinearDamping(factor: number) {
-        this.rawSet.rbSetLinearDamping(this.handle, factor);
+        this.rbSet.raw.rbSetLinearDamping(this.handle, factor);
     }
 
     /**
@@ -493,7 +493,7 @@ export class RigidBody {
      * @param factor - The damping factor to set.
      */
     public setAngularDamping(factor: number) {
-        this.rawSet.rbSetAngularDamping(this.handle, factor);
+        this.rbSet.raw.rbSetAngularDamping(this.handle, factor);
     }
 
     /**
@@ -502,7 +502,7 @@ export class RigidBody {
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
     public resetForces(wakeUp: boolean) {
-        this.rawSet.rbResetForces(this.handle, wakeUp);
+        this.rbSet.raw.rbResetForces(this.handle, wakeUp);
     }
 
     /**
@@ -511,7 +511,7 @@ export class RigidBody {
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
     public resetTorques(wakeUp: boolean) {
-        this.rawSet.rbResetForces(this.handle, wakeUp);
+        this.rbSet.raw.rbResetForces(this.handle, wakeUp);
     }
 
     /**
@@ -522,7 +522,7 @@ export class RigidBody {
      */
     public addForce(force: Vector, wakeUp: boolean) {
         const rawForce = VectorOps.intoRaw(force);
-        this.rawSet.rbAddForce(this.handle, rawForce, wakeUp);
+        this.rbSet.raw.rbAddForce(this.handle, rawForce, wakeUp);
         rawForce.free();
     }
 
@@ -537,7 +537,7 @@ export class RigidBody {
         wakeUp: boolean,
     ) {
         const rawImpulse = VectorOps.intoRaw(impulse);
-        this.rawSet.rbApplyImpulse(this.handle, rawImpulse, wakeUp);
+        this.rbSet.raw.rbApplyImpulse(this.handle, rawImpulse, wakeUp);
         rawImpulse.free();
     }
 
@@ -549,7 +549,7 @@ export class RigidBody {
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
     public addTorque(torque: number, wakeUp: boolean) {
-        this.rawSet.rbAddTorque(this.handle, torque, wakeUp);
+        this.rbSet.raw.rbAddTorque(this.handle, torque, wakeUp);
     }
 
     // #endif
@@ -563,7 +563,7 @@ export class RigidBody {
      */
     public addTorque(torque: Vector, wakeUp: boolean) {
         const rawTorque = VectorOps.intoRaw(torque);
-        this.rawSet.rbAddTorque(this.handle, rawTorque, wakeUp);
+        this.rbSet.raw.rbAddTorque(this.handle, rawTorque, wakeUp);
         rawTorque.free();
     }
 
@@ -577,7 +577,7 @@ export class RigidBody {
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
     public applyTorqueImpulse(torqueImpulse: number, wakeUp: boolean) {
-        this.rawSet.rbApplyTorqueImpulse(this.handle, torqueImpulse, wakeUp);
+        this.rbSet.raw.rbApplyTorqueImpulse(this.handle, torqueImpulse, wakeUp);
     }
 
     // #endif
@@ -591,7 +591,7 @@ export class RigidBody {
      */
     public applyTorqueImpulse(torqueImpulse: Vector, wakeUp: boolean) {
         const rawTorqueImpulse = VectorOps.intoRaw(torqueImpulse);
-        this.rawSet.rbApplyTorqueImpulse(this.handle, rawTorqueImpulse, wakeUp);
+        this.rbSet.raw.rbApplyTorqueImpulse(this.handle, rawTorqueImpulse, wakeUp);
         rawTorqueImpulse.free();
     }
 
@@ -611,7 +611,7 @@ export class RigidBody {
     ) {
         const rawForce = VectorOps.intoRaw(force);
         const rawPoint = VectorOps.intoRaw(point);
-        this.rawSet.rbAddForceAtPoint(this.handle, rawForce, rawPoint, wakeUp);
+        this.rbSet.raw.rbAddForceAtPoint(this.handle, rawForce, rawPoint, wakeUp);
         rawForce.free();
         rawPoint.free();
     }
@@ -630,25 +630,25 @@ export class RigidBody {
     ) {
         const rawImpulse = VectorOps.intoRaw(impulse);
         const rawPoint = VectorOps.intoRaw(point);
-        this.rawSet.rbApplyImpulseAtPoint(this.handle, rawImpulse, rawPoint, wakeUp);
+        this.rbSet.raw.rbApplyImpulseAtPoint(this.handle, rawImpulse, rawPoint, wakeUp);
         rawImpulse.free();
         rawPoint.free();
     }
 
     /**
-     * An arbitrary user-defined 32-bit integer
+     * Gets the arbitrary user-defined object of this rigid-body.
      */
-    public get userData(): number {
-        return this.rawSet.rbUserData(this.handle);
+    public get userData(): unknown {
+        return this.rbSet.userDataSet.get(this.handle);
     }
 
     /**
-     * Sets the user-defined 32-bit integer of this rigid-body.
+     * Sets the user-defined object of this rigid-body.
      * 
-     * @param userData - The user-defined 32-bit integer to set.
+     * @param data - The user-defined object to set.
      */
-    public set userData(value: number) {
-        this.rawSet.rbSetUserData(this.handle, value);
+    public set userData(data: unknown) {
+        this.rbSet.userDataSet.set(this.handle, data);
     }
 }
 
@@ -681,6 +681,7 @@ export class RigidBodyDesc {
     canSleep: boolean;
     ccdEnabled: boolean;
     dominanceGroup: number;
+    userData: unknown;
 
     constructor(status: RigidBodyType) {
         this.status = status;
@@ -1084,6 +1085,16 @@ export class RigidBodyDesc {
      */
     public setCcdEnabled(enabled: boolean): RigidBodyDesc {
         this.ccdEnabled = enabled;
+        return this;
+    }
+
+    /**
+     * Sets the user-defined object of this rigid-body.
+     * 
+     * @param userData - The user-defined object to set.
+     */
+    public setUserData(data: unknown): RigidBodyDesc {
+        this.userData = data;
         return this;
     }
 }
