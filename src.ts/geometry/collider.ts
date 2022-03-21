@@ -18,6 +18,7 @@ import {
 import { Ray, RayIntersection } from "./ray";
 import { PointProjection } from "./point";
 import { ShapeColliderTOI, ShapeTOI } from "./toi";
+import { ShapeContact } from "./contact";
 
 /// Flags affecting whether or not collision-detection happens between two colliders
 /// depending on the type of rigid-bodies they are attached to.
@@ -595,6 +596,52 @@ export class Collider {
 
         rawCollider1Vel.free();
         rawCollider2Vel.free();
+
+        return result;
+    }
+
+    /**
+     * Computes one pair of contact points between the shape owned by this collider and the given shape.
+     *
+     * @param shape2 - The second shape.
+     * @param shape2Pos - The initial position of the second shape.
+     * @param shape2Rot - The rotation of the second shape.
+     * @param prediction - The prediction value, if the shapes are separated by a distance greater than this value, test will fail.
+     * @returns `null` if the shapes are separated by a distance greater than prediction, otherwise contact details. The result is given in world-space.
+     */
+    contactShape(shape2: Shape, shape2Pos: Vector, shape2Rot: Rotation, prediction: number): ShapeContact | null {
+        let rawPos2 = VectorOps.intoRaw(shape2Pos);
+        let rawRot2 = RotationOps.intoRaw(shape2Rot);
+        let rawShape2 = shape2.intoRaw();
+
+        let result = ShapeContact.fromRaw(this.rawSet.coContactShape(
+            this.handle,
+            rawShape2,
+            rawPos2,
+            rawRot2,
+            prediction
+        ));
+
+        rawPos2.free();
+        rawRot2.free();
+        rawShape2.free();
+
+        return result;
+    }
+
+    /**
+     * Computes one pair of contact points between the collider and the given collider.
+     *
+     * @param collider2Handle - The second collider.
+     * @param prediction - The prediction value, if the shapes are separated by a distance greater than this value, test will fail.
+     * @returns `null` if the shapes are separated by a distance greater than prediction, otherwise contact details. The result is given in world-space.
+     */
+    contactCollider(collider2Handle: ColliderHandle, prediction: number): ShapeContact | null {
+        let result = ShapeContact.fromRaw(this.rawSet.coContactCollider(
+            this.handle,
+            collider2Handle,
+            prediction
+        ));
 
         return result;
     }

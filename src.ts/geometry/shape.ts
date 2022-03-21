@@ -1,9 +1,10 @@
 import { Vector, VectorOps, Rotation, RotationOps } from "../math"
 import { RawShape } from "../raw";
+import { ShapeContact } from "./contact";
 import { ShapeTOI } from "./toi";
 
-export class Shape {
-    public intoRaw?(): RawShape;
+export abstract class Shape {
+    public abstract intoRaw(): RawShape;
 
     /**
      * Computes the time of impact between two moving shapes.
@@ -95,6 +96,46 @@ export class Shape {
             rawPos2,
             rawRot2
         );
+
+        rawPos1.free();
+        rawRot1.free();
+        rawPos2.free();
+        rawRot2.free();
+
+        rawShape1.free();
+        rawShape2.free();
+
+        return result;
+    }
+
+    /**
+     * Computes one pair of contact points between two shapes.
+     *
+     * @param shapePos1 - The initial position of this sahpe.
+     * @param shapeRot1 - The rotation of this shape.
+     * @param shape2 - The second shape.
+     * @param shapePos2 - The initial position of the second shape.
+     * @param shapeRot2 - The rotation of the second shape.
+     * @param prediction - The prediction value, if the shapes are separated by a distance greater than this value, test will fail.
+     * @returns `null` if the shapes are separated by a distance greater than prediction, otherwise contact details. The result is given in world-space.
+     */
+    contactShape(shapePos1: Vector, shapeRot1: Rotation, shape2: Shape, shapePos2: Vector, shapeRot2: Rotation, prediction: number): ShapeContact | null {
+        let rawPos1 = VectorOps.intoRaw(shapePos1);
+        let rawRot1 = RotationOps.intoRaw(shapeRot1);
+        let rawPos2 = VectorOps.intoRaw(shapePos2);
+        let rawRot2 = RotationOps.intoRaw(shapeRot2);
+
+        let rawShape1 = this.intoRaw();
+        let rawShape2 = shape2.intoRaw();
+
+        let result = ShapeContact.fromRaw(rawShape1.contactShape(
+            rawPos1,
+            rawRot1,
+            rawShape2,
+            rawPos2,
+            rawRot2,
+            prediction
+        ));
 
         rawPos1.free();
         rawRot1.free();
