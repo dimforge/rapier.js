@@ -14,6 +14,7 @@ import { IslandManager } from "./island_manager";
  */
 export class RigidBodySet {
     raw: RawRigidBodySet;
+    private map: Map<RigidBodyHandle, RigidBody>;
 
     /**
      * Release the WASM memory occupied by this rigid-body set.
@@ -21,10 +22,19 @@ export class RigidBodySet {
     public free() {
         this.raw.free();
         this.raw = undefined;
+        this.map.clear();
+        this.map = undefined;
     }
 
     constructor(raw?: RawRigidBodySet) {
         this.raw = raw || new RawRigidBodySet();
+        this.map = new Map();
+        // deserialize
+        if (raw) {
+            raw.forEachRigidBodyHandle((handle: RigidBodyHandle) => {
+                this.map.set(handle, new RigidBody(raw, handle));
+            });
+        }
     }
 
     /**
@@ -88,6 +98,11 @@ export class RigidBodySet {
         rawInertiaFrame.free();
         // #endif
 
+        const body = new RigidBody(this.raw, handle);
+        body.userData = desc.userData;
+        
+        this.map.set(handle, body);
+
         return handle;
     }
 
@@ -102,14 +117,21 @@ export class RigidBodySet {
      * @param multibodyJoints - The set of multibody joints that may contain joints attached to the removed rigid-body.
      */
     public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, impulseJoints: ImpulseJointSet, multibodyJoints: MultibodyJointSet) {
-        this.raw.remove(handle, islands.raw, colliders.raw, impulseJoints.raw, multibodyJoints.raw)
+        // remove owned colliders
+        while (this.raw.rbNumColliders(handle) > 0) {
+            const colliderHandle = this.raw.rbCollider(handle, 0);  // do not use forEach to remove because the length of the list in the Rust will be changed.
+            colliders.remove(colliderHandle, islands, this, false);
+        }
+
+        this.raw.remove(handle, islands.raw, colliders.raw, impulseJoints.raw, multibodyJoints.raw);
+        this.map.delete(handle);
     }
 
     /**
      * The number of rigid-bodies on this set.
      */
     public len(): number {
-        return this.raw.len();
+        return this.map.size;
     }
 
     /**
@@ -118,7 +140,7 @@ export class RigidBodySet {
      * @param handle - The rigid-body handle to check.
      */
     public contains(handle: RigidBodyHandle): boolean {
-        return this.raw.contains(handle);
+        return this.map.has(handle);
     }
 
     /**
@@ -126,12 +148,8 @@ export class RigidBodySet {
      *
      * @param handle - The handle of the rigid-body to retrieve.
      */
-    public get(handle: RigidBodyHandle): RigidBody {
-        if (this.raw.contains(handle)) {
-            return new RigidBody(this.raw, handle);
-        } else {
-            return null;
-        }
+    public get(handle: RigidBodyHandle): RigidBody | undefined {
+        return this.map.get(handle);
     }
 
     /**
@@ -140,9 +158,8 @@ export class RigidBodySet {
      * @param f - The closure to apply.
      */
     public forEachRigidBody(f: (body: RigidBody) => void) {
-        this.forEachRigidBodyHandle((handle) => {
-            f(new RigidBody(this.raw, handle))
-        })
+        for (const body of this.map.values())
+            f(body);
     }
 
     /**
@@ -151,7 +168,8 @@ export class RigidBodySet {
      * @param f - The closure to apply.
      */
     public forEachRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
-        this.raw.forEachRigidBodyHandle(f)
+        for (const key of this.map.keys())
+            f(key);
     }
 
     /**
@@ -163,7 +181,25 @@ export class RigidBodySet {
      */
     public forEachActiveRigidBody(islands: IslandManager, f: (body: RigidBody) => void) {
         islands.forEachActiveRigidBodyHandle((handle) => {
-            f(new RigidBody(this.raw, handle))
-        })
+            f(this.get(handle));
+        });
+    }
+
+    /**
+     * Gets all handles of the rigid-bodies in the list.
+     *
+     * @returns rigid-body handle list.
+     */
+    public getAllHandles(): RigidBodyHandle[] {
+        return Array.from(this.map.keys());
+    }
+
+    /**
+     * Gets all rigid-bodies in the list.
+     *
+     * @returns rigid-bodies list.
+     */
+    public getAllBodies(): RigidBody[] {
+        return Array.from(this.map.values());
     }
 }

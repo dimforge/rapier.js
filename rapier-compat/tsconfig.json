@@ -2,7 +2,7 @@
   "extends": "./tsconfig.common.json",
   "compilerOptions": {
     "lib": [
-      "es2015",
+      "es6",
       "DOM"
     ],
     "esModuleInterop": true,
