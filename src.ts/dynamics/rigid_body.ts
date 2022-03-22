@@ -46,6 +46,11 @@ export enum RigidBodyType {
 export class RigidBody {
     private rawSet: RawRigidBodySet; // The RigidBody won't need to free this.
     readonly handle: RigidBodyHandle;
+    
+    /**
+     * An arbitrary user-defined object associated with this rigid-body.
+     */
+    public userData?: unknown;
 
     constructor(rawSet: RawRigidBodySet, handle: RigidBodyHandle) {
         this.rawSet = rawSet;
@@ -634,22 +639,6 @@ export class RigidBody {
         rawImpulse.free();
         rawPoint.free();
     }
-
-    /**
-     * An arbitrary user-defined 32-bit integer
-     */
-    public get userData(): number {
-        return this.rawSet.rbUserData(this.handle);
-    }
-
-    /**
-     * Sets the user-defined 32-bit integer of this rigid-body.
-     * 
-     * @param userData - The user-defined 32-bit integer to set.
-     */
-    public set userData(value: number) {
-        this.rawSet.rbSetUserData(this.handle, value);
-    }
 }
 
 export class RigidBodyDesc {
@@ -681,6 +670,7 @@ export class RigidBodyDesc {
     canSleep: boolean;
     ccdEnabled: boolean;
     dominanceGroup: number;
+    userData?: unknown;
 
     constructor(status: RigidBodyType) {
         this.status = status;
@@ -1084,6 +1074,16 @@ export class RigidBodyDesc {
      */
     public setCcdEnabled(enabled: boolean): RigidBodyDesc {
         this.ccdEnabled = enabled;
+        return this;
+    }
+
+    /**
+     * Sets the user-defined object of this rigid-body.
+     * 
+     * @param userData - The user-defined object to set.
+     */
+    public setUserData(data?: unknown): RigidBodyDesc {
+        this.userData = data;
         return this;
     }
 }
