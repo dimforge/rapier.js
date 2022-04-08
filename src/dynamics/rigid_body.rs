@@ -324,6 +324,11 @@ impl RawRigidBodySet {
         self.map(handle, |rb| rb.body_type().into())
     }
 
+    /// Set a new status for this rigid-body: fixed, dynamic, or kinematic.
+    pub fn rbSetBodyType(&mut self, handle: u32, status: RawRigidBodyType) {
+        self.map_mut(handle, |rb| rb.set_body_type(status.into()));
+    }
+
     /// Is this rigid-body fixed?
     pub fn rbIsFixed(&self, handle: u32) -> bool {
         self.map(handle, |rb| rb.is_fixed())
