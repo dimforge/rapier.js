@@ -435,6 +435,13 @@ export class RigidBody {
     }
 
     /**
+     * Set a new status for this rigid-body: static, dynamic, or kinematic.
+     */
+     public setBodyType(type: RigidBodyType) {
+        return this.rawSet.rbSetBodyType(this.handle, type);
+    }
+
+    /**
      * Is this rigid-body sleeping?
      */
     public isSleeping(): boolean {
