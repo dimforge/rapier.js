@@ -2,8 +2,10 @@ import { Vector, VectorOps, Rotation, RotationOps } from "../math"
 import { RawShape } from "../raw";
 import { ShapeTOI } from "./toi";
 
-export class Shape {
-    public intoRaw?(): RawShape;
+export abstract class Shape {
+    public abstract intoRaw(): RawShape;
+
+    public abstract get type(): ShapeType;
 
     /**
      * Computes the time of impact between two moving shapes.
@@ -160,10 +162,12 @@ export enum ShapeType {
  * A shape that is a sphere in 3D and a circle in 2D.
  */
 export class Ball extends Shape {
+    readonly type = ShapeType.Ball;
+
     /**
      * The balls radius.
      */
-    readonly radius: number;
+    radius: number;
 
     /**
      * Creates a new ball with the given radius.
@@ -183,6 +187,8 @@ export class Ball extends Shape {
  * A shape that is a box in 3D and a rectangle in 2D.
  */
 export class Cuboid extends Shape {
+    readonly type = ShapeType.Cuboid;
+
     /**
      * The half extent of the cuboid along each coordinate axis.
      */
@@ -231,6 +237,8 @@ export class Cuboid extends Shape {
  * A shape that is a box in 3D and a rectangle in 2D, with round corners.
  */
 export class RoundCuboid extends Shape {
+    readonly type = ShapeType.RoundCuboid;
+
     /**
      * The half extent of the cuboid along each coordinate axis.
      */
@@ -289,15 +297,17 @@ export class RoundCuboid extends Shape {
  * A shape that is a capsule.
  */
 export class Capsule extends Shape {
+    readonly type = ShapeType.Capsule;
+
     /**
      * The radius of the capsule's basis.
      */
-    readonly radius: number;
+    radius: number;
 
     /**
      * The capsule's half height, along the `y` axis.
      */
-    readonly halfHeight: number;
+    halfHeight: number;
 
     /**
      * Creates a new capsule with the given radius and half-height.
@@ -319,15 +329,17 @@ export class Capsule extends Shape {
  * A shape that is a segment.
  */
 export class Segment extends Shape {
+    readonly type = ShapeType.Segment;
+
     /**
      * The first point of the segment.
      */
-    readonly a: Vector;
+    a: Vector;
 
     /**
      * The second point of the segment.
      */
-    readonly b: Vector;
+    b: Vector;
 
     /**
      * Creates a new segment shape.
@@ -354,20 +366,22 @@ export class Segment extends Shape {
  * A shape that is a segment.
  */
 export class Triangle extends Shape {
+    readonly type = ShapeType.Triangle;
+
     /**
      * The first point of the triangle.
      */
-    readonly a: Vector;
+    a: Vector;
 
     /**
      * The second point of the triangle.
      */
-    readonly b: Vector;
+    b: Vector;
 
     /**
      * The second point of the triangle.
      */
-    readonly c: Vector;
+    c: Vector;
 
     /**
      * Creates a new triangle shape.
@@ -400,26 +414,28 @@ export class Triangle extends Shape {
  * A shape that is a triangle with round borders and a non-zero thickness.
  */
 export class RoundTriangle extends Shape {
+    readonly type = ShapeType.RoundTriangle;
+
     /**
      * The first point of the triangle.
      */
-    readonly a: Vector;
+    a: Vector;
 
     /**
      * The second point of the triangle.
      */
-    readonly b: Vector;
+    b: Vector;
 
     /**
      * The second point of the triangle.
      */
-    readonly c: Vector;
+    c: Vector;
 
     /**
      * The radius of the triangles's rounded edges and vertices.
      * In 3D, this is also equal to half the thickness of the round triangle.
      */
-    readonly borderRadius: number;
+    borderRadius: number;
 
     /**
      * Creates a new triangle shape with round corners.
@@ -454,27 +470,29 @@ export class RoundTriangle extends Shape {
  * A shape that is a triangle mesh.
  */
 export class Polyline extends Shape {
+    readonly type = ShapeType.Polyline;
+
     /**
      * The vertices of the polyline.
      */
-    readonly vertices: Float32Array;
+    vertices: Float32Array;
 
     /**
      * The indices of the segments.
      */
-    readonly indices: Uint32Array;
+    indices: Uint32Array;
 
     /**
      * Creates a new polyline shape.
      *
      * @param vertices - The coordinates of the polyline's vertices.
-     * @param indices - The indices of the polyline's segments. If this is `null` then
+     * @param indices - The indices of the polyline's segments. If this is `null` or not provided, then
      *    the vertices are assumed to form a line strip.
      */
-    constructor(vertices: Float32Array, indices: Uint32Array) {
+    constructor(vertices: Float32Array, indices?: Uint32Array) {
         super();
         this.vertices = vertices;
-        this.indices = !!indices ? indices : new Uint32Array(0);
+        this.indices = indices ?? new Uint32Array(0);
     }
 
     public intoRaw(): RawShape {
@@ -486,15 +504,17 @@ export class Polyline extends Shape {
  * A shape that is a triangle mesh.
  */
 export class TriMesh extends Shape {
+    readonly type = ShapeType.TriMesh;
+
     /**
      * The vertices of the triangle mesh.
      */
-    readonly vertices: Float32Array;
+    vertices: Float32Array;
 
     /**
      * The indices of the triangles.
      */
-    readonly indices: Uint32Array;
+    indices: Uint32Array;
 
     /**
      * Creates a new triangle mesh shape.
@@ -519,15 +539,17 @@ export class TriMesh extends Shape {
  * A shape that is a convex polygon.
  */
 export class ConvexPolygon extends Shape {
+    readonly type = ShapeType.ConvexPolygon;
+
     /**
      * The vertices of the convex polygon.
      */
-    readonly vertices: Float32Array;
+    vertices: Float32Array;
 
     /**
      * Do we want to assume the vertices already form a convex hull?
      */
-    readonly skipConvexHullComputation: boolean;
+    skipConvexHullComputation: boolean;
 
     /**
      * Creates a new convex polygon shape.
@@ -556,20 +578,22 @@ export class ConvexPolygon extends Shape {
  * A shape that is a convex polygon.
  */
 export class RoundConvexPolygon extends Shape {
+    readonly type = ShapeType.RoundConvexPolygon;
+
     /**
      * The vertices of the convex polygon.
      */
-    readonly vertices: Float32Array;
+    vertices: Float32Array;
 
     /**
      * Do we want to assume the vertices already form a convex hull?
      */
-    readonly skipConvexHullComputation: boolean;
+    skipConvexHullComputation: boolean;
 
     /**
      * The radius of the convex polygon's rounded edges and vertices.
      */
-    readonly borderRadius: number;
+    borderRadius: number;
 
     /**
      * Creates a new convex polygon shape.
@@ -600,15 +624,17 @@ export class RoundConvexPolygon extends Shape {
  * A shape that is a heightfield.
  */
 export class Heightfield extends Shape {
+    readonly type = ShapeType.HeightField;
+
     /**
      * The heights of the heightfield, along its local `y` axis.
      */
-    readonly heights: Float32Array;
+    heights: Float32Array;
 
     /**
      * The heightfield's length along its local `x` axis.
      */
-    readonly scale: Vector;
+    scale: Vector;
 
     /**
      * Creates a new heightfield shape.
@@ -638,16 +664,17 @@ export class Heightfield extends Shape {
  * A shape that is a convex polygon.
  */
 export class ConvexPolyhedron extends Shape {
+    readonly type = ShapeType.ConvexPolyhedron;
+
     /**
      * The vertices of the convex polygon.
      */
-    readonly vertices: Float32Array;
+    vertices: Float32Array;
 
     /**
      * The indices of the convex polygon.
      */
-    readonly indices: Uint32Array | null;
-
+    indices?: Uint32Array;
 
     /**
      * Creates a new convex polygon shape.
@@ -658,7 +685,7 @@ export class ConvexPolyhedron extends Shape {
      *   automatically. Otherwise, it will be assumed that the mesh you provide
      *   is already convex.
      */
-    constructor(vertices: Float32Array, indices: Uint32Array | null) {
+    constructor(vertices: Float32Array, indices?: Uint32Array) {
         super();
         this.vertices = vertices;
         this.indices = indices;
@@ -678,20 +705,22 @@ export class ConvexPolyhedron extends Shape {
  * A shape that is a convex polygon.
  */
 export class RoundConvexPolyhedron extends Shape {
+    readonly type = ShapeType.RoundConvexPolyhedron;
+
     /**
      * The vertices of the convex polygon.
      */
-    readonly vertices: Float32Array;
+    vertices: Float32Array;
 
     /**
      * The indices of the convex polygon.
      */
-    readonly indices: Uint32Array | null;
+    indices?: Uint32Array;
 
     /**
      * The radius of the convex polyhedron's rounded edges and vertices.
      */
-    readonly borderRadius: number;
+    borderRadius: number;
 
     /**
      * Creates a new convex polygon shape.
@@ -703,7 +732,7 @@ export class RoundConvexPolyhedron extends Shape {
      *   is already convex.
      * @param borderRadius - The radius of the borders of this convex polyhedron.
      */
-    constructor(vertices: Float32Array, indices: Uint32Array | null, borderRadius: number) {
+    constructor(vertices: Float32Array, indices: Uint32Array | null | undefined, borderRadius: number) {
         super();
         this.vertices = vertices;
         this.indices = indices;
@@ -723,26 +752,28 @@ export class RoundConvexPolyhedron extends Shape {
  * A shape that is a heightfield.
  */
 export class Heightfield extends Shape {
+    readonly type = ShapeType.HeightField;
+
     /**
      * The number of rows in the heights matrix.
      */
-    readonly nrows: number;
+    nrows: number;
 
     /**
      * The number of columns in the heights matrix.
      */
-    readonly ncols: number;
+    ncols: number;
 
     /**
      * The heights of the heightfield along its local `y` axis,
      * provided as a matrix stored in column-major order.
      */
-    readonly heights: Float32Array;
+    heights: Float32Array;
 
     /**
      * The dimensions of the heightfield's local `x,z` plane.
      */
-    readonly scale: Vector;
+    scale: Vector;
 
     /**
      * Creates a new heightfield shape.
@@ -773,15 +804,17 @@ export class Heightfield extends Shape {
  * A shape that is a 3D cylinder.
  */
 export class Cylinder extends Shape {
+    readonly type = ShapeType.Cylinder;
+
     /**
      * The radius of the cylinder's basis.
      */
-    readonly radius: number;
+    radius: number;
 
     /**
      * The cylinder's half height, along the `y` axis.
      */
-    readonly halfHeight: number;
+    halfHeight: number;
 
     /**
      * Creates a new cylinder with the given radius and half-height.
@@ -804,20 +837,22 @@ export class Cylinder extends Shape {
  * A shape that is a 3D cylinder with round corners.
  */
 export class RoundCylinder extends Shape {
+    readonly type = ShapeType.RoundCylinder;
+
     /**
      * The radius of the cylinder's basis.
      */
-    readonly radius: number;
+    radius: number;
 
     /**
      * The cylinder's half height, along the `y` axis.
      */
-    readonly halfHeight: number;
+    halfHeight: number;
 
     /**
      * The radius of the cylinder's rounded edges and vertices.
      */
-    readonly borderRadius: number;
+    borderRadius: number;
 
     /**
      * Creates a new cylinder with the given radius and half-height.
@@ -841,15 +876,17 @@ export class RoundCylinder extends Shape {
  * A shape that is a 3D cone.
  */
 export class Cone extends Shape {
+    readonly type = ShapeType.Cone;
+
     /**
      * The radius of the cone's basis.
      */
-    readonly radius: number;
+    radius: number;
 
     /**
      * The cone's half height, along the `y` axis.
      */
-    readonly halfHeight: number;
+    halfHeight: number;
 
     /**
      * Creates a new cone with the given radius and half-height.
@@ -871,20 +908,22 @@ export class Cone extends Shape {
  * A shape that is a 3D cone with round corners.
  */
 export class RoundCone extends Shape {
+    readonly type = ShapeType.RoundCone;
+
     /**
      * The radius of the cone's basis.
      */
-    readonly radius: number;
+    radius: number;
 
     /**
      * The cone's half height, along the `y` axis.
      */
-    readonly halfHeight: number;
+    halfHeight: number;
 
     /**
      * The radius of the cylinder's rounded edges and vertices.
      */
-    readonly borderRadius: number;
+    borderRadius: number;
 
     /**
      * Creates a new cone with the given radius and half-height.

@@ -1,3 +1,4 @@
+use crate::geometry::feature::IntoTypedValue;
 use crate::math::RawVector;
 use rapier::geometry::{ColliderHandle, RayIntersection};
 use wasm_bindgen::prelude::*;
@@ -13,6 +14,14 @@ impl RawRayIntersection {
 
     pub fn toi(&self) -> f32 {
         self.0.toi
+    }
+
+    pub fn featureType(&self) -> Option<u32> {
+        self.0.feature.into_type().into()
+    }
+
+    pub fn featureId(&self) -> Option<u32> {
+        self.0.feature.into_value()
     }
 }
 
@@ -34,6 +43,14 @@ impl RawRayColliderIntersection {
 
     pub fn toi(&self) -> f32 {
         self.inter.toi
+    }
+
+    pub fn featureType(&self) -> Option<u32> {
+        self.inter.feature.into_type().into()
+    }
+
+    pub fn featureId(&self) -> Option<u32> {
+        self.inter.feature.into_value()
     }
 }
 

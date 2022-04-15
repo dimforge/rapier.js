@@ -63,12 +63,12 @@ export type ColliderHandle = number;
 export class Collider {
     private rawSet: RawColliderSet; // The Collider won't need to free this.
     readonly handle: ColliderHandle;
+    private shape: Shape;
 
     constructor(rawSet: RawColliderSet, handle: ColliderHandle) {
         this.rawSet = rawSet;
         this.handle = handle;
     }
-
 
     /**
      * Checks if this collider is still valid (i.e. that it has
@@ -107,6 +107,11 @@ export class Collider {
         let rawShape = shape.intoRaw();
         this.rawSet.coSetShape(this.handle, rawShape);
         rawShape.free();
+        this.shape = shape;
+    }
+
+    public getShape<T extends Shape>(): T {
+        return this.shape as T;
     }
 
     /**
@@ -323,6 +328,7 @@ export class Collider {
 
     /**
      * The type of the shape of this collider.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public shapeType(): ShapeType {
         return this.rawSet.coShapeType(this.handle);
@@ -330,6 +336,7 @@ export class Collider {
 
     /**
      * The half-extents of this collider if it is a cuboid shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public halfExtents(): Vector {
         return VectorOps.fromRaw(this.rawSet.coHalfExtents(this.handle));
@@ -337,6 +344,7 @@ export class Collider {
 
     /**
      * The radius of this collider if it is a ball, cylinder, capsule, or cone shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public radius(): number {
         return this.rawSet.coRadius(this.handle);
@@ -344,6 +352,7 @@ export class Collider {
 
     /**
      * The radius of the round edges of this collider if it is a round cylinder.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public roundRadius(): number {
         return this.rawSet.coRoundRadius(this.handle);
@@ -351,6 +360,7 @@ export class Collider {
 
     /**
      * The half height of this collider if it is a cylinder, capsule, or cone shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public halfHeight(): number {
         return this.rawSet.coHalfHeight(this.handle);
@@ -359,6 +369,7 @@ export class Collider {
     /**
      * If this collider has a triangle mesh, polyline, convex polygon, or convex polyhedron shape,
      * this returns the vertex buffer of said shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public vertices(): Float32Array {
         return this.rawSet.coVertices(this.handle);
@@ -367,6 +378,7 @@ export class Collider {
     /**
      * If this collider has a triangle mesh, polyline, or convex polyhedron shape,
      * this returns the index buffer of said shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public indices(): Uint32Array {
         return this.rawSet.coIndices(this.handle);
@@ -376,6 +388,7 @@ export class Collider {
      * If this collider has a heightfield shape, this returns the heights buffer of
      * the heightfield.
      * In 3D, the returned height matrix is provided in column-major order.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public heightfieldHeights(): Float32Array {
         return this.rawSet.coHeightfieldHeights(this.handle);
@@ -384,6 +397,7 @@ export class Collider {
     /**
      * If this collider has a heightfield shape, this returns the scale
      * applied to it.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public heightfieldScale(): Vector {
         let scale = this.rawSet.coHeightfieldScale(this.handle);
@@ -394,6 +408,7 @@ export class Collider {
     /**
      * If this collider has a heightfield shape, this returns the number of
      * rows of its height matrix.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public heightfieldNRows(): number {
         return this.rawSet.coHeightfieldNRows(this.handle);
@@ -402,6 +417,7 @@ export class Collider {
     /**
      * If this collider has a heightfield shape, this returns the number of
      * columns of its height matrix.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public heightfieldNCols(): number {
         return this.rawSet.coHeightfieldNCols(this.handle);

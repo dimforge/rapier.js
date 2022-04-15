@@ -1,6 +1,7 @@
 import { Vector, VectorOps } from "../math";
 import { RawRayColliderIntersection, RawRayColliderToi, RawRayIntersection } from "../raw";
 import { ColliderHandle } from "./collider";
+import { FeatureType } from "./feature";
 
 /**
  * A ray. This is a directed half-line.
@@ -53,9 +54,17 @@ export class RayIntersection {
      */
     normal: Vector
 
-    constructor(toi: number, normal: Vector) {
+    featureType = FeatureType.Unknown;
+    
+    featureId: number | undefined = undefined;
+
+    constructor(toi: number, normal: Vector, featureType?: FeatureType, featureId?: number) {
         this.toi = toi;
         this.normal = normal;
+        if (featureId !== undefined)
+            this.featureId = featureId;
+        if (featureType !== undefined)
+            this.featureType = featureType;
     }
 
     public static fromRaw(raw: RawRayIntersection): RayIntersection {
@@ -64,7 +73,9 @@ export class RayIntersection {
 
         const result = new RayIntersection(
             raw.toi(),
-            VectorOps.fromRaw(raw.normal())
+            VectorOps.fromRaw(raw.normal()),
+            raw.featureType(),
+            raw.featureId()
         );
         raw.free();
         return result;
@@ -90,10 +101,18 @@ export class RayColliderIntersection {
      */
     normal: Vector
 
-    constructor(colliderHandle: ColliderHandle, toi: number, normal: Vector) {
+    featureType = FeatureType.Unknown;
+    
+    featureId: number | undefined = undefined;
+
+    constructor(colliderHandle: ColliderHandle, toi: number, normal: Vector, featureType?: FeatureType, featureId?: number) {
         this.colliderHandle = colliderHandle;
         this.toi = toi;
         this.normal = normal;
+        if (featureId !== undefined)
+            this.featureId = featureId;
+        if (featureType !== undefined)
+            this.featureType = featureType;
     }
 
     public static fromRaw(raw: RawRayColliderIntersection): RayColliderIntersection {
@@ -103,7 +122,9 @@ export class RayColliderIntersection {
         const result = new RayColliderIntersection(
             raw.colliderHandle(),
             raw.toi(),
-            VectorOps.fromRaw(raw.normal())
+            VectorOps.fromRaw(raw.normal()),
+            raw.featureType(),
+            raw.featureId()
         );
         raw.free();
         return result;
