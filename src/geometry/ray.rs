@@ -1,4 +1,4 @@
-use crate::geometry::feature::IntoTypedValue;
+use crate::geometry::feature::IntoTypeValue;
 use crate::math::RawVector;
 use rapier::geometry::{ColliderHandle, RayIntersection};
 use wasm_bindgen::prelude::*;

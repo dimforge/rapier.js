@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 #[cfg(feature = "dim2")]
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
-pub enum FeatureIdType {
+pub enum RawFeatureType {
     Vertex,
     Face,
     Unknown,
@@ -13,38 +13,38 @@ pub enum FeatureIdType {
 #[cfg(feature = "dim3")]
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
-pub enum FeatureIdType {
+pub enum RawFeatureType {
     Vertex,
     Edge,
     Face,
     Unknown,
 }
 
-impl Into<Option<u32>> for FeatureIdType {
+impl Into<Option<u32>> for RawFeatureType {
     fn into(self) -> Option<u32> {
         match self {
-            FeatureIdType::Vertex => Some(0),
+            RawFeatureType::Vertex => Some(0),
             #[cfg(feature = "dim3")]
-            FeatureIdType::Edge => Some(1),
-            FeatureIdType::Face => Some(2),
-            FeatureIdType::Unknown => None,
+            RawFeatureType::Edge => Some(1),
+            RawFeatureType::Face => Some(2),
+            RawFeatureType::Unknown => None,
         }
     }
 }
 
-pub trait IntoTypedValue {
-    fn into_type(self) -> FeatureIdType;
+pub trait IntoTypeValue {
+    fn into_type(self) -> RawFeatureType;
     fn into_value(self) -> Option<u32>;
 }
 
-impl IntoTypedValue for FeatureId {
-    fn into_type(self) -> FeatureIdType {
+impl IntoTypeValue for FeatureId {
+    fn into_type(self) -> RawFeatureType {
         match self {
-            FeatureId::Vertex(_) => FeatureIdType::Vertex,
+            FeatureId::Vertex(_) => RawFeatureType::Vertex,
             #[cfg(feature = "dim3")]
-            FeatureId::Edge(_) => FeatureIdType::Edge,
-            FeatureId::Face(_) => FeatureIdType::Face,
-            _ => FeatureIdType::Unknown,
+            FeatureId::Edge(_) => RawFeatureType::Edge,
+            FeatureId::Face(_) => RawFeatureType::Face,
+            _ => RawFeatureType::Unknown,
         }
     }
 
