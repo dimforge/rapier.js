@@ -371,13 +371,15 @@ export class World {
      * @param body - The rigid-body to remove.
      */
     public removeRigidBody(body: RigidBody) {
-        this.bodies.remove(
-            body.handle,
-            this.islands,
-            this.colliders,
-            this.impulseJoints,
-            this.multibodyJoints,
-        );
+        if (this.bodies) {
+            this.bodies.remove(
+                body.handle,
+                this.islands,
+                this.colliders,
+                this.impulseJoints,
+                this.multibodyJoints,
+            );
+        }
     }
 
     /**
@@ -387,12 +389,14 @@ export class World {
      * @param wakeUp - If set to `true`, the rigid-body this collider is attached to will be awaken.
      */
     public removeCollider(collider: Collider, wakeUp: boolean) {
-        this.colliders.remove(
-            collider.handle,
-            this.islands,
-            this.bodies,
-            wakeUp,
-        );
+        if (this.colliders) {
+            this.colliders.remove(
+                collider.handle,
+                this.islands,
+                this.bodies,
+                wakeUp,
+            );
+        }
     }
 
     /**
@@ -402,12 +406,14 @@ export class World {
      * @param wakeUp - If set to `true`, the rigid-bodies attached by this joint will be awaken.
      */
     public removeImpulseJoint(joint: ImpulseJoint, wakeUp: boolean) {
-        this.impulseJoints.remove(
-            joint.handle,
-            this.islands,
-            this.bodies,
-            wakeUp,
-        );
+        if (this.impulseJoints) {
+            this.impulseJoints.remove(
+                joint.handle,
+                this.islands,
+                this.bodies,
+                wakeUp,
+            );
+        }
     }
 
     /**
@@ -417,12 +423,14 @@ export class World {
      * @param wakeUp - If set to `true`, the rigid-bodies attached by this joint will be awaken.
      */
     public removeMultibodyJoint(joint: MultibodyJoint, wakeUp: boolean) {
-        this.multibodyJoints.remove(
-            joint.handle,
-            this.islands,
-            this.bodies,
-            wakeUp,
-        );
+        if (this.impulseJoints) {
+            this.multibodyJoints.remove(
+                joint.handle,
+                this.islands,
+                this.bodies,
+                wakeUp,
+            );
+        }
     }
 
     /**

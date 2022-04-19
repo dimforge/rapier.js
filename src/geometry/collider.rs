@@ -1,6 +1,6 @@
 use crate::geometry::{
     RawColliderSet, RawPointProjection, RawRayIntersection, RawShape, RawShapeColliderTOI,
-    RawShapeTOI, RawShapeType,
+    RawShapeContact, RawShapeTOI, RawShapeType,
 };
 use crate::math::{RawRotation, RawVector};
 use rapier::geometry::{ActiveCollisionTypes, Ray, ShapeType};
@@ -431,6 +431,49 @@ impl RawColliderSet {
                     toi,
                 })
             })
+        })
+    }
+
+    pub fn coContactShape(
+        &self,
+        handle: u32,
+        shape2: &RawShape,
+        shapePos2: &RawVector,
+        shapeRot2: &RawRotation,
+        prediction: f32,
+    ) -> Option<RawShapeContact> {
+        let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
+
+        self.map(handle, |co| {
+            query::contact(co.position(), co.shape(), &pos2, &*shape2.0, prediction)
+                .ok()
+                .flatten()
+                .map(|contact| RawShapeContact { contact })
+        })
+    }
+
+    pub fn coContactCollider(
+        &self,
+        handle: u32,
+        collider2Handle: u32,
+        prediction: f32,
+    ) -> Option<RawShapeContact> {
+        let (co2, _) = self
+            .0
+            .get_unknown_gen(collider2Handle)
+            .expect("Invalid Collider reference. It may have been removed from the physics World.");
+
+        self.map(handle, |co| {
+            query::contact(
+                co.position(),
+                co.shape(),
+                &co2.position(),
+                co2.shape(),
+                prediction,
+            )
+            .ok()
+            .flatten()
+            .map(|contact| RawShapeContact { contact })
         })
     }
 
