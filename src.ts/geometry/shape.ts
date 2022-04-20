@@ -715,7 +715,7 @@ export class ConvexPolyhedron extends Shape {
     /**
      * The indices of the convex polygon.
      */
-    indices?: Uint32Array;
+    indices?: Uint32Array | null;
 
     /**
      * Creates a new convex polygon shape.
@@ -726,7 +726,7 @@ export class ConvexPolyhedron extends Shape {
      *   automatically. Otherwise, it will be assumed that the mesh you provide
      *   is already convex.
      */
-    constructor(vertices: Float32Array, indices?: Uint32Array) {
+    constructor(vertices: Float32Array, indices?: Uint32Array | null) {
         super();
         this.vertices = vertices;
         this.indices = indices;
