@@ -600,6 +600,29 @@ export class Collider {
         return result;
     }
 
+    public intersectsShape(
+        shape2: Shape,
+        shapePos2: Vector,
+        shapeRot2: Rotation,
+    ): boolean {
+        let rawPos2 = VectorOps.intoRaw(shapePos2);
+        let rawRot2 = RotationOps.intoRaw(shapeRot2);
+        let rawShape2 = shape2.intoRaw();
+
+        let result = this.rawSet.coIntersectsShape(
+            this.handle,
+            rawShape2,
+            rawPos2,
+            rawRot2
+        );
+
+        rawPos2.free();
+        rawRot2.free();
+        rawShape2.free();
+
+        return result;
+    }
+
     /**
      * Computes one pair of contact points between the shape owned by this collider and the given shape.
      *

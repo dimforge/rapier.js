@@ -1,6 +1,8 @@
 import { Vector, VectorOps, Rotation, RotationOps } from "../math"
 import { RawShape } from "../raw";
 import { ShapeContact } from "./contact";
+import { PointProjection } from "./point";
+import { RayIntersection } from "./ray";
 import { ShapeTOI } from "./toi";
 
 export abstract class Shape {
@@ -144,6 +146,150 @@ export abstract class Shape {
 
         rawShape1.free();
         rawShape2.free();
+
+        return result;
+    }
+
+    containsPoint(
+        shapePos: Vector,
+        shapeRot: Rotation,
+        point: Vector,
+    ): boolean {
+        let rawPos = VectorOps.intoRaw(shapePos);
+        let rawRot = RotationOps.intoRaw(shapeRot);
+        let rawPoint = VectorOps.intoRaw(point);
+
+        let rawShape = this.intoRaw();
+
+        let result = rawShape.containsPoint(
+            rawPos,
+            rawRot,
+            rawPoint
+        );
+
+        rawPos.free();
+        rawRot.free();
+        rawPoint.free();
+
+        return result;
+    }
+
+    projectPoint(
+        shapePos: Vector,
+        shapeRot: Rotation,
+        point: Vector,
+        solid: boolean
+    ): PointProjection {
+        let rawPos = VectorOps.intoRaw(shapePos);
+        let rawRot = RotationOps.intoRaw(shapeRot);
+        let rawPoint = VectorOps.intoRaw(point);
+
+        let rawShape = this.intoRaw();
+
+        let result = PointProjection.fromRaw(rawShape.projectPoint(
+            rawPos,
+            rawRot,
+            rawPoint,
+            solid
+        ));
+
+        rawPos.free();
+        rawRot.free();
+        rawPoint.free();
+
+        return result;
+    }
+
+    intersectsRay(
+        shapePos: Vector,
+        shapeRot: Rotation,
+        rayOrig: Vector,
+        rayDir: Vector,
+        maxToi: number,
+    ): boolean {
+        let rawPos = VectorOps.intoRaw(shapePos);
+        let rawRot = RotationOps.intoRaw(shapeRot);
+        let rawRayOrig = VectorOps.intoRaw(rayOrig);
+        let rawRayDir = VectorOps.intoRaw(rayDir);
+
+        let rawShape = this.intoRaw();
+
+        let result = rawShape.intersectsRay(
+            rawPos,
+            rawRot,
+            rawRayOrig,
+            rawRayDir,
+            maxToi
+        );
+
+        rawPos.free();
+        rawRot.free();
+        rawRayOrig.free();
+        rawRayDir.free();
+
+        return result;
+    }
+
+    castRay(
+        shapePos: Vector,
+        shapeRot: Rotation,
+        rayOrig: Vector,
+        rayDir: Vector,
+        maxToi: number,
+        solid: boolean
+    ): number {
+        let rawPos = VectorOps.intoRaw(shapePos);
+        let rawRot = RotationOps.intoRaw(shapeRot);
+        let rawRayOrig = VectorOps.intoRaw(rayOrig);
+        let rawRayDir = VectorOps.intoRaw(rayDir);
+
+        let rawShape = this.intoRaw();
+
+        let result = rawShape.castRay(
+            rawPos,
+            rawRot,
+            rawRayOrig,
+            rawRayDir,
+            maxToi,
+            solid
+        );
+
+        rawPos.free();
+        rawRot.free();
+        rawRayOrig.free();
+        rawRayDir.free();
+
+        return result;
+    }
+
+    castRayAndGetNormal(
+        shapePos: Vector,
+        shapeRot: Rotation,
+        rayOrig: Vector,
+        rayDir: Vector,
+        maxToi: number,
+        solid: boolean,
+    ): RayIntersection {
+        let rawPos = VectorOps.intoRaw(shapePos);
+        let rawRot = RotationOps.intoRaw(shapeRot);
+        let rawRayOrig = VectorOps.intoRaw(rayOrig);
+        let rawRayDir = VectorOps.intoRaw(rayDir);
+
+        let rawShape = this.intoRaw();
+
+        let result = RayIntersection.fromRaw(rawShape.castRayAndGetNormal(
+            rawPos,
+            rawRot,
+            rawRayOrig,
+            rawRayDir,
+            maxToi,
+            solid
+        ));
+
+        rawPos.free();
+        rawRot.free();
+        rawRayOrig.free();
+        rawRayDir.free();
 
         return result;
     }
