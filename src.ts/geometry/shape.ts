@@ -2,7 +2,7 @@ import { Vector, VectorOps, Rotation, RotationOps } from "../math"
 import { RawShape } from "../raw";
 import { ShapeContact } from "./contact";
 import { PointProjection } from "./point";
-import { RayIntersection } from "./ray";
+import { Ray, RayIntersection } from "./ray";
 import { ShapeTOI } from "./toi";
 
 export abstract class Shape {
@@ -201,16 +201,15 @@ export abstract class Shape {
     }
 
     intersectsRay(
+        ray: Ray,
         shapePos: Vector,
         shapeRot: Rotation,
-        rayOrig: Vector,
-        rayDir: Vector,
         maxToi: number,
     ): boolean {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
-        let rawRayOrig = VectorOps.intoRaw(rayOrig);
-        let rawRayDir = VectorOps.intoRaw(rayDir);
+        let rawRayOrig = VectorOps.intoRaw(ray.origin);
+        let rawRayDir = VectorOps.intoRaw(ray.dir);
 
         let rawShape = this.intoRaw();
 
@@ -231,17 +230,16 @@ export abstract class Shape {
     }
 
     castRay(
+        ray: Ray,
         shapePos: Vector,
         shapeRot: Rotation,
-        rayOrig: Vector,
-        rayDir: Vector,
         maxToi: number,
         solid: boolean
     ): number {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
-        let rawRayOrig = VectorOps.intoRaw(rayOrig);
-        let rawRayDir = VectorOps.intoRaw(rayDir);
+        let rawRayOrig = VectorOps.intoRaw(ray.origin);
+        let rawRayDir = VectorOps.intoRaw(ray.dir);
 
         let rawShape = this.intoRaw();
 
@@ -263,17 +261,16 @@ export abstract class Shape {
     }
 
     castRayAndGetNormal(
+        ray: Ray,
         shapePos: Vector,
         shapeRot: Rotation,
-        rayOrig: Vector,
-        rayDir: Vector,
         maxToi: number,
         solid: boolean,
     ): RayIntersection {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
-        let rawRayOrig = VectorOps.intoRaw(rayOrig);
-        let rawRayDir = VectorOps.intoRaw(rayDir);
+        let rawRayOrig = VectorOps.intoRaw(ray.origin);
+        let rawRayDir = VectorOps.intoRaw(ray.dir);
 
         let rawShape = this.intoRaw();
 
