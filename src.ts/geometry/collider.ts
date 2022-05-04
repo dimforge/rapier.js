@@ -66,10 +66,14 @@ export class Collider {
     readonly handle: ColliderHandle;
     private shape: Shape;
 
-    constructor(rawSet: RawColliderSet, handle: ColliderHandle, shape: Shape) {
+    constructor(rawSet: RawColliderSet, handle: ColliderHandle, shape?: Shape) {
         this.rawSet = rawSet;
         this.handle = handle;
-        this.shape = shape;
+        // init and cache the shape
+        if (shape)
+            this.shape = shape;
+        else
+            this.shape = this.getShapeFromRaw();
     }
 
     /**
@@ -112,8 +116,157 @@ export class Collider {
         this.shape = shape;
     }
 
+    /**
+     * access to the cached shape instance
+     * @returns 
+     */
     public getShape<T extends Shape>(): T {
         return this.shape as T;
+    }
+
+    /**
+     * instant mode without cache
+     */
+    getShapeFromRaw(): Shape {
+        const rawSet = this.rawSet;
+        const rawType = rawSet.coShapeType(this.handle);
+
+        let extents: Vector;
+        let borderRadius: number;
+        let vs: Float32Array;
+        let indices: Uint32Array;
+        let halfHeight: number;
+        let radius: number;
+
+        switch (rawType) {
+            case ShapeType.Ball:
+                return new Ball(rawSet.coRadius(this.handle));
+            case ShapeType.Cuboid:
+                extents = rawSet.coHalfExtents(this.handle);
+                // #if DIM2
+                return new Cuboid(extents.x, extents.y);
+                // #endif
+
+                // #if DIM3
+                return new Cuboid(extents.x, extents.y, extents.z);
+                // #endif
+
+            case ShapeType.RoundCuboid:
+                extents = rawSet.coHalfExtents(this.handle);
+                borderRadius = rawSet.coRoundRadius(this.handle);
+
+                // #if DIM2
+                return new RoundCuboid(extents.x, extents.y, borderRadius);
+                // #endif
+
+                // #if DIM3
+                return new RoundCuboid(extents.x, extents.y, extents.z, borderRadius);
+                // #endif
+
+            case ShapeType.Capsule:
+                halfHeight = rawSet.coHalfHeight(this.handle);
+                radius = rawSet.coRadius(this.handle);
+                return new Capsule(halfHeight, radius);
+            case ShapeType.Segment:
+                vs = rawSet.coVertices(this.handle);
+
+                // #if DIM2
+                return new Segment(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]));
+                // #endif
+
+                // #if DIM3
+                return new Segment(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]));
+                // #endif
+
+            case ShapeType.Polyline:
+                vs = rawSet.coVertices(this.handle);
+                indices = rawSet.coIndices(this.handle);
+                return new Polyline(vs, indices);
+            case ShapeType.Triangle:
+                vs = rawSet.coVertices(this.handle);
+
+                // #if DIM2
+                return new Triangle(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]), VectorOps.new(vs[4], vs[5]));
+                // #endif
+
+                // #if DIM3
+                return new Triangle(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]), VectorOps.new(vs[6], vs[7], vs[8]));
+                // #endif
+
+            case ShapeType.RoundTriangle:
+                vs = rawSet.coVertices(this.handle);
+                borderRadius = rawSet.coRoundRadius(this.handle);
+
+                // #if DIM2
+                return new RoundTriangle(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]), VectorOps.new(vs[4], vs[5]), borderRadius);
+                // #endif
+
+                // #if DIM3
+                return new RoundTriangle(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]), VectorOps.new(vs[6], vs[7], vs[8]), borderRadius);
+                // #endif
+            
+            case ShapeType.TriMesh:
+                vs = rawSet.coVertices(this.handle);
+                indices = rawSet.coIndices(this.handle);
+                return new TriMesh(vs, indices);
+
+            case ShapeType.HeightField:
+                const scale = rawSet.coHeightfieldScale(this.handle);
+                const heights = rawSet.coHeightfieldHeights(this.handle);
+
+                // #if DIM2
+                return new Heightfield(heights, scale);
+                // #endif
+
+                // #if DIM3
+                const nrows = rawSet.coHeightfieldNRows(this.handle);
+                const ncols = rawSet.coHeightfieldNCols(this.handle);
+                return new Heightfield(nrows, ncols, heights, scale);
+                // #endif
+
+            // #if DIM2
+            case ShapeType.ConvexPolygon:
+                vs = rawSet.coVertices(this.handle);
+                return new ConvexPolygon(vs, false);
+            case ShapeType.RoundConvexPolygon:
+                vs = rawSet.coVertices(this.handle);
+                borderRadius = rawSet.coRoundRadius(this.handle);
+                return new RoundConvexPolygon(vs, borderRadius, false);
+            // #endif
+            
+            // #if DIM3
+            case ShapeType.ConvexPolyhedron:
+                vs = rawSet.coVertices(this.handle);
+                indices = rawSet.coIndices(this.handle);
+                return new ConvexPolyhedron(vs, indices);
+            case ShapeType.RoundConvexPolyhedron:
+                vs = rawSet.coVertices(this.handle);
+                indices = rawSet.coIndices(this.handle);
+                borderRadius = rawSet.coRoundRadius(this.handle);
+                return new RoundConvexPolyhedron(vs, indices, borderRadius);
+            case ShapeType.Cylinder:
+                halfHeight = rawSet.coHalfHeight(this.handle);
+                radius = rawSet.coRadius(this.handle);
+                return new Cylinder(halfHeight, radius);
+            case ShapeType.RoundCylinder:
+                halfHeight = rawSet.coHalfHeight(this.handle);
+                radius = rawSet.coRadius(this.handle);
+                borderRadius = rawSet.coRoundRadius(this.handle);
+                return new RoundCylinder(halfHeight, radius, borderRadius);
+            case ShapeType.Cone:
+                halfHeight = rawSet.coHalfHeight(this.handle);
+                radius = rawSet.coRadius(this.handle);
+                return new Cone(halfHeight, radius);
+            case ShapeType.RoundCone:
+                halfHeight = rawSet.coHalfHeight(this.handle);
+                radius = rawSet.coRadius(this.handle);
+                borderRadius = rawSet.coRoundRadius(this.handle);
+                return new RoundCone(halfHeight, radius, borderRadius);
+            // #endif
+
+            default:
+                throw new Error("unknown shape type: " + rawType);
+        }
     }
 
     /**
