@@ -66,9 +66,10 @@ export class Collider {
     readonly handle: ColliderHandle;
     private shape: Shape;
 
-    constructor(rawSet: RawColliderSet, handle: ColliderHandle) {
+    constructor(rawSet: RawColliderSet, handle: ColliderHandle, shape: Shape) {
         this.rawSet = rawSet;
         this.handle = handle;
+        this.shape = shape;
     }
 
     /**
