@@ -1077,7 +1077,7 @@ export class RigidBodyDesc {
     }
 
     /**
-     * Sets whether or not the rigid-body will be in sleep status when it's just created.
+     * Sets whether or not the rigid-body is to be created asleep.
      *
      * @param can - true if the rigid-body should be in sleep, default false.
      */
