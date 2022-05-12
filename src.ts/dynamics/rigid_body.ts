@@ -675,6 +675,7 @@ export class RigidBodyDesc {
     angularDamping: number
     status: RigidBodyType;
     canSleep: boolean;
+    sleeping: boolean;
     ccdEnabled: boolean;
     dominanceGroup: number;
     userData?: unknown;
@@ -706,6 +707,7 @@ export class RigidBodyDesc {
         this.linearDamping = 0.0;
         this.angularDamping = 0.0;
         this.canSleep = true;
+        this.sleeping = false;
         this.ccdEnabled = false;
         this.dominanceGroup = 0;
     }
@@ -1071,6 +1073,16 @@ export class RigidBodyDesc {
      */
     public setCanSleep(can: boolean): RigidBodyDesc {
         this.canSleep = can;
+        return this;
+    }
+
+    /**
+     * Sets whether or not the rigid-body will be in sleep status when it's just created.
+     *
+     * @param can - true if the rigid-body should be in sleep, default false.
+     */
+    setSleeping(sleeping: boolean): RigidBodyDesc {
+        this.sleeping = sleeping;
         return this;
     }
 
