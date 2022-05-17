@@ -523,7 +523,7 @@ export class RigidBody {
      * @param wakeUp - should the rigid-body be automatically woken-up?
      */
     public resetTorques(wakeUp: boolean) {
-        this.rawSet.rbResetForces(this.handle, wakeUp);
+        this.rawSet.rbResetTorques(this.handle, wakeUp);
     }
 
     /**
