@@ -14,7 +14,7 @@ import {
     NarrowPhase, PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi, Shape, ShapeColliderTOI, ShapeTOI, TempContactManifold
+    RayColliderToi, Shape, ShapeColliderTOI, TempContactManifold
 } from "../geometry";
 import {
     CCDSolver,
@@ -507,14 +507,16 @@ export class World {
      *   origin already lies inside of a shape. In other terms, `true` implies that all shapes are plain,
      *   whereas `false` implies that all shapes are hollow for this ray-cast.
      * @param groups - Used to filter the colliders that can or cannot be hit by the ray.
+     * @param filter - The callback to filter out which collider will be hit.
      */
     public castRay(
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups
+        groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): RayColliderToi | null {
-        return this.queryPipeline.castRay(this.colliders, ray, maxToi, solid, groups);
+        return this.queryPipeline.castRay(this.colliders, ray, maxToi, solid, groups, filter);
     }
 
     /**
@@ -533,9 +535,10 @@ export class World {
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups
+        groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): RayColliderIntersection | null {
-        return this.queryPipeline.castRayAndGetNormal(this.colliders, ray, maxToi, solid, groups);
+        return this.queryPipeline.castRayAndGetNormal(this.colliders, ray, maxToi, solid, groups, filter);
     }
 
 
@@ -558,8 +561,9 @@ export class World {
         solid: boolean,
         groups: InteractionGroups,
         callback: (intersect: RayColliderIntersection) => boolean,
+        filter?: (collider: ColliderHandle) => boolean
     ) {
-        this.queryPipeline.intersectionsWithRay(this.colliders, ray, maxToi, solid, groups, callback)
+        this.queryPipeline.intersectionsWithRay(this.colliders, ray, maxToi, solid, groups, callback, filter)
     }
 
     /**
@@ -576,8 +580,9 @@ export class World {
         shapeRot: Rotation,
         shape: Shape,
         groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): ColliderHandle | null {
-        return this.queryPipeline.intersectionWithShape(this.colliders, shapePos, shapeRot, shape, groups);
+        return this.queryPipeline.intersectionWithShape(this.colliders, shapePos, shapeRot, shape, groups, filter);
     }
 
     /**
@@ -596,8 +601,24 @@ export class World {
         point: Vector,
         solid: boolean,
         groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): PointColliderProjection | null {
-        return this.queryPipeline.projectPoint(this.colliders, point, solid, groups);
+        return this.queryPipeline.projectPoint(this.colliders, point, solid, groups, filter);
+    }
+
+    /**
+     * Find the projection of a point on the closest collider.
+     *
+     * @param point - The point to project.
+     * @param groups - The bit groups and filter associated to the point to project, in order to only
+     *   project on colliders with collision groups compatible with the ray's group.
+     */
+     public projectPointAndGetFeature(
+        point: Vector,
+        groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
+    ): PointColliderProjection | null {
+        return this.queryPipeline.projectPointAndGetFeature(this.colliders, point, groups, filter);
     }
 
     /**
@@ -613,8 +634,9 @@ export class World {
         point: Vector,
         groups: InteractionGroups,
         callback: (handle: ColliderHandle) => boolean,
+        filter?: (collider: ColliderHandle) => boolean
     ) {
-        this.queryPipeline.intersectionsWithPoint(this.colliders, point, groups, callback);
+        this.queryPipeline.intersectionsWithPoint(this.colliders, point, groups, callback, filter);
     }
 
     /**
@@ -638,8 +660,9 @@ export class World {
         shape: Shape,
         maxToi: number,
         groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): ShapeColliderTOI | null {
-        return this.queryPipeline.castShape(this.colliders, shapePos, shapeRot, shapeVel, shape, maxToi, groups);
+        return this.queryPipeline.castShape(this.colliders, shapePos, shapeRot, shapeVel, shape, maxToi, groups, filter);
     }
 
     /**
@@ -658,8 +681,9 @@ export class World {
         shape: Shape,
         groups: InteractionGroups,
         callback: (handle: ColliderHandle) => boolean,
+        filter?: (collider: ColliderHandle) => boolean
     ) {
-        this.queryPipeline.intersectionsWithShape(this.colliders, shapePos, shapeRot, shape, groups, callback);
+        this.queryPipeline.intersectionsWithShape(this.colliders, shapePos, shapeRot, shape, groups, callback, filter);
     }
 
     /**
@@ -673,7 +697,7 @@ export class World {
     public collidersWithAabbIntersectingAabb(
         aabbCenter: Vector,
         aabbHalfExtents: Vector,
-        callback: (handle: ColliderHandle) => boolean,
+        callback: (handle: ColliderHandle) => boolean
     ) {
         this.queryPipeline.collidersWithAabbIntersectingAabb(aabbCenter, aabbHalfExtents, callback);
     }
@@ -717,5 +741,4 @@ export class World {
     public intersectionPair(collider1: ColliderHandle, collider2: ColliderHandle): boolean {
         return this.narrowPhase.intersectionPair(collider1, collider2);
     }
-
 }
