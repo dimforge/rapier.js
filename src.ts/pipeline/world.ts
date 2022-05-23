@@ -607,21 +607,6 @@ export class World {
     }
 
     /**
-     * Find the projection of a point on the closest collider.
-     *
-     * @param point - The point to project.
-     * @param groups - The bit groups and filter associated to the point to project, in order to only
-     *   project on colliders with collision groups compatible with the ray's group.
-     */
-     public projectPointAndGetFeature(
-        point: Vector,
-        groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean
-    ): PointColliderProjection | null {
-        return this.queryPipeline.projectPointAndGetFeature(this.colliders, point, groups, filter);
-    }
-
-    /**
      * Find all the colliders containing the given point.
      *
      * @param point - The point used for the containment test.

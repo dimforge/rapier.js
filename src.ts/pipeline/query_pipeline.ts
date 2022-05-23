@@ -236,33 +236,6 @@ export class QueryPipeline {
     }
 
     /**
-     * Find the projection of a point on the closest collider.
-     *
-     * @param colliders - The set of colliders taking part in this pipeline.
-     * @param point - The point to project.
-     * @param groups - The bit groups and filter associated to the point to project, in order to only
-     *   project on colliders with collision groups compatible with the ray's group.
-     */
-    public projectPointAndGetFeature(
-        colliders: ColliderSet,
-        point: Vector,
-        groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean
-    ): PointColliderProjection | null {
-        let rawPoint = VectorOps.intoRaw(point);
-        let result = PointColliderProjection.fromRaw(this.raw.projectPointAndGetFeature(
-            colliders.raw,
-            rawPoint,
-            groups,
-            filter
-        ));
-
-        rawPoint.free();
-
-        return result;
-    }
-
-    /**
      * Find all the colliders containing the given point.
      *
      * @param colliders - The set of colliders taking part in this pipeline.

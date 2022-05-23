@@ -7,7 +7,6 @@ use crate::math::{RawRotation, RawVector};
 use rapier::geometry::{ColliderHandle, Ray, AABB};
 use rapier::math::{Isometry, Point};
 use rapier::pipeline::QueryPipeline;
-use rapier::prelude::FeatureId;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -40,16 +39,18 @@ impl RawQueryPipeline {
         filter: &js_sys::Function,
     ) -> Option<RawRayColliderToi> {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
         };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
 
         let (handle, toi) = self.0.cast_ray(
             &colliders.0,
@@ -73,16 +74,18 @@ impl RawQueryPipeline {
         filter: &js_sys::Function,
     ) -> Option<RawRayColliderIntersection> {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
         };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
 
         let (handle, inter) = self.0.cast_ray_and_get_normal(
             &colliders.0,
@@ -116,16 +119,18 @@ impl RawQueryPipeline {
             }
         };
 
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
         };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
 
         self.0.intersections_with_ray(
             &colliders.0,
@@ -147,16 +152,18 @@ impl RawQueryPipeline {
         groups: u32,
         filter: &js_sys::Function,
     ) -> Option<u32> {
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
         };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
 
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
         self.0
@@ -178,16 +185,18 @@ impl RawQueryPipeline {
         groups: u32,
         filter: &js_sys::Function,
     ) -> Option<RawPointColliderProjection> {
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
         };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
 
         self.0
             .project_point(
@@ -197,43 +206,7 @@ impl RawQueryPipeline {
                 crate::geometry::unpack_interaction_groups(groups),
                 rfilter,
             )
-            .map(|(handle, proj)| RawPointColliderProjection {
-                handle,
-                proj,
-                feature: FeatureId::Unknown,
-            })
-    }
-
-    pub fn projectPointAndGetFeature(
-        &self,
-        colliders: &RawColliderSet,
-        point: &RawVector,
-        groups: u32,
-        filter: &js_sys::Function,
-    ) -> Option<RawPointColliderProjection> {
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
-        };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
-
-        self.0
-            .project_point_and_get_feature(
-                &colliders.0,
-                &point.0.into(),
-                crate::geometry::unpack_interaction_groups(groups),
-                rfilter,
-            )
-            .map(|(handle, proj, feature)| RawPointColliderProjection {
-                handle,
-                proj,
-                feature,
-            })
+            .map(|(handle, proj)| RawPointColliderProjection { handle, proj })
     }
 
     // The callback is of type (u32) => bool
@@ -245,16 +218,18 @@ impl RawQueryPipeline {
         callback: &js_sys::Function,
         filter: &js_sys::Function,
     ) {
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
         };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
 
         let rcallback = |handle: ColliderHandle| match callback.call1(
             &JsValue::null(),
@@ -273,6 +248,15 @@ impl RawQueryPipeline {
         )
     }
 
+    // /// Projects a point on the scene and get
+    // pub fn projectPointAndGetFeature(
+    //     &self,
+    //     colliders: &ColliderSet,
+    //     point: &Point<Real>,
+    //     groups: InteractionGroups,
+    // ) -> Option<(ColliderHandle, PointProjection, FeatureId)> {
+    // }
+
     pub fn castShape(
         &self,
         colliders: &RawColliderSet,
@@ -284,16 +268,18 @@ impl RawQueryPipeline {
         groups: u32,
         filter: &js_sys::Function,
     ) -> Option<RawShapeColliderTOI> {
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
         };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
 
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
         self.0
@@ -328,16 +314,18 @@ impl RawQueryPipeline {
             Ok(val) => val.as_bool().unwrap_or(true),
         };
 
-        let filtercb = |handle: ColliderHandle| {
-            match filter.call1(
-                &JsValue::null(),
-                &JsValue::from(handle.into_raw_parts().0 as u32),
-            ) {
-                Err(_) => true,
-                Ok(val) => val.as_bool().unwrap_or(true),
-            }
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
         };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() { Some(&filtercb) } else { None };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
 
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
         self.0.intersections_with_shape(
