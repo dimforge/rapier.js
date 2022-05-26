@@ -16,31 +16,20 @@ jobs:
       - uses: actions/checkout@v2
       - name: Check formatting
         run: cargo fmt -- --check
-  build-ubuntu:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     env:
       RUSTFLAGS: -D warnings
     steps:
       - uses: actions/checkout@v2
-      - run: cargo install wasm-pack; npm install wasm-opt typescript
-      - run: sudo npm install -g typedoc@0.19.2 # TODO: switch to the latest typedoc version
+      - run: cargo install wasm-pack;
+      - run: npm ci;
       - name: Build rapier2d
         run: cd rapier2d; ./build_all.sh;
       - name: Build rapier3d
         run: cd rapier3d; ./build_all.sh;
       - name: Build rapier-compat
-        run: npm install; cd rapier-compat; npm install; npm run build;
-  build-macos:
-    runs-on: macos-latest
-    env:
-      RUSTFLAGS: -D warnings
-    steps:
-      - uses: actions/checkout@v2
-      - run: cargo install wasm-pack; npm install wasm-opt typescript
-      - run: sudo npm install -g typedoc@0.19.2 # TODO: switch to the latest typedoc version
-      - name: Build rapier2d
-        run: cd rapier2d; ./build_all.sh;
-      - name: Build rapier3d
-        run: cd rapier3d; ./build_all.sh;
-      - name: Build rapier-compat
-        run: npm install; cd rapier-compat; npm install; npm run build;
+        run: cd rapier-compat; npm install; npm run build;
