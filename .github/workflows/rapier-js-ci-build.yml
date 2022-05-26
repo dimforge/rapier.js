@@ -13,7 +13,7 @@ jobs:
   check-fmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Check formatting
         run: cargo fmt -- --check
   build:
@@ -24,7 +24,7 @@ jobs:
     env:
       RUSTFLAGS: -D warnings
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: cargo install wasm-pack;
       - run: npm ci;
       - name: Build rapier2d
