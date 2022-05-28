@@ -153,18 +153,10 @@ impl RawQueryPipeline {
         groups: u32,
         filter: &js_sys::Function,
     ) -> Option<RawPointColliderProjection> {
-        let filtercb = |handle: ColliderHandle| match filter.call1(
-            &JsValue::null(),
-            &JsValue::from(handle.into_raw_parts().0 as u32),
-        ) {
-            Err(_) => true,
-            Ok(val) => val.as_bool().unwrap_or(true),
-        };
-        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
-            Some(&filtercb)
-        } else {
-            None
-        };
+        let rfilter = wrap_filter(filter);
+        let rfilter = rfilter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
 
         self.0
             .project_point(
@@ -304,14 +296,15 @@ impl RawQueryPipeline {
 }
 
 fn wrap_filter(filter: &js_sys::Function) -> Option<impl Fn(ColliderHandle) -> bool + '_> {
-    let filtercb = move |handle: ColliderHandle| match filter.call1(
-        &JsValue::null(),
-        &JsValue::from(handle.into_raw_parts().0 as u32),
-    ) {
-        Err(_) => true,
-        Ok(val) => val.as_bool().unwrap_or(true),
-    };
     if filter.is_function() {
+        let filtercb = move |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
+        };
+
         Some(filtercb)
     } else {
         None
