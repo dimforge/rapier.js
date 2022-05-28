@@ -1,9 +1,10 @@
+use crate::geometry::shape::SharedShapeUtility;
 use crate::geometry::{
     RawColliderSet, RawPointProjection, RawRayIntersection, RawShape, RawShapeColliderTOI,
     RawShapeContact, RawShapeTOI, RawShapeType,
 };
 use crate::math::{RawRotation, RawVector};
-use rapier::geometry::{ActiveCollisionTypes, Ray, ShapeType};
+use rapier::geometry::{ActiveCollisionTypes, ShapeType};
 use rapier::math::{Isometry, Point};
 use rapier::parry::query;
 use rapier::pipeline::{ActiveEvents, ActiveHooks};
@@ -371,7 +372,8 @@ impl RawColliderSet {
 
     pub fn coContainsPoint(&self, handle: u32, point: &RawVector) -> bool {
         self.map(handle, |co| {
-            co.shape().contains_point(co.position(), &point.0.into())
+            co.shared_shape()
+                .containsPoint(co.position(), &point.0.into())
         })
     }
 
@@ -383,21 +385,20 @@ impl RawColliderSet {
         shape2Pos: &RawVector,
         shape2Rot: &RawRotation,
         shape2Vel: &RawVector,
-        max_toi: f32,
+        maxToi: f32,
     ) -> Option<RawShapeTOI> {
         let pos2 = Isometry::from_parts(shape2Pos.0.into(), shape2Rot.0);
+
         self.map(handle, |co| {
-            query::time_of_impact(
-                co.position(),
-                &colliderVel.0,
-                co.shape(),
-                &pos2,
-                &shape2Vel.0,
+            let pos1 = co.position();
+            co.shared_shape().castShape(
+                pos1,
+                &colliderVel.0.into(),
                 &*shape2.0,
-                max_toi,
+                &pos2,
+                &shape2Vel.0.into(),
+                maxToi,
             )
-            .unwrap_or(None)
-            .map_or(None, |toi| Some(RawShapeTOI { toi }))
         })
     }
 
@@ -434,6 +435,21 @@ impl RawColliderSet {
         })
     }
 
+    pub fn coIntersectsShape(
+        &self,
+        handle: u32,
+        shape2: &RawShape,
+        shapePos2: &RawVector,
+        shapeRot2: &RawRotation,
+    ) -> bool {
+        let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
+
+        self.map(handle, |co| {
+            co.shared_shape()
+                .intersectsShape(co.position(), &*shape2.0, &pos2)
+        })
+    }
+
     pub fn coContactShape(
         &self,
         handle: u32,
@@ -445,10 +461,8 @@ impl RawColliderSet {
         let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
 
         self.map(handle, |co| {
-            query::contact(co.position(), co.shape(), &pos2, &*shape2.0, prediction)
-                .ok()
-                .flatten()
-                .map(|contact| RawShapeContact { contact })
+            co.shared_shape()
+                .contactShape(co.position(), &*shape2.0, &pos2, prediction)
         })
     }
 
@@ -484,25 +498,24 @@ impl RawColliderSet {
         solid: bool,
     ) -> RawPointProjection {
         self.map(handle, |co| {
-            RawPointProjection(
-                co.shape()
-                    .project_point(co.position(), &point.0.into(), solid),
-            )
+            co.shared_shape()
+                .projectPoint(co.position(), &point.0.into(), solid)
         })
     }
 
     pub fn coIntersectsRay(
         &self,
         handle: u32,
-        ray_orig: &RawVector,
-        ray_dir: &RawVector,
-        max_toi: f32,
+        rayOrig: &RawVector,
+        rayDir: &RawVector,
+        maxToi: f32,
     ) -> bool {
         self.map(handle, |co| {
-            co.shape().intersects_ray(
+            co.shared_shape().intersectsRay(
                 co.position(),
-                &Ray::new(ray_orig.0.into(), ray_dir.0),
-                max_toi,
+                rayOrig.0.into(),
+                rayDir.0.into(),
+                maxToi,
             )
         })
     }
@@ -510,40 +523,38 @@ impl RawColliderSet {
     pub fn coCastRay(
         &self,
         handle: u32,
-        ray_orig: &RawVector,
-        ray_dir: &RawVector,
-        max_toi: f32,
+        rayOrig: &RawVector,
+        rayDir: &RawVector,
+        maxToi: f32,
         solid: bool,
     ) -> f32 {
         self.map(handle, |co| {
-            co.shape()
-                .cast_ray(
-                    co.position(),
-                    &Ray::new(ray_orig.0.into(), ray_dir.0.into()),
-                    max_toi,
-                    solid,
-                )
-                .unwrap_or(-1.0) // Negative value = no hit.
+            co.shared_shape().castRay(
+                co.position(),
+                rayOrig.0.into(),
+                rayDir.0.into(),
+                maxToi,
+                solid,
+            )
         })
     }
 
     pub fn coCastRayAndGetNormal(
         &self,
         handle: u32,
-        ray_orig: &RawVector,
-        ray_dir: &RawVector,
-        max_toi: f32,
+        rayOrig: &RawVector,
+        rayDir: &RawVector,
+        maxToi: f32,
         solid: bool,
     ) -> Option<RawRayIntersection> {
         self.map(handle, |co| {
-            co.shape()
-                .cast_ray_and_get_normal(
-                    co.position(),
-                    &Ray::new(ray_orig.0.into(), ray_dir.0.into()),
-                    max_toi,
-                    solid,
-                )
-                .map(|inter| RawRayIntersection(inter))
+            co.shared_shape().castRayAndGetNormal(
+                co.position(),
+                rayOrig.0.into(),
+                rayDir.0.into(),
+                maxToi,
+                solid,
+            )
         })
     }
 
