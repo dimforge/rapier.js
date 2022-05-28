@@ -158,7 +158,6 @@ export abstract class Shape {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawPoint = VectorOps.intoRaw(point);
-
         let rawShape = this.intoRaw();
 
         let result = rawShape.containsPoint(
@@ -170,6 +169,7 @@ export abstract class Shape {
         rawPos.free();
         rawRot.free();
         rawPoint.free();
+        rawShape.free();
 
         return result;
     }
@@ -183,7 +183,6 @@ export abstract class Shape {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawPoint = VectorOps.intoRaw(point);
-
         let rawShape = this.intoRaw();
 
         let result = PointProjection.fromRaw(rawShape.projectPoint(
@@ -196,6 +195,7 @@ export abstract class Shape {
         rawPos.free();
         rawRot.free();
         rawPoint.free();
+        rawShape.free();
 
         return result;
     }
@@ -210,7 +210,6 @@ export abstract class Shape {
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawRayOrig = VectorOps.intoRaw(ray.origin);
         let rawRayDir = VectorOps.intoRaw(ray.dir);
-
         let rawShape = this.intoRaw();
 
         let result = rawShape.intersectsRay(
@@ -225,6 +224,7 @@ export abstract class Shape {
         rawRot.free();
         rawRayOrig.free();
         rawRayDir.free();
+        rawShape.free();
 
         return result;
     }
@@ -240,7 +240,6 @@ export abstract class Shape {
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawRayOrig = VectorOps.intoRaw(ray.origin);
         let rawRayDir = VectorOps.intoRaw(ray.dir);
-
         let rawShape = this.intoRaw();
 
         let result = rawShape.castRay(
@@ -256,6 +255,7 @@ export abstract class Shape {
         rawRot.free();
         rawRayOrig.free();
         rawRayDir.free();
+        rawShape.free();
 
         return result;
     }
@@ -271,7 +271,6 @@ export abstract class Shape {
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawRayOrig = VectorOps.intoRaw(ray.origin);
         let rawRayDir = VectorOps.intoRaw(ray.dir);
-
         let rawShape = this.intoRaw();
 
         let result = RayIntersection.fromRaw(rawShape.castRayAndGetNormal(
@@ -287,6 +286,7 @@ export abstract class Shape {
         rawRot.free();
         rawRayOrig.free();
         rawRayDir.free();
+        rawShape.free();
 
         return result;
     }
