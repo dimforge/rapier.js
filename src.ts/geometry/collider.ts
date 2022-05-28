@@ -30,25 +30,25 @@ export enum ActiveCollisionTypes {
     /// and another collider attached to a kinematic body.
     DYNAMIC_KINEMATIC = 0b0000_0000_0000_1100,
     /// Enable collision-detection between a collider attached to a dynamic body
-    /// and another collider attached to a static body (or not attached to any body).
-    DYNAMIC_STATIC = 0b0000_0000_0000_0010,
+    /// and another collider attached to a fixed body (or not attached to any body).
+    DYNAMIC_FIXED = 0b0000_0000_0000_0010,
     /// Enable collision-detection between a collider attached to a kinematic body
     /// and another collider attached to a kinematic body.
     KINEMATIC_KINEMATIC = 0b1100_1100_0000_0000,
 
     /// Enable collision-detection between a collider attached to a kinematic body
-    /// and another collider attached to a static body (or not attached to any body).
-    KINEMATIC_STATIC = 0b0010_0010_0000_0000,
+    /// and another collider attached to a fixed body (or not attached to any body).
+    KINEMATIC_FIXED = 0b0010_0010_0000_0000,
 
-    /// Enable collision-detection between a collider attached to a static body (or
-    /// not attached to any body) and another collider attached to a static body (or
+    /// Enable collision-detection between a collider attached to a fixed body (or
+    /// not attached to any body) and another collider attached to a fixed body (or
     /// not attached to any body).
-    STATIC_STATIC = 0b0000_0000_0010_0000,
+    FIXED_FIXED = 0b0000_0000_0010_0000,
     /// The default active collision types, enabling collisions between a dynamic body
     /// and another body of any type, but not enabling collisions between two non-dynamic bodies.
-    DEFAULT = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_STATIC,
+    DEFAULT = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_FIXED,
     /// Enable collisions between any kind of rigid-bodies (including between two non-dynamic bodies).
-    ALL = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_STATIC | KINEMATIC_KINEMATIC | KINEMATIC_STATIC |
+    ALL = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_FIXED | KINEMATIC_KINEMATIC | KINEMATIC_FIXED |
     KINEMATIC_KINEMATIC,
 }
 
@@ -64,16 +64,31 @@ export type ColliderHandle = number;
 export class Collider {
     private rawSet: RawColliderSet; // The Collider won't need to free this.
     readonly handle: ColliderHandle;
+    private _shape: Shape;
 
-    constructor(rawSet: RawColliderSet, handle: ColliderHandle) {
+    constructor(rawSet: RawColliderSet, handle: ColliderHandle, shape?: Shape) {
         this.rawSet = rawSet;
         this.handle = handle;
+        // init and cache the shape
+        this._shape = shape;
     }
 
+    private ensureShapeIsCached() {
+        if (!this._shape)
+            this._shape = Shape.fromRaw(this.rawSet, this.handle);
+    }
+
+    /**
+     * The shape of this collider.
+     */
+    public get shape(): Shape {
+        this.ensureShapeIsCached();
+        return this._shape;
+    }
 
     /**
      * Checks if this collider is still valid (i.e. that it has
-     * not been deleted from the collider set yet.
+     * not been deleted from the collider set yet).
      */
     public isValid(): boolean {
         return this.rawSet.contains(this.handle);
@@ -100,14 +115,23 @@ export class Collider {
         return this.rawSet.coIsSensor(this.handle);
     }
 
+    /**
+     * Sets whether or not this collider is a sensor.
+     * @param isSensor - If `true`, the collider will be a sensor.
+     */
     public setSensor(isSensor: boolean) {
         this.rawSet.coSetSensor(this.handle, isSensor);
     }
 
+    /**
+     * Sets the new shape of the collider.
+     * @param shape - The collider’s new shape.
+     */
     public setShape(shape: Shape) {
         let rawShape = shape.intoRaw();
         this.rawSet.coSetShape(this.handle, rawShape);
         rawShape.free();
+        this._shape = shape;
     }
 
     /**
@@ -324,6 +348,7 @@ export class Collider {
 
     /**
      * The type of the shape of this collider.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public shapeType(): ShapeType {
         return this.rawSet.coShapeType(this.handle);
@@ -331,6 +356,7 @@ export class Collider {
 
     /**
      * The half-extents of this collider if it is a cuboid shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public halfExtents(): Vector {
         return VectorOps.fromRaw(this.rawSet.coHalfExtents(this.handle));
@@ -338,6 +364,7 @@ export class Collider {
 
     /**
      * The radius of this collider if it is a ball, cylinder, capsule, or cone shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public radius(): number {
         return this.rawSet.coRadius(this.handle);
@@ -345,6 +372,7 @@ export class Collider {
 
     /**
      * The radius of the round edges of this collider if it is a round cylinder.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public roundRadius(): number {
         return this.rawSet.coRoundRadius(this.handle);
@@ -352,6 +380,7 @@ export class Collider {
 
     /**
      * The half height of this collider if it is a cylinder, capsule, or cone shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public halfHeight(): number {
         return this.rawSet.coHalfHeight(this.handle);
@@ -360,6 +389,7 @@ export class Collider {
     /**
      * If this collider has a triangle mesh, polyline, convex polygon, or convex polyhedron shape,
      * this returns the vertex buffer of said shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public vertices(): Float32Array {
         return this.rawSet.coVertices(this.handle);
@@ -368,6 +398,7 @@ export class Collider {
     /**
      * If this collider has a triangle mesh, polyline, or convex polyhedron shape,
      * this returns the index buffer of said shape.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public indices(): Uint32Array | undefined {
         return this.rawSet.coIndices(this.handle);
@@ -377,6 +408,7 @@ export class Collider {
      * If this collider has a heightfield shape, this returns the heights buffer of
      * the heightfield.
      * In 3D, the returned height matrix is provided in column-major order.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public heightfieldHeights(): Float32Array {
         return this.rawSet.coHeightfieldHeights(this.handle);
@@ -385,6 +417,7 @@ export class Collider {
     /**
      * If this collider has a heightfield shape, this returns the scale
      * applied to it.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public heightfieldScale(): Vector {
         let scale = this.rawSet.coHeightfieldScale(this.handle);
@@ -395,6 +428,7 @@ export class Collider {
     /**
      * If this collider has a heightfield shape, this returns the number of
      * rows of its height matrix.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public heightfieldNRows(): number {
         return this.rawSet.coHeightfieldNRows(this.handle);
@@ -403,6 +437,7 @@ export class Collider {
     /**
      * If this collider has a heightfield shape, this returns the number of
      * columns of its height matrix.
+     * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public heightfieldNCols(): number {
         return this.rawSet.coHeightfieldNCols(this.handle);
