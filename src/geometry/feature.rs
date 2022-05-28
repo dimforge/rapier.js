@@ -10,17 +10,6 @@ pub enum RawFeatureType {
     Unknown,
 }
 
-#[cfg(feature = "dim2")]
-impl Into<Option<u32>> for RawFeatureType {
-    fn into(self) -> Option<u32> {
-        match self {
-            RawFeatureType::Vertex => Some(0),
-            RawFeatureType::Face => Some(1),
-            RawFeatureType::Unknown => None,
-        }
-    }
-}
-
 #[cfg(feature = "dim3")]
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
@@ -29,18 +18,6 @@ pub enum RawFeatureType {
     Edge,
     Face,
     Unknown,
-}
-
-#[cfg(feature = "dim3")]
-impl Into<Option<u32>> for RawFeatureType {
-    fn into(self) -> Option<u32> {
-        match self {
-            RawFeatureType::Vertex => Some(0),
-            RawFeatureType::Edge => Some(1),
-            RawFeatureType::Face => Some(2),
-            RawFeatureType::Unknown => None,
-        }
-    }
 }
 
 pub trait IntoTypeValue {

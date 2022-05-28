@@ -1,4 +1,5 @@
 use crate::geometry::feature::IntoTypeValue;
+use crate::geometry::RawFeatureType;
 use crate::math::RawVector;
 use rapier::{
     geometry::{ColliderHandle, PointProjection},
@@ -41,8 +42,8 @@ impl RawPointColliderProjection {
         self.proj.is_inside
     }
 
-    pub fn featureType(&self) -> Option<u32> {
-        self.feature.into_type().into()
+    pub fn featureType(&self) -> RawFeatureType {
+        self.feature.into_type()
     }
 
     pub fn featureId(&self) -> Option<u32> {

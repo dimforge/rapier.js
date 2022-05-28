@@ -98,7 +98,6 @@ export class ColliderSet {
         rawInertiaFrame.free();
         // #endif
 
-        
         this.map.set(handle, new Collider(this.raw, handle, desc.shape));
         return handle;
     }

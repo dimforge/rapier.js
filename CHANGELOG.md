@@ -146,7 +146,7 @@ covering all the features of the physics engine!
   * Define an object that implements the `PhysicsHooks` interface.
   * Pass and instance of your physics hooks object as the second argument of the `World.step` method.
 - It is now possible to enable collision-detection between two non-dynamic bodies (e.g. between a kinematic
-  body and a static body) by setting the active collision types of a collider:
+  body and a fixed body) by setting the active collision types of a collider:
   `ColliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)`
 
 
@@ -386,7 +386,7 @@ See changelogs for v0.2.1 instead. The NPM package for v0.2.0 were missing some 
 
 ### v0.1.17
 
-- Fix bug when ghost forces and/or crashes could be observed when a kinematic body touches a static body.
+- Fix bug when ghost forces and/or crashes could be observed when a kinematic body touches a fixed body.
 
 ### v0.1.16
 

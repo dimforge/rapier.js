@@ -52,8 +52,14 @@ export class PointColliderProjection {
      */
     isInside: boolean
 
+    /**
+     * The type of the geometric feature the point was projected on.
+     */
     featureType = FeatureType.Unknown;
-    
+
+    /**
+     * The id of the geometric feature the point was projected on.
+     */
     featureId: number | undefined = undefined;
 
     constructor(colliderHandle: ColliderHandle, point: Vector, isInside: boolean, featureType?: FeatureType, featureId?: number) {

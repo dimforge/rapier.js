@@ -54,8 +54,14 @@ export class RayIntersection {
      */
     normal: Vector
 
+    /**
+     * The type of the geometric feature the point was projected on.
+     */
     featureType = FeatureType.Unknown;
-    
+
+    /**
+     * The id of the geometric feature the point was projected on.
+     */
     featureId: number | undefined = undefined;
 
     constructor(toi: number, normal: Vector, featureType?: FeatureType, featureId?: number) {
@@ -101,8 +107,14 @@ export class RayColliderIntersection {
      */
     normal: Vector
 
+    /**
+     * The type of the geometric feature the point was projected on.
+     */
     featureType = FeatureType.Unknown;
-    
+
+    /**
+     * The id of the geometric feature the point was projected on.
+     */
     featureId: number | undefined = undefined;
 
     constructor(colliderHandle: ColliderHandle, toi: number, normal: Vector, featureType?: FeatureType, featureId?: number) {

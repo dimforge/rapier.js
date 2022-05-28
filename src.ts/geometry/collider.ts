@@ -30,25 +30,25 @@ export enum ActiveCollisionTypes {
     /// and another collider attached to a kinematic body.
     DYNAMIC_KINEMATIC = 0b0000_0000_0000_1100,
     /// Enable collision-detection between a collider attached to a dynamic body
-    /// and another collider attached to a static body (or not attached to any body).
-    DYNAMIC_STATIC = 0b0000_0000_0000_0010,
+    /// and another collider attached to a fixed body (or not attached to any body).
+    DYNAMIC_FIXED = 0b0000_0000_0000_0010,
     /// Enable collision-detection between a collider attached to a kinematic body
     /// and another collider attached to a kinematic body.
     KINEMATIC_KINEMATIC = 0b1100_1100_0000_0000,
 
     /// Enable collision-detection between a collider attached to a kinematic body
-    /// and another collider attached to a static body (or not attached to any body).
-    KINEMATIC_STATIC = 0b0010_0010_0000_0000,
+    /// and another collider attached to a fixed body (or not attached to any body).
+    KINEMATIC_FIXED = 0b0010_0010_0000_0000,
 
-    /// Enable collision-detection between a collider attached to a static body (or
-    /// not attached to any body) and another collider attached to a static body (or
+    /// Enable collision-detection between a collider attached to a fixed body (or
+    /// not attached to any body) and another collider attached to a fixed body (or
     /// not attached to any body).
-    STATIC_STATIC = 0b0000_0000_0010_0000,
+    FIXED_FIXED = 0b0000_0000_0010_0000,
     /// The default active collision types, enabling collisions between a dynamic body
     /// and another body of any type, but not enabling collisions between two non-dynamic bodies.
-    DEFAULT = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_STATIC,
+    DEFAULT = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_FIXED,
     /// Enable collisions between any kind of rigid-bodies (including between two non-dynamic bodies).
-    ALL = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_STATIC | KINEMATIC_KINEMATIC | KINEMATIC_STATIC |
+    ALL = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_FIXED | KINEMATIC_KINEMATIC | KINEMATIC_FIXED |
     KINEMATIC_KINEMATIC,
 }
 
@@ -64,21 +64,31 @@ export type ColliderHandle = number;
 export class Collider {
     private rawSet: RawColliderSet; // The Collider won't need to free this.
     readonly handle: ColliderHandle;
-    private shape: Shape;
+    private _shape: Shape;
 
     constructor(rawSet: RawColliderSet, handle: ColliderHandle, shape?: Shape) {
         this.rawSet = rawSet;
         this.handle = handle;
         // init and cache the shape
-        if (shape)
-            this.shape = shape;
-        else
-            this.shape = this.getShapeFromRaw();
+        this._shape = shape;
+    }
+
+    private ensureShapeIsCached() {
+        if (!this._shape)
+            this._shape = Shape.fromRaw(this.rawSet, this.handle);
+    }
+
+    /**
+     * The shape of this collider.
+     */
+    public get shape(): Shape {
+        this.ensureShapeIsCached();
+        return this._shape;
     }
 
     /**
      * Checks if this collider is still valid (i.e. that it has
-     * not been deleted from the collider set yet.
+     * not been deleted from the collider set yet).
      */
     public isValid(): boolean {
         return this.rawSet.contains(this.handle);
@@ -105,168 +115,23 @@ export class Collider {
         return this.rawSet.coIsSensor(this.handle);
     }
 
+    /**
+     * Sets whether or not this collider is a sensor.
+     * @param isSensor - If `true`, the collider will be a sensor.
+     */
     public setSensor(isSensor: boolean) {
         this.rawSet.coSetSensor(this.handle, isSensor);
     }
 
+    /**
+     * Sets the new shape of the collider.
+     * @param shape - The collider’s new shape.
+     */
     public setShape(shape: Shape) {
         let rawShape = shape.intoRaw();
         this.rawSet.coSetShape(this.handle, rawShape);
         rawShape.free();
-        this.shape = shape;
-    }
-
-    /**
-     * access to the cached shape instance
-     * @returns 
-     */
-    public getShape<T extends Shape>(): T {
-        return this.shape as T;
-    }
-
-    /**
-     * instant mode without cache
-     */
-    getShapeFromRaw(): Shape {
-        const rawSet = this.rawSet;
-        const rawType = rawSet.coShapeType(this.handle);
-
-        let extents: Vector;
-        let borderRadius: number;
-        let vs: Float32Array;
-        let indices: Uint32Array;
-        let halfHeight: number;
-        let radius: number;
-
-        switch (rawType) {
-            case ShapeType.Ball:
-                return new Ball(rawSet.coRadius(this.handle));
-            case ShapeType.Cuboid:
-                extents = rawSet.coHalfExtents(this.handle);
-                // #if DIM2
-                return new Cuboid(extents.x, extents.y);
-                // #endif
-
-                // #if DIM3
-                return new Cuboid(extents.x, extents.y, extents.z);
-                // #endif
-
-            case ShapeType.RoundCuboid:
-                extents = rawSet.coHalfExtents(this.handle);
-                borderRadius = rawSet.coRoundRadius(this.handle);
-
-                // #if DIM2
-                return new RoundCuboid(extents.x, extents.y, borderRadius);
-                // #endif
-
-                // #if DIM3
-                return new RoundCuboid(extents.x, extents.y, extents.z, borderRadius);
-                // #endif
-
-            case ShapeType.Capsule:
-                halfHeight = rawSet.coHalfHeight(this.handle);
-                radius = rawSet.coRadius(this.handle);
-                return new Capsule(halfHeight, radius);
-            case ShapeType.Segment:
-                vs = rawSet.coVertices(this.handle);
-
-                // #if DIM2
-                return new Segment(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]));
-                // #endif
-
-                // #if DIM3
-                return new Segment(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]));
-                // #endif
-
-            case ShapeType.Polyline:
-                vs = rawSet.coVertices(this.handle);
-                indices = rawSet.coIndices(this.handle);
-                return new Polyline(vs, indices);
-            case ShapeType.Triangle:
-                vs = rawSet.coVertices(this.handle);
-
-                // #if DIM2
-                return new Triangle(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]), VectorOps.new(vs[4], vs[5]));
-                // #endif
-
-                // #if DIM3
-                return new Triangle(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]), VectorOps.new(vs[6], vs[7], vs[8]));
-                // #endif
-
-            case ShapeType.RoundTriangle:
-                vs = rawSet.coVertices(this.handle);
-                borderRadius = rawSet.coRoundRadius(this.handle);
-
-                // #if DIM2
-                return new RoundTriangle(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]), VectorOps.new(vs[4], vs[5]), borderRadius);
-                // #endif
-
-                // #if DIM3
-                return new RoundTriangle(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]), VectorOps.new(vs[6], vs[7], vs[8]), borderRadius);
-                // #endif
-            
-            case ShapeType.TriMesh:
-                vs = rawSet.coVertices(this.handle);
-                indices = rawSet.coIndices(this.handle);
-                return new TriMesh(vs, indices);
-
-            case ShapeType.HeightField:
-                const scale = rawSet.coHeightfieldScale(this.handle);
-                const heights = rawSet.coHeightfieldHeights(this.handle);
-
-                // #if DIM2
-                return new Heightfield(heights, scale);
-                // #endif
-
-                // #if DIM3
-                const nrows = rawSet.coHeightfieldNRows(this.handle);
-                const ncols = rawSet.coHeightfieldNCols(this.handle);
-                return new Heightfield(nrows, ncols, heights, scale);
-                // #endif
-
-            // #if DIM2
-            case ShapeType.ConvexPolygon:
-                vs = rawSet.coVertices(this.handle);
-                return new ConvexPolygon(vs, false);
-            case ShapeType.RoundConvexPolygon:
-                vs = rawSet.coVertices(this.handle);
-                borderRadius = rawSet.coRoundRadius(this.handle);
-                return new RoundConvexPolygon(vs, borderRadius, false);
-            // #endif
-            
-            // #if DIM3
-            case ShapeType.ConvexPolyhedron:
-                vs = rawSet.coVertices(this.handle);
-                indices = rawSet.coIndices(this.handle);
-                return new ConvexPolyhedron(vs, indices);
-            case ShapeType.RoundConvexPolyhedron:
-                vs = rawSet.coVertices(this.handle);
-                indices = rawSet.coIndices(this.handle);
-                borderRadius = rawSet.coRoundRadius(this.handle);
-                return new RoundConvexPolyhedron(vs, indices, borderRadius);
-            case ShapeType.Cylinder:
-                halfHeight = rawSet.coHalfHeight(this.handle);
-                radius = rawSet.coRadius(this.handle);
-                return new Cylinder(halfHeight, radius);
-            case ShapeType.RoundCylinder:
-                halfHeight = rawSet.coHalfHeight(this.handle);
-                radius = rawSet.coRadius(this.handle);
-                borderRadius = rawSet.coRoundRadius(this.handle);
-                return new RoundCylinder(halfHeight, radius, borderRadius);
-            case ShapeType.Cone:
-                halfHeight = rawSet.coHalfHeight(this.handle);
-                radius = rawSet.coRadius(this.handle);
-                return new Cone(halfHeight, radius);
-            case ShapeType.RoundCone:
-                halfHeight = rawSet.coHalfHeight(this.handle);
-                radius = rawSet.coRadius(this.handle);
-                borderRadius = rawSet.coRoundRadius(this.handle);
-                return new RoundCone(halfHeight, radius, borderRadius);
-            // #endif
-
-            default:
-                throw new Error("unknown shape type: " + rawType);
-        }
+        this._shape = shape;
     }
 
     /**
@@ -916,7 +781,7 @@ export class ColliderDesc {
      * @param shape - The shape of the collider being built.
      */
     constructor(shape: Shape) {
-        this.shape = shape;
+        this._shape = shape;
         this.useMassProps = false;
         this.density = 1.0;
         this.friction = 0.5;
