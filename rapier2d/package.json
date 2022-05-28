@@ -34,10 +34,5 @@
     "build:source": "./build_typescript.sh",
     "build:docs": "typedoc --tsconfig tsconfig_typedoc.json",
     "build:package": "cp ./package.json ./pkg/"
-  },
-  "devDependencies": {
-    "rimraf": "^3.0.2",
-    "typedoc": "^0.22.15",
-    "typescript": "^4.7.2"
   }
 }
