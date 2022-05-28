@@ -5,7 +5,7 @@ import {
     InteractionGroups, PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi, Shape, ShapeColliderTOI, ShapeTOI
+    RayColliderToi, Shape, ShapeColliderTOI
 } from "../geometry";
 import { IslandManager, RigidBodySet } from "../dynamics";
 import { Rotation, RotationOps, Vector, VectorOps } from "../math";
@@ -51,13 +51,15 @@ export class QueryPipeline {
      *   origin already lies inside of a shape. In other terms, `true` implies that all shapes are plain,
      *   whereas `false` implies that all shapes are hollow for this ray-cast.
      * @param groups - Used to filter the colliders that can or cannot be hit by the ray.
+     * @param filter - The callback to filter out which collider will be hit.
      */
     public castRay(
         colliders: ColliderSet,
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups
+        groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): RayColliderToi | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
@@ -68,6 +70,7 @@ export class QueryPipeline {
             maxToi,
             solid,
             groups,
+            filter
         ));
 
         rawOrig.free();
@@ -95,7 +98,8 @@ export class QueryPipeline {
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups
+        groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): RayColliderIntersection | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
@@ -106,6 +110,7 @@ export class QueryPipeline {
             maxToi,
             solid,
             groups,
+            filter
         ));
 
         rawOrig.free();
@@ -136,6 +141,7 @@ export class QueryPipeline {
         solid: boolean,
         groups: InteractionGroups,
         callback: (intersect: RayColliderIntersection) => boolean,
+        filter?: (collider: ColliderHandle) => boolean
     ) {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
@@ -151,6 +157,7 @@ export class QueryPipeline {
             solid,
             groups,
             rawCallback,
+            filter
         );
 
         rawOrig.free();
@@ -173,6 +180,7 @@ export class QueryPipeline {
         shapeRot: Rotation,
         shape: Shape,
         groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): ColliderHandle | null {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
@@ -183,6 +191,7 @@ export class QueryPipeline {
             rawRot,
             rawShape,
             groups,
+            filter
         );
 
         rawPos.free();
@@ -210,6 +219,7 @@ export class QueryPipeline {
         point: Vector,
         solid: boolean,
         groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): PointColliderProjection | null {
         let rawPoint = VectorOps.intoRaw(point);
         let result = PointColliderProjection.fromRaw(this.raw.projectPoint(
@@ -217,6 +227,7 @@ export class QueryPipeline {
             rawPoint,
             solid,
             groups,
+            filter
         ));
 
         rawPoint.free();
@@ -239,6 +250,7 @@ export class QueryPipeline {
         point: Vector,
         groups: InteractionGroups,
         callback: (handle: ColliderHandle) => boolean,
+        filter?: (collider: ColliderHandle) => boolean
     ) {
         let rawPoint = VectorOps.intoRaw(point);
 
@@ -247,6 +259,7 @@ export class QueryPipeline {
             rawPoint,
             groups,
             callback,
+            filter
         );
 
         rawPoint.free();
@@ -275,6 +288,7 @@ export class QueryPipeline {
         shape: Shape,
         maxToi: number,
         groups: InteractionGroups,
+        filter?: (collider: ColliderHandle) => boolean
     ): ShapeColliderTOI | null {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
@@ -289,6 +303,7 @@ export class QueryPipeline {
             rawShape,
             maxToi,
             groups,
+            filter
         ));
 
         rawPos.free();
@@ -317,6 +332,7 @@ export class QueryPipeline {
         shape: Shape,
         groups: InteractionGroups,
         callback: (handle: ColliderHandle) => boolean,
+        filter?: (collider: ColliderHandle) => boolean
     ) {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
@@ -329,6 +345,7 @@ export class QueryPipeline {
             rawShape,
             groups,
             callback,
+            filter
         );
 
         rawPos.free();

@@ -36,15 +36,21 @@ impl RawQueryPipeline {
         maxToi: f32,
         solid: bool,
         groups: u32,
+        filter: &js_sys::Function,
     ) -> Option<RawRayColliderToi> {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
+        let filter = wrap_filter(filter);
+        let filter = filter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
+
         let (handle, toi) = self.0.cast_ray(
             &colliders.0,
             &ray,
             maxToi,
             solid,
             crate::geometry::unpack_interaction_groups(groups),
-            None,
+            filter,
         )?;
         Some(RawRayColliderToi { handle, toi })
     }
@@ -57,15 +63,21 @@ impl RawQueryPipeline {
         maxToi: f32,
         solid: bool,
         groups: u32,
+        filter: &js_sys::Function,
     ) -> Option<RawRayColliderIntersection> {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
+        let rfilter = wrap_filter(filter);
+        let rfilter = rfilter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
+
         let (handle, inter) = self.0.cast_ray_and_get_normal(
             &colliders.0,
             &ray,
             maxToi,
             solid,
             crate::geometry::unpack_interaction_groups(groups),
-            None,
+            rfilter,
         )?;
         Some(RawRayColliderIntersection { handle, inter })
     }
@@ -80,16 +92,21 @@ impl RawQueryPipeline {
         solid: bool,
         groups: u32,
         callback: &js_sys::Function,
+        filter: &js_sys::Function,
     ) {
         let ray = Ray::new(rayOrig.0.into(), rayDir.0);
-        let this = JsValue::null();
         let rcallback = |handle, inter| {
             let result = RawRayColliderIntersection { handle, inter };
-            match callback.call1(&this, &JsValue::from(result)) {
+            match callback.call1(&JsValue::null(), &JsValue::from(result)) {
                 Err(_) => true,
                 Ok(val) => val.as_bool().unwrap_or(true),
             }
         };
+
+        let rfilter = wrap_filter(filter);
+        let rfilter = rfilter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
 
         self.0.intersections_with_ray(
             &colliders.0,
@@ -97,9 +114,9 @@ impl RawQueryPipeline {
             maxToi,
             solid,
             crate::geometry::unpack_interaction_groups(groups),
-            None,
+            rfilter,
             rcallback,
-        )
+        );
     }
 
     pub fn intersectionWithShape(
@@ -109,7 +126,13 @@ impl RawQueryPipeline {
         shapeRot: &RawRotation,
         shape: &RawShape,
         groups: u32,
+        filter: &js_sys::Function,
     ) -> Option<u32> {
+        let rfilter = wrap_filter(filter);
+        let rfilter = rfilter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
+
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
         self.0
             .intersection_with_shape(
@@ -117,7 +140,7 @@ impl RawQueryPipeline {
                 &pos,
                 &*shape.0,
                 crate::geometry::unpack_interaction_groups(groups),
-                None,
+                rfilter,
             )
             .map(|h| h.into_raw_parts().0)
     }
@@ -128,14 +151,20 @@ impl RawQueryPipeline {
         point: &RawVector,
         solid: bool,
         groups: u32,
+        filter: &js_sys::Function,
     ) -> Option<RawPointColliderProjection> {
+        let rfilter = wrap_filter(filter);
+        let rfilter = rfilter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
+
         self.0
             .project_point(
                 &colliders.0,
                 &point.0.into(),
                 solid,
                 crate::geometry::unpack_interaction_groups(groups),
-                None,
+                rfilter,
             )
             .map(|(handle, proj)| RawPointColliderProjection { handle, proj })
     }
@@ -147,20 +176,25 @@ impl RawQueryPipeline {
         point: &RawVector,
         groups: u32,
         callback: &js_sys::Function,
+        filter: &js_sys::Function,
     ) {
-        let this = JsValue::null();
-        let rcallback = |handle: ColliderHandle| match callback
-            .call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32))
-        {
+        let rcallback = |handle: ColliderHandle| match callback.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
         };
+        let rfilter = wrap_filter(filter);
+        let rfilter = rfilter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
 
         self.0.intersections_with_point(
             &colliders.0,
             &point.0.into(),
             crate::geometry::unpack_interaction_groups(groups),
-            None,
+            rfilter,
             rcallback,
         )
     }
@@ -183,7 +217,13 @@ impl RawQueryPipeline {
         shape: &RawShape,
         maxToi: f32,
         groups: u32,
+        filter: &js_sys::Function,
     ) -> Option<RawShapeColliderTOI> {
+        let rfilter = wrap_filter(filter);
+        let rfilter = rfilter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
+
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
         self.0
             .cast_shape(
@@ -193,7 +233,7 @@ impl RawQueryPipeline {
                 &*shape.0,
                 maxToi,
                 crate::geometry::unpack_interaction_groups(groups),
-                None,
+                rfilter,
             )
             .map(|(handle, toi)| RawShapeColliderTOI { handle, toi })
     }
@@ -207,14 +247,20 @@ impl RawQueryPipeline {
         shape: &RawShape,
         groups: u32,
         callback: &js_sys::Function,
+        filter: &js_sys::Function,
     ) {
-        let this = JsValue::null();
-        let rcallback = |handle: ColliderHandle| match callback
-            .call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32))
-        {
+        let rcallback = |handle: ColliderHandle| match callback.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
         };
+
+        let rfilter = wrap_filter(filter);
+        let rfilter = rfilter
+            .as_ref()
+            .map(|f| f as &dyn Fn(ColliderHandle) -> bool);
 
         let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
         self.0.intersections_with_shape(
@@ -222,7 +268,7 @@ impl RawQueryPipeline {
             &pos,
             &*shape.0,
             crate::geometry::unpack_interaction_groups(groups),
-            None,
+            rfilter,
             rcallback,
         )
     }
@@ -233,10 +279,10 @@ impl RawQueryPipeline {
         aabbHalfExtents: &RawVector,
         callback: &js_sys::Function,
     ) {
-        let this = JsValue::null();
-        let rcallback = |handle: &ColliderHandle| match callback
-            .call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32))
-        {
+        let rcallback = |handle: &ColliderHandle| match callback.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
         };
@@ -246,5 +292,21 @@ impl RawQueryPipeline {
 
         self.0
             .colliders_with_aabb_intersecting_aabb(&aabb, rcallback)
+    }
+}
+
+fn wrap_filter(filter: &js_sys::Function) -> Option<impl Fn(ColliderHandle) -> bool + '_> {
+    if filter.is_function() {
+        let filtercb = move |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
+        };
+
+        Some(filtercb)
+    } else {
+        None
     }
 }

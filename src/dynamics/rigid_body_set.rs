@@ -82,6 +82,7 @@ impl RawRigidBodySet {
         angularDamping: f32,
         rb_type: RawRigidBodyType,
         canSleep: bool,
+        sleeping: bool,
         ccdEnabled: bool,
         dominanceGroup: i8,
     ) -> u32 {
@@ -110,6 +111,7 @@ impl RawRigidBodySet {
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
             .can_sleep(canSleep)
+            .sleeping(sleeping)
             .ccd_enabled(ccdEnabled)
             .dominance_group(dominanceGroup);
 
@@ -134,6 +136,7 @@ impl RawRigidBodySet {
         angularDamping: f32,
         rb_type: RawRigidBodyType,
         canSleep: bool,
+        sleeping: bool,
         ccdEnabled: bool,
         dominanceGroup: i8,
     ) -> u32 {
@@ -151,6 +154,7 @@ impl RawRigidBodySet {
             .linear_damping(linearDamping)
             .angular_damping(angularDamping)
             .can_sleep(canSleep)
+            .sleeping(sleeping)
             .ccd_enabled(ccdEnabled)
             .dominance_group(dominanceGroup);
 

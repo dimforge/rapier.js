@@ -1,13 +1,168 @@
-use crate::geometry::{RawShapeContact, RawShapeTOI};
+use crate::geometry::{RawPointProjection, RawRayIntersection, RawShapeContact, RawShapeTOI};
 use crate::math::{RawRotation, RawVector};
 #[cfg(feature = "dim3")]
 use na::DMatrix;
 #[cfg(feature = "dim2")]
 use na::DVector;
-use rapier::geometry::SharedShape;
-use rapier::math::{Isometry, Point, Vector, DIM};
+use rapier::geometry::{Shape, SharedShape};
+use rapier::math::{Isometry, Point, Real, Vector, DIM};
 use rapier::parry::query;
+use rapier::parry::query::Ray;
 use wasm_bindgen::prelude::*;
+
+pub trait SharedShapeUtility {
+    fn castShape(
+        &self,
+        shapePos1: &Isometry<Real>,
+        shapeVel1: &Vector<Real>,
+        shape2: &dyn Shape,
+        shapePos2: &Isometry<Real>,
+        shapeVel2: &Vector<Real>,
+        maxToi: f32,
+    ) -> Option<RawShapeTOI>;
+
+    fn intersectsShape(
+        &self,
+        shapePos1: &Isometry<Real>,
+        shape2: &dyn Shape,
+        shapePos2: &Isometry<Real>,
+    ) -> bool;
+
+    fn contactShape(
+        &self,
+        shapePos1: &Isometry<Real>,
+        shape2: &dyn Shape,
+        shapePos2: &Isometry<Real>,
+        prediction: f32,
+    ) -> Option<RawShapeContact>;
+
+    fn containsPoint(&self, shapePos: &Isometry<Real>, point: &Point<Real>) -> bool;
+
+    fn projectPoint(
+        &self,
+        shapePos: &Isometry<Real>,
+        point: &Point<Real>,
+        solid: bool,
+    ) -> RawPointProjection;
+
+    fn intersectsRay(
+        &self,
+        shapePos: &Isometry<Real>,
+        rayOrig: Point<Real>,
+        rayDir: Vector<Real>,
+        maxToi: f32,
+    ) -> bool;
+
+    fn castRay(
+        &self,
+        shapePos: &Isometry<Real>,
+        rayOrig: Point<Real>,
+        rayDir: Vector<Real>,
+        maxToi: f32,
+        solid: bool,
+    ) -> f32;
+
+    fn castRayAndGetNormal(
+        &self,
+        shapePos: &Isometry<Real>,
+        rayOrig: Point<Real>,
+        rayDir: Vector<Real>,
+        maxToi: f32,
+        solid: bool,
+    ) -> Option<RawRayIntersection>;
+}
+
+// for RawShape & Collider
+impl SharedShapeUtility for SharedShape {
+    fn castShape(
+        &self,
+        shapePos1: &Isometry<Real>,
+        shapeVel1: &Vector<Real>,
+        shape2: &dyn Shape,
+        shapePos2: &Isometry<Real>,
+        shapeVel2: &Vector<Real>,
+        maxToi: f32,
+    ) -> Option<RawShapeTOI> {
+        query::time_of_impact(
+            shapePos1, shapeVel1, &*self.0, shapePos2, &shapeVel2, shape2, maxToi,
+        )
+        .ok()
+        .flatten()
+        .map(|toi| RawShapeTOI { toi })
+    }
+
+    fn intersectsShape(
+        &self,
+        shapePos1: &Isometry<Real>,
+        shape2: &dyn Shape,
+        shapePos2: &Isometry<Real>,
+    ) -> bool {
+        query::intersection_test(shapePos1, &*self.0, shapePos2, shape2).unwrap_or(false)
+    }
+
+    fn contactShape(
+        &self,
+        shapePos1: &Isometry<Real>,
+        shape2: &dyn Shape,
+        shapePos2: &Isometry<Real>,
+        prediction: f32,
+    ) -> Option<RawShapeContact> {
+        query::contact(shapePos1, &*self.0, shapePos2, shape2, prediction)
+            .ok()
+            .flatten()
+            .map(|contact| RawShapeContact { contact })
+    }
+
+    fn containsPoint(&self, shapePos: &Isometry<Real>, point: &Point<Real>) -> bool {
+        self.as_ref().contains_point(shapePos, point)
+    }
+
+    fn projectPoint(
+        &self,
+        shapePos: &Isometry<Real>,
+        point: &Point<Real>,
+        solid: bool,
+    ) -> RawPointProjection {
+        RawPointProjection(self.as_ref().project_point(shapePos, point, solid))
+    }
+
+    fn intersectsRay(
+        &self,
+        shapePos: &Isometry<Real>,
+        rayOrig: Point<Real>,
+        rayDir: Vector<Real>,
+        maxToi: f32,
+    ) -> bool {
+        self.as_ref()
+            .intersects_ray(shapePos, &Ray::new(rayOrig, rayDir), maxToi)
+    }
+
+    fn castRay(
+        &self,
+        shapePos: &Isometry<Real>,
+        rayOrig: Point<Real>,
+        rayDir: Vector<Real>,
+        maxToi: f32,
+        solid: bool,
+    ) -> f32 {
+        self.as_ref()
+            .cast_ray(shapePos, &Ray::new(rayOrig, rayDir), maxToi, solid)
+            .unwrap_or(-1.0) // Negative value = no hit.
+    }
+
+    fn castRayAndGetNormal(
+        &self,
+        shapePos: &Isometry<Real>,
+        rayOrig: Point<Real>,
+        rayDir: Vector<Real>,
+        maxToi: f32,
+        solid: bool,
+    ) -> Option<RawRayIntersection> {
+        self.as_ref()
+            .cast_ray_and_get_normal(shapePos, &Ray::new(rayOrig, rayDir), maxToi, solid)
+            .map(|inter| RawRayIntersection(inter))
+    }
+}
 
 #[wasm_bindgen]
 #[cfg(feature = "dim2")]
@@ -212,18 +367,8 @@ impl RawShape {
         let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
         let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
 
-        query::time_of_impact(
-            &pos1,
-            &shapeVel1.0,
-            &*self.0,
-            &pos2,
-            &shapeVel2.0,
-            &*shape2.0,
-            maxToi,
-        )
-        .ok()
-        .flatten()
-        .map(|toi| RawShapeTOI { toi })
+        self.0
+            .castShape(&pos1, &shapeVel1.0, &*shape2.0, &pos2, &shapeVel2.0, maxToi)
     }
 
     pub fn intersectsShape(
@@ -237,7 +382,7 @@ impl RawShape {
         let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
         let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
 
-        query::intersection_test(&pos1, &*self.0, &pos2, &*shape2.0).unwrap_or(false)
+        self.0.intersectsShape(&pos1, &*shape2.0, &pos2)
     }
 
     pub fn contactShape(
@@ -252,9 +397,73 @@ impl RawShape {
         let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
         let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
 
-        query::contact(&pos1, &*self.0, &pos2, &*shape2.0, prediction)
-            .ok()
-            .flatten()
-            .map(|contact| RawShapeContact { contact })
+        self.0.contactShape(&pos1, &*shape2.0, &pos2, prediction)
+    }
+
+    pub fn containsPoint(
+        &self,
+        shapePos: &RawVector,
+        shapeRot: &RawRotation,
+        point: &RawVector,
+    ) -> bool {
+        let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
+
+        self.0.containsPoint(&pos, &point.0.into())
+    }
+
+    pub fn projectPoint(
+        &self,
+        shapePos: &RawVector,
+        shapeRot: &RawRotation,
+        point: &RawVector,
+        solid: bool,
+    ) -> RawPointProjection {
+        let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
+
+        self.0.projectPoint(&pos, &point.0.into(), solid)
+    }
+
+    pub fn intersectsRay(
+        &self,
+        shapePos: &RawVector,
+        shapeRot: &RawRotation,
+        rayOrig: &RawVector,
+        rayDir: &RawVector,
+        maxToi: f32,
+    ) -> bool {
+        let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
+
+        self.0
+            .intersectsRay(&pos, rayOrig.0.into(), rayDir.0.into(), maxToi)
+    }
+
+    pub fn castRay(
+        &self,
+        shapePos: &RawVector,
+        shapeRot: &RawRotation,
+        rayOrig: &RawVector,
+        rayDir: &RawVector,
+        maxToi: f32,
+        solid: bool,
+    ) -> f32 {
+        let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
+
+        self.0
+            .castRay(&pos, rayOrig.0.into(), rayDir.0.into(), maxToi, solid)
+    }
+
+    pub fn castRayAndGetNormal(
+        &self,
+        shapePos: &RawVector,
+        shapeRot: &RawRotation,
+        rayOrig: &RawVector,
+        rayDir: &RawVector,
+        maxToi: f32,
+        solid: bool,
+    ) -> Option<RawRayIntersection> {
+        let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
+
+        self.0
+            .castRayAndGetNormal(&pos, rayOrig.0.into(), rayDir.0.into(), maxToi, solid)
     }
 }

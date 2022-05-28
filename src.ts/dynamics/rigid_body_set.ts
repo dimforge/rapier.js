@@ -83,6 +83,7 @@ export class RigidBodySet {
             desc.angularDamping,
             desc.status,
             desc.canSleep,
+            desc.sleeping,
             desc.ccdEnabled,
             desc.dominanceGroup,
         );
