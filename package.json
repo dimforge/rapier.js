@@ -4,7 +4,8 @@
   "version": "0.8.0",
   "license": "MIT",
   "workspaces": [
-    "packages/*"
+    "rapier2d",
+    "rapier3d"
   ],
   "devDependencies": {
     "@changesets/cli": "^2.22.0",
