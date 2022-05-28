@@ -781,7 +781,7 @@ export class ColliderDesc {
      * @param shape - The shape of the collider being built.
      */
     constructor(shape: Shape) {
-        this._shape = shape;
+        this.shape = shape;
         this.useMassProps = false;
         this.density = 1.0;
         this.friction = 0.5;
