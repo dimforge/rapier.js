@@ -4,14 +4,14 @@ export function initWorld(RAPIER, testbed) {
     let bodies = [];
 
     let rad = 0.4;
-    let numi = 50; // Num vertical nodes.
-    let numk = 50; // Num horizontal nodes.
+    let numi = 30; // Num vertical nodes.
+    let numk = 30; // Num horizontal nodes.
     let shift = 1.0;
     let i, k;
 
     for (k = 0; k < numk; ++k) {
         for (i = 0; i < numi; ++i) {
-            let status = (k >= numk / 2 - 3 && k <= numk / 2 + 3 && i == 0) ? RAPIER.RigidBodyType.Static : RAPIER.RigidBodyType.Dynamic;
+            let status = (k >= numk / 2 - 3 && k <= numk / 2 + 3 && i == 0) ? RAPIER.RigidBodyType.Fixed : RAPIER.RigidBodyType.Dynamic;
 
             let bodyDesc = new RAPIER.RigidBodyDesc(status)
                 .setTranslation(k * shift, -i * shift);

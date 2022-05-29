@@ -20,7 +20,7 @@ export function initWorld(RAPIER, testbed) {
     points.push(groundSize / 2.0, 25.0);
     points = new Float32Array(points);
 
-    let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.polyline(points);
     world.createCollider(colliderDesc, body.handle);

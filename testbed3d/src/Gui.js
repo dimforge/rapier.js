@@ -35,6 +35,7 @@ export class Gui {
         this.velIter = this.gui.add(simulationParameters, 'numVelocityIter', 0, 20).step(1).listen();
         this.posIter = this.gui.add(simulationParameters, 'numPositionIter', 0, 20).step(1).listen();
         this.gui.add(simulationParameters, 'debugInfos').listen();
+        this.gui.add(simulationParameters, 'debugRender').listen();
         this.gui.add(simulationParameters, 'running', true).listen();
         this.gui.add(simulationParameters, 'step')
             .onChange(function () {
@@ -70,8 +71,8 @@ export class Gui {
         text += "<br/>[Step " + infos.stepId + "]";
 
         if (infos.worldHash) {
-            text += "<br/>World hash (CRC32): " + infos.worldHash;
-            text += "<br/>World hash time (CRC32): " + infos.worldHashTime + "ms";
+            text += "<br/>World hash (MD5): " + infos.worldHash.toString();
+            text += "<br/>World hash time (MD5): " + infos.worldHashTime + "ms";
             text += "<br/>Snapshot time: " + infos.snapshotTime + "ms";
         }
         this.debugText.innerHTML = text;

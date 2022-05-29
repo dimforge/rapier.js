@@ -1,7 +1,6 @@
 import {Graphics} from './Graphics'
 import {Gui} from './Gui'
-
-const PHYSX_BACKEND_NAME = "physx.release.wasm";
+import md5 from "md5";
 
 class SimulationParameters {
     constructor(backends, builders) {
@@ -12,6 +11,7 @@ class SimulationParameters {
         this.numPositionIter = 1;
         this.running = true;
         this.stepping = false;
+        this.debugRender = false;
         this.step = function () {
         }
         this.restart = function () {
@@ -30,11 +30,6 @@ export class Testbed {
     constructor(RAPIER, builders, worker) {
         let backends = [
             "rapier",
-            // "ammo.js",
-            // "ammo.wasm",
-            // "cannon.js",
-            // "oimo.js",
-            // PHYSX_BACKEND_NAME
         ];
         this.RAPIER = RAPIER;
         let parameters = new SimulationParameters(backends, builders);
@@ -45,58 +40,59 @@ export class Testbed {
         this.worker = worker;
         this.demoToken = 0;
         this.mouse = {x: 0, y: 0};
+        this.events = new RAPIER.EventQueue(true);
         this.switchToDemo(builders.keys().next().value);
 
-        this.worker.onmessage = msg => {
-            if (!!msg.data && msg.data.token != this.demoToken) {
-                // This messages comes from an older demo update loop
-                // so we can stop the loop now.
-                return;
-            }
-
-            let modifications;
-
-            if (!!msg.data && msg.data.token == this.demoToken) {
-                switch (msg.data.type) {
-                    case 'collider.highlight':
-                        this.graphics.highlightCollider(msg.data.handle);
-                        return;
-                    case 'colliders.setPositions':
-                        this.graphics.updatePositions(msg.data.positions);
-                        break;
-                }
-                this.gui.setTiming(msg.data.stepTime);
-                this.gui.setDebugInfos(msg.data);
-            }
-
-            let now = new Date().getTime();
-            let raycastMessage = this.raycastMessage();
-            let timestepTimeMS = this.world.timestep * 1000 * 0.75;
-            /// Don't step the physics world faster than the real world.
-            if (now - this.lastMessageTime >= timestepTimeMS) {
-                if (!!this.preTimestepAction && this.parameters.running) {
-                    modifications = this.preTimestepAction();
-                }
-                let stepMessage = this.stepMessage(modifications);
-
-                this.graphics.applyModifications(this.RAPIER, this.world, modifications);
-                this.worker.postMessage(raycastMessage);
-                this.worker.postMessage(stepMessage);
-                this.lastMessageTime = now;
-            } else {
-                setTimeout(() => {
-                    if (!!this.preTimestepAction && this.parameters.running) {
-                        modifications = this.preTimestepAction();
-                    }
-                    let stepMessage = this.stepMessage(modifications);
-
-                    this.graphics.applyModifications(this.RAPIER, this.world, modifications);
-                    this.worker.postMessage(raycastMessage);
-                    this.worker.postMessage(stepMessage);
-                    this.lastMessageTime = new Date().getTime();
-                }, timestepTimeMS - (now - this.lastMessageTime));
-            }
-        };
+        // this.worker.onmessage = msg => {
+        //     if (!!msg.data && msg.data.token != this.demoToken) {
+        //         // This messages comes from an older demo update loop
+        //         // so we can stop the loop now.
+        //         return;
+        //     }
+        //
+        //     let modifications;
+        //
+        //     if (!!msg.data && msg.data.token == this.demoToken) {
+        //         switch (msg.data.type) {
+        //             case 'collider.highlight':
+        //                 this.graphics.highlightCollider(msg.data.handle);
+        //                 return;
+        //             case 'colliders.setPositions':
+        //                 this.graphics.updatePositions(msg.data.positions);
+        //                 break;
+        //         }
+        //         this.gui.setTiming(msg.data.stepTime);
+        //         this.gui.setDebugInfos(msg.data);
+        //     }
+        //
+        //     let now = new Date().getTime();
+        //     let raycastMessage = this.raycastMessage();
+        //     let timestepTimeMS = this.world.timestep * 1000 * 0.75;
+        //     /// Don't step the physics world faster than the real world.
+        //     if (now - this.lastMessageTime >= timestepTimeMS) {
+        //         if (!!this.preTimestepAction && this.parameters.running) {
+        //             modifications = this.preTimestepAction();
+        //         }
+        //         let stepMessage = this.stepMessage(modifications);
+        //
+        //         this.graphics.applyModifications(this.RAPIER, this.world, modifications);
+        //         this.worker.postMessage(raycastMessage);
+        //         this.worker.postMessage(stepMessage);
+        //         this.lastMessageTime = now;
+        //     } else {
+        //         setTimeout(() => {
+        //             if (!!this.preTimestepAction && this.parameters.running) {
+        //                 modifications = this.preTimestepAction();
+        //             }
+        //             let stepMessage = this.stepMessage(modifications);
+        //
+        //             this.graphics.applyModifications(this.RAPIER, this.world, modifications);
+        //             this.worker.postMessage(raycastMessage);
+        //             this.worker.postMessage(stepMessage);
+        //             this.lastMessageTime = new Date().getTime();
+        //         }, timestepTimeMS - (now - this.lastMessageTime));
+        //     }
+        // };
 
         window.addEventListener('mousemove', event => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -104,32 +100,14 @@ export class Testbed {
         });
     }
 
-    raycastMessage() {
-        let ray = this.graphics.rayAtMousePosition(this.mouse);
-        return {
-            type: 'castRay',
-            token: this.demoToken,
-            ray: ray
-        };
-    }
-
-    stepMessage(modifications) {
-        let res = {
-            type: 'step',
-            maxVelocityIterations: this.parameters.numVelocityIter,
-            maxPositionIterations: this.parameters.numPositionIter,
-            modifications: modifications,
-            running: this.parameters.running || this.parameters.stepping,
-            debugInfos: this.parameters.debugInfos
-        };
-
-        if (this.parameters.stepping) {
-            this.parameters.running = false;
-            this.parameters.stepping = false;
-        }
-
-        return res;
-    }
+    // raycastMessage() {
+    //     let ray = this.graphics.rayAtMousePosition(this.mouse);
+    //     return {
+    //         type: 'castRay',
+    //         token: this.demoToken,
+    //         ray: ray
+    //     };
+    // }
 
     setpreTimestepAction(action) {
         this.preTimestepAction = action;
@@ -147,14 +125,6 @@ export class Testbed {
             this.graphics.addCollider(this.RAPIER, world, coll);
         });
 
-        let message = {
-            type: 'setWorld',
-            backend: this.parameters.backend,
-            token: this.demoToken,
-            world: world.takeSnapshot(),
-        };
-        this.worker.postMessage(message);
-        this.worker.postMessage(this.stepMessage());
         this.lastMessageTime = new Date().getTime();
     }
 
@@ -173,38 +143,7 @@ export class Testbed {
 
         this.prevDemo = demo;
         this.graphics.reset();
-
-        // TODO: the PhysX bindings don't allow the number of solver iterations to be modified yet.
-        if (this.parameters.backend != PHYSX_BACKEND_NAME && this.parameters.prevBackend == PHYSX_BACKEND_NAME) {
-            this.parameters.numVelocityIter = 4;
-            this.parameters.numPositionIter = 1;
-            this.gui.velIter.domElement.style.pointerEvents = "auto";
-            this.gui.velIter.domElement.style.opacity = 1;
-            this.gui.posIter.domElement.style.pointerEvents = "auto";
-            this.gui.posIter.domElement.style.opacity = 1;
-        }
-
-        // Initialize the other backend if it is enabled.
-        switch (this.parameters.backend) {
-            case 'rapier':
-                this.otherWorld = undefined;
-                break;
-            case PHYSX_BACKEND_NAME:
-                this.parameters.numVelocityIter = 1;
-                this.parameters.numPositionIter = 4;
-                this.gui.velIter.domElement.style.pointerEvents = "none";
-                this.gui.velIter.domElement.style.opacity = .5;
-            default:
-                break;
-        }
-
-        if (this.parameters.backend == "rapier") {
-            this.gui.posIter.domElement.style.pointerEvents = "auto";
-            this.gui.posIter.domElement.style.opacity = 1;
-        } else {
-            this.gui.posIter.domElement.style.pointerEvents = "none";
-            this.gui.posIter.domElement.style.opacity = .5;
-        }
+        this.stepId = 0;
 
         this.parameters.prevBackend = this.parameters.backend;
         this.parameters.builders.get(demo)(this.RAPIER, this);
@@ -216,26 +155,60 @@ export class Testbed {
     }
 
     takeSnapshot() {
-        this.worker.postMessage({type: 'takeSnapshot'});
+        this.snap = this.world.takeSnapshot();
     }
 
     restoreSnapshot() {
-        this.worker.postMessage({type: 'restoreSnapshot'});
+        if (!!this.snap) {
+            this.world.free();
+            this.world = this.RAPIER.World.restoreSnapshot(this.snap);
+        }
     }
 
     run() {
-        // if (this.parameters.running || this.parameters.stepping) {
-        //     this.world.maxVelocityIterations = this.parameters.numVelocityIter;
-        //     this.world.maxPositionIterations = this.parameters.numPositionIter;
-        // }
-        //
-        // if (this.parameters.stepping) {
-        //     this.parameters.running = false;
-        //     this.parameters.stepping = false;
-        // }
+        if (this.parameters.running || this.parameters.stepping) {
+            this.world.maxVelocityIterations = this.parameters.numVelocityIter;
+            this.world.maxPositionIterations = this.parameters.numPositionIter;
+
+            if (!!this.preTimestepAction) {
+                this.preTimestepAction(this.graphics);
+            }
+
+            let t0 = new Date().getTime();
+            this.world.step(this.events);
+            this.gui.setTiming(new Date().getTime() - t0);
+            this.stepId += 1;
+
+            if (!!this.parameters.debugInfos) {
+                let t0 = performance.now();
+                let snapshot = this.world.takeSnapshot();
+                let t1 = performance.now();
+                let snapshotTime = t1 - t0;
+
+                let debugInfos = {
+                    token: this.demoToken,
+                    stepId: this.stepId,
+                };
+                t0 = performance.now();
+                debugInfos.worldHash = md5(snapshot);
+                t1 = performance.now();
+                let worldHashTime = t1 - t0;
+
+                debugInfos.worldHashTime = worldHashTime;
+                debugInfos.snapshotTime = snapshotTime;
+
+                this.gui.setDebugInfos(debugInfos);
+            }
+        }
+
+
+        if (this.parameters.stepping) {
+            this.parameters.running = false;
+            this.parameters.stepping = false;
+        }
 
         this.gui.stats.begin();
-        this.graphics.render();
+        this.graphics.render(this.world, this.parameters.debugRender);
         this.gui.stats.end();
 
         requestAnimationFrame(() => this.run());

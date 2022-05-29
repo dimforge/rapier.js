@@ -3,7 +3,7 @@ import {
     RawDeserializedWorld,
     RawIntegrationParameters, RawIslandManager,
     RawImpulseJointSet, RawMultibodyJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
-    RawRigidBodySet, RawSerializationPipeline,
+    RawRigidBodySet, RawSerializationPipeline, RawDebugRenderPipeline
 } from "../raw";
 
 import {
@@ -35,6 +35,7 @@ import { QueryPipeline } from "./query_pipeline";
 import { SerializationPipeline } from "./serialization_pipeline";
 import { EventQueue } from "./event_queue";
 import { PhysicsHooks } from "./physics_hooks";
+import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
 
 /**
  * The physics world.
@@ -56,6 +57,7 @@ export class World {
     queryPipeline: QueryPipeline
     physicsPipeline: PhysicsPipeline
     serializationPipeline: SerializationPipeline
+    debugRenderPipeline: DebugRenderPipeline
 
     /**
      * Release the WASM memory occupied by this physics world.
@@ -76,6 +78,7 @@ export class World {
         this.queryPipeline.free();
         this.physicsPipeline.free();
         this.serializationPipeline.free();
+        this.debugRenderPipeline.free();
 
         this.integrationParameters = undefined;
         this.islands = undefined;
@@ -89,6 +92,7 @@ export class World {
         this.queryPipeline = undefined;
         this.physicsPipeline = undefined;
         this.serializationPipeline = undefined;
+        this.debugRenderPipeline = undefined;
     }
 
     constructor(
@@ -104,7 +108,8 @@ export class World {
         rawCCDSolver?: RawCCDSolver,
         rawQueryPipeline?: RawQueryPipeline,
         rawPhysicsPipeline?: RawPhysicsPipeline,
-        rawSerializationPipeline?: RawSerializationPipeline
+        rawSerializationPipeline?: RawSerializationPipeline,
+        rawDebugRenderPipeline?: RawDebugRenderPipeline
     ) {
         this.gravity = gravity;
         this.integrationParameters = new IntegrationParameters(rawIntegrationParameters);
@@ -119,6 +124,7 @@ export class World {
         this.queryPipeline = new QueryPipeline(rawQueryPipeline);
         this.physicsPipeline = new PhysicsPipeline(rawPhysicsPipeline);
         this.serializationPipeline = new SerializationPipeline(rawSerializationPipeline);
+        this.debugRenderPipeline = new DebugRenderPipeline(rawDebugRenderPipeline);
     }
 
     public static fromRaw(raw: RawDeserializedWorld): World {
@@ -166,6 +172,14 @@ export class World {
     public static restoreSnapshot(data: Uint8Array): World {
         let deser = new SerializationPipeline();
         return deser.deserializeAll(data);
+    }
+
+    /**
+     * Computes all the lines (and their colors) needed to render the scene.
+     */
+    public debugRender(): DebugRenderBuffers {
+        this.debugRenderPipeline.render(this.bodies, this.colliders, this.impulseJoints, this.multibodyJoints);
+        return new DebugRenderBuffers(this.debugRenderPipeline.vertices, this.debugRenderPipeline.colors);
     }
 
     /**

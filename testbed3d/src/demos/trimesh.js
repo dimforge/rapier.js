@@ -1,4 +1,3 @@
-import {PhysicsModifications} from "../PhysicsModifications"
 import seedrandom from 'seedrandom'
 
 function generateTriMesh(nsubdivs, wx, wy, wz) {

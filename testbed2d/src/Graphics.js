@@ -34,12 +34,14 @@ export class Graphics {
             interaction: this.renderer.plugins.interaction
         });
 
+
         this.scene.addChild(this.viewport);
         this.viewport
             .drag()
             .pinch()
             .wheel()
             .decelerate();
+
 
         let me = this;
 
@@ -78,8 +80,32 @@ export class Graphics {
         }));
     }
 
-    render() {
+    render(world, debugRender) {
         kk += 1;
+
+        if (!this.lines) {
+            this.lines = new PIXI.Graphics();
+            this.viewport.addChild(this.lines);
+        }
+
+        if (debugRender) {
+            let buffers = world.debugRender();
+            let vtx = buffers.vertices;
+            let cls = buffers.colors;
+
+            this.lines.clear();
+
+            for (let i = 0; i < vtx.length / 4; i += 1) {
+                let color = PIXI.utils.rgb2hex([cls[i * 8], cls[i * 8 + 1], cls[i * 8 + 2]]);
+                this.lines.lineStyle(1.0, color, cls[i * 8 + 3], 0.5, true);
+                this.lines.moveTo(vtx[i * 4], -vtx[i * 4 + 1]);
+                this.lines.lineTo(vtx[i * 4 + 2], -vtx[i * 4 + 3]);
+            }
+        } else {
+            this.lines.clear();
+        }
+
+        this.updatePositions(world);
         this.renderer.render(this.scene);
     }
 
@@ -89,14 +115,16 @@ export class Graphics {
         this.viewport.moveCenter(pos.target.x, pos.target.y);
     }
 
-    updatePositions(positions) {
-        positions.forEach(elt => {
+    updatePositions(world) {
+        world.forEachCollider(elt => {
             let gfx = this.coll2gfx.get(elt.handle);
+            let translation = elt.translation();
+            let rotation = elt.rotation();
 
             if (!!gfx) {
-                gfx.position.x = elt.translation.x;
-                gfx.position.y = -elt.translation.y;
-                gfx.rotation = -elt.rotation;
+                gfx.position.x = translation.x;
+                gfx.position.y = -translation.y;
+                gfx.rotation = -rotation;
             }
         })
     }
@@ -116,7 +144,7 @@ export class Graphics {
         let instance;
         let graphics;
         let vertices;
-        let instanceId = parent.isStatic() ? 0 : (this.colorIndex + 1);
+        let instanceId = parent.isFixed() ? 0 : (this.colorIndex + 1);
 
         switch (collider.shapeType()) {
             case RAPIER.ShapeType.Cuboid:

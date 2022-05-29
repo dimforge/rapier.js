@@ -1,4 +1,3 @@
-import { PhysicsModifications } from "../PhysicsModifications"
 import seedrandom from 'seedrandom'
 
 function generateTriMesh(nsubdivs, wx, wy, wz) {
@@ -42,20 +41,19 @@ export function initWorld(RAPIER, testbed) {
     let world = new RAPIER.World(gravity);
 
     // Create Ground.
-    let bodyDesc = RAPIER.RigidBodyDesc.newKinematicPositionBased();
-    let body = world.createRigidBody(bodyDesc);
+    let bodyDesc = RAPIER.RigidBodyDesc.newKinematicVelocityBased();
+    let platformBody = world.createRigidBody(bodyDesc);
     let trimesh = generateTriMesh(20, 70.0, 4.0, 70.0)
     let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, platformBody.handle);
     let t = 0.0;
 
     let movePlatform = () => {
-        let modifications = new PhysicsModifications();
         t += 0.016;
-        let dy = Math.sin(t) * 0.1;
-        let dang = Math.sin(t) * 0.002;
-        modifications.moveKinematicBody(body.handle, { x: 0.0, y: dy, z: 0.0 }, { x: 0.0, y: dang, z: 0.0 });
-        return modifications.commands;
+        let dy = Math.sin(t) * 10.0;
+        let dang = Math.sin(t) * 0.2;
+        platformBody.setLinvel({x: 0.0, y: dy, z: 0.0});
+        platformBody.setAngvel({x: 0.0, y: dang, z: 0.0});
     }
 
     // Dynamic cubes.

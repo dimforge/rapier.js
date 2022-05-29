@@ -1,5 +1,3 @@
-import {PhysicsModifications} from "../PhysicsModifications"
-
 export function initWorld(RAPIER, testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
@@ -14,25 +12,28 @@ export function initWorld(RAPIER, testbed) {
     // Dynamic cubes.
     let rad = 1.0;
     let j = 0;
+    let spawn_interval = 5;
 
-    let spawnBodies = () => {
+    let spawnBodies = (graphics) => {
         j += 1;
-        let modifications = new PhysicsModifications();
+        if (j % spawn_interval != 0) {
+            return;
+        }
 
         let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
             .setLinvel(0.0, 15.0, 0.0)
             .setTranslation(0.0, 10.0, 0.0);
         let colliderDesc;
 
-        switch (j % 4) {
+        switch ((j / spawn_interval) % 4) {
             case 0:
                 colliderDesc
                     = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
                 break;
             case 1:
-            // colliderDesc
-            //     = RAPIER.ColliderDesc.ball(rad);
-            // break;
+                colliderDesc
+                    = RAPIER.ColliderDesc.ball(rad);
+                break;
             case 2:
                 colliderDesc
                     = RAPIER.ColliderDesc.roundCylinder(rad, rad, rad / 10.0);
@@ -45,20 +46,17 @@ export function initWorld(RAPIER, testbed) {
 
         let body = world.createRigidBody(bodyDesc);
         let collider = world.createCollider(colliderDesc, body.handle);
+        graphics.addCollider(RAPIER, world, collider);
 
         removableBodies.push(body.handle);
-        modifications.addRigidBody(body);
-        modifications.addCollider(collider);
 
         // We reached the max number, delete the oldest rigid-body.
         if (removableBodies.length > 400) {
             let rb = world.getRigidBody(removableBodies[0]);
             world.removeRigidBody(rb);
-            modifications.removeRigidBody(removableBodies[0]);
+            graphics.removeRigidBody(rb);
             removableBodies.shift();
         }
-
-        return modifications.commands;
     }
 
     testbed.setWorld(world);

@@ -1,4 +1,4 @@
-function create_prismatic_joints(
+function createPrismaticJoints(
     RAPIER,
     world,
     origin,
@@ -7,7 +7,7 @@ function create_prismatic_joints(
     let rad = 0.4;
     let shift = 1.0;
 
-    let groundDesc = RAPIER.RigidBodyDesc.newStatic()
+    let groundDesc = RAPIER.RigidBodyDesc.fixed()
         .setTranslation(origin.x, origin.y, origin.z);
     let currParent = world.createRigidBody(groundDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
@@ -47,7 +47,7 @@ function create_prismatic_joints(
 }
 
 
-function create_revolute_joints(
+function createRevoluteJoints(
     RAPIER,
     world,
     origin,
@@ -56,7 +56,7 @@ function create_revolute_joints(
     let rad = 0.4;
     let shift = 2.0;
 
-    let groundDesc = RAPIER.RigidBodyDesc.newStatic()
+    let groundDesc = RAPIER.RigidBodyDesc.fixed()
         .setTranslation(origin.x, origin.y, 0.0);
     let currParent = world.createRigidBody(groundDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
@@ -82,7 +82,7 @@ function create_revolute_joints(
             let rigidBodyDesc = RAPIER.RigidBodyDesc.newDynamic()
                 .setTranslation(positions[k].x, positions[k].y, positions[k].z);
             let rigidBody = world.createRigidBody(rigidBodyDesc);
-            let colliderDesc = new RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+            let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
             world.createCollider(colliderDesc, rigidBody.handle);
 
             parents[k] = rigidBody;
@@ -110,7 +110,7 @@ function create_revolute_joints(
 }
 
 
-function create_fixed_joints(
+function createFixedJoints(
     RAPIER,
     world,
     origin,
@@ -132,7 +132,7 @@ function create_fixed_joints(
             let bodyType;
 
             if (i == 0 && (k % 4 == 0 && k != num - 2 || k == num - 1)) {
-                bodyType = RAPIER.RigidBodyType.Static;
+                bodyType = RAPIER.RigidBodyType.Fixed;
             } else {
                 bodyType = RAPIER.RigidBodyType.Dynamic;
             }
@@ -176,7 +176,7 @@ function create_fixed_joints(
 }
 
 
-function create_ball_joints(
+function createBallJoints(
     RAPIER,
     world,
     num,
@@ -194,7 +194,7 @@ function create_ball_joints(
             let bodyType;
 
             if (i == 0 && (k % 4 == 0 || k == num - 1)) {
-                bodyType = RAPIER.RigidBodyType.Static;
+                bodyType = RAPIER.RigidBodyType.Fixed;
             } else {
                 bodyType = RAPIER.RigidBodyType.Dynamic;
             }
@@ -233,25 +233,25 @@ export function initWorld(RAPIER, testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
 
-    create_prismatic_joints(
+    createPrismaticJoints(
         RAPIER,
         world,
         new RAPIER.Vector3(20.0, 10.0, 0.0),
         5
     );
-    create_fixed_joints(
+    createFixedJoints(
         RAPIER,
         world,
         new RAPIER.Vector3(0.0, 10.0, 0.0),
         5
     );
-    create_revolute_joints(
+    createRevoluteJoints(
         RAPIER,
         world,
         new RAPIER.Vector3(20.0, 0.0, 0.0),
         3
     );
-    create_ball_joints(RAPIER, world, 15);
+    createBallJoints(RAPIER, world, 15);
 
     testbed.setWorld(world);
     let cameraPosition = {
