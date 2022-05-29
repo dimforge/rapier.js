@@ -319,7 +319,7 @@ export class World {
         parent2: RigidBody
     ): ImpulseJoint {
         return this.impulseJoints.get(
-            this.impulseJoints.createJoint(this.bodies, params, parent1.handle, parent2.handle)
+            this.impulseJoints.createJoint(params, parent1.handle, parent2.handle)
         );
     }
 
@@ -336,7 +336,7 @@ export class World {
         parent2: RigidBody
     ): MultibodyJoint {
         return this.multibodyJoints.get(
-            this.multibodyJoints.createJoint(this.bodies, params, parent1.handle, parent2.handle)
+            this.multibodyJoints.createJoint(params, parent1.handle, parent2.handle)
         );
     }
 

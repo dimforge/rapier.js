@@ -4,6 +4,7 @@ use crate::geometry::{
     RawShapeContact, RawShapeTOI, RawShapeType,
 };
 use crate::math::{RawRotation, RawVector};
+use crate::utils::{self, FlatHandle};
 use rapier::geometry::{ActiveCollisionTypes, ShapeType};
 use rapier::math::{Isometry, Point};
 use rapier::parry::query;
@@ -13,12 +14,12 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen]
 impl RawColliderSet {
     /// The world-space translation of this collider.
-    pub fn coTranslation(&self, handle: u32) -> RawVector {
+    pub fn coTranslation(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |co| co.position().translation.vector.into())
     }
 
     /// The world-space orientation of this collider.
-    pub fn coRotation(&self, handle: u32) -> RawRotation {
+    pub fn coRotation(&self, handle: FlatHandle) -> RawRotation {
         self.map(handle, |co| co.position().rotation.into())
     }
 
@@ -31,7 +32,7 @@ impl RawColliderSet {
     /// - `wakeUp`: forces the collider to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim3")]
-    pub fn coSetTranslation(&mut self, handle: u32, x: f32, y: f32, z: f32) {
+    pub fn coSetTranslation(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32) {
         self.map_mut(handle, |co| {
             co.set_translation(na::Vector3::new(x, y, z));
         })
@@ -45,21 +46,21 @@ impl RawColliderSet {
     /// - `wakeUp`: forces the collider to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
-    pub fn coSetTranslation(&mut self, handle: u32, x: f32, y: f32) {
+    pub fn coSetTranslation(&mut self, handle: FlatHandle, x: f32, y: f32) {
         self.map_mut(handle, |co| {
             co.set_translation(na::Vector2::new(x, y));
         })
     }
 
     #[cfg(feature = "dim3")]
-    pub fn coSetTranslationWrtParent(&mut self, handle: u32, x: f32, y: f32, z: f32) {
+    pub fn coSetTranslationWrtParent(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32) {
         self.map_mut(handle, |co| {
             co.set_translation_wrt_parent(na::Vector3::new(x, y, z));
         })
     }
 
     #[cfg(feature = "dim2")]
-    pub fn coSetTranslationWrtParent(&mut self, handle: u32, x: f32, y: f32) {
+    pub fn coSetTranslationWrtParent(&mut self, handle: FlatHandle, x: f32, y: f32) {
         self.map_mut(handle, |co| {
             co.set_translation_wrt_parent(na::Vector2::new(x, y));
         })
@@ -77,7 +78,7 @@ impl RawColliderSet {
     /// - `wakeUp`: forces the collider to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim3")]
-    pub fn coSetRotation(&mut self, handle: u32, x: f32, y: f32, z: f32, w: f32) {
+    pub fn coSetRotation(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32, w: f32) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
             self.map_mut(handle, |co| co.set_rotation(q.scaled_axis()))
         }
@@ -90,29 +91,29 @@ impl RawColliderSet {
     /// - `wakeUp`: forces the collider to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
-    pub fn coSetRotation(&mut self, handle: u32, angle: f32) {
+    pub fn coSetRotation(&mut self, handle: FlatHandle, angle: f32) {
         self.map_mut(handle, |co| co.set_rotation(angle))
     }
 
     #[cfg(feature = "dim3")]
-    pub fn coSetRotationWrtParent(&mut self, handle: u32, x: f32, y: f32, z: f32, w: f32) {
+    pub fn coSetRotationWrtParent(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32, w: f32) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
             self.map_mut(handle, |co| co.set_rotation_wrt_parent(q.scaled_axis()))
         }
     }
 
     #[cfg(feature = "dim2")]
-    pub fn coSetRotationWrtParent(&mut self, handle: u32, angle: f32) {
+    pub fn coSetRotationWrtParent(&mut self, handle: FlatHandle, angle: f32) {
         self.map_mut(handle, |co| co.set_rotation_wrt_parent(angle))
     }
 
     /// Is this collider a sensor?
-    pub fn coIsSensor(&self, handle: u32) -> bool {
+    pub fn coIsSensor(&self, handle: FlatHandle) -> bool {
         self.map(handle, |co| co.is_sensor())
     }
 
     /// The type of the shape of this collider.
-    pub fn coShapeType(&self, handle: u32) -> RawShapeType {
+    pub fn coShapeType(&self, handle: FlatHandle) -> RawShapeType {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::Ball => RawShapeType::Ball,
             ShapeType::Cuboid => RawShapeType::Cuboid,
@@ -146,7 +147,7 @@ impl RawColliderSet {
     }
 
     /// The half-extents of this collider if it is has a cuboid shape.
-    pub fn coHalfExtents(&self, handle: u32) -> Option<RawVector> {
+    pub fn coHalfExtents(&self, handle: FlatHandle) -> Option<RawVector> {
         self.map(handle, |co| {
             co.shape()
                 .as_cuboid()
@@ -160,7 +161,7 @@ impl RawColliderSet {
     }
 
     /// The radius of this collider if it is a ball, capsule, cylinder, or cone shape.
-    pub fn coRadius(&self, handle: u32) -> Option<f32> {
+    pub fn coRadius(&self, handle: FlatHandle) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::Ball => co.shape().as_ball().map(|b| b.radius),
             ShapeType::Capsule => co.shape().as_capsule().map(|b| b.radius),
@@ -177,7 +178,7 @@ impl RawColliderSet {
     }
 
     /// The radius of this collider if it is a capsule, cylinder, or cone shape.
-    pub fn coHalfHeight(&self, handle: u32) -> Option<f32> {
+    pub fn coHalfHeight(&self, handle: FlatHandle) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::Capsule => co.shape().as_capsule().map(|b| b.half_height()),
             #[cfg(feature = "dim3")]
@@ -194,7 +195,7 @@ impl RawColliderSet {
     }
 
     /// The radius of the round edges of this collider.
-    pub fn coRoundRadius(&self, handle: u32) -> Option<f32> {
+    pub fn coRoundRadius(&self, handle: FlatHandle) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::RoundCuboid => co.shape().as_round_cuboid().map(|b| b.border_radius),
             ShapeType::RoundTriangle => co.shape().as_round_triangle().map(|b| b.border_radius),
@@ -217,7 +218,7 @@ impl RawColliderSet {
     }
 
     /// The vertices of this triangle mesh, polyline, convex polyhedron, segment, triangle or convex polyhedron, if it is one.
-    pub fn coVertices(&self, handle: u32) -> Option<Vec<f32>> {
+    pub fn coVertices(&self, handle: FlatHandle) -> Option<Vec<f32>> {
         let flatten =
             |vertices: &[Point<f32>]| vertices.iter().flat_map(|p| p.iter()).copied().collect();
         self.map(handle, |co| match co.shape().shape_type() {
@@ -252,7 +253,7 @@ impl RawColliderSet {
     }
 
     /// The indices of this triangle mesh, polyline, or convex polyhedron, if it is one.
-    pub fn coIndices(&self, handle: u32) -> Option<Vec<u32>> {
+    pub fn coIndices(&self, handle: FlatHandle) -> Option<Vec<u32>> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::TriMesh => co
                 .shape()
@@ -288,7 +289,7 @@ impl RawColliderSet {
     }
 
     /// The height of this heightfield if it is one.
-    pub fn coHeightfieldHeights(&self, handle: u32) -> Option<Vec<f32>> {
+    pub fn coHeightfieldHeights(&self, handle: FlatHandle) -> Option<Vec<f32>> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::HeightField => co
                 .shape()
@@ -299,7 +300,7 @@ impl RawColliderSet {
     }
 
     /// The scaling factor applied of this heightfield if it is one.
-    pub fn coHeightfieldScale(&self, handle: u32) -> Option<RawVector> {
+    pub fn coHeightfieldScale(&self, handle: FlatHandle) -> Option<RawVector> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::HeightField => co.shape().as_heightfield().map(|h| RawVector(*h.scale())),
             _ => None,
@@ -308,7 +309,7 @@ impl RawColliderSet {
 
     /// The number of rows on this heightfield's height matrix, if it is one.
     #[cfg(feature = "dim3")]
-    pub fn coHeightfieldNRows(&self, handle: u32) -> Option<usize> {
+    pub fn coHeightfieldNRows(&self, handle: FlatHandle) -> Option<usize> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::HeightField => co.shape().as_heightfield().map(|h| h.nrows()),
             _ => None,
@@ -317,7 +318,7 @@ impl RawColliderSet {
 
     /// The number of columns on this heightfield's height matrix, if it is one.
     #[cfg(feature = "dim3")]
-    pub fn coHeightfieldNCols(&self, handle: u32) -> Option<usize> {
+    pub fn coHeightfieldNCols(&self, handle: FlatHandle) -> Option<usize> {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::HeightField => co.shape().as_heightfield().map(|h| h.ncols()),
             _ => None,
@@ -325,54 +326,54 @@ impl RawColliderSet {
     }
 
     /// The unique integer identifier of the collider this collider is attached to.
-    pub fn coParent(&self, handle: u32) -> Option<u32> {
-        self.map(handle, |co| co.parent().map(|p| p.into_raw_parts().0))
+    pub fn coParent(&self, handle: FlatHandle) -> Option<FlatHandle> {
+        self.map(handle, |co| co.parent().map(|p| utils::fuse_handle(p.0)))
     }
 
     /// The friction coefficient of this collider.
-    pub fn coFriction(&self, handle: u32) -> f32 {
+    pub fn coFriction(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |co| co.material().friction)
     }
     /// The restitution coefficient of this collider.
-    pub fn coRestitution(&self, handle: u32) -> f32 {
+    pub fn coRestitution(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |co| co.material().restitution)
     }
 
     /// The density of this collider.
-    pub fn coDensity(&self, handle: u32) -> Option<f32> {
+    pub fn coDensity(&self, handle: FlatHandle) -> Option<f32> {
         self.map(handle, |co| co.density())
     }
 
     /// The collision groups of this collider.
-    pub fn coCollisionGroups(&self, handle: u32) -> u32 {
+    pub fn coCollisionGroups(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |co| {
             super::pack_interaction_groups(co.collision_groups())
         })
     }
 
     /// The solver groups of this collider.
-    pub fn coSolverGroups(&self, handle: u32) -> u32 {
+    pub fn coSolverGroups(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |co| {
             super::pack_interaction_groups(co.solver_groups())
         })
     }
 
     /// The physics hooks enabled for this collider.
-    pub fn coActiveHooks(&self, handle: u32) -> u32 {
+    pub fn coActiveHooks(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |co| co.active_hooks().bits())
     }
 
     /// The collision types enabled for this collider.
-    pub fn coActiveCollisionTypes(&self, handle: u32) -> u16 {
+    pub fn coActiveCollisionTypes(&self, handle: FlatHandle) -> u16 {
         self.map(handle, |co| co.active_collision_types().bits())
     }
 
     /// The events enabled for this collider.
-    pub fn coActiveEvents(&self, handle: u32) -> u32 {
+    pub fn coActiveEvents(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |co| co.active_events().bits())
     }
 
-    pub fn coContainsPoint(&self, handle: u32, point: &RawVector) -> bool {
+    pub fn coContainsPoint(&self, handle: FlatHandle, point: &RawVector) -> bool {
         self.map(handle, |co| {
             co.shared_shape()
                 .containsPoint(co.position(), &point.0.into())
@@ -381,7 +382,7 @@ impl RawColliderSet {
 
     pub fn coCastShape(
         &self,
-        handle: u32,
+        handle: FlatHandle,
         colliderVel: &RawVector,
         shape2: &RawShape,
         shape2Pos: &RawVector,
@@ -406,15 +407,16 @@ impl RawColliderSet {
 
     pub fn coCastCollider(
         &self,
-        handle: u32,
+        handle: FlatHandle,
         collider1Vel: &RawVector,
-        collider2Handle: u32,
+        collider2handle: FlatHandle,
         collider2Vel: &RawVector,
         max_toi: f32,
     ) -> Option<RawShapeColliderTOI> {
-        let (co2, co2Handle) = self
+        let handle2 = utils::collider_handle(collider2handle);
+        let co2 = self
             .0
-            .get_unknown_gen(collider2Handle)
+            .get(handle2)
             .expect("Invalid Collider reference. It may have been removed from the physics World.");
 
         self.map(handle, |co| {
@@ -430,7 +432,7 @@ impl RawColliderSet {
             .unwrap_or(None)
             .map_or(None, |toi| {
                 Some(RawShapeColliderTOI {
-                    handle: co2Handle,
+                    handle: handle2,
                     toi,
                 })
             })
@@ -439,7 +441,7 @@ impl RawColliderSet {
 
     pub fn coIntersectsShape(
         &self,
-        handle: u32,
+        handle: FlatHandle,
         shape2: &RawShape,
         shapePos2: &RawVector,
         shapeRot2: &RawRotation,
@@ -454,7 +456,7 @@ impl RawColliderSet {
 
     pub fn coContactShape(
         &self,
-        handle: u32,
+        handle: FlatHandle,
         shape2: &RawShape,
         shapePos2: &RawVector,
         shapeRot2: &RawRotation,
@@ -470,13 +472,13 @@ impl RawColliderSet {
 
     pub fn coContactCollider(
         &self,
-        handle: u32,
-        collider2Handle: u32,
+        handle: FlatHandle,
+        collider2handle: FlatHandle,
         prediction: f32,
     ) -> Option<RawShapeContact> {
-        let (co2, _) = self
+        let co2 = self
             .0
-            .get_unknown_gen(collider2Handle)
+            .get(utils::collider_handle(collider2handle))
             .expect("Invalid Collider reference. It may have been removed from the physics World.");
 
         self.map(handle, |co| {
@@ -495,7 +497,7 @@ impl RawColliderSet {
 
     pub fn coProjectPoint(
         &self,
-        handle: u32,
+        handle: FlatHandle,
         point: &RawVector,
         solid: bool,
     ) -> RawPointProjection {
@@ -507,7 +509,7 @@ impl RawColliderSet {
 
     pub fn coIntersectsRay(
         &self,
-        handle: u32,
+        handle: FlatHandle,
         rayOrig: &RawVector,
         rayDir: &RawVector,
         maxToi: f32,
@@ -524,7 +526,7 @@ impl RawColliderSet {
 
     pub fn coCastRay(
         &self,
-        handle: u32,
+        handle: FlatHandle,
         rayOrig: &RawVector,
         rayDir: &RawVector,
         maxToi: f32,
@@ -543,7 +545,7 @@ impl RawColliderSet {
 
     pub fn coCastRayAndGetNormal(
         &self,
-        handle: u32,
+        handle: FlatHandle,
         rayOrig: &RawVector,
         rayDir: &RawVector,
         maxToi: f32,
@@ -560,62 +562,62 @@ impl RawColliderSet {
         })
     }
 
-    pub fn coSetSensor(&mut self, handle: u32, is_sensor: bool) {
+    pub fn coSetSensor(&mut self, handle: FlatHandle, is_sensor: bool) {
         self.map_mut(handle, |co| co.set_sensor(is_sensor))
     }
 
-    pub fn coSetRestitution(&mut self, handle: u32, restitution: f32) {
+    pub fn coSetRestitution(&mut self, handle: FlatHandle, restitution: f32) {
         self.map_mut(handle, |co| co.set_restitution(restitution))
     }
 
-    pub fn coSetFriction(&mut self, handle: u32, friction: f32) {
+    pub fn coSetFriction(&mut self, handle: FlatHandle, friction: f32) {
         self.map_mut(handle, |co| co.set_friction(friction))
     }
 
-    pub fn coFrictionCombineRule(&self, handle: u32) -> u32 {
+    pub fn coFrictionCombineRule(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |co| co.friction_combine_rule() as u32)
     }
 
-    pub fn coSetFrictionCombineRule(&mut self, handle: u32, rule: u32) {
+    pub fn coSetFrictionCombineRule(&mut self, handle: FlatHandle, rule: u32) {
         let rule = super::combine_rule_from_u32(rule);
         self.map_mut(handle, |co| co.set_friction_combine_rule(rule))
     }
 
-    pub fn coRestitutionCombineRule(&self, handle: u32) -> u32 {
+    pub fn coRestitutionCombineRule(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |co| co.restitution_combine_rule() as u32)
     }
 
-    pub fn coSetRestitutionCombineRule(&mut self, handle: u32, rule: u32) {
+    pub fn coSetRestitutionCombineRule(&mut self, handle: FlatHandle, rule: u32) {
         let rule = super::combine_rule_from_u32(rule);
         self.map_mut(handle, |co| co.set_restitution_combine_rule(rule))
     }
 
-    pub fn coSetCollisionGroups(&mut self, handle: u32, groups: u32) {
+    pub fn coSetCollisionGroups(&mut self, handle: FlatHandle, groups: u32) {
         let groups = super::unpack_interaction_groups(groups);
         self.map_mut(handle, |co| co.set_collision_groups(groups))
     }
 
-    pub fn coSetSolverGroups(&mut self, handle: u32, groups: u32) {
+    pub fn coSetSolverGroups(&mut self, handle: FlatHandle, groups: u32) {
         let groups = super::unpack_interaction_groups(groups);
         self.map_mut(handle, |co| co.set_solver_groups(groups))
     }
 
-    pub fn coSetActiveHooks(&mut self, handle: u32, hooks: u32) {
+    pub fn coSetActiveHooks(&mut self, handle: FlatHandle, hooks: u32) {
         let hooks = ActiveHooks::from_bits(hooks).unwrap_or(ActiveHooks::empty());
         self.map_mut(handle, |co| co.set_active_hooks(hooks));
     }
 
-    pub fn coSetActiveEvents(&mut self, handle: u32, events: u32) {
+    pub fn coSetActiveEvents(&mut self, handle: FlatHandle, events: u32) {
         let events = ActiveEvents::from_bits(events).unwrap_or(ActiveEvents::empty());
         self.map_mut(handle, |co| co.set_active_events(events))
     }
 
-    pub fn coSetActiveCollisionTypes(&mut self, handle: u32, types: u16) {
+    pub fn coSetActiveCollisionTypes(&mut self, handle: FlatHandle, types: u16) {
         let types = ActiveCollisionTypes::from_bits(types).unwrap_or(ActiveCollisionTypes::empty());
         self.map_mut(handle, |co| co.set_active_collision_types(types));
     }
 
-    pub fn coSetShape(&mut self, handle: u32, shape: &RawShape) {
+    pub fn coSetShape(&mut self, handle: FlatHandle, shape: &RawShape) {
         self.map_mut(handle, |co| co.set_shape(shape.0.clone()));
     }
 }

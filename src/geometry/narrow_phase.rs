@@ -1,4 +1,5 @@
 use crate::math::RawVector;
+use crate::utils::{self, FlatHandle};
 use rapier::geometry::{ContactManifold, ContactPair, NarrowPhase};
 use rapier::math::Real;
 use wasm_bindgen::prelude::*;
@@ -13,33 +14,37 @@ impl RawNarrowPhase {
         RawNarrowPhase(NarrowPhase::new())
     }
 
-    pub fn contacts_with(&self, handle1: u32, f: js_sys::Function) {
+    pub fn contacts_with(&self, handle1: FlatHandle, f: js_sys::Function) {
         let this = JsValue::null();
-        for pair in self.0.contacts_with_unknown_gen(handle1) {
-            let handle2 = if pair.collider1.into_raw_parts().0 == handle1 {
-                pair.collider2.into_raw_parts().0
+        let handle1 = utils::collider_handle(handle1);
+        for pair in self.0.contacts_with(handle1) {
+            let handle2 = if pair.collider1 == handle1 {
+                utils::fuse_handle(pair.collider2.0)
             } else {
-                pair.collider1.into_raw_parts().0
+                utils::fuse_handle(pair.collider1.0)
             };
 
             let _ = f.call1(&this, &JsValue::from(handle2));
         }
     }
 
-    pub fn contact_pair(&self, handle1: u32, handle2: u32) -> Option<RawContactPair> {
+    pub fn contact_pair(&self, handle1: FlatHandle, handle2: FlatHandle) -> Option<RawContactPair> {
+        let handle1 = utils::collider_handle(handle1);
+        let handle2 = utils::collider_handle(handle2);
         self.0
-            .contact_pair_unknown_gen(handle1, handle2)
+            .contact_pair(handle1, handle2)
             .map(|p| RawContactPair(p as *const ContactPair))
     }
 
-    pub fn intersections_with(&self, handle1: u32, f: js_sys::Function) {
+    pub fn intersections_with(&self, handle1: FlatHandle, f: js_sys::Function) {
         let this = JsValue::null();
-        for (h1, h2, inter) in self.0.intersections_with_unknown_gen(handle1) {
+        let handle1 = utils::collider_handle(handle1);
+        for (h1, h2, inter) in self.0.intersections_with(handle1) {
             if inter {
-                let handle2 = if h1.into_raw_parts().0 == handle1 {
-                    h2.into_raw_parts().0
+                let handle2 = if h1 == handle1 {
+                    utils::fuse_handle(h2.0)
                 } else {
-                    h1.into_raw_parts().0
+                    utils::fuse_handle(h1.0)
                 };
 
                 let _ = f.call1(&this, &JsValue::from(handle2));
@@ -64,12 +69,12 @@ pub struct RawContactManifold(*const ContactManifold);
 //         before the user has a chance to invalidate this pointer.
 #[wasm_bindgen]
 impl RawContactPair {
-    pub fn collider1(&self) -> u32 {
-        unsafe { (*self.0).collider1.into_raw_parts().0 }
+    pub fn collider1(&self) -> FlatHandle {
+        unsafe { utils::fuse_handle((*self.0).collider1.0) }
     }
 
-    pub fn collider2(&self) -> u32 {
-        unsafe { (*self.0).collider2.into_raw_parts().0 }
+    pub fn collider2(&self) -> FlatHandle {
+        unsafe { utils::fuse_handle((*self.0).collider2.0) }
     }
 
     pub fn numContactManifolds(&self) -> usize {

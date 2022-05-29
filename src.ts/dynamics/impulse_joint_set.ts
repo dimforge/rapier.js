@@ -44,13 +44,12 @@ export class ImpulseJointSet {
      * @param parent2 - The handle of the second rigid-body this joint is attached to.
      */
     public createJoint(
-        bodies: RigidBodySet,
         desc: JointData,
         parent1: number,
         parent2: number
     ): number {
         const rawParams = desc.intoRaw();
-        const result = this.raw.createJoint(bodies.raw, rawParams, parent1, parent2);
+        const result = this.raw.createJoint(rawParams, parent1, parent2);
         rawParams.free();
         return result;
     }
