@@ -154,7 +154,7 @@ impl RawColliderSet {
                 .or_else(|| {
                     co.shape()
                         .as_round_cuboid()
-                        .map(|c| c.base_shape.half_extents.into())
+                        .map(|c| c.inner_shape.half_extents.into())
                 })
         })
     }
@@ -167,7 +167,9 @@ impl RawColliderSet {
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => co.shape().as_cylinder().map(|b| b.radius),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCylinder => co.shape().as_round_cylinder().map(|b| b.base_shape.radius),
+            ShapeType::RoundCylinder => {
+                co.shape().as_round_cylinder().map(|b| b.inner_shape.radius)
+            }
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.radius),
             _ => None,
@@ -184,7 +186,7 @@ impl RawColliderSet {
             ShapeType::RoundCylinder => co
                 .shape()
                 .as_round_cylinder()
-                .map(|b| b.base_shape.half_height),
+                .map(|b| b.inner_shape.half_height),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.half_height),
             _ => None,
@@ -231,19 +233,19 @@ impl RawColliderSet {
             ShapeType::RoundConvexPolyhedron => co
                 .shape()
                 .as_round_convex_polyhedron()
-                .map(|p| flatten(p.base_shape.points())),
+                .map(|p| flatten(p.inner_shape.points())),
             #[cfg(feature = "dim2")]
             ShapeType::ConvexPolygon => co.shape().as_convex_polygon().map(|p| flatten(p.points())),
             #[cfg(feature = "dim2")]
             ShapeType::RoundConvexPolygon => co
                 .shape()
                 .as_round_convex_polygon()
-                .map(|p| flatten(p.base_shape.points())),
+                .map(|p| flatten(p.inner_shape.points())),
             ShapeType::Segment => co.shape().as_segment().map(|s| flatten(&[s.a, s.b])),
             ShapeType::RoundTriangle => co
                 .shape()
                 .as_round_triangle()
-                .map(|t| flatten(&[t.base_shape.a, t.base_shape.b, t.base_shape.c])),
+                .map(|t| flatten(&[t.inner_shape.a, t.inner_shape.b, t.inner_shape.c])),
             ShapeType::Triangle => co.shape().as_triangle().map(|t| flatten(&[t.a, t.b, t.c])),
             _ => None,
         })
@@ -273,7 +275,7 @@ impl RawColliderSet {
             #[cfg(feature = "dim3")]
             ShapeType::RoundConvexPolyhedron => co.shape().as_round_convex_polyhedron().map(|p| {
                 // TODO: avoid the `.to_trimesh()`.
-                p.base_shape
+                p.inner_shape
                     .to_trimesh()
                     .1
                     .iter()

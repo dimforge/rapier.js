@@ -17,8 +17,8 @@ extern "C" {
     fn log(s: &str);
 }
 
-impl<R, C> PhysicsHooks<R, C> for RawPhysicsHooks {
-    fn filter_contact_pair(&self, ctxt: &PairFilterContext<R, C>) -> Option<SolverFlags> {
+impl PhysicsHooks for RawPhysicsHooks {
+    fn filter_contact_pair(&self, ctxt: &PairFilterContext) -> Option<SolverFlags> {
         let rb1 = ctxt
             .rigid_body1
             .map(|rb| JsValue::from(rb.into_raw_parts().0))
@@ -43,7 +43,7 @@ impl<R, C> PhysicsHooks<R, C> for RawPhysicsHooks {
         SolverFlags::from_bits(flags as u32)
     }
 
-    fn filter_intersection_pair(&self, ctxt: &PairFilterContext<R, C>) -> bool {
+    fn filter_intersection_pair(&self, ctxt: &PairFilterContext) -> bool {
         let rb1 = ctxt
             .rigid_body1
             .map(|rb| JsValue::from(rb.into_raw_parts().0))
@@ -65,7 +65,7 @@ impl<R, C> PhysicsHooks<R, C> for RawPhysicsHooks {
             .unwrap_or(false)
     }
 
-    fn modify_solver_contacts(&self, _ctxt: &mut ContactModificationContext<R, C>) {}
+    fn modify_solver_contacts(&self, _ctxt: &mut ContactModificationContext) {}
 }
 
 /* NOTE: the following is an attempt to make contact modification work.

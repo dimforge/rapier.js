@@ -56,7 +56,7 @@ impl RawEventQueue {
         let this = JsValue::null();
         while let Ok(event) = self.collision_events.try_recv() {
             match event {
-                CollisionEvent::Started(co1, co2) => {
+                CollisionEvent::Started(co1, co2, _) => {
                     let h1 = co1.into_raw_parts().0 as u32;
                     let h2 = co2.into_raw_parts().0 as u32;
                     let _ = f.call3(
