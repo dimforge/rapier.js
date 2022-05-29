@@ -73,6 +73,17 @@ export class Graphics {
         this.scene.add(ambientLight);
         this.light = new THREE.PointLight(0xffffff, 1, 1000);
         this.scene.add(this.light);
+
+        // For the debug-renderer.
+        {
+            let material = new THREE.LineBasicMaterial({
+                color: 0xffffff,
+                vertexColors: THREE.VertexColors
+            });
+            let geometry = new THREE.BufferGeometry();
+            this.lines = new THREE.LineSegments(geometry, material);
+            this.scene.add(this.lines);
+        }
         let me = this;
 
         function onWindowResize() {
@@ -128,7 +139,7 @@ export class Graphics {
         });
     }
 
-    render(world) {
+    render(world, debugRender) {
         kk += 1;
         this.controls.update();
         // if (kk % 100 == 0) {
@@ -138,21 +149,13 @@ export class Graphics {
 
         this.light.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
 
-        {
-            // Debug-render
-            if (!this.lines) {
-                let material = new THREE.LineBasicMaterial({
-                    color: 0xffffff,
-                    vertexColors: THREE.VertexColors
-                });
-                let geometry =  new THREE.BufferGeometry();
-                this.lines = new THREE.LineSegments(geometry, material);
-                this.scene.add(this.lines);
-            }
-
+        if (debugRender) {
             let buffers = world.debugRender();
+            this.lines.visible = true
             this.lines.geometry.setAttribute('position', new THREE.BufferAttribute(buffers.vertices, 3));
             this.lines.geometry.setAttribute('color', new THREE.BufferAttribute(buffers.colors, 4));
+        } else {
+            this.lines.visible = false;
         }
 
         this.updatePositions(world);

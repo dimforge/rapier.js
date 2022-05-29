@@ -11,6 +11,7 @@ class SimulationParameters {
         this.numPositionIter = 1;
         this.running = true;
         this.stepping = false;
+        this.debugRender = false;
         this.step = function () {
         }
         this.restart = function () {
@@ -207,7 +208,7 @@ export class Testbed {
         }
 
         this.gui.stats.begin();
-        this.graphics.render(this.world);
+        this.graphics.render(this.world, this.parameters.debugRender);
         this.gui.stats.end();
 
         requestAnimationFrame(() => this.run());

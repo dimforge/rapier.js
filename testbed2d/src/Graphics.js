@@ -34,12 +34,14 @@ export class Graphics {
             interaction: this.renderer.plugins.interaction
         });
 
+
         this.scene.addChild(this.viewport);
         this.viewport
             .drag()
             .pinch()
             .wheel()
             .decelerate();
+
 
         let me = this;
 
@@ -78,16 +80,15 @@ export class Graphics {
         }));
     }
 
-    render(world) {
+    render(world, debugRender) {
         kk += 1;
 
+        if (!this.lines) {
+            this.lines = new PIXI.Graphics();
+            this.viewport.addChild(this.lines);
+        }
 
-        {
-            // Debug-render
-            if (!this.lines) {
-                this.lines = new PIXI.Graphics();
-                this.viewport.addChild(this.lines);
-            }
+        if (debugRender) {
             let buffers = world.debugRender();
             let vtx = buffers.vertices;
             let cls = buffers.colors;
@@ -100,6 +101,8 @@ export class Graphics {
                 this.lines.moveTo(vtx[i * 4], -vtx[i * 4 + 1]);
                 this.lines.lineTo(vtx[i * 4 + 2], -vtx[i * 4 + 3]);
             }
+        } else {
+            this.lines.clear();
         }
 
         this.updatePositions(world);

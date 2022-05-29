@@ -35,6 +35,7 @@ export class Gui {
         this.velIter = this.gui.add(simulationParameters, 'numVelocityIter', 0, 20).step(1).listen();
         this.posIter = this.gui.add(simulationParameters, 'numPositionIter', 0, 20).step(1).listen();
         this.gui.add(simulationParameters, 'debugInfos').listen();
+        this.gui.add(simulationParameters, 'debugRender').listen();
         this.gui.add(simulationParameters, 'running', true).listen();
         this.gui.add(simulationParameters, 'step')
             .onChange(function () {
