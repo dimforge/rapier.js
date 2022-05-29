@@ -5,7 +5,7 @@ export function initWorld(RAPIER, testbed) {
     /*
      * The ground
      */
-    let ground_size = 1.5;
+    let ground_size = 1.7;
     let ground_height = 0.1;
 
     let bodyDesc = RAPIER.RigidBodyDesc.newStatic()

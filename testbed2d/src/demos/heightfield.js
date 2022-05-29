@@ -16,7 +16,7 @@ export function initWorld(RAPIER, testbed) {
     }
     heights.push(40.0);
 
-    let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.heightfield(heights, ground_size);
     world.createCollider(colliderDesc, body.handle);

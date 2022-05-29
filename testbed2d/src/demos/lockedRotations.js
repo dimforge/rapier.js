@@ -8,7 +8,7 @@ export function initWorld(RAPIER, testbed) {
     let ground_size = 1.8;
     let ground_height = 1.0;
 
-    let bodyDesc = RAPIER.RigidBodyDesc.newStatic()
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed()
         .setTranslation(0.0, -ground_height);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(ground_size, ground_height);

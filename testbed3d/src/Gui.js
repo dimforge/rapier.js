@@ -70,8 +70,8 @@ export class Gui {
         text += "<br/>[Step " + infos.stepId + "]";
 
         if (infos.worldHash) {
-            text += "<br/>World hash (CRC32): " + infos.worldHash;
-            text += "<br/>World hash time (CRC32): " + infos.worldHashTime + "ms";
+            text += "<br/>World hash (MD5): " + infos.worldHash.toString();
+            text += "<br/>World hash time (MD5): " + infos.worldHashTime + "ms";
             text += "<br/>Snapshot time: " + infos.snapshotTime + "ms";
         }
         this.debugText.innerHTML = text;

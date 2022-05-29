@@ -33,24 +33,7 @@ const appConfig = {
     ]
 };
 
-const workerConfig = {
-    mode: mode,
-    entry: "./worker/worker.js",
-    target: "webworker",
-    plugins: [
-        new webpack.IgnorePlugin(/(fs)/)
-    ],
-    resolve: {
-        extensions: [".js", ".wasm"]
-    },
-    output: {
-        path: dist,
-        filename: "worker.js",
-        // globalObject: 'this'
-    }
-};
-
-module.exports = [appConfig, workerConfig];
+module.exports = appConfig;
 
 
 // module.exports = [

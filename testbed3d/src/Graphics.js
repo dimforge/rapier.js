@@ -128,14 +128,34 @@ export class Graphics {
         });
     }
 
-    render() {
+    render(world) {
         kk += 1;
         this.controls.update();
         // if (kk % 100 == 0) {
         //     console.log(this.camera.position);
         //     console.log(this.controls.target);
         // }
+
         this.light.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+
+        {
+            // Debug-render
+            if (!this.lines) {
+                let material = new THREE.LineBasicMaterial({
+                    color: 0xffffff,
+                    vertexColors: THREE.VertexColors
+                });
+                let geometry =  new THREE.BufferGeometry();
+                this.lines = new THREE.LineSegments(geometry, material);
+                this.scene.add(this.lines);
+            }
+
+            let buffers = world.debugRender();
+            this.lines.geometry.setAttribute('position', new THREE.BufferAttribute(buffers.vertices, 3));
+            this.lines.geometry.setAttribute('color', new THREE.BufferAttribute(buffers.colors, 4));
+        }
+
+        this.updatePositions(world);
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -179,15 +199,17 @@ export class Graphics {
         this.highlightedCollider = handle;
     }
 
-    updatePositions(positions) {
-        positions.forEach(elt => {
+    updatePositions(world) {
+        world.forEachCollider(elt => {
             let gfx = this.coll2instance.get(elt.handle);
+            let translation = elt.translation();
+            let rotation = elt.rotation();
 
             if (!!gfx) {
                 let instance = this.instanceGroups[gfx.groupId][gfx.instanceId];
                 dummy.scale.set(gfx.scale.x, gfx.scale.y, gfx.scale.z);
-                dummy.position.set(elt.translation.x, elt.translation.y, elt.translation.z);
-                dummy.quaternion.set(elt.rotation.x, elt.rotation.y, elt.rotation.z, elt.rotation.w);
+                dummy.position.set(translation.x, translation.y, translation.z);
+                dummy.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
                 dummy.updateMatrix();
                 instance.setMatrixAt(gfx.elementId, dummy.matrix);
 
@@ -204,8 +226,8 @@ export class Graphics {
             gfx = this.coll2mesh.get(elt.handle);
 
             if (!!gfx) {
-                gfx.position.set(elt.translation.x, elt.translation.y, elt.translation.z);
-                gfx.quaternion.set(elt.rotation.x, elt.rotation.y, elt.rotation.z, elt.rotation.w);
+                gfx.position.set(translation.x, translation.y, translation.z);
+                gfx.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
                 gfx.updateMatrix();
             }
         })
@@ -243,6 +265,13 @@ export class Graphics {
         }
     }
 
+    removeRigidBody(body) {
+        if (!!this.rb2colls.get(body.handle)) {
+            this.rb2colls.get(body.handle).forEach(coll => this.removeCollider(coll));
+            this.rb2colls.delete(body.handle);
+        }
+    }
+
     removeCollider(handle) {
         let gfx = this.coll2instance.get(handle);
         let instance = this.instanceGroups[gfx.groupId][gfx.instanceId];
@@ -273,7 +302,7 @@ export class Graphics {
         let instance;
         let instanceDesc = {
             groupId: 0,
-            instanceId: parent.isStatic() ? 0 : (this.colorIndex + 1),
+            instanceId: parent.isFixed() ? 0 : (this.colorIndex + 1),
             elementId: 0,
             highlighted: false,
         };
@@ -325,7 +354,7 @@ export class Graphics {
 
                 geometry.setIndex(Array.from(indices));
                 geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-                let color = parent.isStatic() ? 0 : (this.colorIndex + 1);
+                let color = parent.isFixed() ? 0 : (this.colorIndex + 1);
 
                 let material = new THREE.MeshPhongMaterial({
                     color: this.colorPalette[color],

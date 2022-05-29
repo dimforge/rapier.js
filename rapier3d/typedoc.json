@@ -36,6 +36,7 @@
     "pkg/rapier_wasm3d.d.ts:RawShapeContact",
     "pkg/rapier_wasm3d.d.ts:RawShapeTOI",
     "pkg/rapier_wasm3d.d.ts:RawQueryPipeline",
-    "pkg/rapier_wasm3d.d.ts:RawDeserializedWorld"
+    "pkg/rapier_wasm3d.d.ts:RawDeserializedWorld",
+    "pkg/rapier_wasm3d.d.ts:RawDebugRenderPipeline"
   ]
 }
