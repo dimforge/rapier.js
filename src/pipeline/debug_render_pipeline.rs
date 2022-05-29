@@ -3,12 +3,9 @@ use crate::geometry::RawColliderSet;
 use js_sys::Float32Array;
 use palette::convert::IntoColorUnclamped;
 use palette::rgb::Rgba;
-use palette::{Hsla, Srgba};
+use palette::Hsla;
 use rapier::math::{Point, Real};
-use rapier::pipeline::{
-    DebugRenderBackend, DebugRenderObject, DebugRenderPipeline, DebugRenderStyle,
-};
-use rapier::prelude::QueryPipeline;
+use rapier::pipeline::{DebugRenderBackend, DebugRenderObject, DebugRenderPipeline};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
