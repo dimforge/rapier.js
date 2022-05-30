@@ -94,13 +94,13 @@ impl RawColliderSet {
         let collider = builder.build();
 
         if hasParent {
-            Some(utils::fuse_handle(
+            Some(utils::flat_handle(
                 self.0
                     .insert_with_parent(collider, utils::body_handle(parent), &mut bodies.0)
                     .0,
             ))
         } else {
-            Some(utils::fuse_handle(self.0.insert(collider).0))
+            Some(utils::flat_handle(self.0.insert(collider).0))
         }
     }
 }
@@ -246,7 +246,7 @@ impl RawColliderSet {
     pub fn forEachColliderHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.0.iter() {
-            let _ = f.call1(&this, &JsValue::from(utils::fuse_handle(handle.0)));
+            let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
     }
 }

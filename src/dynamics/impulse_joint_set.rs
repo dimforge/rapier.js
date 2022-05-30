@@ -1,4 +1,4 @@
-use crate::dynamics::{RawGenericJoint, RawIslandManager, RawRigidBodySet};
+use crate::dynamics::RawGenericJoint;
 use crate::utils::{self, FlatHandle};
 use rapier::dynamics::{ImpulseJoint, ImpulseJointSet};
 use wasm_bindgen::prelude::*;
@@ -38,27 +38,23 @@ impl RawImpulseJointSet {
         params: &RawGenericJoint,
         parent1: FlatHandle,
         parent2: FlatHandle,
+        wake_up: bool,
     ) -> FlatHandle {
-        utils::fuse_handle(
+        utils::flat_handle(
             self.0
                 .insert(
                     utils::body_handle(parent1),
                     utils::body_handle(parent2),
                     params.0.clone(),
+                    wake_up,
                 )
                 .0,
         )
     }
 
-    pub fn remove(
-        &mut self,
-        handle: FlatHandle,
-        islands: &mut RawIslandManager,
-        bodies: &mut RawRigidBodySet,
-        wakeUp: bool,
-    ) {
+    pub fn remove(&mut self, handle: FlatHandle, wakeUp: bool) {
         let handle = utils::impulse_joint_handle(handle);
-        self.0.remove(handle, &mut islands.0, &mut bodies.0, wakeUp);
+        self.0.remove(handle, wakeUp);
     }
 
     pub fn len(&self) -> usize {
@@ -76,7 +72,18 @@ impl RawImpulseJointSet {
     pub fn forEachJointHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.0.iter() {
-            let _ = f.call1(&this, &JsValue::from(utils::fuse_handle(handle.0)));
+            let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
+        }
+    }
+
+    /// Applies the given JavaScript function to the integer handle of each joint attached to the given rigid-body.
+    ///
+    /// # Parameters
+    /// - `f(handle)`: the function to apply to the integer handle of each joint attached to the rigid-body. Called as `f(collider)`.
+    pub fn forEachJointAttachedToRigidBody(&self, body: FlatHandle, f: &js_sys::Function) {
+        let this = JsValue::null();
+        for (_, _, handle, _) in self.0.attached_joints(utils::body_handle(body)) {
+            let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
     }
 }

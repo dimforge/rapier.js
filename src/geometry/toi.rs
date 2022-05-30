@@ -40,7 +40,7 @@ pub struct RawShapeColliderTOI {
 #[wasm_bindgen]
 impl RawShapeColliderTOI {
     pub fn colliderHandle(&self) -> FlatHandle {
-        utils::fuse_handle(self.handle.0)
+        utils::flat_handle(self.handle.0)
     }
 
     pub fn toi(&self) -> f32 {

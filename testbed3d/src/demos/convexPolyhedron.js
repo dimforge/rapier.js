@@ -45,7 +45,7 @@ export function initWorld(RAPIER, testbed) {
     let body = world.createRigidBody(bodyDesc);
     let trimesh = generateTriMesh(20, 40.0, 4.0, 40.0)
     let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     /*
      * Create the polyhedra
@@ -79,7 +79,7 @@ export function initWorld(RAPIER, testbed) {
                 bodyDesc = RAPIER.RigidBodyDesc.newDynamic().setTranslation(x, y, z);
                 body = world.createRigidBody(bodyDesc);
                 colliderDesc = RAPIER.ColliderDesc.roundConvexHull(vertices, border_rad);
-                world.createCollider(colliderDesc, body.handle);
+                world.createCollider(colliderDesc, body);
             }
         }
     }

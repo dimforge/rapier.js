@@ -25,7 +25,7 @@ impl RawIslandManager {
     pub fn forEachActiveRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for handle in self.0.active_dynamic_bodies() {
-            let _ = f.call1(&this, &JsValue::from(utils::fuse_handle(handle.0)));
+            let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
     }
 }

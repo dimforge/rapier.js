@@ -15,7 +15,7 @@ function createWall(RAPIER, testbed, world, offset, stackHeight, ) {
                 .setTranslation(x, y, z);
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(0.5, 0.5, 1.0);
-            world.createCollider(colliderDesc, body.handle);
+            world.createCollider(colliderDesc, body);
         }
     }
 }
@@ -30,7 +30,7 @@ export function initWorld(RAPIER, testbed) {
     let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(30.0, 0.1, 30.0);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     let numX = 5;
     let numZ = 8;
@@ -51,7 +51,7 @@ export function initWorld(RAPIER, testbed) {
     body = world.createRigidBody(bodyDesc);
     colliderDesc = RAPIER.ColliderDesc.ball(1.0)
         .setDensity(10.0);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
 
     testbed.setWorld(world);

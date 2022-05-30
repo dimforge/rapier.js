@@ -25,7 +25,7 @@ pub fn multibody_joint_handle(id: FlatHandle) -> MultibodyJointHandle {
 }
 
 #[inline(always)]
-pub fn fuse_handle(id: Index) -> FlatHandle {
+pub fn flat_handle(id: Index) -> FlatHandle {
     let (i, g) = id.into_raw_parts();
     FlatHandle::from_bits(i as u64 | ((g as u64) << 32))
 }

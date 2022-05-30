@@ -332,7 +332,7 @@ impl RawRigidBodySet {
     /// - `at`: The index of the collider to retrieve. Must be a number in `[0, this.numColliders()[`.
     ///         This index is **not** the same as the unique identifier of the collider.
     pub fn rbCollider(&self, handle: FlatHandle, at: usize) -> FlatHandle {
-        self.map(handle, |rb| utils::fuse_handle(rb.colliders()[at].0))
+        self.map(handle, |rb| utils::flat_handle(rb.colliders()[at].0))
     }
 
     /// The status of this rigid-body: fixed, dynamic, or kinematic.

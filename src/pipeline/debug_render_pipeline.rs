@@ -1,5 +1,5 @@
 use crate::dynamics::{RawImpulseJointSet, RawMultibodyJointSet, RawRigidBodySet};
-use crate::geometry::RawColliderSet;
+use crate::geometry::{RawColliderSet, RawNarrowPhase};
 use js_sys::Float32Array;
 use palette::convert::IntoColorUnclamped;
 use palette::rgb::Rgba;
@@ -44,6 +44,7 @@ impl RawDebugRenderPipeline {
         colliders: &RawColliderSet,
         impulse_joints: &RawImpulseJointSet,
         multibody_joints: &RawMultibodyJointSet,
+        narrow_phase: &RawNarrowPhase,
     ) {
         self.vertices.clear();
         self.colors.clear();
@@ -58,6 +59,7 @@ impl RawDebugRenderPipeline {
             &colliders.0,
             &impulse_joints.0,
             &multibody_joints.0,
+            &narrow_phase.0,
         )
     }
 }

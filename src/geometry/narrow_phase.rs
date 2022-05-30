@@ -19,9 +19,9 @@ impl RawNarrowPhase {
         let handle1 = utils::collider_handle(handle1);
         for pair in self.0.contacts_with(handle1) {
             let handle2 = if pair.collider1 == handle1 {
-                utils::fuse_handle(pair.collider2.0)
+                utils::flat_handle(pair.collider2.0)
             } else {
-                utils::fuse_handle(pair.collider1.0)
+                utils::flat_handle(pair.collider1.0)
             };
 
             let _ = f.call1(&this, &JsValue::from(handle2));
@@ -42,9 +42,9 @@ impl RawNarrowPhase {
         for (h1, h2, inter) in self.0.intersections_with(handle1) {
             if inter {
                 let handle2 = if h1 == handle1 {
-                    utils::fuse_handle(h2.0)
+                    utils::flat_handle(h2.0)
                 } else {
-                    utils::fuse_handle(h1.0)
+                    utils::flat_handle(h1.0)
                 };
 
                 let _ = f.call1(&this, &JsValue::from(handle2));
@@ -70,11 +70,11 @@ pub struct RawContactManifold(*const ContactManifold);
 #[wasm_bindgen]
 impl RawContactPair {
     pub fn collider1(&self) -> FlatHandle {
-        unsafe { utils::fuse_handle((*self.0).collider1.0) }
+        unsafe { utils::flat_handle((*self.0).collider1.0) }
     }
 
     pub fn collider2(&self) -> FlatHandle {
-        unsafe { utils::fuse_handle((*self.0).collider2.0) }
+        unsafe { utils::flat_handle((*self.0).collider2.0) }
     }
 
     pub fn numContactManifolds(&self) -> usize {

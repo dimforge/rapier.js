@@ -22,19 +22,19 @@ impl PhysicsHooks for RawPhysicsHooks {
     fn filter_contact_pair(&self, ctxt: &PairFilterContext) -> Option<SolverFlags> {
         let rb1 = ctxt
             .rigid_body1
-            .map(|rb| JsValue::from(utils::fuse_handle(rb.0)))
+            .map(|rb| JsValue::from(utils::flat_handle(rb.0)))
             .unwrap_or(JsValue::NULL);
         let rb2 = ctxt
             .rigid_body2
-            .map(|rb| JsValue::from(utils::fuse_handle(rb.0)))
+            .map(|rb| JsValue::from(utils::flat_handle(rb.0)))
             .unwrap_or(JsValue::NULL);
 
         let result = self
             .filter_contact_pair
             .bind2(
                 &self.this,
-                &JsValue::from(utils::fuse_handle(ctxt.collider1.0)),
-                &JsValue::from(utils::fuse_handle(ctxt.collider2.0)),
+                &JsValue::from(utils::flat_handle(ctxt.collider1.0)),
+                &JsValue::from(utils::flat_handle(ctxt.collider2.0)),
             )
             .call2(&self.this, &rb1, &rb2)
             .ok()?;
@@ -47,18 +47,18 @@ impl PhysicsHooks for RawPhysicsHooks {
     fn filter_intersection_pair(&self, ctxt: &PairFilterContext) -> bool {
         let rb1 = ctxt
             .rigid_body1
-            .map(|rb| JsValue::from(utils::fuse_handle(rb.0)))
+            .map(|rb| JsValue::from(utils::flat_handle(rb.0)))
             .unwrap_or(JsValue::NULL);
         let rb2 = ctxt
             .rigid_body2
-            .map(|rb| JsValue::from(utils::fuse_handle(rb.0)))
+            .map(|rb| JsValue::from(utils::flat_handle(rb.0)))
             .unwrap_or(JsValue::NULL);
 
         self.filter_intersection_pair
             .bind2(
                 &self.this,
-                &JsValue::from(utils::fuse_handle(ctxt.collider1.0)),
-                &JsValue::from(utils::fuse_handle(ctxt.collider2.0)),
+                &JsValue::from(utils::flat_handle(ctxt.collider1.0)),
+                &JsValue::from(utils::flat_handle(ctxt.collider2.0)),
             )
             .call2(&self.this, &rb1, &rb2)
             .ok()

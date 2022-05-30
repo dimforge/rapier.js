@@ -11,7 +11,7 @@ function createPrismaticJoints(
         .setTranslation(origin.x, origin.y, origin.z);
     let currParent = world.createRigidBody(groundDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-    world.createCollider(colliderDesc, currParent.handle);
+    world.createCollider(colliderDesc, currParent);
 
     let i;
     let z;
@@ -22,7 +22,7 @@ function createPrismaticJoints(
             .setTranslation(origin.x, origin.y, z);
         let currChild = world.createRigidBody(rigidBodyDesc);
         let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-        world.createCollider(colliderDesc, currChild.handle);
+        world.createCollider(colliderDesc, currChild);
 
         let axis;
 
@@ -60,7 +60,7 @@ function createRevoluteJoints(
         .setTranslation(origin.x, origin.y, 0.0);
     let currParent = world.createRigidBody(groundDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-    world.createCollider(colliderDesc, currParent.handle);
+    world.createCollider(colliderDesc, currParent);
 
     let i, k;
     let z;
@@ -83,7 +83,7 @@ function createRevoluteJoints(
                 .setTranslation(positions[k].x, positions[k].y, positions[k].z);
             let rigidBody = world.createRigidBody(rigidBodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-            world.createCollider(colliderDesc, rigidBody.handle);
+            world.createCollider(colliderDesc, rigidBody);
 
             parents[k] = rigidBody;
         }
@@ -141,7 +141,7 @@ function createFixedJoints(
                 .setTranslation(origin.x + fk * shift, origin.y, origin.z + fi * shift);
             let child = world.createRigidBody(rigidBody);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
-            world.createCollider(colliderDesc, child.handle);
+            world.createCollider(colliderDesc, child);
 
             // Vertical joint.
             if (i > 0) {
@@ -203,7 +203,7 @@ function createBallJoints(
                 .setTranslation(fk * shift, 0.0, fi * shift);
             let child = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
-            world.createCollider(colliderDesc, child.handle);
+            world.createCollider(colliderDesc, child);
 
             // Vertical joint.
             let o = new RAPIER.Vector3(0.0, 0.0, 0.0);

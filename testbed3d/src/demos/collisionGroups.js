@@ -6,7 +6,7 @@ export function initWorld(RAPIER, testbed) {
     let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
     let groundBody = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(5.0, 0.1, 5.0);
-    world.createCollider(colliderDesc, groundBody.handle);
+    world.createCollider(colliderDesc, groundBody);
 
     // Setup groups.
     let group1 = 0x00010001;
@@ -16,13 +16,13 @@ export function initWorld(RAPIER, testbed) {
     colliderDesc = RAPIER.ColliderDesc.cuboid(1.0, 0.1, 1.0)
         .setTranslation(0.0, 1.0, 0.0)
         .setCollisionGroups(group1);
-    world.createCollider(colliderDesc, groundBody.handle);
+    world.createCollider(colliderDesc, groundBody);
 
     // Add one floor that collides with the second group only.
     colliderDesc = RAPIER.ColliderDesc.cuboid(1.0, 0.1, 1.0)
         .setTranslation(0.0, 2.0, 0.0)
         .setCollisionGroups(group2);
-    world.createCollider(colliderDesc, groundBody.handle);
+    world.createCollider(colliderDesc, groundBody);
 
     // Dynamic cubes.
     let num = 8;
@@ -47,7 +47,7 @@ export function initWorld(RAPIER, testbed) {
                 let body = world.createRigidBody(bodyDesc);
                 colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad)
                     .setCollisionGroups(group);
-                world.createCollider(colliderDesc, body.handle);
+                world.createCollider(colliderDesc, body);
             }
         }
     }

@@ -32,7 +32,7 @@ pub struct RawPointColliderProjection {
 #[wasm_bindgen]
 impl RawPointColliderProjection {
     pub fn colliderHandle(&self) -> FlatHandle {
-        utils::fuse_handle(self.handle.0)
+        utils::flat_handle(self.handle.0)
     }
 
     pub fn point(&self) -> RawVector {

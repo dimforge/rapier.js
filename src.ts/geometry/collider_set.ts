@@ -1,7 +1,7 @@
 import { RawColliderSet } from "../raw"
 import { RotationOps, VectorOps } from '../math';
 import { Collider, ColliderDesc, ColliderHandle } from './collider'
-import { IslandManager, RigidBodyHandle } from "../dynamics";
+import {ImpulseJointHandle, IslandManager, RigidBodyHandle} from "../dynamics";
 import { RigidBodySet } from "../dynamics";
 
 /**
@@ -27,11 +27,18 @@ export class ColliderSet {
     constructor(raw?: RawColliderSet) {
         this.raw = raw || new RawColliderSet();
         this.map = new Map();
-        // deserialize
+        // Initialize the map with the existing elements, if any.
         if (raw) {
             raw.forEachColliderHandle((handle: ColliderHandle) => {
-                this.map.set(handle, new Collider(raw, handle));
+                this.map.set(handle, new Collider(this, handle, null));
             });
+        }
+    }
+
+    /** @internal */
+    public finalizeDeserialization(bodies: RigidBodySet) {
+        for (let collider of this.map.values()) {
+            collider.finalizeDeserialization(bodies);
         }
     }
 
@@ -42,7 +49,7 @@ export class ColliderSet {
      * @param desc - The collider's description.
      * @param parentHandle - The inteer handle of the rigid-body this collider is attached to.
      */
-    public createCollider(bodies: RigidBodySet, desc: ColliderDesc, parentHandle: RigidBodyHandle): ColliderHandle {
+    public createCollider(bodies: RigidBodySet, desc: ColliderDesc, parentHandle: RigidBodyHandle): Collider {
         let hasParent = parentHandle != undefined && parentHandle != null;
 
         if (hasParent && isNaN(parentHandle))
@@ -98,8 +105,10 @@ export class ColliderSet {
         rawInertiaFrame.free();
         // #endif
 
-        this.map.set(handle, new Collider(this.raw, handle, desc.shape));
-        return handle;
+        let parent = hasParent ? bodies.get(parentHandle) : null;
+        let collider = new Collider(this, handle, parent, desc.shape);
+        this.map.set(handle, collider);
+        return collider;
     }
 
     /**
@@ -111,6 +120,14 @@ export class ColliderSet {
      */
     public remove(handle: ColliderHandle, islands: IslandManager, bodies: RigidBodySet, wakeUp: boolean) {
         this.raw.remove(handle, islands.raw, bodies.raw, wakeUp);
+        this.unmap(handle);
+    }
+
+    /**
+     * Internal function, do not call directly.
+     * @param handle
+     */
+    public unmap(handle: ImpulseJointHandle) {
         this.map.delete(handle);
     }
 

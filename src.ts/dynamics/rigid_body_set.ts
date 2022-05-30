@@ -32,17 +32,27 @@ export class RigidBodySet {
         // deserialize
         if (raw) {
             raw.forEachRigidBodyHandle((handle: RigidBodyHandle) => {
-                this.map.set(handle, new RigidBody(raw, handle));
+                this.map.set(handle, new RigidBody(raw, null, handle));
             });
         }
     }
+
+    /**
+     * Internal method, do not call this explicitly.
+     */
+    public finalizeDeserialization(colliderSet: ColliderSet) {
+        for (let rb of this.map.values()) {
+            rb.finalizeDeserialization(colliderSet);
+        }
+    }
+
 
     /**
      * Creates a new rigid-body and return its integer handle.
      *
      * @param desc - The description of the rigid-body to create.
      */
-    public createRigidBody(desc: RigidBodyDesc): RigidBodyHandle {
+    public createRigidBody(colliderSet: ColliderSet, desc: RigidBodyDesc): RigidBody {
         let rawTra = VectorOps.intoRaw(desc.translation);
         let rawRot = RotationOps.intoRaw(desc.rotation);
         let rawLv = VectorOps.intoRaw(desc.linvel);
@@ -99,12 +109,12 @@ export class RigidBodySet {
         rawInertiaFrame.free();
         // #endif
 
-        const body = new RigidBody(this.raw, handle);
+        const body = new RigidBody(this.raw, colliderSet, handle);
         body.userData = desc.userData;
         
         this.map.set(handle, body);
 
-        return handle;
+        return body;
     }
 
     /**
@@ -118,12 +128,15 @@ export class RigidBodySet {
      * @param multibodyJoints - The set of multibody joints that may contain joints attached to the removed rigid-body.
      */
     public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, impulseJoints: ImpulseJointSet, multibodyJoints: MultibodyJointSet) {
-        // remove owned colliders
-        while (this.raw.rbNumColliders(handle) > 0) {
-            const colliderHandle = this.raw.rbCollider(handle, 0);  // do not use forEach to remove because the length of the list in the Rust will be changed.
-            colliders.remove(colliderHandle, islands, this, false);
+        // Unmap the entities that will be removed automatically because of the rigid-body removals.
+        for (let i = 0; i < this.raw.rbNumColliders(handle); i += 1) {
+            colliders.unmap(this.raw.rbCollider(handle, i));
         }
 
+        impulseJoints.forEachJointHandleAttachedToRigidBody(handle, (handle) => impulseJoints.unmap(handle));
+        multibodyJoints.forEachJointHandleAttachedToRigidBody(handle, (handle) => multibodyJoints.unmap(handle));
+
+        // Remove the rigid-body.
         this.raw.remove(handle, islands.raw, colliders.raw, impulseJoints.raw, multibodyJoints.raw);
         this.map.delete(handle);
     }

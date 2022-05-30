@@ -15,7 +15,7 @@ codegen-units = 1
 #simba = { path = "../simba" }
 
 #nalgebra = { git = "https://github.com/dimforge/nalgebra", branch = "dev" }
-#rapier2d = { git = "https://github.com/dimforge/rapier", rev = "0ac35e12a7ed8699181550ec1a255917e736e7a4" }
-#rapier3d = { git = "https://github.com/dimforge/rapier", rev = "0ac35e12a7ed8699181550ec1a255917e736e7a4" }
+rapier2d = { git = "https://github.com/dimforge/rapier", rev = "31cfce4db30efeb15ccb8c51e6c20ff07406987c" }
+rapier3d = { git = "https://github.com/dimforge/rapier", rev = "31cfce4db30efeb15ccb8c51e6c20ff07406987c" }
 #parry2d = { git = "https://github.com/dimforge/parry" }
 #parry3d = { git = "https://github.com/dimforge/parry" }

@@ -63,7 +63,7 @@ export class QueryPipeline {
     ): RayColliderToi | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
-        let result = RayColliderToi.fromRaw(this.raw.castRay(
+        let result = RayColliderToi.fromRaw(colliders, this.raw.castRay(
             colliders.raw,
             rawOrig,
             rawDir,
@@ -103,7 +103,7 @@ export class QueryPipeline {
     ): RayColliderIntersection | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
-        let result = RayColliderIntersection.fromRaw(this.raw.castRayAndGetNormal(
+        let result = RayColliderIntersection.fromRaw(colliders, this.raw.castRayAndGetNormal(
             colliders.raw,
             rawOrig,
             rawDir,
@@ -146,7 +146,7 @@ export class QueryPipeline {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
         let rawCallback = (rawInter: RawRayColliderIntersection) => {
-            return callback(RayColliderIntersection.fromRaw(rawInter));
+            return callback(RayColliderIntersection.fromRaw(colliders, rawInter));
         };
 
         this.raw.intersectionsWithRay(
@@ -222,7 +222,7 @@ export class QueryPipeline {
         filter?: (collider: ColliderHandle) => boolean
     ): PointColliderProjection | null {
         let rawPoint = VectorOps.intoRaw(point);
-        let result = PointColliderProjection.fromRaw(this.raw.projectPoint(
+        let result = PointColliderProjection.fromRaw(colliders, this.raw.projectPoint(
             colliders.raw,
             rawPoint,
             solid,
@@ -249,7 +249,7 @@ export class QueryPipeline {
         groups: InteractionGroups,
     ): PointColliderProjection | null {
         let rawPoint = VectorOps.intoRaw(point);
-        let result = PointColliderProjection.fromRaw(this.raw.projectPointAndGetFeature(
+        let result = PointColliderProjection.fromRaw(colliders, this.raw.projectPointAndGetFeature(
             colliders.raw,
             rawPoint,
             groups,
@@ -320,7 +320,7 @@ export class QueryPipeline {
         let rawVel = VectorOps.intoRaw(shapeVel);
         let rawShape = shape.intoRaw();
 
-        let result = ShapeColliderTOI.fromRaw(this.raw.castShape(
+        let result = ShapeColliderTOI.fromRaw(colliders, this.raw.castShape(
             colliders.raw,
             rawPos,
             rawRot,

@@ -36,7 +36,7 @@ pub struct RawRayColliderIntersection {
 #[wasm_bindgen]
 impl RawRayColliderIntersection {
     pub fn colliderHandle(&self) -> FlatHandle {
-        utils::fuse_handle(self.handle.0)
+        utils::flat_handle(self.handle.0)
     }
 
     pub fn normal(&self) -> RawVector {
@@ -65,7 +65,7 @@ pub struct RawRayColliderToi {
 #[wasm_bindgen]
 impl RawRayColliderToi {
     pub fn colliderHandle(&self) -> FlatHandle {
-        utils::fuse_handle(self.handle.0)
+        utils::flat_handle(self.handle.0)
     }
 
     pub fn toi(&self) -> f32 {

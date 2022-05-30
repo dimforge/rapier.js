@@ -1,8 +1,9 @@
 import { Rotation, Vector, VectorOps, RotationOps } from "../math";
 import { RawGenericJoint, RawImpulseJointSet, RawRigidBodySet, RawJointAxis } from "../raw";
-import { RigidBodyHandle } from "./rigid_body"
+import {RigidBody, RigidBodyHandle} from "./rigid_body"
 // #if DIM3
 import { Quaternion } from "../math";
+import {RigidBodySet} from "./rigid_body_set";
 // #endif
 
 /**
@@ -36,11 +37,35 @@ export enum MotorModel {
 
 export class ImpulseJoint {
     protected rawSet: RawImpulseJointSet; // The ImpulseJoint won't need to free this.
+    protected bodySet: RigidBodySet; // The ImpulseJoint won’t need to free this.
     handle: ImpulseJointHandle;
 
-    constructor(rawSet: RawImpulseJointSet, handle: ImpulseJointHandle) {
+    constructor(rawSet: RawImpulseJointSet, bodySet: RigidBodySet, handle: ImpulseJointHandle) {
         this.rawSet = rawSet;
+        this.bodySet = bodySet;
         this.handle = handle;
+    }
+
+    public static newTyped(rawSet: RawImpulseJointSet, bodySet: RigidBodySet, handle: ImpulseJointHandle): ImpulseJoint {
+        switch (rawSet.jointType(handle)) {
+            case JointType.Revolute:
+                return new RevoluteImpulseJoint(rawSet, bodySet, handle);
+            case JointType.Prismatic:
+                return new PrismaticImpulseJoint(rawSet, bodySet, handle);
+            case JointType.Fixed:
+                return new FixedImpulseJoint(rawSet, bodySet, handle);
+            // #if DIM3
+            case JointType.Spherical:
+                return new SphericalImpulseJoint(rawSet, bodySet, handle);
+            // #endif
+            default:
+                return new ImpulseJoint(rawSet, bodySet, handle);
+        }
+    }
+
+    /** @internal */
+    public finalizeDeserialization(bodySet: RigidBodySet) {
+        this.bodySet = bodySet;
     }
 
     /**
@@ -52,17 +77,17 @@ export class ImpulseJoint {
     }
 
     /**
-     * The unique integer identifier of the first rigid-body this joint it attached to.
+     * The first rigid-body this joint it attached to.
      */
-    public bodyHandle1(): RigidBodyHandle {
-        return this.rawSet.jointBodyHandle1(this.handle);
+    public body1(): RigidBody {
+        return this.bodySet.get(this.rawSet.jointBodyHandle1(this.handle));
     }
 
     /**
-     * The unique integer identifier of the second rigid-body this joint is attached to.
+     * The second rigid-body this joint is attached to.
      */
-    public bodyHandle2(): RigidBodyHandle {
-        return this.rawSet.jointBodyHandle2(this.handle);
+    public body2(): RigidBody {
+        return this.bodySet.get(this.rawSet.jointBodyHandle2(this.handle));
     }
 
     /**

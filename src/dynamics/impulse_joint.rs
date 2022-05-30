@@ -13,12 +13,12 @@ impl RawImpulseJointSet {
 
     /// The unique integer identifier of the first rigid-body this joint it attached to.
     pub fn jointBodyHandle1(&self, handle: FlatHandle) -> FlatHandle {
-        self.map(handle, |j| utils::fuse_handle(j.body1.0))
+        self.map(handle, |j| utils::flat_handle(j.body1.0))
     }
 
     /// The unique integer identifier of the second rigid-body this joint is attached to.
     pub fn jointBodyHandle2(&self, handle: FlatHandle) -> FlatHandle {
-        self.map(handle, |j| utils::fuse_handle(j.body2.0))
+        self.map(handle, |j| utils::flat_handle(j.body2.0))
     }
 
     /// The angular part of the joint’s local frame relative to the first rigid-body it is attached to.

@@ -36,7 +36,7 @@ function buildBlock(
                     );
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc = RAPIER.ColliderDesc.cuboid(dim.x, dim.y, dim.z);
-                world.createCollider(colliderDesc, body.handle);
+                world.createCollider(colliderDesc, body);
             }
         }
     }
@@ -55,7 +55,7 @@ function buildBlock(
                 );
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(dim.x, dim.y, dim.z);
-            world.createCollider(colliderDesc, body.handle);
+            world.createCollider(colliderDesc, body);
         }
     }
 }
@@ -72,7 +72,7 @@ export function initWorld(RAPIER, testbed) {
         .setTranslation(0.0, -groundHeight, 0.0);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     // Keva tower.
     let halfExtents = new RAPIER.Vector3(0.1, 0.5, 2.0);

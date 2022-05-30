@@ -144,7 +144,7 @@ impl RawQueryPipeline {
                 crate::geometry::unpack_interaction_groups(groups),
                 rfilter,
             )
-            .map(|h| utils::fuse_handle(h.0))
+            .map(|h| utils::flat_handle(h.0))
     }
 
     pub fn projectPoint(
@@ -206,7 +206,7 @@ impl RawQueryPipeline {
     ) {
         let rcallback = |handle: ColliderHandle| match callback.call1(
             &JsValue::null(),
-            &JsValue::from(utils::fuse_handle(handle.0)),
+            &JsValue::from(utils::flat_handle(handle.0)),
         ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
@@ -268,7 +268,7 @@ impl RawQueryPipeline {
     ) {
         let rcallback = |handle: ColliderHandle| match callback.call1(
             &JsValue::null(),
-            &JsValue::from(utils::fuse_handle(handle.0)),
+            &JsValue::from(utils::flat_handle(handle.0)),
         ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
@@ -298,7 +298,7 @@ impl RawQueryPipeline {
     ) {
         let rcallback = |handle: &ColliderHandle| match callback.call1(
             &JsValue::null(),
-            &JsValue::from(utils::fuse_handle(handle.0)),
+            &JsValue::from(utils::flat_handle(handle.0)),
         ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
@@ -316,7 +316,7 @@ fn wrap_filter(filter: &js_sys::Function) -> Option<impl Fn(ColliderHandle) -> b
     if filter.is_function() {
         let filtercb = move |handle: ColliderHandle| match filter.call1(
             &JsValue::null(),
-            &JsValue::from(utils::fuse_handle(handle.0)),
+            &JsValue::from(utils::flat_handle(handle.0)),
         ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),

@@ -1,6 +1,6 @@
 import { RawRigidBodySet } from "../raw"
 import { Rotation, RotationOps, Vector, VectorOps } from '../math';
-import { ColliderHandle } from "../geometry";
+import {Collider, ColliderHandle, ColliderSet} from "../geometry";
 
 /**
  * The integer identifier of a collider added to a `ColliderSet`.
@@ -45,6 +45,7 @@ export enum RigidBodyType {
  */
 export class RigidBody {
     private rawSet: RawRigidBodySet; // The RigidBody won't need to free this.
+    private colliderSet: ColliderSet;
     readonly handle: RigidBodyHandle;
     
     /**
@@ -52,9 +53,15 @@ export class RigidBody {
      */
     public userData?: unknown;
 
-    constructor(rawSet: RawRigidBodySet, handle: RigidBodyHandle) {
+    constructor(rawSet: RawRigidBodySet, colliderSet: ColliderSet, handle: RigidBodyHandle) {
         this.rawSet = rawSet;
+        this.colliderSet = colliderSet;
         this.handle = handle;
+    }
+
+    /** @internal */
+    public finalizeDeserialization(colliderSet: ColliderSet) {
+        this.colliderSet = colliderSet;
     }
 
     /**
@@ -417,13 +424,13 @@ export class RigidBody {
     }
 
     /**
-     * Retrieves the handle of the `i-th` collider attached to this rigid-body.
+     * Retrieves the `i-th` collider attached to this rigid-body.
      *
      * @param i - The index of the collider to retrieve. Must be a number in `[0, this.numColliders()[`.
      *         This index is **not** the same as the unique identifier of the collider.
      */
-    public collider(i: number): ColliderHandle {
-        return this.rawSet.rbCollider(this.handle, i);
+    public collider(i: number): Collider {
+        return this.colliderSet.get(this.rawSet.rbCollider(this.handle, i));
     }
 
 

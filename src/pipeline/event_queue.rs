@@ -58,8 +58,8 @@ impl RawEventQueue {
         while let Ok(event) = self.collision_events.try_recv() {
             match event {
                 CollisionEvent::Started(co1, co2, _) => {
-                    let h1 = utils::fuse_handle(co1.0);
-                    let h2 = utils::fuse_handle(co2.0);
+                    let h1 = utils::flat_handle(co1.0);
+                    let h2 = utils::flat_handle(co2.0);
                     let _ = f.call3(
                         &this,
                         &JsValue::from(h1),
@@ -68,8 +68,8 @@ impl RawEventQueue {
                     );
                 }
                 CollisionEvent::Stopped(co1, co2, _) => {
-                    let h1 = utils::fuse_handle(co1.0);
-                    let h2 = utils::fuse_handle(co2.0);
+                    let h1 = utils::flat_handle(co1.0);
+                    let h2 = utils::flat_handle(co2.0);
                     let _ = f.call3(
                         &this,
                         &JsValue::from(h1),

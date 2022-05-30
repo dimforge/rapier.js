@@ -120,7 +120,7 @@ impl RawRigidBodySet {
             .ccd_enabled(ccdEnabled)
             .dominance_group(dominanceGroup);
 
-        utils::fuse_handle(self.0.insert(rigid_body.build()).0)
+        utils::flat_handle(self.0.insert(rigid_body.build()).0)
     }
 
     #[cfg(feature = "dim2")]
@@ -167,7 +167,7 @@ impl RawRigidBodySet {
             rigid_body = rigid_body.lock_rotations();
         }
 
-        utils::fuse_handle(self.0.insert(rigid_body.build()).0)
+        utils::flat_handle(self.0.insert(rigid_body.build()).0)
     }
 
     pub fn remove(
@@ -206,7 +206,7 @@ impl RawRigidBodySet {
     pub fn forEachRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.0.iter() {
-            let _ = f.call1(&this, &JsValue::from(utils::fuse_handle(handle.0)));
+            let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
     }
 }

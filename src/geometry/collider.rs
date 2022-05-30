@@ -327,7 +327,7 @@ impl RawColliderSet {
 
     /// The unique integer identifier of the collider this collider is attached to.
     pub fn coParent(&self, handle: FlatHandle) -> Option<FlatHandle> {
-        self.map(handle, |co| co.parent().map(|p| utils::fuse_handle(p.0)))
+        self.map(handle, |co| co.parent().map(|p| utils::flat_handle(p.0)))
     }
 
     /// The friction coefficient of this collider.
