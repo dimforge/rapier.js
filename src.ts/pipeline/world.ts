@@ -225,7 +225,7 @@ export class World {
      * - not vary too much during the course of the simulation. A timestep with large variations may
      * cause instabilities in the simulation.
      *
-     * @param timestep - The timestep length, in milliseconds.
+     * @param dt - The timestep length, in seconds.
      */
     set timestep(dt: number) {
         this.integrationParameters.dt = dt;
