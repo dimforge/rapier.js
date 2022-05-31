@@ -3,6 +3,7 @@
     "rimraf": "3.0.2",
     "typedoc": "0.22.15",
     "typescript": "4.6.4",
-    "wasm-opt": "1.3.0"
+    "wasm-opt": "1.3.0",
+    "wasm-pack": "0.10.2"
   }
 }

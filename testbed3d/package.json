@@ -3,7 +3,7 @@
   "name": "rapier-testbed3d",
   "version": "0.1.0",
   "description": "JavaScript testbed for rapier.",
-  "license": "Apache v2",
+  "license": "Apache-2.0",
   "main": "dist/rapier-testbed3d.js",
   "scripts": {
     "build": "rimraf dist pkg && webpack -d",

@@ -3,7 +3,7 @@
   "name": "rapier-testbed2d",
   "version": "0.1.0",
   "description": "JavaScript testbed for rapier.",
-  "license": "Apache v2",
+  "license": "Apache-2.0",
   "main": "dist/rapier-testbed2d.js",
   "scripts": {
     "build": "rimraf dist pkg && webpack -d",
@@ -13,7 +13,6 @@
   "dependencies": {
     "@dimforge/rapier2d": "^0.8.0",
     "dat.gui": "^0.7.7",
-    "matter-js": "^0.14.2",
     "md5": "^2.2.1",
     "pixi-viewport": "^4.13.2",
     "pixi.js": "^5.3.2",
