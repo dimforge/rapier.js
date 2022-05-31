@@ -193,7 +193,7 @@ export abstract class Shape {
         let rawShape1 = this.intoRaw();
         let rawShape2 = shape2.intoRaw();
 
-        let result = ShapeTOI.fromRaw(rawShape1.castShape(
+        let result = ShapeTOI.fromRaw(null, rawShape1.castShape(
             rawPos1,
             rawRot1,
             rawVel1,

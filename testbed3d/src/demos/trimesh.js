@@ -45,7 +45,7 @@ export function initWorld(RAPIER, testbed) {
     let body = world.createRigidBody(bodyDesc);
     let trimesh = generateTriMesh(20, 70.0, 4.0, 70.0)
     let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     // Dynamic cubes.
     let num = 4;
@@ -90,16 +90,16 @@ export function initWorld(RAPIER, testbed) {
                         break;
                     case 4:
                         colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad / 2.0, rad / 2.0);
-                        world.createCollider(colliderDesc, body.handle);
+                        world.createCollider(colliderDesc, body);
                         colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad, rad / 2.0)
                             .setTranslation(rad, 0.0, 0.0);
-                        world.createCollider(colliderDesc, body.handle);
+                        world.createCollider(colliderDesc, body);
                         colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad, rad / 2.0)
                             .setTranslation(-rad, 0.0, 0.0);
                         break;
                 }
 
-                world.createCollider(colliderDesc, body.handle);
+                world.createCollider(colliderDesc, body);
             }
         }
 

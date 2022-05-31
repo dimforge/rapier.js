@@ -1,31 +1,32 @@
 use crate::dynamics::{RawRigidBodySet, RawRigidBodyType};
 use crate::math::{RawRotation, RawVector};
+use crate::utils::{self, FlatHandle};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 impl RawRigidBodySet {
     /// The world-space translation of this rigid-body.
-    pub fn rbTranslation(&self, handle: u32) -> RawVector {
+    pub fn rbTranslation(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |rb| RawVector(rb.position().translation.vector))
     }
 
     /// The world-space orientation of this rigid-body.
-    pub fn rbRotation(&self, handle: u32) -> RawRotation {
+    pub fn rbRotation(&self, handle: FlatHandle) -> RawRotation {
         self.map(handle, |rb| RawRotation(rb.position().rotation))
     }
 
     /// Put the given rigid-body to sleep.
-    pub fn rbSleep(&mut self, handle: u32) {
+    pub fn rbSleep(&mut self, handle: FlatHandle) {
         self.map_mut(handle, |rb| rb.sleep());
     }
 
     /// Is this rigid-body sleeping?
-    pub fn rbIsSleeping(&self, handle: u32) -> bool {
+    pub fn rbIsSleeping(&self, handle: FlatHandle) -> bool {
         self.map(handle, |rb| rb.is_sleeping())
     }
 
     /// Is the velocity of this rigid-body not zero?
-    pub fn rbIsMoving(&self, handle: u32) -> bool {
+    pub fn rbIsMoving(&self, handle: FlatHandle) -> bool {
         self.map(handle, |rb| rb.is_moving())
     }
 
@@ -34,7 +35,7 @@ impl RawRigidBodySet {
     /// If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
     /// method and is used for estimating the kinematic body velocity at the next timestep.
     /// For non-kinematic bodies, this value is currently unspecified.
-    pub fn rbNextTranslation(&self, handle: u32) -> RawVector {
+    pub fn rbNextTranslation(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |rb| {
             RawVector(rb.next_position().translation.vector)
         })
@@ -45,7 +46,7 @@ impl RawRigidBodySet {
     /// If this rigid-body is kinematic this value is set by the `setNextKinematicRotation`
     /// method and is used for estimating the kinematic body velocity at the next timestep.
     /// For non-kinematic bodies, this value is currently unspecified.
-    pub fn rbNextRotation(&self, handle: u32) -> RawRotation {
+    pub fn rbNextRotation(&self, handle: FlatHandle) -> RawRotation {
         self.map(handle, |rb| RawRotation(rb.next_position().rotation))
     }
 
@@ -58,7 +59,7 @@ impl RawRigidBodySet {
     /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim3")]
-    pub fn rbSetTranslation(&mut self, handle: u32, x: f32, y: f32, z: f32, wakeUp: bool) {
+    pub fn rbSetTranslation(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.set_translation(na::Vector3::new(x, y, z), wakeUp);
         })
@@ -72,7 +73,7 @@ impl RawRigidBodySet {
     /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
-    pub fn rbSetTranslation(&mut self, handle: u32, x: f32, y: f32, wakeUp: bool) {
+    pub fn rbSetTranslation(&mut self, handle: FlatHandle, x: f32, y: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.set_translation(na::Vector2::new(x, y), wakeUp);
         })
@@ -90,7 +91,15 @@ impl RawRigidBodySet {
     /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim3")]
-    pub fn rbSetRotation(&mut self, handle: u32, x: f32, y: f32, z: f32, w: f32, wakeUp: bool) {
+    pub fn rbSetRotation(
+        &mut self,
+        handle: FlatHandle,
+        x: f32,
+        y: f32,
+        z: f32,
+        w: f32,
+        wakeUp: bool,
+    ) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
             self.map_mut(handle, |rb| rb.set_rotation(q.scaled_axis(), wakeUp))
         }
@@ -103,12 +112,12 @@ impl RawRigidBodySet {
     /// - `wakeUp`: forces the rigid-body to wake-up so it is properly affected by forces if it
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
-    pub fn rbSetRotation(&mut self, handle: u32, angle: f32, wakeUp: bool) {
+    pub fn rbSetRotation(&mut self, handle: FlatHandle, angle: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| rb.set_rotation(angle, wakeUp))
     }
 
     /// Sets the linear velocity of this rigid-body.
-    pub fn rbSetLinvel(&mut self, handle: u32, linvel: &RawVector, wakeUp: bool) {
+    pub fn rbSetLinvel(&mut self, handle: FlatHandle, linvel: &RawVector, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.set_linvel(linvel.0, wakeUp);
         });
@@ -116,7 +125,7 @@ impl RawRigidBodySet {
 
     /// Sets the angular velocity of this rigid-body.
     #[cfg(feature = "dim2")]
-    pub fn rbSetAngvel(&mut self, handle: u32, angvel: f32, wakeUp: bool) {
+    pub fn rbSetAngvel(&mut self, handle: FlatHandle, angvel: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.set_angvel(angvel, wakeUp);
         });
@@ -124,7 +133,7 @@ impl RawRigidBodySet {
 
     /// Sets the angular velocity of this rigid-body.
     #[cfg(feature = "dim3")]
-    pub fn rbSetAngvel(&mut self, handle: u32, angvel: &RawVector, wakeUp: bool) {
+    pub fn rbSetAngvel(&mut self, handle: FlatHandle, angvel: &RawVector, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.set_angvel(angvel.0, wakeUp);
         });
@@ -143,7 +152,7 @@ impl RawRigidBodySet {
     /// - `y`: the world-space position of the rigid-body along the `y` axis.
     /// - `z`: the world-space position of the rigid-body along the `z` axis.
     #[cfg(feature = "dim3")]
-    pub fn rbSetNextKinematicTranslation(&mut self, handle: u32, x: f32, y: f32, z: f32) {
+    pub fn rbSetNextKinematicTranslation(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32) {
         self.map_mut(handle, |rb| {
             rb.set_next_kinematic_translation(na::Vector3::new(x, y, z));
         })
@@ -161,7 +170,7 @@ impl RawRigidBodySet {
     /// - `x`: the world-space position of the rigid-body along the `x` axis.
     /// - `y`: the world-space position of the rigid-body along the `y` axis.
     #[cfg(feature = "dim2")]
-    pub fn rbSetNextKinematicTranslation(&mut self, handle: u32, x: f32, y: f32) {
+    pub fn rbSetNextKinematicTranslation(&mut self, handle: FlatHandle, x: f32, y: f32) {
         self.map_mut(handle, |rb| {
             rb.set_next_kinematic_translation(na::Vector2::new(x, y));
         })
@@ -181,7 +190,14 @@ impl RawRigidBodySet {
     /// - `z`: the third vector component of the quaternion.
     /// - `w`: the scalar component of the quaternion.
     #[cfg(feature = "dim3")]
-    pub fn rbSetNextKinematicRotation(&mut self, handle: u32, x: f32, y: f32, z: f32, w: f32) {
+    pub fn rbSetNextKinematicRotation(
+        &mut self,
+        handle: FlatHandle,
+        x: f32,
+        y: f32,
+        z: f32,
+        w: f32,
+    ) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
             self.map_mut(handle, |rb| {
                 rb.set_next_kinematic_rotation(q.scaled_axis());
@@ -200,37 +216,37 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `angle`: the rotation angle, in radians.
     #[cfg(feature = "dim2")]
-    pub fn rbSetNextKinematicRotation(&mut self, handle: u32, angle: f32) {
+    pub fn rbSetNextKinematicRotation(&mut self, handle: FlatHandle, angle: f32) {
         self.map_mut(handle, |rb| {
             rb.set_next_kinematic_rotation(angle);
         })
     }
 
     /// The linear velocity of this rigid-body.
-    pub fn rbLinvel(&self, handle: u32) -> RawVector {
+    pub fn rbLinvel(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |rb| RawVector(*rb.linvel()))
     }
 
     /// The angular velocity of this rigid-body.
     #[cfg(feature = "dim2")]
-    pub fn rbAngvel(&self, handle: u32) -> f32 {
+    pub fn rbAngvel(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |rb| rb.angvel())
     }
 
     /// The angular velocity of this rigid-body.
     #[cfg(feature = "dim3")]
-    pub fn rbAngvel(&self, handle: u32) -> RawVector {
+    pub fn rbAngvel(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |rb| RawVector(*rb.angvel()))
     }
 
-    pub fn rbLockTranslations(&mut self, handle: u32, locked: bool, wake_up: bool) {
+    pub fn rbLockTranslations(&mut self, handle: FlatHandle, locked: bool, wake_up: bool) {
         self.map_mut(handle, |rb| rb.lock_translations(locked, wake_up))
     }
 
     #[cfg(feature = "dim2")]
     pub fn rbRestrictTranslations(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         allow_x: bool,
         allow_y: bool,
         wake_up: bool,
@@ -243,7 +259,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn rbRestrictTranslations(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         allow_x: bool,
         allow_y: bool,
         allow_z: bool,
@@ -254,14 +270,14 @@ impl RawRigidBodySet {
         })
     }
 
-    pub fn rbLockRotations(&mut self, handle: u32, locked: bool, wake_up: bool) {
+    pub fn rbLockRotations(&mut self, handle: FlatHandle, locked: bool, wake_up: bool) {
         self.map_mut(handle, |rb| rb.lock_rotations(locked, wake_up))
     }
 
     #[cfg(feature = "dim3")]
     pub fn rbRestrictRotations(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         allow_x: bool,
         allow_y: bool,
         allow_z: bool,
@@ -272,20 +288,20 @@ impl RawRigidBodySet {
         })
     }
 
-    pub fn rbDominanceGroup(&self, handle: u32) -> i8 {
+    pub fn rbDominanceGroup(&self, handle: FlatHandle) -> i8 {
         self.map(handle, |rb| rb.dominance_group())
     }
 
-    pub fn rbSetDominanceGroup(&mut self, handle: u32, group: i8) {
+    pub fn rbSetDominanceGroup(&mut self, handle: FlatHandle, group: i8) {
         self.map_mut(handle, |rb| rb.set_dominance_group(group))
     }
 
-    pub fn rbEnableCcd(&mut self, handle: u32, enabled: bool) {
+    pub fn rbEnableCcd(&mut self, handle: FlatHandle, enabled: bool) {
         self.map_mut(handle, |rb| rb.enable_ccd(enabled))
     }
 
     /// The mass of this rigid-body.
-    pub fn rbMass(&self, handle: u32) -> f32 {
+    pub fn rbMass(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |rb| rb.mass())
     }
 
@@ -296,17 +312,17 @@ impl RawRigidBodySet {
     /// to avoid useless computations.
     /// This methods forces a sleeping rigid-body to wake-up. This is useful, e.g., before modifying
     /// the position of a dynamic body so that it is properly simulated afterwards.
-    pub fn rbWakeUp(&mut self, handle: u32) {
+    pub fn rbWakeUp(&mut self, handle: FlatHandle) {
         self.map_mut(handle, |rb| rb.wake_up(true))
     }
 
     /// Is Continuous Collision Detection enabled for this rigid-body?
-    pub fn rbIsCcdEnabled(&self, handle: u32) -> bool {
+    pub fn rbIsCcdEnabled(&self, handle: FlatHandle) -> bool {
         self.map(handle, |rb| rb.is_ccd_enabled())
     }
 
     /// The number of colliders attached to this rigid-body.
-    pub fn rbNumColliders(&self, handle: u32) -> usize {
+    pub fn rbNumColliders(&self, handle: FlatHandle) -> usize {
         self.map(handle, |rb| rb.colliders().len())
     }
 
@@ -315,70 +331,70 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `at`: The index of the collider to retrieve. Must be a number in `[0, this.numColliders()[`.
     ///         This index is **not** the same as the unique identifier of the collider.
-    pub fn rbCollider(&self, handle: u32, at: usize) -> u32 {
-        self.map(handle, |rb| rb.colliders()[at].into_raw_parts().0)
+    pub fn rbCollider(&self, handle: FlatHandle, at: usize) -> FlatHandle {
+        self.map(handle, |rb| utils::flat_handle(rb.colliders()[at].0))
     }
 
     /// The status of this rigid-body: fixed, dynamic, or kinematic.
-    pub fn rbBodyType(&self, handle: u32) -> RawRigidBodyType {
+    pub fn rbBodyType(&self, handle: FlatHandle) -> RawRigidBodyType {
         self.map(handle, |rb| rb.body_type().into())
     }
 
     /// Set a new status for this rigid-body: fixed, dynamic, or kinematic.
-    pub fn rbSetBodyType(&mut self, handle: u32, status: RawRigidBodyType) {
+    pub fn rbSetBodyType(&mut self, handle: FlatHandle, status: RawRigidBodyType) {
         self.map_mut(handle, |rb| rb.set_body_type(status.into()));
     }
 
     /// Is this rigid-body fixed?
-    pub fn rbIsFixed(&self, handle: u32) -> bool {
+    pub fn rbIsFixed(&self, handle: FlatHandle) -> bool {
         self.map(handle, |rb| rb.is_fixed())
     }
 
     /// Is this rigid-body kinematic?
-    pub fn rbIsKinematic(&self, handle: u32) -> bool {
+    pub fn rbIsKinematic(&self, handle: FlatHandle) -> bool {
         self.map(handle, |rb| rb.is_kinematic())
     }
 
     /// Is this rigid-body dynamic?
-    pub fn rbIsDynamic(&self, handle: u32) -> bool {
+    pub fn rbIsDynamic(&self, handle: FlatHandle) -> bool {
         self.map(handle, |rb| rb.is_dynamic())
     }
 
     /// The linear damping coefficient of this rigid-body.
-    pub fn rbLinearDamping(&self, handle: u32) -> f32 {
+    pub fn rbLinearDamping(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |rb| rb.linear_damping())
     }
 
     /// The angular damping coefficient of this rigid-body.
-    pub fn rbAngularDamping(&self, handle: u32) -> f32 {
+    pub fn rbAngularDamping(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |rb| rb.angular_damping())
     }
 
-    pub fn rbSetLinearDamping(&mut self, handle: u32, factor: f32) {
+    pub fn rbSetLinearDamping(&mut self, handle: FlatHandle, factor: f32) {
         self.map_mut(handle, |rb| rb.set_linear_damping(factor));
     }
 
-    pub fn rbSetAngularDamping(&mut self, handle: u32, factor: f32) {
+    pub fn rbSetAngularDamping(&mut self, handle: FlatHandle, factor: f32) {
         self.map_mut(handle, |rb| rb.set_angular_damping(factor));
     }
 
-    pub fn rbGravityScale(&self, handle: u32) -> f32 {
+    pub fn rbGravityScale(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |rb| rb.gravity_scale())
     }
 
-    pub fn rbSetGravityScale(&mut self, handle: u32, factor: f32, wakeUp: bool) {
+    pub fn rbSetGravityScale(&mut self, handle: FlatHandle, factor: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| rb.set_gravity_scale(factor, wakeUp));
     }
 
     /// Resets to zero all user-added forces added to this rigid-body.
-    pub fn rbResetForces(&mut self, handle: u32, wakeUp: bool) {
+    pub fn rbResetForces(&mut self, handle: FlatHandle, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.reset_forces(wakeUp);
         })
     }
 
     /// Resets to zero all user-added torques added to this rigid-body.
-    pub fn rbResetTorques(&mut self, handle: u32, wakeUp: bool) {
+    pub fn rbResetTorques(&mut self, handle: FlatHandle, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.reset_torques(wakeUp);
         })
@@ -389,7 +405,7 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `force`: the world-space force to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn rbAddForce(&mut self, handle: u32, force: &RawVector, wakeUp: bool) {
+    pub fn rbAddForce(&mut self, handle: FlatHandle, force: &RawVector, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.add_force(force.0, wakeUp);
         })
@@ -400,7 +416,7 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `impulse`: the world-space impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
-    pub fn rbApplyImpulse(&mut self, handle: u32, impulse: &RawVector, wakeUp: bool) {
+    pub fn rbApplyImpulse(&mut self, handle: FlatHandle, impulse: &RawVector, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.apply_impulse(impulse.0, wakeUp);
         })
@@ -412,7 +428,7 @@ impl RawRigidBodySet {
     /// - `torque`: the torque to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim2")]
-    pub fn rbAddTorque(&mut self, handle: u32, torque: f32, wakeUp: bool) {
+    pub fn rbAddTorque(&mut self, handle: FlatHandle, torque: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.add_torque(torque, wakeUp);
         })
@@ -424,7 +440,7 @@ impl RawRigidBodySet {
     /// - `torque`: the world-space torque to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim3")]
-    pub fn rbAddTorque(&mut self, handle: u32, torque: &RawVector, wakeUp: bool) {
+    pub fn rbAddTorque(&mut self, handle: FlatHandle, torque: &RawVector, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.add_torque(torque.0, wakeUp);
         })
@@ -436,7 +452,7 @@ impl RawRigidBodySet {
     /// - `torque impulse`: the torque impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim2")]
-    pub fn rbApplyTorqueImpulse(&mut self, handle: u32, torque_impulse: f32, wakeUp: bool) {
+    pub fn rbApplyTorqueImpulse(&mut self, handle: FlatHandle, torque_impulse: f32, wakeUp: bool) {
         self.map_mut(handle, |rb| {
             rb.apply_torque_impulse(torque_impulse, wakeUp);
         })
@@ -448,7 +464,12 @@ impl RawRigidBodySet {
     /// - `torque impulse`: the world-space torque impulse to apply on the rigid-body.
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     #[cfg(feature = "dim3")]
-    pub fn rbApplyTorqueImpulse(&mut self, handle: u32, torque_impulse: &RawVector, wakeUp: bool) {
+    pub fn rbApplyTorqueImpulse(
+        &mut self,
+        handle: FlatHandle,
+        torque_impulse: &RawVector,
+        wakeUp: bool,
+    ) {
         self.map_mut(handle, |rb| {
             rb.apply_torque_impulse(torque_impulse.0, wakeUp);
         })
@@ -462,7 +483,7 @@ impl RawRigidBodySet {
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     pub fn rbAddForceAtPoint(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         force: &RawVector,
         point: &RawVector,
         wakeUp: bool,
@@ -480,7 +501,7 @@ impl RawRigidBodySet {
     /// - `wakeUp`: should the rigid-body be automatically woken-up?
     pub fn rbApplyImpulseAtPoint(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         impulse: &RawVector,
         point: &RawVector,
         wakeUp: bool,
@@ -491,7 +512,7 @@ impl RawRigidBodySet {
     }
 
     /// An arbitrary user-defined 32-bit integer
-    pub fn rbUserData(&self, handle: u32) -> u32 {
+    pub fn rbUserData(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |rb| rb.user_data as u32)
     }
 
@@ -499,7 +520,7 @@ impl RawRigidBodySet {
     ///
     /// # Parameters
     /// - `data`: an arbitrary user-defined 32-bit integer.
-    pub fn rbSetUserData(&mut self, handle: u32, data: u32) {
+    pub fn rbSetUserData(&mut self, handle: FlatHandle, data: u32) {
         self.map_mut(handle, |rb| {
             rb.user_data = data as u128;
         })

@@ -1,32 +1,33 @@
 use crate::dynamics::{RawJointAxis, RawJointType, RawMultibodyJointSet};
 use crate::math::{RawRotation, RawVector};
+use crate::utils::FlatHandle;
 use rapier::dynamics::JointAxis;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 impl RawMultibodyJointSet {
     /// The type of this joint.
-    pub fn jointType(&self, handle: u32) -> RawJointType {
+    pub fn jointType(&self, handle: FlatHandle) -> RawJointType {
         self.map(handle, |j| j.data.locked_axes.into())
     }
 
     // /// The unique integer identifier of the first rigid-body this joint it attached to.
-    // pub fn jointBodyHandle1(&self, handle: u32) -> u32 {
+    // pub fn jointBodyHandle1(&self, handle: FlatHandle) -> u32 {
     //     self.map(handle, |j| j.body1.into_raw_parts().0)
     // }
     //
     // /// The unique integer identifier of the second rigid-body this joint is attached to.
-    // pub fn jointBodyHandle2(&self, handle: u32) -> u32 {
+    // pub fn jointBodyHandle2(&self, handle: FlatHandle) -> u32 {
     //     self.map(handle, |j| j.body2.into_raw_parts().0)
     // }
 
     /// The angular part of the joint’s local frame relative to the first rigid-body it is attached to.
-    pub fn jointFrameX1(&self, handle: u32) -> RawRotation {
+    pub fn jointFrameX1(&self, handle: FlatHandle) -> RawRotation {
         self.map(handle, |j| j.data.local_frame1.rotation.into())
     }
 
     /// The angular part of the joint’s local frame relative to the second rigid-body it is attached to.
-    pub fn jointFrameX2(&self, handle: u32) -> RawRotation {
+    pub fn jointFrameX2(&self, handle: FlatHandle) -> RawRotation {
         self.map(handle, |j| j.data.local_frame2.rotation.into())
     }
 
@@ -34,7 +35,7 @@ impl RawMultibodyJointSet {
     ///
     /// The first anchor gives the position of the points application point on the
     /// local frame of the first rigid-body it is attached to.
-    pub fn jointAnchor1(&self, handle: u32) -> RawVector {
+    pub fn jointAnchor1(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |j| j.data.local_frame1.translation.vector.into())
     }
 
@@ -42,30 +43,30 @@ impl RawMultibodyJointSet {
     ///
     /// The second anchor gives the position of the points application point on the
     /// local frame of the second rigid-body it is attached to.
-    pub fn jointAnchor2(&self, handle: u32) -> RawVector {
+    pub fn jointAnchor2(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |j| j.data.local_frame2.translation.vector.into())
     }
 
     /// Are the limits for this joint enabled?
-    pub fn jointLimitsEnabled(&self, handle: u32, axis: RawJointAxis) -> bool {
+    pub fn jointLimitsEnabled(&self, handle: FlatHandle, axis: RawJointAxis) -> bool {
         self.map(handle, |j| {
             j.data.limit_axes.contains(JointAxis::from(axis).into())
         })
     }
 
     /// Return the lower limit along the given joint axis.
-    pub fn jointLimitsMin(&self, handle: u32, axis: RawJointAxis) -> f32 {
+    pub fn jointLimitsMin(&self, handle: FlatHandle, axis: RawJointAxis) -> f32 {
         self.map(handle, |j| j.data.limits[axis as usize].min)
     }
 
     /// If this is a prismatic joint, returns its upper limit.
-    pub fn jointLimitsMax(&self, handle: u32, axis: RawJointAxis) -> f32 {
+    pub fn jointLimitsMax(&self, handle: FlatHandle, axis: RawJointAxis) -> f32 {
         self.map(handle, |j| j.data.limits[axis as usize].max)
     }
 
     // pub fn jointConfigureMotorModel(
     //     &mut self,
-    //     handle: u32,
+    //     handle: FlatHandle,
     //     axis: RawJointAxis,
     //     model: RawMotorModel,
     // ) {
@@ -78,7 +79,7 @@ impl RawMultibodyJointSet {
     #[cfg(feature = "dim3")]
     pub fn jointConfigureBallMotorVelocity(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         vx: f32,
         vy: f32,
         vz: f32,
@@ -95,7 +96,7 @@ impl RawMultibodyJointSet {
     #[cfg(feature = "dim3")]
     pub fn jointConfigureBallMotorPosition(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         qw: f32,
         qx: f32,
         qy: f32,
@@ -118,7 +119,7 @@ impl RawMultibodyJointSet {
     #[cfg(feature = "dim3")]
     pub fn jointConfigureBallMotor(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         qw: f32,
         qx: f32,
         qy: f32,
@@ -145,7 +146,7 @@ impl RawMultibodyJointSet {
 
     // pub fn jointConfigureMotorVelocity(
     //     &mut self,
-    //     handle: u32,
+    //     handle: FlatHandle,
     //     axis: RawJointAxis,
     //     targetVel: f32,
     //     factor: f32,
@@ -155,7 +156,7 @@ impl RawMultibodyJointSet {
     //
     // pub fn jointConfigureMotorPosition(
     //     &mut self,
-    //     handle: u32,
+    //     handle: FlatHandle,
     //     axis: RawJointAxis,
     //     targetPos: f32,
     //     stiffness: f32,
@@ -166,7 +167,7 @@ impl RawMultibodyJointSet {
 
     // pub fn jointConfigureMotor(
     //     &mut self,
-    //     handle: u32,
+    //     handle: FlatHandle,
     //     axis: RawJointAxis,
     //     targetPos: f32,
     //     targetVel: f32,

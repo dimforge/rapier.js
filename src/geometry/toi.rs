@@ -1,4 +1,5 @@
 use crate::math::RawVector;
+use crate::utils::{self, FlatHandle};
 use rapier::geometry::{ColliderHandle, TOI};
 use wasm_bindgen::prelude::*;
 
@@ -38,8 +39,8 @@ pub struct RawShapeColliderTOI {
 
 #[wasm_bindgen]
 impl RawShapeColliderTOI {
-    pub fn colliderHandle(&self) -> u32 {
-        self.handle.into_raw_parts().0
+    pub fn colliderHandle(&self) -> FlatHandle {
+        utils::flat_handle(self.handle.0)
     }
 
     pub fn toi(&self) -> f32 {

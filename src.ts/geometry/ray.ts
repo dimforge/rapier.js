@@ -1,7 +1,8 @@
 import { Vector, VectorOps } from "../math";
 import { RawRayColliderIntersection, RawRayColliderToi, RawRayIntersection } from "../raw";
-import { ColliderHandle } from "./collider";
+import { Collider } from "./collider";
 import { FeatureType } from "./feature";
+import {ColliderSet} from "./collider_set";
 
 /**
  * A ray. This is a directed half-line.
@@ -93,9 +94,9 @@ export class RayIntersection {
  */
 export class RayColliderIntersection {
     /**
-     * The handle of the collider hit by the ray.
+     * The collider hit by the ray.
      */
-    colliderHandle: ColliderHandle
+    collider: Collider
     /**
      * The time-of-impact of the ray with the collider.
      *
@@ -117,8 +118,8 @@ export class RayColliderIntersection {
      */
     featureId: number | undefined = undefined;
 
-    constructor(colliderHandle: ColliderHandle, toi: number, normal: Vector, featureType?: FeatureType, featureId?: number) {
-        this.colliderHandle = colliderHandle;
+    constructor(collider: Collider, toi: number, normal: Vector, featureType?: FeatureType, featureId?: number) {
+        this.collider = collider;
         this.toi = toi;
         this.normal = normal;
         if (featureId !== undefined)
@@ -127,12 +128,12 @@ export class RayColliderIntersection {
             this.featureType = featureType;
     }
 
-    public static fromRaw(raw: RawRayColliderIntersection): RayColliderIntersection {
+    public static fromRaw(colliderSet: ColliderSet, raw: RawRayColliderIntersection): RayColliderIntersection {
         if (!raw)
             return null;
 
         const result = new RayColliderIntersection(
-            raw.colliderHandle(),
+            colliderSet.get(raw.colliderHandle()),
             raw.toi(),
             VectorOps.fromRaw(raw.normal()),
             raw.featureType(),
@@ -150,7 +151,7 @@ export class RayColliderToi {
     /**
      * The handle of the collider hit by the ray.
      */
-    colliderHandle: ColliderHandle
+    collider: Collider
     /**
      * The time-of-impact of the ray with the collider.
      *
@@ -158,17 +159,17 @@ export class RayColliderToi {
      */
     toi: number
 
-    constructor(colliderHandle: ColliderHandle, toi: number) {
-        this.colliderHandle = colliderHandle;
+    constructor(collider: Collider, toi: number) {
+        this.collider = collider;
         this.toi = toi;
     }
 
-    public static fromRaw(raw: RawRayColliderToi): RayColliderToi {
+    public static fromRaw(colliderSet: ColliderSet, raw: RawRayColliderToi): RayColliderToi {
         if (!raw)
             return null;
 
         const result = new RayColliderToi(
-            raw.colliderHandle(),
+            colliderSet.get(raw.colliderHandle()),
             raw.toi(),
         );
         raw.free();

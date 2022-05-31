@@ -26,7 +26,7 @@ export function initWorld(RAPIER, testbed) {
 
         // Build the collider.
         let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-        world.createCollider(colliderDesc, body.handle);
+        world.createCollider(colliderDesc, body);
     }
 
     testbed.setWorld(world);

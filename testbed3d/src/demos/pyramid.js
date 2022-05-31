@@ -6,7 +6,7 @@ export function initWorld(RAPIER, testbed) {
     let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(30.0, 0.1, 30.0);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     // Dynamic cubes.
     let rad = 0.5;
@@ -30,7 +30,7 @@ export function initWorld(RAPIER, testbed) {
                     .setTranslation(x, y, z);
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-                world.createCollider(colliderDesc, body.handle);
+                world.createCollider(colliderDesc, body);
             }
         }
     }

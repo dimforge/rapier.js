@@ -26,7 +26,7 @@ export function initWorld(RAPIER, testbed) {
     let body = world.createRigidBody(bodyDesc);
     let heights = generateHeightfield(nsubdivs)
     let colliderDesc = RAPIER.ColliderDesc.heightfield(nsubdivs, nsubdivs, heights, scale);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     // Dynamic cubes.
     let num = 4;
@@ -71,16 +71,16 @@ export function initWorld(RAPIER, testbed) {
                         break;
                     case 4:
                         colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad / 2.0, rad / 2.0);
-                        world.createCollider(colliderDesc, body.handle);
+                        world.createCollider(colliderDesc, body);
                         colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad, rad / 2.0)
                             .setTranslation(rad, 0.0, 0.0);
-                        world.createCollider(colliderDesc, body.handle);
+                        world.createCollider(colliderDesc, body);
                         colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad, rad / 2.0)
                             .setTranslation(-rad, 0.0, 0.0);
                         break;
                 }
 
-                world.createCollider(colliderDesc, body.handle);
+                world.createCollider(colliderDesc, body);
             }
         }
 

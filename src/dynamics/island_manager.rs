@@ -1,3 +1,4 @@
+use crate::utils;
 use rapier::dynamics::IslandManager;
 use wasm_bindgen::prelude::*;
 
@@ -24,7 +25,7 @@ impl RawIslandManager {
     pub fn forEachActiveRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for handle in self.0.active_dynamic_bodies() {
-            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
+            let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
     }
 }

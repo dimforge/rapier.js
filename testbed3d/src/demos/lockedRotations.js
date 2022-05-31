@@ -12,7 +12,7 @@ export function initWorld(RAPIER, testbed) {
         .setTranslation(0.0, -ground_height, 0.0);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(ground_size, ground_height, ground_size);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     /*
      * A rectangle that only rotates along the `x` axis.
@@ -23,7 +23,7 @@ export function initWorld(RAPIER, testbed) {
         .restrictRotations(true, false, false);
     body = world.createRigidBody(bodyDesc);
     colliderDesc = RAPIER.ColliderDesc.cuboid(0.2, 0.6, 2.0);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
 
     /*
@@ -34,7 +34,7 @@ export function initWorld(RAPIER, testbed) {
         .lockRotations();
     body = world.createRigidBody(bodyDesc);
     colliderDesc = RAPIER.ColliderDesc.cylinder(0.6, 0.4);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     /*
      * Setup the testbed.

@@ -4,6 +4,7 @@ use crate::geometry::{
     RawShape, RawShapeColliderTOI,
 };
 use crate::math::{RawRotation, RawVector};
+use crate::utils::{self, FlatHandle};
 use rapier::geometry::{ColliderHandle, Ray, AABB};
 use rapier::math::{Isometry, Point};
 use rapier::pipeline::QueryPipeline;
@@ -128,7 +129,7 @@ impl RawQueryPipeline {
         shape: &RawShape,
         groups: u32,
         filter: &js_sys::Function,
-    ) -> Option<u32> {
+    ) -> Option<FlatHandle> {
         let rfilter = wrap_filter(filter);
         let rfilter = rfilter
             .as_ref()
@@ -143,7 +144,7 @@ impl RawQueryPipeline {
                 crate::geometry::unpack_interaction_groups(groups),
                 rfilter,
             )
-            .map(|h| h.into_raw_parts().0)
+            .map(|h| utils::flat_handle(h.0))
     }
 
     pub fn projectPoint(
@@ -205,7 +206,7 @@ impl RawQueryPipeline {
     ) {
         let rcallback = |handle: ColliderHandle| match callback.call1(
             &JsValue::null(),
-            &JsValue::from(handle.into_raw_parts().0 as u32),
+            &JsValue::from(utils::flat_handle(handle.0)),
         ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
@@ -267,7 +268,7 @@ impl RawQueryPipeline {
     ) {
         let rcallback = |handle: ColliderHandle| match callback.call1(
             &JsValue::null(),
-            &JsValue::from(handle.into_raw_parts().0 as u32),
+            &JsValue::from(utils::flat_handle(handle.0)),
         ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
@@ -297,7 +298,7 @@ impl RawQueryPipeline {
     ) {
         let rcallback = |handle: &ColliderHandle| match callback.call1(
             &JsValue::null(),
-            &JsValue::from(handle.into_raw_parts().0 as u32),
+            &JsValue::from(utils::flat_handle(handle.0)),
         ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),
@@ -315,7 +316,7 @@ fn wrap_filter(filter: &js_sys::Function) -> Option<impl Fn(ColliderHandle) -> b
     if filter.is_function() {
         let filtercb = move |handle: ColliderHandle| match filter.call1(
             &JsValue::null(),
-            &JsValue::from(handle.into_raw_parts().0 as u32),
+            &JsValue::from(utils::flat_handle(handle.0)),
         ) {
             Err(_) => true,
             Ok(val) => val.as_bool().unwrap_or(true),

@@ -1,6 +1,7 @@
 use crate::dynamics::{RawImpulseJointSet, RawIslandManager, RawMultibodyJointSet};
 use crate::geometry::RawColliderSet;
 use crate::math::{RawRotation, RawVector};
+use crate::utils::{self, FlatHandle};
 use rapier::dynamics::{MassProperties, RigidBody, RigidBodyBuilder, RigidBodySet, RigidBodyType};
 use wasm_bindgen::prelude::*;
 
@@ -38,15 +39,19 @@ impl Into<RawRigidBodyType> for RigidBodyType {
 pub struct RawRigidBodySet(pub(crate) RigidBodySet);
 
 impl RawRigidBodySet {
-    pub(crate) fn map<T>(&self, handle: u32, f: impl FnOnce(&RigidBody) -> T) -> T {
-        let (body, _) = self.0.get_unknown_gen(handle).expect(
+    pub(crate) fn map<T>(&self, handle: FlatHandle, f: impl FnOnce(&RigidBody) -> T) -> T {
+        let body = self.0.get(utils::body_handle(handle)).expect(
             "Invalid RigidBody reference. It may have been removed from the physics World.",
         );
         f(body)
     }
 
-    pub(crate) fn map_mut<T>(&mut self, handle: u32, f: impl FnOnce(&mut RigidBody) -> T) -> T {
-        let (body, _) = self.0.get_unknown_gen_mut(handle).expect(
+    pub(crate) fn map_mut<T>(
+        &mut self,
+        handle: FlatHandle,
+        f: impl FnOnce(&mut RigidBody) -> T,
+    ) -> T {
+        let body = self.0.get_mut(utils::body_handle(handle)).expect(
             "Invalid RigidBody reference. It may have been removed from the physics World.",
         );
         f(body)
@@ -85,7 +90,7 @@ impl RawRigidBodySet {
         sleeping: bool,
         ccdEnabled: bool,
         dominanceGroup: i8,
-    ) -> u32 {
+    ) -> FlatHandle {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::with_principal_inertia_frame(
             centerOfMass.0.into(),
@@ -115,7 +120,7 @@ impl RawRigidBodySet {
             .ccd_enabled(ccdEnabled)
             .dominance_group(dominanceGroup);
 
-        self.0.insert(rigid_body.build()).into_raw_parts().0
+        utils::flat_handle(self.0.insert(rigid_body.build()).0)
     }
 
     #[cfg(feature = "dim2")]
@@ -139,7 +144,7 @@ impl RawRigidBodySet {
         sleeping: bool,
         ccdEnabled: bool,
         dominanceGroup: i8,
-    ) -> u32 {
+    ) -> FlatHandle {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
@@ -162,27 +167,26 @@ impl RawRigidBodySet {
             rigid_body = rigid_body.lock_rotations();
         }
 
-        self.0.insert(rigid_body.build()).into_raw_parts().0
+        utils::flat_handle(self.0.insert(rigid_body.build()).0)
     }
 
     pub fn remove(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         islands: &mut RawIslandManager,
         colliders: &mut RawColliderSet,
         joints: &mut RawImpulseJointSet,
         articulations: &mut RawMultibodyJointSet,
     ) {
-        if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
-            self.0.remove(
-                handle,
-                &mut islands.0,
-                &mut colliders.0,
-                &mut joints.0,
-                &mut articulations.0,
-                true,
-            );
-        }
+        let handle = utils::body_handle(handle);
+        self.0.remove(
+            handle,
+            &mut islands.0,
+            &mut colliders.0,
+            &mut joints.0,
+            &mut articulations.0,
+            true,
+        );
     }
 
     /// The number of rigid-bodies on this set.
@@ -191,8 +195,8 @@ impl RawRigidBodySet {
     }
 
     /// Checks if a rigid-body with the given integer handle exists.
-    pub fn contains(&self, handle: u32) -> bool {
-        self.0.get_unknown_gen(handle).is_some()
+    pub fn contains(&self, handle: FlatHandle) -> bool {
+        self.0.get(utils::body_handle(handle)).is_some()
     }
 
     /// Applies the given JavaScript function to the integer handle of each rigid-body managed by this set.
@@ -202,7 +206,7 @@ impl RawRigidBodySet {
     pub fn forEachRigidBodyHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.0.iter() {
-            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
+            let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
     }
 }

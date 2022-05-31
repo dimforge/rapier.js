@@ -1,6 +1,7 @@
 use crate::dynamics::{RawIslandManager, RawRigidBodySet};
 use crate::geometry::RawShape;
 use crate::math::{RawRotation, RawVector};
+use crate::utils::{self, FlatHandle};
 use rapier::prelude::*;
 use wasm_bindgen::prelude::*;
 
@@ -8,18 +9,22 @@ use wasm_bindgen::prelude::*;
 pub struct RawColliderSet(pub(crate) ColliderSet);
 
 impl RawColliderSet {
-    pub(crate) fn map<T>(&self, handle: u32, f: impl FnOnce(&Collider) -> T) -> T {
-        let (collider, _) = self
+    pub(crate) fn map<T>(&self, handle: FlatHandle, f: impl FnOnce(&Collider) -> T) -> T {
+        let collider = self
             .0
-            .get_unknown_gen(handle)
+            .get(utils::collider_handle(handle))
             .expect("Invalid Collider reference. It may have been removed from the physics World.");
         f(collider)
     }
 
-    pub(crate) fn map_mut<T>(&mut self, handle: u32, f: impl FnOnce(&mut Collider) -> T) -> T {
-        let (collider, _) = self
+    pub(crate) fn map_mut<T>(
+        &mut self,
+        handle: FlatHandle,
+        f: impl FnOnce(&mut Collider) -> T,
+    ) -> T {
+        let collider = self
             .0
-            .get_unknown_gen_mut(handle)
+            .get_mut(utils::collider_handle(handle))
             .expect("Invalid Collider reference. It may have been removed from the physics World.");
         f(collider)
     }
@@ -51,9 +56,9 @@ impl RawColliderSet {
         activeHooks: u32,
         activeEvents: u32,
         hasParent: bool,
-        parent: u32,
+        parent: FlatHandle,
         bodies: &mut RawRigidBodySet,
-    ) -> Option<u32> {
+    ) -> Option<FlatHandle> {
         let pos = Isometry::from_parts(translation.0.into(), rotation.0);
         let mut builder = ColliderBuilder::new(shape.0.clone())
             .position(pos)
@@ -89,15 +94,13 @@ impl RawColliderSet {
         let collider = builder.build();
 
         if hasParent {
-            let (_, handle) = bodies.0.get_unknown_gen(parent)?;
-            Some(
+            Some(utils::flat_handle(
                 self.0
-                    .insert_with_parent(collider, handle, &mut bodies.0)
-                    .into_raw_parts()
+                    .insert_with_parent(collider, utils::body_handle(parent), &mut bodies.0)
                     .0,
-            )
+            ))
         } else {
-            Some(self.0.insert(collider).into_raw_parts().0)
+            Some(utils::flat_handle(self.0.insert(collider).0))
         }
     }
 }
@@ -113,8 +116,8 @@ impl RawColliderSet {
         self.0.len()
     }
 
-    pub fn contains(&self, handle: u32) -> bool {
-        self.0.get_unknown_gen(handle).is_some()
+    pub fn contains(&self, handle: FlatHandle) -> bool {
+        self.0.get(utils::collider_handle(handle)).is_some()
     }
 
     #[cfg(feature = "dim2")]
@@ -139,9 +142,9 @@ impl RawColliderSet {
         activeHooks: u32,
         activeEvents: u32,
         hasParent: bool,
-        parent: u32,
+        parent: FlatHandle,
         bodies: &mut RawRigidBodySet,
-    ) -> Option<u32> {
+    ) -> Option<FlatHandle> {
         self.do_create_collider(
             shape,
             translation,
@@ -190,9 +193,9 @@ impl RawColliderSet {
         activeHooks: u32,
         activeEvents: u32,
         hasParent: bool,
-        parent: u32,
+        parent: FlatHandle,
         bodies: &mut RawRigidBodySet,
-    ) -> Option<u32> {
+    ) -> Option<FlatHandle> {
         self.do_create_collider(
             shape,
             translation,
@@ -222,19 +225,18 @@ impl RawColliderSet {
     /// Removes a collider from this set and wake-up the rigid-body it is attached to.
     pub fn remove(
         &mut self,
-        handle: u32,
+        handle: FlatHandle,
         islands: &mut RawIslandManager,
         bodies: &mut RawRigidBodySet,
         wakeUp: bool,
     ) {
-        if let Some((_, handle)) = self.0.get_unknown_gen(handle) {
-            self.0.remove(handle, &mut islands.0, &mut bodies.0, wakeUp);
-        }
+        let handle = utils::collider_handle(handle);
+        self.0.remove(handle, &mut islands.0, &mut bodies.0, wakeUp);
     }
 
     /// Checks if a collider with the given integer handle exists.
-    pub fn isHandleValid(&self, handle: u32) -> bool {
-        self.0.get_unknown_gen(handle).is_some()
+    pub fn isHandleValid(&self, handle: FlatHandle) -> bool {
+        self.0.get(utils::collider_handle(handle)).is_some()
     }
 
     /// Applies the given JavaScript function to the integer handle of each collider managed by this collider set.
@@ -244,7 +246,7 @@ impl RawColliderSet {
     pub fn forEachColliderHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
         for (handle, _) in self.0.iter() {
-            let _ = f.call1(&this, &JsValue::from(handle.into_raw_parts().0 as u32));
+            let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
     }
 }

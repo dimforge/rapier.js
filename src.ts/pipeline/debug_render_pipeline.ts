@@ -56,8 +56,8 @@ export class DebugRenderPipeline {
         this.raw = raw || new RawDebugRenderPipeline();
     }
 
-    public render(bodies: RigidBodySet, colliders: ColliderSet, impulse_joints: ImpulseJointSet, multibody_joints: MultibodyJointSet) {
-        this.raw.render(bodies.raw, colliders.raw, impulse_joints.raw, multibody_joints.raw);
+    public render(bodies: RigidBodySet, colliders: ColliderSet, impulse_joints: ImpulseJointSet, multibody_joints: MultibodyJointSet, narrow_phase: NarrowPhase) {
+        this.raw.render(bodies.raw, colliders.raw, impulse_joints.raw, multibody_joints.raw, narrow_phase.raw);
         this.vertices = this.raw.vertices();
         this.colors = this.raw.colors();
     }
