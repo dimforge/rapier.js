@@ -35,4 +35,5 @@ palette = "0.6"
 
 [package.metadata.wasm-pack.profile.release]
 # add -g to keep debug symbols
-wasm-opt = ['-O4'] # , '-g']
+wasm-opt = ['-O4']
+#wasm-opt = ['-g']

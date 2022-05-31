@@ -144,7 +144,7 @@ export class MultibodyJointSet {
      *
      * @param f - The closure called with the integer handle of each multibody joint attached to the rigid-body.
      */
-    public forEachJointHandleAttachedToRigidBody(handle: RigidBodyHandle, f: (MultibodyJointHandle) => void) {
+    public forEachJointHandleAttachedToRigidBody(handle: RigidBodyHandle, f: (handle: MultibodyJointHandle) => void) {
         this.raw.forEachJointAttachedToRigidBody(handle, f);
     }
 

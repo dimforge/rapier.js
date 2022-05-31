@@ -758,7 +758,7 @@ export class World {
     }
 }
 
-function castClosure<Res>(set: ColliderSet, f?: (collider :Collider) => Res): (ColliderHandle) => Res | undefined {
+function castClosure<Res>(set: ColliderSet, f?: (collider :Collider) => Res): (handle: ColliderHandle) => Res | undefined {
     return handle => {
         if (!!f) {
             return f(set.get(handle));

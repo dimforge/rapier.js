@@ -92,9 +92,9 @@ export class ImpulseJointSet {
     /**
      * Calls the given closure with the integer handle of each impulse joint attached to this rigid-body.
      *
-     * @param f - The closure called with the integer handle of each impulse joitn attached to the rigid-body.
+     * @param f - The closure called with the integer handle of each impulse joint attached to the rigid-body.
      */
-    public forEachJointHandleAttachedToRigidBody(handle: RigidBodyHandle, f: (ImpulseJointHandle) => void) {
+    public forEachJointHandleAttachedToRigidBody(handle: RigidBodyHandle, f: (handle: ImpulseJointHandle) => void) {
         this.raw.forEachJointAttachedToRigidBody(handle, f);
     }
 
