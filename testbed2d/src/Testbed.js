@@ -118,6 +118,7 @@ export class Testbed {
         this.world.maxVelocityIterations = this.parameters.numVelocityIter;
         this.world.maxPositionIterations = this.parameters.numPositionIter;
         this.demoToken += 1;
+        this.stepId = 0;
         this.gui.resetTiming();
 
         world.forEachCollider(coll => {
@@ -155,12 +156,14 @@ export class Testbed {
 
     takeSnapshot() {
         this.snap = this.world.takeSnapshot();
+        this.snapStepId = this.stepId;
     }
 
     restoreSnapshot() {
         if (!!this.snap) {
             this.world.free();
             this.world = this.RAPIER.World.restoreSnapshot(this.snap);
+            this.stepId = this.snapStepId;
         }
     }
 
