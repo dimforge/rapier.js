@@ -1,4 +1,5 @@
 import {RawImpulseJointSet} from "../raw"
+import {Coarena} from "../coarena"
 import {RigidBodySet} from "./rigid_body_set";
 import {
     RevoluteImpulseJoint,
@@ -24,7 +25,7 @@ import {Collider, ColliderHandle} from "../geometry";
  */
 export class ImpulseJointSet {
     raw: RawImpulseJointSet;
-    private map: Map<ImpulseJointHandle, ImpulseJoint>;
+    private map: Coarena<ImpulseJoint>;
 
     /**
      * Release the WASM memory occupied by this joint set.
@@ -38,7 +39,7 @@ export class ImpulseJointSet {
 
     constructor(raw?: RawImpulseJointSet) {
         this.raw = raw || new RawImpulseJointSet();
-        this.map = new Map();
+        this.map = new Coarena<ImpulseJoint>();
         // Initialize the map with the existing elements, if any.
         if (raw) {
             raw.forEachJointHandle((handle: ImpulseJointHandle) => {
@@ -49,9 +50,7 @@ export class ImpulseJointSet {
 
     /** @internal */
     public finalizeDeserialization(bodies: RigidBodySet) {
-        for (let joint of this.map.values()) {
-            joint.finalizeDeserialization(bodies);
-        }
+        this.map.forEach(joint => joint.finalizeDeserialization(bodies));
     }
 
     /**
@@ -110,7 +109,7 @@ export class ImpulseJointSet {
      * The number of joints on this set.
      */
     public len(): number {
-        return this.map.size;
+        return this.map.len();
     }
 
     /**
@@ -119,19 +118,17 @@ export class ImpulseJointSet {
      * @param handle - The joint handle to check.
      */
     public contains(handle: ImpulseJointHandle): boolean {
-        return this.map.has(handle);
+        return this.get(handle) != null;
     }
 
     /**
      * Gets the joint with the given handle.
      *
      * Returns `null` if no joint with the specified handle exists.
-     * Note that two distinct calls with the same `handle` will return two
-     * different JavaScript objects that both represent the same joint.
      *
      * @param handle - The integer handle of the joint to retrieve.
      */
-    public get(handle: ImpulseJointHandle): ImpulseJoint {
+    public get(handle: ImpulseJointHandle): ImpulseJoint | null {
         return this.map.get(handle);
     }
 
@@ -140,29 +137,8 @@ export class ImpulseJointSet {
      *
      * @param f - The closure to apply.
      */
-    public forEachJoint(f: (joint: ImpulseJoint) => void) {
-        for (const joint of this.map.values()) {
-            f(joint);
-        }
-    }
-
-    /**
-     * Applies the given closure to the handle of each joint contained by this set.
-     *
-     * @param f - The closure to apply.
-     */
-    public forEachJointHandle(f: (handle: ImpulseJointHandle) => void) {
-        for (const key of this.map.keys())
-            f(key);
-    }
-
-    /**
-     * Gets all handles of the joints in the list.
-     *
-     * @returns joint handle list.
-     */
-    public getAllHandles(): ImpulseJointHandle[] {
-        return Array.from(this.map.keys());
+    public forEach(f: (joint: ImpulseJoint) => void) {
+        this.map.forEach(f);
     }
 
     /**
@@ -170,7 +146,7 @@ export class ImpulseJointSet {
      *
      * @returns joint list.
      */
-    public getAllJoints(): ImpulseJoint[] {
-        return Array.from(this.map.values());
+    public getAll(): ImpulseJoint[] {
+        return this.map.getAll();
     }
 }

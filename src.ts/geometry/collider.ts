@@ -19,7 +19,7 @@ import { Ray, RayIntersection } from "./ray";
 import { PointProjection } from "./point";
 import { ShapeColliderTOI, ShapeTOI } from "./toi";
 import { ShapeContact } from "./contact";
-import {ColliderSet} from "./collider_set";
+import { ColliderSet } from "./collider_set";
 
 /// Flags affecting whether or not collision-detection happens between two colliders
 /// depending on the type of rigid-bodies they are attached to.

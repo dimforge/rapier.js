@@ -1,4 +1,5 @@
 import { RawRigidBodySet } from "../raw"
+import { Coarena } from "../coarena"
 import { VectorOps, RotationOps } from '../math';
 import { RigidBody, RigidBodyDesc, RigidBodyHandle } from './rigid_body'
 import { ColliderSet } from "../geometry";
@@ -14,7 +15,7 @@ import { IslandManager } from "./island_manager";
  */
 export class RigidBodySet {
     raw: RawRigidBodySet;
-    private map: Map<RigidBodyHandle, RigidBody>;
+    private map: Coarena<RigidBody>;
 
     /**
      * Release the WASM memory occupied by this rigid-body set.
@@ -28,7 +29,7 @@ export class RigidBodySet {
 
     constructor(raw?: RawRigidBodySet) {
         this.raw = raw || new RawRigidBodySet();
-        this.map = new Map();
+        this.map = new Coarena<RigidBody>();
         // deserialize
         if (raw) {
             raw.forEachRigidBodyHandle((handle: RigidBodyHandle) => {
@@ -41,9 +42,7 @@ export class RigidBodySet {
      * Internal method, do not call this explicitly.
      */
     public finalizeDeserialization(colliderSet: ColliderSet) {
-        for (let rb of this.map.values()) {
-            rb.finalizeDeserialization(colliderSet);
-        }
+        this.map.forEach(rb => rb.finalizeDeserialization(colliderSet));
     }
 
 
@@ -145,7 +144,7 @@ export class RigidBodySet {
      * The number of rigid-bodies on this set.
      */
     public len(): number {
-        return this.map.size;
+        return this.map.len();
     }
 
     /**
@@ -154,7 +153,7 @@ export class RigidBodySet {
      * @param handle - The rigid-body handle to check.
      */
     public contains(handle: RigidBodyHandle): boolean {
-        return this.map.has(handle);
+        return this.get(handle) != null;
     }
 
     /**
@@ -162,7 +161,7 @@ export class RigidBodySet {
      *
      * @param handle - The handle of the rigid-body to retrieve.
      */
-    public get(handle: RigidBodyHandle): RigidBody | undefined {
+    public get(handle: RigidBodyHandle): RigidBody | null {
         return this.map.get(handle);
     }
 
@@ -171,19 +170,8 @@ export class RigidBodySet {
      *
      * @param f - The closure to apply.
      */
-    public forEachRigidBody(f: (body: RigidBody) => void) {
-        for (const body of this.map.values())
-            f(body);
-    }
-
-    /**
-     * Applies the given closure to the handle of each rigid-body contained by this set.
-     *
-     * @param f - The closure to apply.
-     */
-    public forEachRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
-        for (const key of this.map.keys())
-            f(key);
+    public forEach(f: (body: RigidBody) => void) {
+        this.map.forEach(f);
     }
 
     /**
@@ -200,20 +188,11 @@ export class RigidBodySet {
     }
 
     /**
-     * Gets all handles of the rigid-bodies in the list.
-     *
-     * @returns rigid-body handle list.
-     */
-    public getAllHandles(): RigidBodyHandle[] {
-        return Array.from(this.map.keys());
-    }
-
-    /**
      * Gets all rigid-bodies in the list.
      *
      * @returns rigid-bodies list.
      */
-    public getAllBodies(): RigidBody[] {
-        return Array.from(this.map.values());
+    public getAll(): RigidBody[] {
+        return this.map.getAll();
     }
 }
