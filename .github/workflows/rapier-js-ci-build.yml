@@ -2,9 +2,9 @@ name: rapier CI build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 env:
   CARGO_TERM_COLOR: always
@@ -25,7 +25,6 @@ jobs:
       RUSTFLAGS: -D warnings
     steps:
       - uses: actions/checkout@v3
-      - run: cargo install wasm-pack;
       - run: npm ci;
       - name: Build rapier2d
         run: cd rapier2d; ./build_all.sh;
