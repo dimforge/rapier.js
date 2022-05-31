@@ -22,7 +22,7 @@ export function initWorld(RAPIER, testbed) {
     // Create Ground.
     let nsubdivs = 20;
     let scale = new RAPIER.Vector3(70.0, 4.0, 70.0);
-    let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let body = world.createRigidBody(bodyDesc);
     let heights = generateHeightfield(nsubdivs)
     let colliderDesc = RAPIER.ColliderDesc.heightfield(nsubdivs, nsubdivs, heights, scale);
@@ -47,7 +47,7 @@ export function initWorld(RAPIER, testbed) {
                 let z = k * shift + offset;
 
                 // Create dynamic cube.
-                let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+                let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
                     .setTranslation(x, y, z);
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc;

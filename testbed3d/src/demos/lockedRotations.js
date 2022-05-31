@@ -8,7 +8,7 @@ export function initWorld(RAPIER, testbed) {
     let ground_size = 1.7;
     let ground_height = 0.1;
 
-    let bodyDesc = RAPIER.RigidBodyDesc.newStatic()
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed()
         .setTranslation(0.0, -ground_height, 0.0);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(ground_size, ground_height, ground_size);
@@ -17,7 +17,7 @@ export function initWorld(RAPIER, testbed) {
     /*
      * A rectangle that only rotates along the `x` axis.
      */
-    bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+    bodyDesc = RAPIER.RigidBodyDesc.dynamic()
         .setTranslation(0.0, 3.0, 0.0)
         .lockTranslations()
         .restrictRotations(true, false, false);
@@ -29,7 +29,7 @@ export function initWorld(RAPIER, testbed) {
     /*
      * A cylinder that cannot rotate.
      */
-    bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+    bodyDesc = RAPIER.RigidBodyDesc.dynamic()
         .setTranslation(0.2, 5.0, 0.4)
         .lockRotations();
     body = world.createRigidBody(bodyDesc);

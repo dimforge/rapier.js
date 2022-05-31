@@ -3,7 +3,7 @@ export function initWorld(RAPIER, testbed) {
     let world = new RAPIER.World(gravity);
 
     // Create Ground.
-    let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let groundBody = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(5.0, 0.1, 5.0);
     world.createCollider(colliderDesc, groundBody);
@@ -43,8 +43,9 @@ export function initWorld(RAPIER, testbed) {
 
                 // Alternate between the green and blue groups.
                 let group = k % 2 == 0 ? group1 : group2;
-                let bodyDesc = RAPIER.RigidBodyDesc.newDynamic().setTranslation(x, y, z);
+                let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y, z);
                 let body = world.createRigidBody(bodyDesc);
+
                 colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad)
                     .setCollisionGroups(group);
                 world.createCollider(colliderDesc, body);

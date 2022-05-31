@@ -12,7 +12,7 @@ export function initWorld(RAPIER, testbed) {
         .setTranslation(0.0, -ground_height);
     let groundBody = world.createRigidBody(groundBodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(ground_size, ground_height);
-    world.createCollider(colliderDesc, groundBody.handle);
+    world.createCollider(colliderDesc, groundBody);
 
     /*
      * Setup groups
@@ -26,7 +26,7 @@ export function initWorld(RAPIER, testbed) {
     colliderDesc = RAPIER.ColliderDesc.cuboid(1.0, 0.1)
         .setTranslation(0.0, 1.0)
         .setCollisionGroups(group1);
-    world.createCollider(colliderDesc, groundBody.handle);
+    world.createCollider(colliderDesc, groundBody);
 
     /*
      * A blue floor that will collide with the second group only.
@@ -34,7 +34,7 @@ export function initWorld(RAPIER, testbed) {
     colliderDesc = RAPIER.ColliderDesc.cuboid(1.0, 0.1)
         .setTranslation(0.0, 2.0)
         .setCollisionGroups(group2);
-    world.createCollider(colliderDesc, groundBody.handle);
+    world.createCollider(colliderDesc, groundBody);
 
     /*
      * Create the cubes
@@ -55,11 +55,11 @@ export function initWorld(RAPIER, testbed) {
             // Alternate between the green and blue groups.
             let group = (i % 2 == 0) ? group1 : group2;
 
-            let bodyDesc = RAPIER.RigidBodyDesc.newDynamic().setTranslation(x, y);
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad)
                 .setCollisionGroups(group);
-            world.createCollider(colliderDesc, body.handle);
+            world.createCollider(colliderDesc, body);
         }
     }
 

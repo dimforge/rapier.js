@@ -20,7 +20,7 @@ export function initWorld(RAPIER, testbed) {
             .setTranslation(ground.x, ground.y);
         let body = world.createRigidBody(bodyDesc);
         let colliderDesc = RAPIER.ColliderDesc.cuboid(ground.hx, ground.hy);
-        world.createCollider(colliderDesc, body.handle);
+        world.createCollider(colliderDesc, body);
     });
 
     /*
@@ -42,7 +42,7 @@ export function initWorld(RAPIER, testbed) {
             let x = i * shift - centerx;
             let y = j * shift * 2.0 + centery + 2.0;
 
-            let bodyDesc = RAPIER.RigidBodyDesc.newDynamic().setTranslation(x, y);
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
             let body = world.createRigidBody(bodyDesc);
 
             let points = [];
@@ -52,7 +52,7 @@ export function initWorld(RAPIER, testbed) {
             points = new Float32Array(points);
 
             let colliderDesc = RAPIER.ColliderDesc.convexHull(points);
-            world.createCollider(colliderDesc, body.handle);
+            world.createCollider(colliderDesc, body);
         }
     }
 

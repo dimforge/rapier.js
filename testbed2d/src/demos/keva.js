@@ -23,14 +23,14 @@ function buildBlock(
             let x = i % 2 == 0 ? spacing * j * 2.0 : dim.x * j * 2.0;
 
             // Build the rigid body.
-            let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
                 .setTranslation(
                     x + dim.x + shift.x,
                     y + dim.y + shift.y,
                 );
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(dim.x, dim.y);
-            world.createCollider(colliderDesc, body.handle);
+            world.createCollider(colliderDesc, body);
         }
 
         y += dim.y * 2.0;
@@ -49,7 +49,7 @@ export function initWorld(RAPIER, testbed) {
         .setTranslation(0.0, -groundHeight, 0.0);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     // Keva tower.
     let halfExtents = new RAPIER.Vector2(0.5, 2.0);

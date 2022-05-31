@@ -4,7 +4,7 @@ export function initWorld(RAPIER, testbed) {
     let removableBodies = new Array();
 
     // Create Ground.
-    let groundBodyDesc = RAPIER.RigidBodyDesc.newStatic();
+    let groundBodyDesc = RAPIER.RigidBodyDesc.fixed();
     let groundBody = world.createRigidBody(groundBodyDesc);
     let groundColliderDesc = RAPIER.ColliderDesc.cuboid(40.0, 0.1, 40.0);
     world.createCollider(groundColliderDesc, groundBody);
@@ -20,7 +20,7 @@ export function initWorld(RAPIER, testbed) {
             return;
         }
 
-        let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+        let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
             .setLinvel(0.0, 15.0, 0.0)
             .setTranslation(0.0, 10.0, 0.0);
         let colliderDesc;
@@ -52,7 +52,7 @@ export function initWorld(RAPIER, testbed) {
 
         // We reached the max number, delete the oldest rigid-body.
         if (removableBodies.length > 400) {
-            let rb = world.getRigidBody(removableBodies[0]);
+            let rb = removableBodies[0];
             world.removeRigidBody(rb);
             graphics.removeRigidBody(rb);
             removableBodies.shift();

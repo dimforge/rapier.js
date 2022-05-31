@@ -140,7 +140,7 @@ export class Graphics {
 
     addCollider(RAPIER, world, collider) {
         let i;
-        let parent = world.getRigidBody(collider.parent());
+        let parent = collider.parent();
         let instance;
         let graphics;
         let vertices;

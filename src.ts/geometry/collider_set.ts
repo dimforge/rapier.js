@@ -46,7 +46,7 @@ export class ColliderSet {
      *
      * @param bodies - The set of bodies where the collider's parent can be found.
      * @param desc - The collider's description.
-     * @param parentHandle - The inteer handle of the rigid-body this collider is attached to.
+     * @param parentHandle - The integer handle of the rigid-body this collider is attached to.
      */
     public createCollider(bodies: RigidBodySet, desc: ColliderDesc, parentHandle: RigidBodyHandle): Collider {
         let hasParent = parentHandle != undefined && parentHandle != null;

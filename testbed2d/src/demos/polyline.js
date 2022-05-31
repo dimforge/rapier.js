@@ -23,7 +23,7 @@ export function initWorld(RAPIER, testbed) {
     let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.polyline(points);
-    world.createCollider(colliderDesc, body.handle);
+    world.createCollider(colliderDesc, body);
 
     /*
      * Create the cubes
@@ -41,15 +41,15 @@ export function initWorld(RAPIER, testbed) {
             let y = j * shift + centery + 3.0;
 
             // Build the rigid body.
-            let bodyDesc = RAPIER.RigidBodyDesc.newDynamic().setTranslation(x, y);
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
             let body = world.createRigidBody(bodyDesc);
 
             if (j % 2 == 0) {
                 let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad);
-                world.createCollider(colliderDesc, body.handle);
+                world.createCollider(colliderDesc, body);
             } else {
                 let colliderDesc = RAPIER.ColliderDesc.ball(rad);
-                world.createCollider(colliderDesc, body.handle);
+                world.createCollider(colliderDesc, body);
             }
         }
     }
