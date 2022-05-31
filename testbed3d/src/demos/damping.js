@@ -16,7 +16,7 @@ export function initWorld(RAPIER, testbed) {
         let y = Math.cos((i * subdiv * Math.PI * 2.0));
 
         // Build the rigid body.
-        let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+        let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
             .setTranslation(x, y, 0.0)
             .setLinvel(x * 10.0, y * 10.0, 0.0)
             .setAngvel(new RAPIER.Vector3(0.0, 0.0, 100.0))

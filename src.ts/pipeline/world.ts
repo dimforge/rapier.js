@@ -454,16 +454,7 @@ export class World {
      * @param f(collider) - The function to apply to each collider managed by this physics world. Called as `f(collider)`.
      */
     public forEachCollider(f: (collider: Collider) => void) {
-        this.colliders.forEachCollider(f)
-    }
-
-    /**
-     * Applies the given closure to the integer handle of each collider managed by this physics world.
-     *
-     * @param f(handle) - The function to apply to the integer handle of each collider managed by this physics world. Called as `f(collider)`.
-     */
-    public forEachColliderHandle(f: (handle: ColliderHandle) => void) {
-        this.colliders.forEachColliderHandle(f)
+        this.colliders.forEach(f)
     }
 
     /**
@@ -472,16 +463,7 @@ export class World {
      * @param f(body) - The function to apply to each rigid-body managed by this physics world. Called as `f(collider)`.
      */
     public forEachRigidBody(f: (body: RigidBody) => void) {
-        this.bodies.forEachRigidBody(f)
-    }
-
-    /**
-     * Applies the given closure to the integer handle of each rigid-body managed by this physics world.
-     *
-     * @param f(handle) - The function to apply to the integer handle of each rigid-body managed by this physics world. Called as `f(collider)`.
-     */
-    public forEachRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
-        this.bodies.forEachRigidBodyHandle(f)
+        this.bodies.forEach(f)
     }
 
     /**
@@ -495,21 +477,6 @@ export class World {
      */
     public forEachActiveRigidBody(f: (body: RigidBody) => void) {
         this.bodies.forEachActiveRigidBody(this.islands, f);
-    }
-
-    /**
-     * Applies the given closure to the integer handle of each active rigid-body
-     * managed by this physics world.
-     *
-     * After a short time of inactivity, a rigid-body is automatically deactivated ("asleep") by
-     * the physics engine in order to save computational power. A sleeping rigid-body never moves
-     * unless it is moved manually by the user.
-     *
-     * @param f(handle) - The function to apply to the integer handle of each active rigid-body managed by this
-     *   physics world. Called as `f(collider)`.
-     */
-    public forEachActiveRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
-        this.islands.forEachActiveRigidBodyHandle(f);
     }
 
     /**
@@ -555,7 +522,6 @@ export class World {
     ): RayColliderIntersection | null {
         return this.queryPipeline.castRayAndGetNormal(this.colliders, ray, maxToi, solid, groups, castClosure(this.colliders, filter));
     }
-
 
     /**
      * Cast a ray and collects all the intersections between a ray and the scene.

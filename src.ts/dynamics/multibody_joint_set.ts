@@ -1,4 +1,5 @@
 import {RawMultibodyJointSet} from "../raw"
+import {Coarena} from "../coarena"
 import {RigidBodySet} from "./rigid_body_set";
 import {
     MultibodyJoint,
@@ -26,7 +27,7 @@ import {RigidBodyHandle} from "./rigid_body";
  */
 export class MultibodyJointSet {
     raw: RawMultibodyJointSet;
-    private map: Map<MultibodyJointHandle, MultibodyJoint>
+    private map: Coarena<MultibodyJoint>
 
     /**
      * Release the WASM memory occupied by this joint set.
@@ -40,7 +41,7 @@ export class MultibodyJointSet {
 
     constructor(raw?: RawMultibodyJointSet) {
         this.raw = raw || new RawMultibodyJointSet();
-        this.map = new Map();
+        this.map = new Coarena<MultibodyJoint>();
         // Initialize the map with the existing elements, if any.
         if (raw) {
             raw.forEachJointHandle((handle: MultibodyJointHandle) => {
@@ -94,7 +95,7 @@ export class MultibodyJointSet {
      * The number of joints on this set.
      */
     public len(): number {
-        return this.map.size;
+        return this.map.len();
     }
 
     /**
@@ -103,19 +104,17 @@ export class MultibodyJointSet {
      * @param handle - The joint handle to check.
      */
     public contains(handle: MultibodyJointHandle): boolean {
-        return this.map.has(handle);
+        return this.get(handle) != null;
     }
 
     /**
      * Gets the joint with the given handle.
      *
      * Returns `null` if no joint with the specified handle exists.
-     * Note that two distinct calls with the same `handle` will return two
-     * different JavaScript objects that both represent the same joint.
      *
      * @param handle - The integer handle of the joint to retrieve.
      */
-    public get(handle: MultibodyJointHandle): MultibodyJoint {
+    public get(handle: MultibodyJointHandle): MultibodyJoint  | null {
         return this.map.get(handle);
     }
 
@@ -124,19 +123,8 @@ export class MultibodyJointSet {
      *
      * @param f - The closure to apply.
      */
-    public forEachJoint(f: (joint: MultibodyJoint) => void) {
-        for (const joint of this.map.values())
-            f(joint);
-    }
-
-    /**
-     * Applies the given closure to the handle of each joint contained by this set.
-     *
-     * @param f - The closure to apply.
-     */
-    public forEachJointHandle(f: (handle: MultibodyJointHandle) => void) {
-        for (const key of this.map.keys())
-            f(key);
+    public forEach(f: (joint: MultibodyJoint) => void) {
+        this.map.forEach(f);
     }
 
     /**
@@ -149,20 +137,11 @@ export class MultibodyJointSet {
     }
 
     /**
-     * Gets all handles of the joints in the list.
-     *
-     * @returns joint handle list.
-     */
-    public getAllHandles(): MultibodyJointHandle[] {
-        return Array.from(this.map.keys());
-    }
-
-    /**
      * Gets all joints in the list.
      *
      * @returns joint list.
      */
-    public getAllJoints(): MultibodyJoint[] {
-        return Array.from(this.map.values());
+    public getAll(): MultibodyJoint[] {
+        return this.map.getAll();
     }
 }

@@ -15,7 +15,7 @@ export function initWorld(RAPIER, testbed) {
             .setTranslation(ground.x, ground.y);
         let body = world.createRigidBody(bodyDesc);
         let colliderDesc = RAPIER.ColliderDesc.cuboid(ground.hx, ground.hy);
-        world.createCollider(colliderDesc, body.handle);
+        world.createCollider(colliderDesc, body);
     });
 
     // Dynamic cubes.
@@ -35,11 +35,11 @@ export function initWorld(RAPIER, testbed) {
             let y = j * shift + centery + 3.0;
 
             // Create dynamic cube.
-            let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
                 .setTranslation(x, y);
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
-            world.createCollider(colliderDesc, body.handle);
+            world.createCollider(colliderDesc, body);
         }
     }
 

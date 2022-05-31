@@ -28,7 +28,7 @@ function buildBlock(
             for (k = 0; k < numz; ++k) {
                 let z = (i % 2) == 0 ? dim.z * k * 2.0 : spacing * k * 2.0;
                 // Build the rigid body.
-                let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+                let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
                     .setTranslation(
                         x + dim.x + shift.x,
                         y + dim.y + shift.y,
@@ -47,7 +47,7 @@ function buildBlock(
     for (i = 0; i < blockWidth / (dim.x * 2.0); ++i) {
         for (j = 0; j < blockWidth / (dim.z * 2.0); ++j) {
             // Build the rigid body.
-            let bodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
                 .setTranslation(
                     i * dim.x * 2.0 + dim.x + shift.x,
                     dim.y + shift.y + blockHeight,
@@ -68,7 +68,7 @@ export function initWorld(RAPIER, testbed) {
     // Create Ground.
     let groundSize = 50.0;
     let groundHeight = 0.1;
-    let bodyDesc = RAPIER.RigidBodyDesc.newStatic()
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed()
         .setTranslation(0.0, -groundHeight, 0.0);
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight, groundSize);

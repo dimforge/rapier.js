@@ -18,7 +18,7 @@ function createPrismaticJoints(
 
     for (i = 0; i < num; ++i) {
         z = origin.z + (i + 1) * shift;
-        let rigidBodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+        let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic()
             .setTranslation(origin.x, origin.y, z);
         let currChild = world.createRigidBody(rigidBodyDesc);
         let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
@@ -79,7 +79,7 @@ function createRevoluteJoints(
         let parents = [currParent, currParent, currParent, currParent];
 
         for (k = 0; k < 4; ++k) {
-            let rigidBodyDesc = RAPIER.RigidBodyDesc.newDynamic()
+            let rigidBodyDesc = RAPIER.RigidBodyDesc.dynamic()
                 .setTranslation(positions[k].x, positions[k].y, positions[k].z);
             let rigidBody = world.createRigidBody(rigidBodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);

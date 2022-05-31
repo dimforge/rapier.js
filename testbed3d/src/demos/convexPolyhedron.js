@@ -41,7 +41,7 @@ export function initWorld(RAPIER, testbed) {
     let world = new RAPIER.World(gravity);
 
     // Create Ground.
-    let bodyDesc = RAPIER.RigidBodyDesc.newStatic();
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let body = world.createRigidBody(bodyDesc);
     let trimesh = generateTriMesh(20, 40.0, 4.0, 40.0)
     let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
@@ -76,7 +76,7 @@ export function initWorld(RAPIER, testbed) {
                 vertices = new Float32Array(vertices);
 
                 // Build the rigid body.
-                bodyDesc = RAPIER.RigidBodyDesc.newDynamic().setTranslation(x, y, z);
+                bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y, z);
                 body = world.createRigidBody(bodyDesc);
                 colliderDesc = RAPIER.ColliderDesc.roundConvexHull(vertices, border_rad);
                 world.createCollider(colliderDesc, body);

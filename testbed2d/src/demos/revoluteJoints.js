@@ -17,7 +17,7 @@ export function initWorld(RAPIER, testbed) {
                 .setTranslation(k * shift, -i * shift);
             let child = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.ball(rad);
-            world.createCollider(colliderDesc, child.handle);
+            world.createCollider(colliderDesc, child);
 
             // Vertical joint.
             if (i > 0) {

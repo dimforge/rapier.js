@@ -260,9 +260,9 @@ export class Graphics {
                 this.addCollider(RAPIER, world, collider);
             });
             modifications.removeRigidBody.forEach(body => {
-                if (!!this.rb2colls.get(body)) {
-                    this.rb2colls.get(body).forEach(coll => this.removeCollider(coll));
-                    this.rb2colls.delete(body);
+                if (!!this.rb2colls.get(body.handle)) {
+                    this.rb2colls.get(body.handle).forEach(coll => this.removeCollider(coll));
+                    this.rb2colls.delete(body.handle);
                 }
             });
         }
@@ -275,8 +275,8 @@ export class Graphics {
         }
     }
 
-    removeCollider(handle) {
-        let gfx = this.coll2instance.get(handle);
+    removeCollider(collider) {
+        let gfx = this.coll2instance.get(collider.handle);
         let instance = this.instanceGroups[gfx.groupId][gfx.instanceId];
 
         if (instance.count > 1) {
@@ -284,24 +284,23 @@ export class Graphics {
             instance.elementId2coll.delete(instance.count - 1);
             instance.elementId2coll.set(gfx.elementId, coll2);
 
-            let gfx2 = this.coll2instance.get(coll2);
+            let gfx2 = this.coll2instance.get(coll2.handle);
             gfx2.elementId = gfx.elementId;
         }
 
         instance.count -= 1;
-        this.coll2instance.delete(handle);
+        this.coll2instance.delete(collider.handle);
     }
 
     addCollider(RAPIER, world, collider) {
         this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 2);
-        let parentHandle = collider.parent();
-        if (!this.rb2colls.get(parentHandle)) {
-            this.rb2colls.set(parentHandle, [collider.handle]);
+        let parent = collider.parent();
+        if (!this.rb2colls.get(parent.handle)) {
+            this.rb2colls.set(parent.handle, [collider]);
         } else {
-            this.rb2colls.get(parentHandle).push(collider.handle);
+            this.rb2colls.get(parent.handle).push(collider);
         }
 
-        let parent = world.getRigidBody(collider.parent());
         let instance;
         let instanceDesc = {
             groupId: 0,
@@ -376,7 +375,7 @@ export class Graphics {
 
         if (!!instance) {
             instanceDesc.elementId = instance.count;
-            instance.elementId2coll.set(instance.count, collider.handle);
+            instance.elementId2coll.set(instance.count, collider);
             instance.count += 1;
         }
 
