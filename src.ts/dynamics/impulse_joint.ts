@@ -1,9 +1,9 @@
 import { Rotation, Vector, VectorOps, RotationOps } from "../math";
 import { RawGenericJoint, RawImpulseJointSet, RawRigidBodySet, RawJointAxis } from "../raw";
 import {RigidBody, RigidBodyHandle} from "./rigid_body"
+import {RigidBodySet} from "./rigid_body_set";
 // #if DIM3
 import { Quaternion } from "../math";
-import {RigidBodySet} from "./rigid_body_set";
 // #endif
 
 /**

@@ -1,15 +1,16 @@
 import {RawImpulseJointSet, RawJointAxis, RawMultibodyJointSet} from "../raw";
-
-// #if DIM3
-import {Quaternion} from "../math";
 import {
     FixedImpulseJoint,
     ImpulseJointHandle,
     JointType,
     MotorModel,
     PrismaticImpulseJoint,
-    RevoluteImpulseJoint, SphericalImpulseJoint
+    RevoluteImpulseJoint
 } from "./impulse_joint";
+
+// #if DIM3
+import {Quaternion} from "../math";
+import { SphericalImpulseJoint } from "./impulse_joint";
 // #endif
 
 /**
