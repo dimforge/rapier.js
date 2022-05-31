@@ -1,3 +1,26 @@
+### 0.8.0 (2022-03-31)
+#### Breaking changes
+- Most APIs that relied on rigid-body handles or collider handles have been modified to rely on `RigidBody`
+  or `Collider` objects instead. Handles are now only needed for events and hooks.
+- Rename STATIC to FIXED in the `ActiveCollisionTypes` flags.
+
+#### Added
+- Add a lines-based debug-renderer. See [#119](https://github.com/dimforge/rapier.js/pull/119) for examples of
+  integration of the debug-renderer with `THREE.js` and `PIXI.js`.
+- Each rigid-body, collider, impulse joint, and multibody joint now have a unique object instance. This instance
+  in only valid as long as the corresponding objects is inserted to the `World`.
+- Add a `wakeUp: bool` argument to the `World.createImpulseJoint` and `MultibodyJointSet::createMultibodyJoint` to
+  automatically wake-up the rigid-bodies attached to the inserted joint.
+- Add a `filter` callback to all the scene queries. Use this for filtering more fine-grained than collision groups.
+- Add `collider.shape` that represents the shape of a collider. This is a more convenient way of reading the collider’s 
+  shape properties. Modifying this shape will have no effect unless `collider.setShape` is called with the modified shape.
+- Add `Collider.containsPoint`, `.projectPoint`, `.intersectsRay`, `.castShape`, `.castCollider`, `.intersectsShape`, 
+  `.contactShape`, `.contactCollider`, `.castRay`, `.castRayAndGetNormal`.
+- Add `Shape.containsPoint`, `.projectPoint`, `.intersectsRay`, `.castShape`, `.intersectsShape`,
+  `.contactShape`, `.castRay`, `.castRayAndGetNormal`.
+- Add `World.projectPointAndGetFeature` which includes the feature Id the projected point lies on.
+- Add `RigidBodyDesc.sleeping` to initialize the rigid-body in a sleeping state.
+
 ### 0.8.0-alpha.2 (2022-03-20)
 The changelog hasn’t been updated yet.
 For an overview of the changes, refer to the changelog for the unreleased Rust version:
