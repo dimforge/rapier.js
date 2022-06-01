@@ -6,8 +6,8 @@
   "license": "Apache-2.0",
   "main": "dist/rapier-testbed3d.js",
   "scripts": {
-    "build": "rimraf dist pkg && webpack -d",
-    "start": "rimraf dist pkg && webpack-dev-server --open -d --host 0.0.0.0",
+    "build": "rimraf dist pkg && webpack",
+    "start": "rimraf dist pkg && webpack serve --open --node-env development",
     "test": "cargo test && wasm-pack test --headless"
   },
   "dependencies": {
@@ -16,14 +16,13 @@
     "md5": "^2.3.0",
     "seedrandom": "^3.0.5",
     "stats.js": "^0.17.0",
-    "three": "^0.130.1",
-    "worker-loader": "^2.0.0"
+    "three": "^0.130.1"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^5.1.2",
-    "rimraf": "^3.0.0",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.3",
-    "webpack-dev-server": "^3.7.1"
+    "copy-webpack-plugin": "^11.0.0",
+    "rimraf": "^3.0.2",
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.9.1"
   }
 }

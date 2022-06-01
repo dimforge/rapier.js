@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js";
 import {Viewport} from "pixi-viewport";
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;

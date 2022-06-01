@@ -4,74 +4,40 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 const dist = path.resolve(__dirname, "dist");
 
-const mode = "production";
+const mode = process.env.NODE_ENV === "development" ? "development" : "production";
 
-const appConfig = {
+/**
+ * @type {import('webpack-dev-server').Configuration}
+ */
+const devServer = {
+    static: {
+        directory: dist,
+    },
+    allowedHosts: 'all',
+    compress: true,
+}
+
+/**
+ * @type {import('webpack').Configuration}
+ */
+const webpackConfig = {
     mode: mode,
     entry: "./src/index.js",
-    devServer: {
-        contentBase: dist
-    },
-    // plugins: [
-    //     new HtmlWebpackPlugin({
-    //         template: "index.html"
-    //     })
-    // ],
-    resolve: {
-        extensions: [".js"]
+    devServer,
+    performance: false,
+    experiments: {
+        asyncWebAssembly: true,
+        syncWebAssembly: true,
     },
     output: {
         path: dist,
         filename: "index.js",
-        // globalObject: 'this'
     },
     plugins: [
-        new CopyPlugin([
-            path.resolve(__dirname, "static")
-        ]),
-        new webpack.IgnorePlugin(/(fs)/)
+        new CopyPlugin({ 
+            patterns: [{ from: "static", to: dist }]
+        }),
     ]
 };
 
-module.exports = appConfig;
-
-
-// module.exports = [
-//     'source-map'
-// ].map(devtool => ({
-//     mode: "development",
-//     entry: {
-//         index: "./src/index.js",
-//         worker: "./src/physics.worker.js"
-//     },
-//     // module: {
-//     //     rules: [
-//     //         {
-//     //             test: /physics\.worker\.js$/,
-//     //             use: {
-//     //                 loader: 'worker-loader',
-//     //                 options: {
-//     //                     name: '[name].[hash:8].js',
-//     //                     inline: true,
-//     //                     fallback: false,
-//     //                 }
-//     //             }
-//     //         }
-//     //     ],
-//     // },
-//     output: {
-//         path: dist,
-//         filename: "[name].js",
-//         globalObject: 'this'
-//     },
-//     devServer: {
-//         contentBase: dist,
-//     },
-//     plugins: [
-//         new CopyPlugin([
-//             path.resolve(__dirname, "static")
-//         ]),
-//         new webpack.IgnorePlugin(/(fs)/)
-//     ],
-//     devtool
-// }));
+module.exports = webpackConfig;
