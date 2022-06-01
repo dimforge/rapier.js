@@ -27,7 +27,6 @@ import('@dimforge/rapier3d').then(RAPIER => {
         ['pyramid', Pyramid.initWorld],
         ['triangle mesh', Trimesh.initWorld],
     ]);
-    let worker = new Worker("worker.js");
-    let testbed = new Testbed(RAPIER, builders, worker);
+    let testbed = new Testbed(RAPIER, builders);
     testbed.run();
 })

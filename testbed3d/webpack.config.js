@@ -2,9 +2,8 @@ const webpack = require('webpack');
 const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
 
+const isDev = process.env.NODE_ENV === "development"
 const dist = path.resolve(__dirname, "dist");
-
-const mode = process.env.NODE_ENV === "development" ? "development" : "production";
 
 /**
  * @type {import('webpack-dev-server').Configuration}
@@ -21,17 +20,30 @@ const devServer = {
  * @type {import('webpack').Configuration}
  */
 const webpackConfig = {
-    mode: mode,
-    entry: "./src/index.js",
+    mode: isDev ? "development" : "production",
+    entry: "./src/index.ts",
+    devtool: 'inline-source-map',
+    output: {
+        path: dist,
+        filename: "index.js",
+    },
+    resolve: {
+        extensions: ['.ts', '.js'],
+    },
     devServer,
     performance: false,
     experiments: {
         asyncWebAssembly: true,
         syncWebAssembly: true,
     },
-    output: {
-        path: dist,
-        filename: "index.js",
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
+        ],
     },
     plugins: [
         new CopyPlugin({ 
