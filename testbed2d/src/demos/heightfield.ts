@@ -1,4 +1,8 @@
-export function initWorld(RAPIER, testbed) {
+import type { Testbed } from '../Testbed';
+
+type RAPIER_API = typeof import('@dimforge/rapier2d');
+
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector2(0.0, -9.81);
     let world = new RAPIER.World(gravity);
     let i, j;
@@ -6,29 +10,25 @@ export function initWorld(RAPIER, testbed) {
     /*
      * Ground
      */
+    let ground_size = {x: 50.0, y: 1.0};
     let nsubdivs = 100;
-    let points = [];
-    let groundSize = 30.0;
-    let stepSize = groundSize / nsubdivs;
+    let heights = [];
 
-    points.push(-groundSize / 2.0, 25.0);
+    heights.push(40.0);
     for (i = 1; i < nsubdivs; ++i) {
-        let x = -groundSize / 2.0 + i * stepSize;
-        let y = Math.cos(i * stepSize) * 2.0;
-        points.push(x, y);
+        heights.push(Math.cos(i * ground_size.x / (nsubdivs)) * 2.0);
     }
-    points.push(groundSize / 2.0, 25.0);
-    points = new Float32Array(points);
+    heights.push(40.0);
 
     let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let body = world.createRigidBody(bodyDesc);
-    let colliderDesc = RAPIER.ColliderDesc.polyline(points);
+    let colliderDesc = RAPIER.ColliderDesc.heightfield(new Float32Array(heights), ground_size);
     world.createCollider(colliderDesc, body);
 
     /*
      * Create the cubes
      */
-    let num = 10;
+    let num = 15;
     let rad = 0.5;
 
     let shift = rad * 2.0;

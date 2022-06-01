@@ -1,6 +1,9 @@
 import seedrandom from 'seedrandom'
+import type { Testbed } from '../Testbed';
 
-export function initWorld(RAPIER, testbed) {
+type RAPIER_API = typeof import('@dimforge/rapier2d');
+
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector2(0.0, -9.81);
     let world = new RAPIER.World(gravity);
 
@@ -49,9 +52,7 @@ export function initWorld(RAPIER, testbed) {
             for (k = 0; k < 10; ++k) {
                 points.push(rng() * scale, rng() * scale);
             }
-            points = new Float32Array(points);
-
-            let colliderDesc = RAPIER.ColliderDesc.convexHull(points);
+            let colliderDesc = RAPIER.ColliderDesc.convexHull(new Float32Array(points));
             world.createCollider(colliderDesc, body);
         }
     }

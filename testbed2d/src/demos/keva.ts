@@ -1,11 +1,17 @@
+
+import type * as RAPIER from '@dimforge/rapier2d';
+import type { Testbed } from '../Testbed';
+
+type RAPIER_API = typeof import('@dimforge/rapier2d');
+
 function buildBlock(
-    RAPIER,
-    world,
-    halfExtents,
-    shift,
-    numx,
-    numy,
-    numz,
+    RAPIER:RAPIER_API,
+    world: RAPIER.World,
+    halfExtents: RAPIER.Vector,
+    shift: RAPIER.Vector,
+    numx: number,
+    numy: number,
+    numz: number,
 ) {
     let halfExtents_yx = {x: halfExtents.y, y: halfExtents.x}
     let dimensions = [halfExtents, halfExtents_yx];
@@ -38,17 +44,17 @@ function buildBlock(
 }
 
 
-export function initWorld(RAPIER, testbed) {
-    let gravity = new RAPIER.Vector2(0.0, -9.81, 0.0);
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
+    let gravity = new RAPIER.Vector2(0.0, -9.81);
     let world = new RAPIER.World(gravity);
 
     // Create Ground.
     let groundSize = 150.0;
     let groundHeight = 0.1;
     let bodyDesc = RAPIER.RigidBodyDesc.fixed()
-        .setTranslation(0.0, -groundHeight, 0.0);
+        .setTranslation(0.0, -groundHeight);
     let body = world.createRigidBody(bodyDesc);
-    let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight, groundSize);
+    let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight);
     world.createCollider(colliderDesc, body);
 
     // Keva tower.

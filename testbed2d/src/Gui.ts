@@ -1,8 +1,25 @@
 import * as dat from 'dat.gui'
 import * as Stats from "stats.js";
+import type { Testbed } from './Testbed';
+
+export interface DebugInfos {
+    token: number;
+    stepId: number;
+    worldHash: string;
+    worldHashTime: number;
+    snapshotTime: number;
+}
 
 export class Gui {
-    constructor(testbed, simulationParameters) {
+    stats: Stats;
+    rapierVersion: string;
+    maxTimePanelValue: number;
+    stepTimePanel1: Stats.Panel;
+    stepTimePanel2: Stats.Panel;
+    gui: dat.GUI;
+    debugText: HTMLDivElement;
+
+    constructor(testbed: Testbed, simulationParameters: Testbed['parameters']) {
         // Timings
         this.stats = new Stats();
         this.rapierVersion = testbed.RAPIER.version();
@@ -13,7 +30,7 @@ export class Gui {
         // exist and gives the timing information.
         this.stepTimePanel1 = this.stats.addPanel(new Stats.Panel('ms (step)', '#ff8', '#221'));
         this.stepTimePanel2 = this.stats.addPanel(new Stats.Panel('ms (step)', '#ff8', '#221'));
-        this.stats.setMode(3);
+        this.stats.showPanel(3);
         document.body.appendChild(this.stats.dom);
 
         var backends = simulationParameters.backends;
@@ -32,7 +49,7 @@ export class Gui {
             .onChange(function (demo) {
                 testbed.switchToDemo(demo)
             });
-        this.velIter = this.gui.add(simulationParameters, 'numVelocityIter', 0, 20).step(1).listen();
+        this.gui.add(simulationParameters, 'numVelocityIter', 0, 20).step(1).listen();
         this.gui.add(simulationParameters, 'debugInfos').listen();
         this.gui.add(simulationParameters, 'debugRender').listen();
         this.gui.add(simulationParameters, 'running', true).listen();
@@ -65,7 +82,7 @@ export class Gui {
         document.body.appendChild(this.debugText);
     }
 
-    setDebugInfos(infos) {
+    setDebugInfos(infos: DebugInfos) {
         let text = "Version: " + this.rapierVersion;
         text += "<br/>[Step " + infos.stepId + "]";
 
@@ -75,7 +92,7 @@ export class Gui {
         this.debugText.innerHTML = text;
     }
 
-    setTiming(timing) {
+    setTiming(timing: number) {
         if (!!timing) {
             this.maxTimePanelValue = Math.max(this.maxTimePanelValue, timing);
             this.stepTimePanel1.update(timing, this.maxTimePanelValue);
