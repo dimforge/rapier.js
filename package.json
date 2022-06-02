@@ -1,5 +1,9 @@
 {
+  "scripts": {
+    "fmt": "prettier --write ."
+  },
   "devDependencies": {
+    "prettier": "^2.6.2",
     "rimraf": "3.0.2",
     "typedoc": "0.22.15",
     "typescript": "4.6.4",
