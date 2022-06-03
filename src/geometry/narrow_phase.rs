@@ -52,8 +52,10 @@ impl RawNarrowPhase {
         }
     }
 
-    pub fn intersection_pair(&self, handle1: u32, handle2: u32) -> bool {
-        self.0.intersection_pair_unknown_gen(handle1, handle2) == Some(true)
+    pub fn intersection_pair(&self, handle1: FlatHandle, handle2: FlatHandle) -> bool {
+        let handle1 = utils::collider_handle(handle1);
+        let handle2 = utils::collider_handle(handle2);
+        self.0.intersection_pair(handle1, handle2) == Some(true)
     }
 }
 
