@@ -1,3 +1,13 @@
+### 0.8.1 (2022-04-06)
+
+Starting with this release, all the examples in `testbed2d` and `testbed3d` have been updated to `webpack 5`,
+and are written in Typescript. In addition, canary `0.0.0` releases will be generated automatically after each merge
+to the `master` branch.
+
+#### Fixed
+
+-   Fix bug causing `World.intersectionPair` to always return `false`.
+
 ### 0.8.0 (2022-03-31)
 
 #### Breaking changes

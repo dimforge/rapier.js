@@ -166,7 +166,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
  "bincode",
  "crossbeam-channel 0.4.4",
@@ -181,7 +181,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
  "bincode",
  "crossbeam-channel 0.4.4",
