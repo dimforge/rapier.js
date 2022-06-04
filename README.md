@@ -17,11 +17,11 @@
         <a href="https://rapier.rs">Website</a> | <a href="https://rapier.rs/docs/">Documentation</a>
 </p>
 
------
+---
 
 <p align = "center">
 <b>2D and 3D physics engines</b>
 <i>for the JavaScript programming language (official bindings).</i>
 </p>
 
------
+---

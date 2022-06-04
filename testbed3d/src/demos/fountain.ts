@@ -1,6 +1,6 @@
-import type { Testbed } from '../Testbed';
+import type {Testbed} from "../Testbed";
 
-type RAPIER_API = typeof import('@dimforge/rapier3d')
+type RAPIER_API = typeof import("@dimforge/rapier3d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
@@ -18,7 +18,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let j = 0;
     let spawn_interval = 5;
 
-    let spawnBodies = (graphics: Testbed['graphics']) => {
+    let spawnBodies = (graphics: Testbed["graphics"]) => {
         j += 1;
         if (j % spawn_interval != 0) {
             return;
@@ -31,20 +31,20 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
         switch ((j / spawn_interval) % 4) {
             case 0:
-                colliderDesc
-                    = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+                colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
                 break;
             case 1:
-                colliderDesc
-                    = RAPIER.ColliderDesc.ball(rad);
+                colliderDesc = RAPIER.ColliderDesc.ball(rad);
                 break;
             case 2:
-                colliderDesc
-                    = RAPIER.ColliderDesc.roundCylinder(rad, rad, rad / 10.0);
+                colliderDesc = RAPIER.ColliderDesc.roundCylinder(
+                    rad,
+                    rad,
+                    rad / 10.0,
+                );
                 break;
             case 3:
-                colliderDesc
-                    = RAPIER.ColliderDesc.cone(rad, rad);
+                colliderDesc = RAPIER.ColliderDesc.cone(rad, rad);
                 break;
         }
 
@@ -61,14 +61,18 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
             graphics.removeRigidBody(rb);
             removableBodies.shift();
         }
-    }
+    };
 
     testbed.setWorld(world);
     testbed.setpreTimestepAction(spawnBodies);
 
     let cameraPosition = {
-        eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},
-        target: {x: 0.0, y: 10.0, z: 0.0}
+        eye: {
+            x: -88.48024008669711,
+            y: 46.911325612198354,
+            z: 83.56055570254844,
+        },
+        target: {x: 0.0, y: 10.0, z: 0.0},
     };
-    testbed.lookAt(cameraPosition)
+    testbed.lookAt(cameraPosition);
 }

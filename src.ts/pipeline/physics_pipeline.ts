@@ -1,12 +1,25 @@
 import {RawPhysicsPipeline} from "../raw";
 import {Vector, VectorOps} from "../math";
-import {IntegrationParameters, ImpulseJointSet, MultibodyJointSet, RigidBodyHandle, RigidBodySet, CCDSolver, IslandManager} from "../dynamics";
-import {BroadPhase, ColliderHandle, ColliderSet, NarrowPhase} from "../geometry";
+import {
+    IntegrationParameters,
+    ImpulseJointSet,
+    MultibodyJointSet,
+    RigidBodyHandle,
+    RigidBodySet,
+    CCDSolver,
+    IslandManager,
+} from "../dynamics";
+import {
+    BroadPhase,
+    ColliderHandle,
+    ColliderSet,
+    NarrowPhase,
+} from "../geometry";
 import {EventQueue} from "./event_queue";
 import {PhysicsHooks} from "./physics_hooks";
 
 export class PhysicsPipeline {
-    raw: RawPhysicsPipeline
+    raw: RawPhysicsPipeline;
 
     public free() {
         this.raw.free();
@@ -62,7 +75,7 @@ export class PhysicsPipeline {
                 impulseJoints.raw,
                 multibodyJoints.raw,
                 ccdSolver.raw,
-            )
+            );
         }
 
         rawG.free();

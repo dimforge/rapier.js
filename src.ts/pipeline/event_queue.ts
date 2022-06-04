@@ -1,6 +1,6 @@
-import { RawEventQueue } from '../raw'
-import { RigidBodyHandle } from '../dynamics'
-import {Collider, ColliderHandle} from '../geometry'
+import {RawEventQueue} from "../raw";
+import {RigidBodyHandle} from "../dynamics";
+import {Collider, ColliderHandle} from "../geometry";
 
 /// Flags indicating what events are enabled for colliders.
 export enum ActiveEvents {
@@ -16,7 +16,7 @@ export enum ActiveEvents {
  * once you are done using it.
  */
 export class EventQueue {
-    raw: RawEventQueue
+    raw: RawEventQueue;
 
     /**
      * Creates a new event collector.
@@ -47,8 +47,14 @@ export class EventQueue {
      * involved in the collision, and a boolean indicating if the collision started (true) or stopped
      * (false).
      */
-    public drainCollisionEvents(f: (handle1: ColliderHandle, handle2: ColliderHandle, started: boolean) => void) {
-        this.raw.drainCollisionEvents(f)
+    public drainCollisionEvents(
+        f: (
+            handle1: ColliderHandle,
+            handle2: ColliderHandle,
+            started: boolean,
+        ) => void,
+    ) {
+        this.raw.drainCollisionEvents(f);
     }
 
     /**

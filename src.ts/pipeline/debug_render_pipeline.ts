@@ -1,10 +1,13 @@
-import {
-    RawDebugRenderPipeline,
-} from "../raw";
+import {RawDebugRenderPipeline} from "../raw";
 import {Vector, VectorOps} from "../math";
-import {IntegrationParameters, IslandManager, ImpulseJointSet, MultibodyJointSet, RigidBodySet} from "../dynamics";
+import {
+    IntegrationParameters,
+    IslandManager,
+    ImpulseJointSet,
+    MultibodyJointSet,
+    RigidBodySet,
+} from "../dynamics";
 import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
-
 
 /**
  * The vertex and color buffers for debug-redering the physics scene.
@@ -17,19 +20,18 @@ export class DebugRenderBuffers {
      * floats. For example, in 2D, the array: `[1, 2, 3, 4, 5, 6, 7, 8]`
      * describes the two segments `[[1, 2], [3, 4]]` and `[[5, 6], [7, 8]]`.
      */
-    public vertices: Float32Array
+    public vertices: Float32Array;
     /**
      * The color buffer. There is one color per vertex, and each color
      * has four consecutive components (in RGBA format).
      */
-    public colors: Float32Array
+    public colors: Float32Array;
 
     constructor(vertices: Float32Array, colors: Float32Array) {
         this.vertices = vertices;
         this.colors = colors;
     }
 }
-
 
 /**
  * A pipeline for rendering the physics scene.
@@ -38,9 +40,9 @@ export class DebugRenderBuffers {
  * once you are done using it (and all the rigid-bodies it created).
  */
 export class DebugRenderPipeline {
-    raw: RawDebugRenderPipeline
-    public vertices: Float32Array
-    public colors: Float32Array
+    raw: RawDebugRenderPipeline;
+    public vertices: Float32Array;
+    public colors: Float32Array;
 
     /**
      * Release the WASM memory occupied by this serialization pipeline.
@@ -56,8 +58,20 @@ export class DebugRenderPipeline {
         this.raw = raw || new RawDebugRenderPipeline();
     }
 
-    public render(bodies: RigidBodySet, colliders: ColliderSet, impulse_joints: ImpulseJointSet, multibody_joints: MultibodyJointSet, narrow_phase: NarrowPhase) {
-        this.raw.render(bodies.raw, colliders.raw, impulse_joints.raw, multibody_joints.raw, narrow_phase.raw);
+    public render(
+        bodies: RigidBodySet,
+        colliders: ColliderSet,
+        impulse_joints: ImpulseJointSet,
+        multibody_joints: MultibodyJointSet,
+        narrow_phase: NarrowPhase,
+    ) {
+        this.raw.render(
+            bodies.raw,
+            colliders.raw,
+            impulse_joints.raw,
+            multibody_joints.raw,
+            narrow_phase.raw,
+        );
         this.vertices = this.raw.vertices();
         this.colors = this.raw.colors();
     }

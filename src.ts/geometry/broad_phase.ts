@@ -1,4 +1,4 @@
-import {RawBroadPhase} from "../raw"
+import {RawBroadPhase} from "../raw";
 
 /**
  * The broad-phase used for coarse collision-detection.

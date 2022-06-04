@@ -1,6 +1,6 @@
-import type { Testbed } from '../Testbed';
+import type {Testbed} from "../Testbed";
 
-type RAPIER_API = typeof import('@dimforge/rapier2d');
+type RAPIER_API = typeof import("@dimforge/rapier2d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector2(0.0, -9.81);
@@ -12,8 +12,10 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let ground_size = 5.0;
     let ground_height = 0.1;
 
-    let groundBodyDesc = RAPIER.RigidBodyDesc.fixed()
-        .setTranslation(0.0, -ground_height);
+    let groundBodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(
+        0.0,
+        -ground_height,
+    );
     let groundBody = world.createRigidBody(groundBodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(ground_size, ground_height);
     world.createCollider(colliderDesc, groundBody);
@@ -57,12 +59,14 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
             let y = j * shift + centery;
 
             // Alternate between the green and blue groups.
-            let group = (i % 2 == 0) ? group1 : group2;
+            let group = i % 2 == 0 ? group1 : group2;
 
             let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
             let body = world.createRigidBody(bodyDesc);
-            let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad)
-                .setCollisionGroups(group);
+            let colliderDesc = RAPIER.ColliderDesc.cuboid(
+                rad,
+                rad,
+            ).setCollisionGroups(group);
             world.createCollider(colliderDesc, body);
         }
     }
@@ -70,6 +74,6 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
     testbed.lookAt({
         target: {x: 0.0, y: -1.0},
-        zoom: 100.0
+        zoom: 100.0,
     });
 }

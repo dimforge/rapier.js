@@ -1,7 +1,7 @@
 import {RawIntegrationParameters} from "../raw";
 
 export class IntegrationParameters {
-    raw: RawIntegrationParameters
+    raw: RawIntegrationParameters;
 
     constructor(raw?: RawIntegrationParameters) {
         this.raw = raw || new RawIntegrationParameters();
@@ -78,7 +78,6 @@ export class IntegrationParameters {
     get maxCcdSubsteps(): number {
         return this.raw.maxCcdSubsteps;
     }
-
 
     set dt(value: number) {
         this.raw.dt = value;

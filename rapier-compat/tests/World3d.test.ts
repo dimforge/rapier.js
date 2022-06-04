@@ -1,23 +1,23 @@
-import { init, Vector3, World } from "../pkg3d";
+import {init, Vector3, World} from "../pkg3d";
 
 describe("3d/World", () => {
-  let world: World;
+    let world: World;
 
-  beforeAll(init);
+    beforeAll(init);
 
-  afterAll(async () => {
-    await Promise.resolve();
-  });
+    afterAll(async () => {
+        await Promise.resolve();
+    });
 
-  beforeEach(() => {
-    world = new World(new Vector3(0, 9.8, 0));
-  });
+    beforeEach(() => {
+        world = new World(new Vector3(0, 9.8, 0));
+    });
 
-  afterEach(() => {
-    world.free();
-  });
+    afterEach(() => {
+        world.free();
+    });
 
-  test("constructor", () => {
-    expect(world.colliders.len()).toBe(0);
-  });
+    test("constructor", () => {
+        expect(world.colliders.len()).toBe(0);
+    });
 });

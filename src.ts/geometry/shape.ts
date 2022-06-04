@@ -1,9 +1,9 @@
-import { Vector, VectorOps, Rotation, RotationOps } from "../math"
+import {Vector, VectorOps, Rotation, RotationOps} from "../math";
 import {RawColliderSet, RawShape} from "../raw";
-import { ShapeContact } from "./contact";
-import { PointProjection } from "./point";
-import { Ray, RayIntersection } from "./ray";
-import { ShapeTOI } from "./toi";
+import {ShapeContact} from "./contact";
+import {PointProjection} from "./point";
+import {Ray, RayIntersection} from "./ray";
+import {ShapeTOI} from "./toi";
 import {ColliderHandle} from "./collider";
 
 export abstract class Shape {
@@ -14,11 +14,13 @@ export abstract class Shape {
      */
     public abstract get type(): ShapeType;
 
-
     /**
      * instant mode without cache
      */
-    public static fromRaw(rawSet: RawColliderSet, handle: ColliderHandle): Shape {
+    public static fromRaw(
+        rawSet: RawColliderSet,
+        handle: ColliderHandle,
+    ): Shape {
         const rawType = rawSet.coShapeType(handle);
 
         let extents: Vector;
@@ -39,7 +41,7 @@ export abstract class Shape {
 
                 // #if DIM3
                 return new Cuboid(extents.x, extents.y, extents.z);
-                // #endif
+            // #endif
 
             case ShapeType.RoundCuboid:
                 extents = rawSet.coHalfExtents(handle);
@@ -50,8 +52,13 @@ export abstract class Shape {
                 // #endif
 
                 // #if DIM3
-                return new RoundCuboid(extents.x, extents.y, extents.z, borderRadius);
-                // #endif
+                return new RoundCuboid(
+                    extents.x,
+                    extents.y,
+                    extents.z,
+                    borderRadius,
+                );
+            // #endif
 
             case ShapeType.Capsule:
                 halfHeight = rawSet.coHalfHeight(handle);
@@ -61,12 +68,18 @@ export abstract class Shape {
                 vs = rawSet.coVertices(handle);
 
                 // #if DIM2
-                return new Segment(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]));
+                return new Segment(
+                    VectorOps.new(vs[0], vs[1]),
+                    VectorOps.new(vs[2], vs[3]),
+                );
                 // #endif
 
                 // #if DIM3
-                return new Segment(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]));
-                // #endif
+                return new Segment(
+                    VectorOps.new(vs[0], vs[1], vs[2]),
+                    VectorOps.new(vs[3], vs[4], vs[5]),
+                );
+            // #endif
 
             case ShapeType.Polyline:
                 vs = rawSet.coVertices(handle);
@@ -76,24 +89,42 @@ export abstract class Shape {
                 vs = rawSet.coVertices(handle);
 
                 // #if DIM2
-                return new Triangle(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]), VectorOps.new(vs[4], vs[5]));
+                return new Triangle(
+                    VectorOps.new(vs[0], vs[1]),
+                    VectorOps.new(vs[2], vs[3]),
+                    VectorOps.new(vs[4], vs[5]),
+                );
                 // #endif
 
                 // #if DIM3
-                return new Triangle(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]), VectorOps.new(vs[6], vs[7], vs[8]));
-                // #endif
+                return new Triangle(
+                    VectorOps.new(vs[0], vs[1], vs[2]),
+                    VectorOps.new(vs[3], vs[4], vs[5]),
+                    VectorOps.new(vs[6], vs[7], vs[8]),
+                );
+            // #endif
 
             case ShapeType.RoundTriangle:
                 vs = rawSet.coVertices(handle);
                 borderRadius = rawSet.coRoundRadius(handle);
 
                 // #if DIM2
-                return new RoundTriangle(VectorOps.new(vs[0], vs[1]), VectorOps.new(vs[2], vs[3]), VectorOps.new(vs[4], vs[5]), borderRadius);
+                return new RoundTriangle(
+                    VectorOps.new(vs[0], vs[1]),
+                    VectorOps.new(vs[2], vs[3]),
+                    VectorOps.new(vs[4], vs[5]),
+                    borderRadius,
+                );
                 // #endif
 
                 // #if DIM3
-                return new RoundTriangle(VectorOps.new(vs[0], vs[1], vs[2]), VectorOps.new(vs[3], vs[4], vs[5]), VectorOps.new(vs[6], vs[7], vs[8]), borderRadius);
-                // #endif
+                return new RoundTriangle(
+                    VectorOps.new(vs[0], vs[1], vs[2]),
+                    VectorOps.new(vs[3], vs[4], vs[5]),
+                    VectorOps.new(vs[6], vs[7], vs[8]),
+                    borderRadius,
+                );
+            // #endif
 
             case ShapeType.TriMesh:
                 vs = rawSet.coVertices(handle);
@@ -112,7 +143,7 @@ export abstract class Shape {
                 const nrows = rawSet.coHeightfieldNRows(handle);
                 const ncols = rawSet.coHeightfieldNCols(handle);
                 return new Heightfield(nrows, ncols, heights, scale);
-                // #endif
+            // #endif
 
             // #if DIM2
             case ShapeType.ConvexPolygon:
@@ -181,7 +212,7 @@ export abstract class Shape {
         shapePos2: Vector,
         shapeRot2: Rotation,
         shapeVel2: Vector,
-        maxToi: number
+        maxToi: number,
     ): ShapeTOI | null {
         let rawPos1 = VectorOps.intoRaw(shapePos1);
         let rawRot1 = RotationOps.intoRaw(shapeRot1);
@@ -193,16 +224,19 @@ export abstract class Shape {
         let rawShape1 = this.intoRaw();
         let rawShape2 = shape2.intoRaw();
 
-        let result = ShapeTOI.fromRaw(null, rawShape1.castShape(
-            rawPos1,
-            rawRot1,
-            rawVel1,
-            rawShape2,
-            rawPos2,
-            rawRot2,
-            rawVel2,
-            maxToi
-        ));
+        let result = ShapeTOI.fromRaw(
+            null,
+            rawShape1.castShape(
+                rawPos1,
+                rawRot1,
+                rawVel1,
+                rawShape2,
+                rawPos2,
+                rawRot2,
+                rawVel2,
+                maxToi,
+            ),
+        );
 
         rawPos1.free();
         rawRot1.free();
@@ -219,7 +253,7 @@ export abstract class Shape {
 
     /**
      * Tests if this shape intersects another shape.
-     * 
+     *
      * @param shapePos1 - The position of this shape.
      * @param shapeRot1 - The rotation of this shape.
      * @param shape2  - The second shape to test.
@@ -232,7 +266,7 @@ export abstract class Shape {
         shapeRot1: Rotation,
         shape2: Shape,
         shapePos2: Vector,
-        shapeRot2: Rotation
+        shapeRot2: Rotation,
     ): boolean {
         let rawPos1 = VectorOps.intoRaw(shapePos1);
         let rawRot1 = RotationOps.intoRaw(shapeRot1);
@@ -247,7 +281,7 @@ export abstract class Shape {
             rawRot1,
             rawShape2,
             rawPos2,
-            rawRot2
+            rawRot2,
         );
 
         rawPos1.free();
@@ -272,7 +306,14 @@ export abstract class Shape {
      * @param prediction - The prediction value, if the shapes are separated by a distance greater than this value, test will fail.
      * @returns `null` if the shapes are separated by a distance greater than prediction, otherwise contact details. The result is given in world-space.
      */
-    contactShape(shapePos1: Vector, shapeRot1: Rotation, shape2: Shape, shapePos2: Vector, shapeRot2: Rotation, prediction: number): ShapeContact | null {
+    contactShape(
+        shapePos1: Vector,
+        shapeRot1: Rotation,
+        shape2: Shape,
+        shapePos2: Vector,
+        shapeRot2: Rotation,
+        prediction: number,
+    ): ShapeContact | null {
         let rawPos1 = VectorOps.intoRaw(shapePos1);
         let rawRot1 = RotationOps.intoRaw(shapeRot1);
         let rawPos2 = VectorOps.intoRaw(shapePos2);
@@ -281,14 +322,16 @@ export abstract class Shape {
         let rawShape1 = this.intoRaw();
         let rawShape2 = shape2.intoRaw();
 
-        let result = ShapeContact.fromRaw(rawShape1.contactShape(
-            rawPos1,
-            rawRot1,
-            rawShape2,
-            rawPos2,
-            rawRot2,
-            prediction
-        ));
+        let result = ShapeContact.fromRaw(
+            rawShape1.contactShape(
+                rawPos1,
+                rawRot1,
+                rawShape2,
+                rawPos2,
+                rawRot2,
+                prediction,
+            ),
+        );
 
         rawPos1.free();
         rawRot1.free();
@@ -311,11 +354,7 @@ export abstract class Shape {
         let rawPoint = VectorOps.intoRaw(point);
         let rawShape = this.intoRaw();
 
-        let result = rawShape.containsPoint(
-            rawPos,
-            rawRot,
-            rawPoint
-        );
+        let result = rawShape.containsPoint(rawPos, rawRot, rawPoint);
 
         rawPos.free();
         rawRot.free();
@@ -329,19 +368,16 @@ export abstract class Shape {
         shapePos: Vector,
         shapeRot: Rotation,
         point: Vector,
-        solid: boolean
+        solid: boolean,
     ): PointProjection {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawPoint = VectorOps.intoRaw(point);
         let rawShape = this.intoRaw();
 
-        let result = PointProjection.fromRaw(rawShape.projectPoint(
-            rawPos,
-            rawRot,
-            rawPoint,
-            solid
-        ));
+        let result = PointProjection.fromRaw(
+            rawShape.projectPoint(rawPos, rawRot, rawPoint, solid),
+        );
 
         rawPos.free();
         rawRot.free();
@@ -368,7 +404,7 @@ export abstract class Shape {
             rawRot,
             rawRayOrig,
             rawRayDir,
-            maxToi
+            maxToi,
         );
 
         rawPos.free();
@@ -385,7 +421,7 @@ export abstract class Shape {
         shapePos: Vector,
         shapeRot: Rotation,
         maxToi: number,
-        solid: boolean
+        solid: boolean,
     ): number {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
@@ -399,7 +435,7 @@ export abstract class Shape {
             rawRayOrig,
             rawRayDir,
             maxToi,
-            solid
+            solid,
         );
 
         rawPos.free();
@@ -424,14 +460,16 @@ export abstract class Shape {
         let rawRayDir = VectorOps.intoRaw(ray.dir);
         let rawShape = this.intoRaw();
 
-        let result = RayIntersection.fromRaw(rawShape.castRayAndGetNormal(
-            rawPos,
-            rawRot,
-            rawRayOrig,
-            rawRayDir,
-            maxToi,
-            solid
-        ));
+        let result = RayIntersection.fromRaw(
+            rawShape.castRayAndGetNormal(
+                rawPos,
+                rawRot,
+                rawRayOrig,
+                rawRayDir,
+                maxToi,
+                solid,
+            ),
+        );
 
         rawPos.free();
         rawRot.free();
@@ -560,11 +598,14 @@ export class Cuboid extends Shape {
         // #endif
 
         // #if DIM3
-        return RawShape.cuboid(this.halfExtents.x, this.halfExtents.y, this.halfExtents.z);
+        return RawShape.cuboid(
+            this.halfExtents.x,
+            this.halfExtents.y,
+            this.halfExtents.z,
+        );
         // #endif
     }
 }
-
 
 /**
  * A shape that is a box in 3D and a rectangle in 2D, with round corners.
@@ -617,11 +658,20 @@ export class RoundCuboid extends Shape {
 
     public intoRaw(): RawShape {
         // #if DIM2
-        return RawShape.roundCuboid(this.halfExtents.x, this.halfExtents.y, this.borderRadius);
+        return RawShape.roundCuboid(
+            this.halfExtents.x,
+            this.halfExtents.y,
+            this.borderRadius,
+        );
         // #endif
 
         // #if DIM3
-        return RawShape.roundCuboid(this.halfExtents.x, this.halfExtents.y, this.halfExtents.z, this.borderRadius);
+        return RawShape.roundCuboid(
+            this.halfExtents.x,
+            this.halfExtents.y,
+            this.halfExtents.z,
+            this.borderRadius,
+        );
         // #endif
     }
 }
@@ -741,7 +791,6 @@ export class Triangle extends Shape {
         return result;
     }
 }
-
 
 /**
  * A shape that is a triangle with round borders and a non-zero thickness.
@@ -866,7 +915,6 @@ export class TriMesh extends Shape {
     }
 }
 
-
 // #if DIM2
 /**
  * A shape that is a convex polygon.
@@ -937,7 +985,11 @@ export class RoundConvexPolygon extends Shape {
      *   be assumed to form a convex polyline and no convex-hull computation will
      *   be done automatically.
      */
-    constructor(vertices: Float32Array, borderRadius: number, skipConvexHullComputation: boolean) {
+    constructor(
+        vertices: Float32Array,
+        borderRadius: number,
+        skipConvexHullComputation: boolean,
+    ) {
         super();
         this.vertices = vertices;
         this.borderRadius = borderRadius;
@@ -946,7 +998,10 @@ export class RoundConvexPolygon extends Shape {
 
     public intoRaw(): RawShape {
         if (this.skipConvexHullComputation) {
-            return RawShape.roundConvexPolyline(this.vertices, this.borderRadius);
+            return RawShape.roundConvexPolyline(
+                this.vertices,
+                this.borderRadius,
+            );
         } else {
             return RawShape.roundConvexHull(this.vertices, this.borderRadius);
         }
@@ -991,7 +1046,6 @@ export class Heightfield extends Shape {
 
 // #endif
 
-
 // #if DIM3
 /**
  * A shape that is a convex polygon.
@@ -1033,7 +1087,6 @@ export class ConvexPolyhedron extends Shape {
     }
 }
 
-
 /**
  * A shape that is a convex polygon.
  */
@@ -1065,7 +1118,11 @@ export class RoundConvexPolyhedron extends Shape {
      *   is already convex.
      * @param borderRadius - The radius of the borders of this convex polyhedron.
      */
-    constructor(vertices: Float32Array, indices: Uint32Array | null | undefined, borderRadius: number) {
+    constructor(
+        vertices: Float32Array,
+        indices: Uint32Array | null | undefined,
+        borderRadius: number,
+    ) {
         super();
         this.vertices = vertices;
         this.indices = indices;
@@ -1074,7 +1131,11 @@ export class RoundConvexPolyhedron extends Shape {
 
     public intoRaw(): RawShape {
         if (!!this.indices) {
-            return RawShape.roundConvexMesh(this.vertices, this.indices, this.borderRadius);
+            return RawShape.roundConvexMesh(
+                this.vertices,
+                this.indices,
+                this.borderRadius,
+            );
         } else {
             return RawShape.roundConvexHull(this.vertices, this.borderRadius);
         }
@@ -1117,7 +1178,12 @@ export class Heightfield extends Shape {
      *                  provided as a matrix stored in column-major order.
      * @param scale - The dimensions of the heightfield's local `x,z` plane.
      */
-    constructor(nrows: number, ncols: number, heights: Float32Array, scale: Vector) {
+    constructor(
+        nrows: number,
+        ncols: number,
+        heights: Float32Array,
+        scale: Vector,
+    ) {
         super();
         this.nrows = nrows;
         this.ncols = ncols;
@@ -1127,7 +1193,12 @@ export class Heightfield extends Shape {
 
     public intoRaw(): RawShape {
         let rawScale = VectorOps.intoRaw(this.scale);
-        let rawShape = RawShape.heightfield(this.nrows, this.ncols, this.heights, rawScale);
+        let rawShape = RawShape.heightfield(
+            this.nrows,
+            this.ncols,
+            this.heights,
+            rawScale,
+        );
         rawScale.free();
         return rawShape;
     }
@@ -1165,7 +1236,6 @@ export class Cylinder extends Shape {
     }
 }
 
-
 /**
  * A shape that is a 3D cylinder with round corners.
  */
@@ -1201,7 +1271,11 @@ export class RoundCylinder extends Shape {
     }
 
     public intoRaw(): RawShape {
-        return RawShape.roundCylinder(this.halfHeight, this.radius, this.borderRadius);
+        return RawShape.roundCylinder(
+            this.halfHeight,
+            this.radius,
+            this.borderRadius,
+        );
     }
 }
 
@@ -1272,7 +1346,11 @@ export class RoundCone extends Shape {
     }
 
     public intoRaw(): RawShape {
-        return RawShape.roundCone(this.halfHeight, this.radius, this.borderRadius);
+        return RawShape.roundCone(
+            this.halfHeight,
+            this.radius,
+            this.borderRadius,
+        );
     }
 }
 

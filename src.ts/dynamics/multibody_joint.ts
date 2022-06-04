@@ -5,12 +5,12 @@ import {
     JointType,
     MotorModel,
     PrismaticImpulseJoint,
-    RevoluteImpulseJoint
+    RevoluteImpulseJoint,
 } from "./impulse_joint";
 
 // #if DIM3
 import {Quaternion} from "../math";
-import { SphericalImpulseJoint } from "./impulse_joint";
+import {SphericalImpulseJoint} from "./impulse_joint";
 // #endif
 
 /**
@@ -27,7 +27,10 @@ export class MultibodyJoint {
         this.handle = handle;
     }
 
-    public static newTyped(rawSet: RawMultibodyJointSet, handle: MultibodyJointHandle): MultibodyJoint {
+    public static newTyped(
+        rawSet: RawMultibodyJointSet,
+        handle: MultibodyJointHandle,
+    ): MultibodyJoint {
         switch (rawSet.jointType(handle)) {
             case JointType.Revolute:
                 return new RevoluteMultibodyJoint(rawSet, handle);
@@ -114,7 +117,6 @@ export class MultibodyJoint {
     // }
 }
 
-
 export class UnitMultibodyJoint extends MultibodyJoint {
     /**
      * The axis left free by this joint.
@@ -159,8 +161,7 @@ export class UnitMultibodyJoint extends MultibodyJoint {
     // }
 }
 
-export class FixedMultibodyJoint extends MultibodyJoint {
-}
+export class FixedMultibodyJoint extends MultibodyJoint {}
 
 export class PrismaticMultibodyJoint extends UnitMultibodyJoint {
     public rawAxis(): RawJointAxis {
@@ -198,4 +199,3 @@ export class SphericalMultibodyJoint extends MultibodyJoint {
      */
 }
 // #endif
-

@@ -1,5 +1,5 @@
-import {RawImpulseJointSet} from "../raw"
-import {Coarena} from "../coarena"
+import {RawImpulseJointSet} from "../raw";
+import {Coarena} from "../coarena";
 import {RigidBodySet} from "./rigid_body_set";
 import {
     RevoluteImpulseJoint,
@@ -10,7 +10,7 @@ import {
     JointType,
     PrismaticImpulseJoint,
     // #if DIM3
-    SphericalImpulseJoint
+    SphericalImpulseJoint,
     // #endif
 } from "./impulse_joint";
 import {IslandManager} from "./island_manager";
@@ -50,7 +50,7 @@ export class ImpulseJointSet {
 
     /** @internal */
     public finalizeDeserialization(bodies: RigidBodySet) {
-        this.map.forEach(joint => joint.finalizeDeserialization(bodies));
+        this.map.forEach((joint) => joint.finalizeDeserialization(bodies));
     }
 
     /**
@@ -70,7 +70,12 @@ export class ImpulseJointSet {
         wakeUp: boolean,
     ): ImpulseJoint {
         const rawParams = desc.intoRaw();
-        const handle = this.raw.createJoint(rawParams, parent1, parent2, wakeUp);
+        const handle = this.raw.createJoint(
+            rawParams,
+            parent1,
+            parent2,
+            wakeUp,
+        );
         rawParams.free();
         let joint = ImpulseJoint.newTyped(this.raw, bodies, handle);
         this.map.set(handle, joint);
@@ -93,7 +98,10 @@ export class ImpulseJointSet {
      *
      * @param f - The closure called with the integer handle of each impulse joint attached to the rigid-body.
      */
-    public forEachJointHandleAttachedToRigidBody(handle: RigidBodyHandle, f: (handle: ImpulseJointHandle) => void) {
+    public forEachJointHandleAttachedToRigidBody(
+        handle: RigidBodyHandle,
+        f: (handle: ImpulseJointHandle) => void,
+    ) {
         this.raw.forEachJointAttachedToRigidBody(handle, f);
     }
 

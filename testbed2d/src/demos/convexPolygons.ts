@@ -1,7 +1,7 @@
-import seedrandom from 'seedrandom'
-import type { Testbed } from '../Testbed';
+import seedrandom from "seedrandom";
+import type {Testbed} from "../Testbed";
 
-type RAPIER_API = typeof import('@dimforge/rapier2d');
+type RAPIER_API = typeof import("@dimforge/rapier2d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector2(0.0, -9.81);
@@ -18,9 +18,11 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
         {x: groundSize, y: groundSize, hx: 1.2, hy: groundSize},
     ];
 
-    grounds.forEach(ground => {
-        let bodyDesc = RAPIER.RigidBodyDesc.fixed()
-            .setTranslation(ground.x, ground.y);
+    grounds.forEach((ground) => {
+        let bodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(
+            ground.x,
+            ground.y,
+        );
         let body = world.createRigidBody(bodyDesc);
         let colliderDesc = RAPIER.ColliderDesc.cuboid(ground.hx, ground.hy);
         world.createCollider(colliderDesc, body);
@@ -33,12 +35,11 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let scale = 4.0;
 
     let shift = scale;
-    let centerx = shift * num / 2.0;
+    let centerx = (shift * num) / 2.0;
     let centery = shift / 2.0;
 
     let i, j, k;
-    let rng = seedrandom('convexPolygon');
-
+    let rng = seedrandom("convexPolygon");
 
     for (i = 0; i < num; ++i) {
         for (j = 0; j < num * 2; ++j) {
@@ -52,7 +53,9 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
             for (k = 0; k < 10; ++k) {
                 points.push(rng() * scale, rng() * scale);
             }
-            let colliderDesc = RAPIER.ColliderDesc.convexHull(new Float32Array(points));
+            let colliderDesc = RAPIER.ColliderDesc.convexHull(
+                new Float32Array(points),
+            );
             world.createCollider(colliderDesc, body);
         }
     }
@@ -60,6 +63,6 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
     testbed.lookAt({
         target: {x: -10.0, y: -30.0},
-        zoom: 7.0
+        zoom: 7.0,
     });
 }

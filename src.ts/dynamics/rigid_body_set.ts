@@ -1,11 +1,11 @@
-import { RawRigidBodySet } from "../raw"
-import { Coarena } from "../coarena"
-import { VectorOps, RotationOps } from '../math';
-import { RigidBody, RigidBodyDesc, RigidBodyHandle } from './rigid_body'
-import { ColliderSet } from "../geometry";
-import { ImpulseJointSet } from "./impulse_joint_set";
-import { MultibodyJointSet } from "./multibody_joint_set";
-import { IslandManager } from "./island_manager";
+import {RawRigidBodySet} from "../raw";
+import {Coarena} from "../coarena";
+import {VectorOps, RotationOps} from "../math";
+import {RigidBody, RigidBodyDesc, RigidBodyHandle} from "./rigid_body";
+import {ColliderSet} from "../geometry";
+import {ImpulseJointSet} from "./impulse_joint_set";
+import {MultibodyJointSet} from "./multibody_joint_set";
+import {IslandManager} from "./island_manager";
 
 /**
  * A set of rigid bodies that can be handled by a physics pipeline.
@@ -42,16 +42,18 @@ export class RigidBodySet {
      * Internal method, do not call this explicitly.
      */
     public finalizeDeserialization(colliderSet: ColliderSet) {
-        this.map.forEach(rb => rb.finalizeDeserialization(colliderSet));
+        this.map.forEach((rb) => rb.finalizeDeserialization(colliderSet));
     }
-
 
     /**
      * Creates a new rigid-body and return its integer handle.
      *
      * @param desc - The description of the rigid-body to create.
      */
-    public createRigidBody(colliderSet: ColliderSet, desc: RigidBodyDesc): RigidBody {
+    public createRigidBody(
+        colliderSet: ColliderSet,
+        desc: RigidBodyDesc,
+    ): RigidBody {
         let rawTra = VectorOps.intoRaw(desc.translation);
         let rawRot = RotationOps.intoRaw(desc.rotation);
         let rawLv = VectorOps.intoRaw(desc.linvel);
@@ -59,8 +61,12 @@ export class RigidBodySet {
 
         // #if DIM3
         let rawAv = VectorOps.intoRaw(desc.angvel);
-        let rawPrincipalInertia = VectorOps.intoRaw(desc.principalAngularInertia);
-        let rawInertiaFrame = RotationOps.intoRaw(desc.angularInertiaLocalFrame);
+        let rawPrincipalInertia = VectorOps.intoRaw(
+            desc.principalAngularInertia,
+        );
+        let rawInertiaFrame = RotationOps.intoRaw(
+            desc.angularInertiaLocalFrame,
+        );
         // #endif
 
         let handle = this.raw.createRigidBody(
@@ -110,7 +116,7 @@ export class RigidBodySet {
 
         const body = new RigidBody(this.raw, colliderSet, handle);
         body.userData = desc.userData;
-        
+
         this.map.set(handle, body);
 
         return body;
@@ -126,17 +132,34 @@ export class RigidBodySet {
      * @param impulseJoints - The set of impulse joints that may contain joints attached to the removed rigid-body.
      * @param multibodyJoints - The set of multibody joints that may contain joints attached to the removed rigid-body.
      */
-    public remove(handle: RigidBodyHandle, islands: IslandManager, colliders: ColliderSet, impulseJoints: ImpulseJointSet, multibodyJoints: MultibodyJointSet) {
+    public remove(
+        handle: RigidBodyHandle,
+        islands: IslandManager,
+        colliders: ColliderSet,
+        impulseJoints: ImpulseJointSet,
+        multibodyJoints: MultibodyJointSet,
+    ) {
         // Unmap the entities that will be removed automatically because of the rigid-body removals.
         for (let i = 0; i < this.raw.rbNumColliders(handle); i += 1) {
             colliders.unmap(this.raw.rbCollider(handle, i));
         }
 
-        impulseJoints.forEachJointHandleAttachedToRigidBody(handle, (handle) => impulseJoints.unmap(handle));
-        multibodyJoints.forEachJointHandleAttachedToRigidBody(handle, (handle) => multibodyJoints.unmap(handle));
+        impulseJoints.forEachJointHandleAttachedToRigidBody(handle, (handle) =>
+            impulseJoints.unmap(handle),
+        );
+        multibodyJoints.forEachJointHandleAttachedToRigidBody(
+            handle,
+            (handle) => multibodyJoints.unmap(handle),
+        );
 
         // Remove the rigid-body.
-        this.raw.remove(handle, islands.raw, colliders.raw, impulseJoints.raw, multibodyJoints.raw);
+        this.raw.remove(
+            handle,
+            islands.raw,
+            colliders.raw,
+            impulseJoints.raw,
+            multibodyJoints.raw,
+        );
         this.map.delete(handle);
     }
 
@@ -181,7 +204,10 @@ export class RigidBodySet {
      *
      * @param f - The closure to apply.
      */
-    public forEachActiveRigidBody(islands: IslandManager, f: (body: RigidBody) => void) {
+    public forEachActiveRigidBody(
+        islands: IslandManager,
+        f: (body: RigidBody) => void,
+    ) {
         islands.forEachActiveRigidBodyHandle((handle) => {
             f(this.get(handle));
         });

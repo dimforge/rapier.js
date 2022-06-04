@@ -1,9 +1,9 @@
-import { RawColliderSet } from "../raw"
-import { Coarena } from "../coarena"
-import { RotationOps, VectorOps } from '../math';
-import { Collider, ColliderDesc, ColliderHandle } from './collider'
+import {RawColliderSet} from "../raw";
+import {Coarena} from "../coarena";
+import {RotationOps, VectorOps} from "../math";
+import {Collider, ColliderDesc, ColliderHandle} from "./collider";
 import {ImpulseJointHandle, IslandManager, RigidBodyHandle} from "../dynamics";
-import { RigidBodySet } from "../dynamics";
+import {RigidBodySet} from "../dynamics";
 
 /**
  * A set of rigid bodies that can be handled by a physics pipeline.
@@ -38,7 +38,9 @@ export class ColliderSet {
 
     /** @internal */
     public finalizeDeserialization(bodies: RigidBodySet) {
-        this.map.forEach(collider => collider.finalizeDeserialization(bodies))
+        this.map.forEach((collider) =>
+            collider.finalizeDeserialization(bodies),
+        );
     }
 
     /**
@@ -48,11 +50,17 @@ export class ColliderSet {
      * @param desc - The collider's description.
      * @param parentHandle - The integer handle of the rigid-body this collider is attached to.
      */
-    public createCollider(bodies: RigidBodySet, desc: ColliderDesc, parentHandle: RigidBodyHandle): Collider {
+    public createCollider(
+        bodies: RigidBodySet,
+        desc: ColliderDesc,
+        parentHandle: RigidBodyHandle,
+    ): Collider {
         let hasParent = parentHandle != undefined && parentHandle != null;
 
         if (hasParent && isNaN(parentHandle))
-            throw Error("Cannot create a collider with a parent rigid-body handle that is not a number.");
+            throw Error(
+                "Cannot create a collider with a parent rigid-body handle that is not a number.",
+            );
 
         let rawShape = desc.shape.intoRaw();
         let rawTra = VectorOps.intoRaw(desc.translation);
@@ -60,8 +68,12 @@ export class ColliderSet {
         let rawCom = VectorOps.intoRaw(desc.centerOfMass);
 
         // #if DIM3
-        let rawPrincipalInertia = VectorOps.intoRaw(desc.principalAngularInertia);
-        let rawInertiaFrame = RotationOps.intoRaw(desc.angularInertiaLocalFrame);
+        let rawPrincipalInertia = VectorOps.intoRaw(
+            desc.principalAngularInertia,
+        );
+        let rawInertiaFrame = RotationOps.intoRaw(
+            desc.angularInertiaLocalFrame,
+        );
         // #endif
 
         let handle = this.raw.createCollider(
@@ -117,7 +129,12 @@ export class ColliderSet {
      * @param bodies - The set of rigid-body containing the rigid-body the collider is attached to.
      * @param wakeUp - If `true`, the rigid-body the removed collider is attached to will be woken-up automatically.
      */
-    public remove(handle: ColliderHandle, islands: IslandManager, bodies: RigidBodySet, wakeUp: boolean) {
+    public remove(
+        handle: ColliderHandle,
+        islands: IslandManager,
+        bodies: RigidBodySet,
+        wakeUp: boolean,
+    ) {
         this.raw.remove(handle, islands.raw, bodies.raw, wakeUp);
         this.unmap(handle);
     }

@@ -1,6 +1,6 @@
-import type { Testbed } from '../Testbed';
+import type {Testbed} from "../Testbed";
 
-type RAPIER_API = typeof import('@dimforge/rapier3d')
+type RAPIER_API = typeof import("@dimforge/rapier3d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, 0.0, 0.0);
@@ -16,8 +16,8 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
     let i;
     for (i = 0; i < num; ++i) {
-        let x = Math.sin((i * subdiv * Math.PI * 2.0));
-        let y = Math.cos((i * subdiv * Math.PI * 2.0));
+        let x = Math.sin(i * subdiv * Math.PI * 2.0);
+        let y = Math.cos(i * subdiv * Math.PI * 2.0);
 
         // Build the rigid body.
         let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
@@ -36,7 +36,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
     let cameraPosition = {
         eye: {x: 0, y: 2.0, z: 20},
-        target: {x: 0, y: 2.0, z: 0}
+        target: {x: 0, y: 2.0, z: 0},
     };
-    testbed.lookAt(cameraPosition)
+    testbed.lookAt(cameraPosition);
 }

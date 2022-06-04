@@ -1,14 +1,14 @@
-import type { Testbed } from '../Testbed';
-import seedrandom from 'seedrandom'
+import type {Testbed} from "../Testbed";
+import seedrandom from "seedrandom";
 
-type RAPIER_API = typeof import('@dimforge/rapier3d')
+type RAPIER_API = typeof import("@dimforge/rapier3d");
 
 function generateTriMesh(nsubdivs: number, wx: number, wy: number, wz: number) {
     let vertices = [];
     let indices = [];
 
     let elementWidth = 1.0 / nsubdivs;
-    let rng = seedrandom('trimesh');
+    let rng = seedrandom("trimesh");
 
     let i, j;
     for (i = 0; i <= nsubdivs; ++i) {
@@ -36,7 +36,7 @@ function generateTriMesh(nsubdivs: number, wx: number, wy: number, wz: number) {
     return {
         vertices: new Float32Array(vertices),
         indices: new Uint32Array(indices),
-    }
+    };
 }
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
@@ -46,8 +46,11 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     // Create Ground.
     let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let body = world.createRigidBody(bodyDesc);
-    let trimesh = generateTriMesh(20, 40.0, 4.0, 40.0)
-    let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
+    let trimesh = generateTriMesh(20, 40.0, 4.0, 40.0);
+    let colliderDesc = RAPIER.ColliderDesc.trimesh(
+        trimesh.vertices,
+        trimesh.indices,
+    );
     world.createCollider(colliderDesc, body);
 
     /*
@@ -62,7 +65,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let centery = shift / 2.0;
     let centerz = shift * (num / 2);
 
-    let rng = seedrandom('convexPolyhedron');
+    let rng = seedrandom("convexPolyhedron");
     let i, j, k, l;
 
     for (j = 0; j < 15; ++j) {
@@ -79,9 +82,16 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
                 let v = new Float32Array(vertices);
 
                 // Build the rigid body.
-                bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y, z);
+                bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(
+                    x,
+                    y,
+                    z,
+                );
                 body = world.createRigidBody(bodyDesc);
-                colliderDesc = RAPIER.ColliderDesc.roundConvexHull(v, border_rad);
+                colliderDesc = RAPIER.ColliderDesc.roundConvexHull(
+                    v,
+                    border_rad,
+                );
                 world.createCollider(colliderDesc, body);
             }
         }
@@ -90,8 +100,12 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
 
     let cameraPosition = {
-        eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},
-        target: {x: 0.0, y: 0.0, z: 0.0}
+        eye: {
+            x: -88.48024008669711,
+            y: 46.911325612198354,
+            z: 83.56055570254844,
+        },
+        target: {x: 0.0, y: 0.0, z: 0.0},
     };
-    testbed.lookAt(cameraPosition)
+    testbed.lookAt(cameraPosition);
 }
