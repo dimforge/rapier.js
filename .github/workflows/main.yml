@@ -1,98 +1,104 @@
 name: main
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
 
 env:
-  CARGO_TERM_COLOR: always
+    CARGO_TERM_COLOR: always
 
 jobs:
-  check-fmt:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Check formatting
-        run: cargo fmt -- --check
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    env:
-      RUSTFLAGS: -D warnings
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - run: npm ci;
-      - name: Build rapier-compat
-        run: |
-          cd rapier-compat;
-          npm ci;
-          npm run build;
-      - name: Build rapier2d
-        run: |
-          cd rapier2d;
-          ./build_all.sh;
-      - name: Build rapier3d
-        run: |
-          cd rapier3d;
-          ./build_all.sh;
-      - uses: actions/upload-artifact@v3
-        with:
-          name: pkg ${{ matrix.os }}
-          path: |
-            rapier2d/pkg
-            rapier3d/pkg
-            rapier-compat/pkg2d
-            rapier-compat/pkg3d
-  publish:
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: pkg ubuntu-latest
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "16.x"
-          registry-url: "https://registry.npmjs.org"
-      - name: Publish rapier3d
-        run: |
-          cd rapier3d/pkg; npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false; 
-          npm publish --tag canary --access public;
+    check-fmt:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "16.x"
+            - run: npm ci
+            - name: Check formatting
+              run: npm run fmt -- --check
+            - name: Check Rust formatting
+              run: cargo fmt -- --check
+    build:
+        strategy:
+            matrix:
+                os: [ubuntu-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish rapier2d
-        run: |
-          cd rapier2d/pkg;
-          npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
-          npm publish --tag canary --access public;
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish rapier3d-compat
-        run: |
-          cd rapier3d-compat/pkg3d;
-          npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
-          npm publish --tag canary --access public;
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish rapier2d-compat
-        run: |
-          cd rapier3d-compat/pkg2d;
-          npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
-          npm publish --tag canary --access public;
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            RUSTFLAGS: -D warnings
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.cargo/bin/
+                      ~/.cargo/registry/index/
+                      ~/.cargo/registry/cache/
+                      ~/.cargo/git/db/
+                      target/
+                  key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            - run: npm ci;
+            - name: Build rapier-compat
+              run: |
+                  cd rapier-compat;
+                  npm ci;
+                  npm run build;
+            - name: Build rapier2d
+              run: |
+                  cd rapier2d;
+                  ./build_all.sh;
+            - name: Build rapier3d
+              run: |
+                  cd rapier3d;
+                  ./build_all.sh;
+            - uses: actions/upload-artifact@v3
+              with:
+                  name: pkg ${{ matrix.os }}
+                  path: |
+                      rapier2d/pkg
+                      rapier3d/pkg
+                      rapier-compat/pkg2d
+                      rapier-compat/pkg3d
+    publish:
+        runs-on: ubuntu-latest
+        needs: build
+        if: github.ref == 'refs/heads/master'
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/download-artifact@v3
+              with:
+                  name: pkg ubuntu-latest
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "16.x"
+                  registry-url: "https://registry.npmjs.org"
+            - name: Publish rapier3d
+              run: |
+                  cd rapier3d/pkg; npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false; 
+                  npm publish --tag canary --access public;
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: Publish rapier2d
+              run: |
+                  cd rapier2d/pkg;
+                  npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
+                  npm publish --tag canary --access public;
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: Publish rapier3d-compat
+              run: |
+                  cd rapier3d-compat/pkg3d;
+                  npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
+                  npm publish --tag canary --access public;
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: Publish rapier2d-compat
+              run: |
+                  cd rapier3d-compat/pkg2d;
+                  npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
+                  npm publish --tag canary --access public;
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
