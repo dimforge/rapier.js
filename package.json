@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "fmt": "prettier --write ."
+        "fmt": "prettier ."
     },
     "devDependencies": {
         "prettier": "^2.6.2",
