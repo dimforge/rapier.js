@@ -1,4 +1,4 @@
-import * as dat from "dat.gui";
+import GUI from "lil-gui";
 import * as Stats from "stats.js";
 import type {Testbed} from "./Testbed";
 
@@ -16,7 +16,7 @@ export class Gui {
     maxTimePanelValue: number;
     stepTimePanel1: Stats.Panel;
     stepTimePanel2: Stats.Panel;
-    gui: dat.GUI;
+    gui: GUI;
     debugText: HTMLDivElement;
 
     constructor(testbed: Testbed, simulationParameters: Testbed["parameters"]) {
@@ -42,42 +42,51 @@ export class Gui {
         var me = this;
 
         // For configuring simulation parameters.
-        this.gui = new dat.GUI({
-            name: "Rapier JS demos",
+        this.gui = new GUI({
+            title: "Rapier JS demos",
         });
         this.gui
             .add(simulationParameters, "backend", backends)
-            .onChange(function (backend) {
+            .onChange((backend: string) => {
                 testbed.switchToBackend(backend);
             });
         var currDemo = this.gui
             .add(simulationParameters, "demo", demos)
-            .onChange(function (demo) {
+            .onChange((demo: string) => {
                 testbed.switchToDemo(demo);
             });
         this.gui
             .add(simulationParameters, "numVelocityIter", 0, 20)
             .step(1)
             .listen();
-        this.gui.add(simulationParameters, "debugInfos").listen();
+        this.gui
+            .add(simulationParameters, "numPositionIter", 0, 20)
+            .step(1)
+            .listen();
+        this.gui
+            .add(simulationParameters, "debugInfos")
+            .listen()
+            .onChange((value: boolean) => {
+                me.debugText.style.visibility = value ? "visible" : "hidden";
+            });
         this.gui.add(simulationParameters, "debugRender").listen();
-        this.gui.add(simulationParameters, "running", true).listen();
-        this.gui.add(simulationParameters, "step").onChange(function () {
+        this.gui.add(simulationParameters, "running").listen();
+        this.gui.add(simulationParameters, "step");
+        simulationParameters.step = () => {
             simulationParameters.stepping = true;
-        });
-        this.gui
-            .add(simulationParameters, "takeSnapshot")
-            .onChange(function () {
-                testbed.takeSnapshot();
-            });
-        this.gui
-            .add(simulationParameters, "restoreSnapshot")
-            .onChange(function () {
-                testbed.restoreSnapshot();
-            });
-        this.gui.add(simulationParameters, "restart").onChange(function () {
+        };
+        this.gui.add(simulationParameters, "takeSnapshot");
+        simulationParameters.takeSnapshot = () => {
+            testbed.takeSnapshot();
+        };
+        this.gui.add(simulationParameters, "restoreSnapshot");
+        simulationParameters.restoreSnapshot = () => {
+            testbed.restoreSnapshot();
+        };
+        this.gui.add(simulationParameters, "restart");
+        simulationParameters.restart = () => {
             testbed.switchToDemo(currDemo.getValue());
-        });
+        };
 
         /*
          * Block of text for debug infos.
@@ -87,15 +96,18 @@ export class Gui {
         this.debugText.innerHTML = "";
         this.debugText.style.top = 50 + "px";
         this.debugText.style.visibility = "visible";
+        this.debugText.style.color = "#fff";
         document.body.appendChild(this.debugText);
     }
 
     setDebugInfos(infos: DebugInfos) {
-        let text = "Version: " + this.rapierVersion;
+        let text = "Version " + this.rapierVersion;
         text += "<br/>[Step " + infos.stepId + "]";
 
         if (infos.worldHash) {
-            text += "<br/>World hash (MD5): " + infos.worldHash;
+            text += "<br/>World hash (MD5): " + infos.worldHash.toString();
+            text += "<br/>World hash time (MD5): " + infos.worldHashTime + "ms";
+            text += "<br/>Snapshot time: " + infos.snapshotTime + "ms";
         }
         this.debugText.innerHTML = text;
     }
