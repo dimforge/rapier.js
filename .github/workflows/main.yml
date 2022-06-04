@@ -90,14 +90,14 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Publish rapier3d-compat
               run: |
-                  cd rapier3d-compat/pkg3d;
+                  cd rapier-compat/pkg3d;
                   npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
                   npm publish --tag canary --access public;
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Publish rapier2d-compat
               run: |
-                  cd rapier3d-compat/pkg2d;
+                  cd rapier-compat/pkg2d;
                   npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
                   npm publish --tag canary --access public;
               env:
