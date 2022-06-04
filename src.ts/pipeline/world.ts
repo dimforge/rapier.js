@@ -1,40 +1,58 @@
 import {
-    RawBroadPhase, RawCCDSolver, RawColliderSet,
+    RawBroadPhase,
+    RawCCDSolver,
+    RawColliderSet,
     RawDeserializedWorld,
-    RawIntegrationParameters, RawIslandManager,
-    RawImpulseJointSet, RawMultibodyJointSet, RawNarrowPhase, RawPhysicsPipeline, RawQueryPipeline,
-    RawRigidBodySet, RawSerializationPipeline, RawDebugRenderPipeline
+    RawIntegrationParameters,
+    RawIslandManager,
+    RawImpulseJointSet,
+    RawMultibodyJointSet,
+    RawNarrowPhase,
+    RawPhysicsPipeline,
+    RawQueryPipeline,
+    RawRigidBodySet,
+    RawSerializationPipeline,
+    RawDebugRenderPipeline,
 } from "../raw";
 
 import {
     BroadPhase,
-    Collider, ColliderDesc,
+    Collider,
+    ColliderDesc,
     ColliderHandle,
-    ColliderSet, InteractionGroups,
-    NarrowPhase, PointColliderProjection,
+    ColliderSet,
+    InteractionGroups,
+    NarrowPhase,
+    PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi, Shape, ShapeColliderTOI, TempContactManifold
+    RayColliderToi,
+    Shape,
+    ShapeColliderTOI,
+    TempContactManifold,
 } from "../geometry";
 import {
     CCDSolver,
-    IntegrationParameters, IslandManager,
-    ImpulseJoint, ImpulseJointHandle,
-    MultibodyJoint, MultibodyJointHandle,
+    IntegrationParameters,
+    IslandManager,
+    ImpulseJoint,
+    ImpulseJointHandle,
+    MultibodyJoint,
+    MultibodyJointHandle,
     JointData,
     ImpulseJointSet,
     MultibodyJointSet,
     RigidBody,
     RigidBodyDesc,
     RigidBodyHandle,
-    RigidBodySet
+    RigidBodySet,
 } from "../dynamics";
-import { Rotation, Vector, VectorOps } from "../math";
-import { PhysicsPipeline } from "./physics_pipeline";
-import { QueryPipeline } from "./query_pipeline";
-import { SerializationPipeline } from "./serialization_pipeline";
-import { EventQueue } from "./event_queue";
-import { PhysicsHooks } from "./physics_hooks";
+import {Rotation, Vector, VectorOps} from "../math";
+import {PhysicsPipeline} from "./physics_pipeline";
+import {QueryPipeline} from "./query_pipeline";
+import {SerializationPipeline} from "./serialization_pipeline";
+import {EventQueue} from "./event_queue";
+import {PhysicsHooks} from "./physics_hooks";
 import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
 
 /**
@@ -44,20 +62,20 @@ import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
  * bodies with contacts, joints, and external forces.
  */
 export class World {
-    public gravity: Vector
-    integrationParameters: IntegrationParameters
-    islands: IslandManager
-    broadPhase: BroadPhase
-    narrowPhase: NarrowPhase
-    bodies: RigidBodySet
-    colliders: ColliderSet
-    impulseJoints: ImpulseJointSet
-    multibodyJoints: MultibodyJointSet
-    ccdSolver: CCDSolver
-    queryPipeline: QueryPipeline
-    physicsPipeline: PhysicsPipeline
-    serializationPipeline: SerializationPipeline
-    debugRenderPipeline: DebugRenderPipeline
+    public gravity: Vector;
+    integrationParameters: IntegrationParameters;
+    islands: IslandManager;
+    broadPhase: BroadPhase;
+    narrowPhase: NarrowPhase;
+    bodies: RigidBodySet;
+    colliders: ColliderSet;
+    impulseJoints: ImpulseJointSet;
+    multibodyJoints: MultibodyJointSet;
+    ccdSolver: CCDSolver;
+    queryPipeline: QueryPipeline;
+    physicsPipeline: PhysicsPipeline;
+    serializationPipeline: SerializationPipeline;
+    debugRenderPipeline: DebugRenderPipeline;
 
     /**
      * Release the WASM memory occupied by this physics world.
@@ -109,10 +127,12 @@ export class World {
         rawQueryPipeline?: RawQueryPipeline,
         rawPhysicsPipeline?: RawPhysicsPipeline,
         rawSerializationPipeline?: RawSerializationPipeline,
-        rawDebugRenderPipeline?: RawDebugRenderPipeline
+        rawDebugRenderPipeline?: RawDebugRenderPipeline,
     ) {
         this.gravity = gravity;
-        this.integrationParameters = new IntegrationParameters(rawIntegrationParameters);
+        this.integrationParameters = new IntegrationParameters(
+            rawIntegrationParameters,
+        );
         this.islands = new IslandManager(rawIslands);
         this.broadPhase = new BroadPhase(rawBroadPhase);
         this.narrowPhase = new NarrowPhase(rawNarrowPhase);
@@ -123,8 +143,12 @@ export class World {
         this.ccdSolver = new CCDSolver(rawCCDSolver);
         this.queryPipeline = new QueryPipeline(rawQueryPipeline);
         this.physicsPipeline = new PhysicsPipeline(rawPhysicsPipeline);
-        this.serializationPipeline = new SerializationPipeline(rawSerializationPipeline);
-        this.debugRenderPipeline = new DebugRenderPipeline(rawDebugRenderPipeline);
+        this.serializationPipeline = new SerializationPipeline(
+            rawSerializationPipeline,
+        );
+        this.debugRenderPipeline = new DebugRenderPipeline(
+            rawDebugRenderPipeline,
+        );
 
         this.impulseJoints.finalizeDeserialization(this.bodies);
         this.bodies.finalizeDeserialization(this.colliders);
@@ -132,8 +156,7 @@ export class World {
     }
 
     public static fromRaw(raw: RawDeserializedWorld): World {
-        if (!raw)
-            return null;
+        if (!raw) return null;
 
         return new World(
             VectorOps.fromRaw(raw.takeGravity()),
@@ -182,8 +205,17 @@ export class World {
      * Computes all the lines (and their colors) needed to render the scene.
      */
     public debugRender(): DebugRenderBuffers {
-        this.debugRenderPipeline.render(this.bodies, this.colliders, this.impulseJoints, this.multibodyJoints, this.narrowPhase);
-        return new DebugRenderBuffers(this.debugRenderPipeline.vertices, this.debugRenderPipeline.colors);
+        this.debugRenderPipeline.render(
+            this.bodies,
+            this.colliders,
+            this.impulseJoints,
+            this.multibodyJoints,
+            this.narrowPhase,
+        );
+        return new DebugRenderBuffers(
+            this.debugRenderPipeline.vertices,
+            this.debugRenderPipeline.colors,
+        );
     }
 
     /**
@@ -290,7 +322,6 @@ export class World {
         this.integrationParameters.maxStabilizationIterations = niter;
     }
 
-
     /**
      * Creates a new rigid-body from the given rigd-body descriptior.
      *
@@ -325,7 +356,13 @@ export class World {
         parent2: RigidBody,
         wakeUp: boolean,
     ): ImpulseJoint {
-        return this.impulseJoints.createJoint(this.bodies, params, parent1.handle, parent2.handle, wakeUp);
+        return this.impulseJoints.createJoint(
+            this.bodies,
+            params,
+            parent1.handle,
+            parent2.handle,
+            wakeUp,
+        );
     }
 
     /**
@@ -342,7 +379,12 @@ export class World {
         parent2: RigidBody,
         wakeUp: boolean,
     ): MultibodyJoint {
-        return this.multibodyJoints.createJoint(params, parent1.handle, parent2.handle, wakeUp);
+        return this.multibodyJoints.createJoint(
+            params,
+            parent1.handle,
+            parent2.handle,
+            wakeUp,
+        );
     }
 
     /**
@@ -426,10 +468,7 @@ export class World {
      */
     public removeImpulseJoint(joint: ImpulseJoint, wakeUp: boolean) {
         if (this.impulseJoints) {
-            this.impulseJoints.remove(
-                joint.handle,
-                wakeUp,
-            );
+            this.impulseJoints.remove(joint.handle, wakeUp);
         }
     }
 
@@ -441,10 +480,7 @@ export class World {
      */
     public removeMultibodyJoint(joint: MultibodyJoint, wakeUp: boolean) {
         if (this.impulseJoints) {
-            this.multibodyJoints.remove(
-                joint.handle,
-                wakeUp,
-            );
+            this.multibodyJoints.remove(joint.handle, wakeUp);
         }
     }
 
@@ -454,7 +490,7 @@ export class World {
      * @param f(collider) - The function to apply to each collider managed by this physics world. Called as `f(collider)`.
      */
     public forEachCollider(f: (collider: Collider) => void) {
-        this.colliders.forEach(f)
+        this.colliders.forEach(f);
     }
 
     /**
@@ -463,7 +499,7 @@ export class World {
      * @param f(body) - The function to apply to each rigid-body managed by this physics world. Called as `f(collider)`.
      */
     public forEachRigidBody(f: (body: RigidBody) => void) {
-        this.bodies.forEach(f)
+        this.bodies.forEach(f);
     }
 
     /**
@@ -496,9 +532,16 @@ export class World {
         maxToi: number,
         solid: boolean,
         groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean
+        filter?: (collider: Collider) => boolean,
     ): RayColliderToi | null {
-        return this.queryPipeline.castRay(this.colliders, ray, maxToi, solid, groups, castClosure(this.colliders, filter));
+        return this.queryPipeline.castRay(
+            this.colliders,
+            ray,
+            maxToi,
+            solid,
+            groups,
+            castClosure(this.colliders, filter),
+        );
     }
 
     /**
@@ -518,9 +561,16 @@ export class World {
         maxToi: number,
         solid: boolean,
         groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean
+        filter?: (collider: Collider) => boolean,
     ): RayColliderIntersection | null {
-        return this.queryPipeline.castRayAndGetNormal(this.colliders, ray, maxToi, solid, groups, castClosure(this.colliders, filter));
+        return this.queryPipeline.castRayAndGetNormal(
+            this.colliders,
+            ray,
+            maxToi,
+            solid,
+            groups,
+            castClosure(this.colliders, filter),
+        );
     }
 
     /**
@@ -542,9 +592,17 @@ export class World {
         solid: boolean,
         groups: InteractionGroups,
         callback: (intersect: RayColliderIntersection) => boolean,
-        filter?: (collider: Collider) => boolean
+        filter?: (collider: Collider) => boolean,
     ) {
-        this.queryPipeline.intersectionsWithRay(this.colliders, ray, maxToi, solid, groups, callback, castClosure(this.colliders, filter))
+        this.queryPipeline.intersectionsWithRay(
+            this.colliders,
+            ray,
+            maxToi,
+            solid,
+            groups,
+            callback,
+            castClosure(this.colliders, filter),
+        );
     }
 
     /**
@@ -561,10 +619,17 @@ export class World {
         shapeRot: Rotation,
         shape: Shape,
         groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean
+        filter?: (collider: Collider) => boolean,
     ): Collider | null {
-        let handle = this.queryPipeline.intersectionWithShape(this.colliders, shapePos, shapeRot, shape, groups, castClosure(this.colliders, filter));
-        return (handle != null) ? this.colliders.get(handle) : null;
+        let handle = this.queryPipeline.intersectionWithShape(
+            this.colliders,
+            shapePos,
+            shapeRot,
+            shape,
+            groups,
+            castClosure(this.colliders, filter),
+        );
+        return handle != null ? this.colliders.get(handle) : null;
     }
 
     /**
@@ -583,9 +648,15 @@ export class World {
         point: Vector,
         solid: boolean,
         groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean
+        filter?: (collider: Collider) => boolean,
     ): PointColliderProjection | null {
-        return this.queryPipeline.projectPoint(this.colliders, point, solid, groups, castClosure(this.colliders, filter));
+        return this.queryPipeline.projectPoint(
+            this.colliders,
+            point,
+            solid,
+            groups,
+            castClosure(this.colliders, filter),
+        );
     }
 
     /**
@@ -595,11 +666,15 @@ export class World {
      * @param groups - The bit groups and filter associated to the point to project, in order to only
      *   project on colliders with collision groups compatible with the ray's group.
      */
-     public projectPointAndGetFeature(
+    public projectPointAndGetFeature(
         point: Vector,
         groups: InteractionGroups,
     ): PointColliderProjection | null {
-        return this.queryPipeline.projectPointAndGetFeature(this.colliders, point, groups);
+        return this.queryPipeline.projectPointAndGetFeature(
+            this.colliders,
+            point,
+            groups,
+        );
     }
 
     /**
@@ -615,9 +690,15 @@ export class World {
         point: Vector,
         groups: InteractionGroups,
         callback: (handle: Collider) => boolean,
-        filter?: (collider: Collider) => boolean
+        filter?: (collider: Collider) => boolean,
     ) {
-        this.queryPipeline.intersectionsWithPoint(this.colliders, point, groups, castClosure(this.colliders, callback), castClosure(this.colliders, filter));
+        this.queryPipeline.intersectionsWithPoint(
+            this.colliders,
+            point,
+            groups,
+            castClosure(this.colliders, callback),
+            castClosure(this.colliders, filter),
+        );
     }
 
     /**
@@ -641,9 +722,18 @@ export class World {
         shape: Shape,
         maxToi: number,
         groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean
+        filter?: (collider: Collider) => boolean,
     ): ShapeColliderTOI | null {
-        return this.queryPipeline.castShape(this.colliders, shapePos, shapeRot, shapeVel, shape, maxToi, groups, castClosure(this.colliders, filter));
+        return this.queryPipeline.castShape(
+            this.colliders,
+            shapePos,
+            shapeRot,
+            shapeVel,
+            shape,
+            maxToi,
+            groups,
+            castClosure(this.colliders, filter),
+        );
     }
 
     /**
@@ -662,9 +752,17 @@ export class World {
         shape: Shape,
         groups: InteractionGroups,
         callback: (handle: Collider) => boolean,
-        filter?: (collider: Collider) => boolean
+        filter?: (collider: Collider) => boolean,
     ) {
-        this.queryPipeline.intersectionsWithShape(this.colliders, shapePos, shapeRot, shape, groups, castClosure(this.colliders, callback), castClosure(this.colliders, filter));
+        this.queryPipeline.intersectionsWithShape(
+            this.colliders,
+            shapePos,
+            shapeRot,
+            shape,
+            groups,
+            castClosure(this.colliders, callback),
+            castClosure(this.colliders, filter),
+        );
     }
 
     /**
@@ -678,9 +776,13 @@ export class World {
     public collidersWithAabbIntersectingAabb(
         aabbCenter: Vector,
         aabbHalfExtents: Vector,
-        callback: (handle: Collider) => boolean
+        callback: (handle: Collider) => boolean,
     ) {
-        this.queryPipeline.collidersWithAabbIntersectingAabb(aabbCenter, aabbHalfExtents, castClosure(this.colliders, callback));
+        this.queryPipeline.collidersWithAabbIntersectingAabb(
+            aabbCenter,
+            aabbHalfExtents,
+            castClosure(this.colliders, callback),
+        );
     }
 
     /**
@@ -690,15 +792,24 @@ export class World {
      * @param f - Closure that will be called on each collider that is in contact with `collider1`.
      */
     public contactsWith(collider1: Collider, f: (collider2: Collider) => void) {
-        this.narrowPhase.contactsWith(collider1.handle, castClosure(this.colliders, f));
+        this.narrowPhase.contactsWith(
+            collider1.handle,
+            castClosure(this.colliders, f),
+        );
     }
 
     /**
      * Enumerates all the colliders intersecting the given colliders, assuming one of them
      * is a sensor.
      */
-    public intersectionsWith(collider1: Collider, f: (collider2: Collider) => void) {
-        this.narrowPhase.intersectionsWith(collider1.handle, castClosure(this.colliders, f));
+    public intersectionsWith(
+        collider1: Collider,
+        f: (collider2: Collider) => void,
+    ) {
+        this.narrowPhase.intersectionsWith(
+            collider1.handle,
+            castClosure(this.colliders, f),
+        );
     }
 
     /**
@@ -710,7 +821,11 @@ export class World {
      *            passed to this closure is `true`, then the contact manifold data is flipped, i.e., methods like `localNormal1`
      *            actually apply to the `collider2` and fields like `localNormal2` apply to the `collider1`.
      */
-    public contactPair(collider1: Collider, collider2: Collider, f: (manifold: TempContactManifold, flipped: boolean) => void) {
+    public contactPair(
+        collider1: Collider,
+        collider2: Collider,
+        f: (manifold: TempContactManifold, flipped: boolean) => void,
+    ) {
         this.narrowPhase.contactPair(collider1.handle, collider2.handle, f);
     }
 
@@ -720,12 +835,18 @@ export class World {
      * @param collider2 − The second collider involved in the intersection.
      */
     public intersectionPair(collider1: Collider, collider2: Collider): boolean {
-        return this.narrowPhase.intersectionPair(collider1.handle, collider2.handle);
+        return this.narrowPhase.intersectionPair(
+            collider1.handle,
+            collider2.handle,
+        );
     }
 }
 
-function castClosure<Res>(set: ColliderSet, f?: (collider :Collider) => Res): (handle: ColliderHandle) => Res | undefined {
-    return handle => {
+function castClosure<Res>(
+    set: ColliderSet,
+    f?: (collider: Collider) => Res,
+): (handle: ColliderHandle) => Res | undefined {
+    return (handle) => {
         if (!!f) {
             return f(set.get(handle));
         } else {

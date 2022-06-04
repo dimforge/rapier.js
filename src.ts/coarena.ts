@@ -1,8 +1,8 @@
 export class Coarena<T> {
-    fconv: Float64Array
-    uconv: Uint32Array
-    data: Array<T>
-    size: number
+    fconv: Float64Array;
+    uconv: Uint32Array;
+    data: Array<T>;
+    size: number;
 
     public constructor() {
         this.fconv = new Float64Array(1);
@@ -17,8 +17,7 @@ export class Coarena<T> {
             this.data.push(null);
         }
 
-        if (this.data[i] == null)
-            this.size += 1;
+        if (this.data[i] == null) this.size += 1;
         this.data[i] = data;
     }
 
@@ -29,8 +28,7 @@ export class Coarena<T> {
     public delete(handle: number) {
         let i = this.index(handle);
         if (i < this.data.length) {
-            if (this.data[i] != null)
-                this.size -= 1;
+            if (this.data[i] != null) this.size -= 1;
             this.data[i] = null;
         }
     }
@@ -50,8 +48,7 @@ export class Coarena<T> {
 
     public forEach(f: (elt: T) => void) {
         for (const elt of this.data) {
-            if (elt != null)
-                f(elt);
+            if (elt != null) f(elt);
         }
     }
 
@@ -71,4 +68,3 @@ export class Coarena<T> {
         return this.uconv[0];
     }
 }
-

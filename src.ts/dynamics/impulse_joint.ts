@@ -1,9 +1,14 @@
-import { Rotation, Vector, VectorOps, RotationOps } from "../math";
-import { RawGenericJoint, RawImpulseJointSet, RawRigidBodySet, RawJointAxis } from "../raw";
-import {RigidBody, RigidBodyHandle} from "./rigid_body"
+import {Rotation, Vector, VectorOps, RotationOps} from "../math";
+import {
+    RawGenericJoint,
+    RawImpulseJointSet,
+    RawRigidBodySet,
+    RawJointAxis,
+} from "../raw";
+import {RigidBody, RigidBodyHandle} from "./rigid_body";
 import {RigidBodySet} from "./rigid_body_set";
 // #if DIM3
-import { Quaternion } from "../math";
+import {Quaternion} from "../math";
 // #endif
 
 /**
@@ -40,13 +45,21 @@ export class ImpulseJoint {
     protected bodySet: RigidBodySet; // The ImpulseJoint won’t need to free this.
     handle: ImpulseJointHandle;
 
-    constructor(rawSet: RawImpulseJointSet, bodySet: RigidBodySet, handle: ImpulseJointHandle) {
+    constructor(
+        rawSet: RawImpulseJointSet,
+        bodySet: RigidBodySet,
+        handle: ImpulseJointHandle,
+    ) {
         this.rawSet = rawSet;
         this.bodySet = bodySet;
         this.handle = handle;
     }
 
-    public static newTyped(rawSet: RawImpulseJointSet, bodySet: RigidBodySet, handle: ImpulseJointHandle): ImpulseJoint {
+    public static newTyped(
+        rawSet: RawImpulseJointSet,
+        bodySet: RigidBodySet,
+        handle: ImpulseJointHandle,
+    ): ImpulseJoint {
         switch (rawSet.jointType(handle)) {
             case JointType.Revolute:
                 return new RevoluteImpulseJoint(rawSet, bodySet, handle);
@@ -166,24 +179,54 @@ export class UnitImpulseJoint extends ImpulseJoint {
     }
 
     public configureMotorModel(model: MotorModel) {
-        this.rawSet.jointConfigureMotorModel(this.handle, this.rawAxis(), model);
+        this.rawSet.jointConfigureMotorModel(
+            this.handle,
+            this.rawAxis(),
+            model,
+        );
     }
 
     public configureMotorVelocity(targetVel: number, factor: number) {
-        this.rawSet.jointConfigureMotorVelocity(this.handle, this.rawAxis(), targetVel, factor);
+        this.rawSet.jointConfigureMotorVelocity(
+            this.handle,
+            this.rawAxis(),
+            targetVel,
+            factor,
+        );
     }
 
-    public configureMotorPosition(targetPos: number, stiffness: number, damping: number) {
-        this.rawSet.jointConfigureMotorPosition(this.handle, this.rawAxis(), targetPos, stiffness, damping);
+    public configureMotorPosition(
+        targetPos: number,
+        stiffness: number,
+        damping: number,
+    ) {
+        this.rawSet.jointConfigureMotorPosition(
+            this.handle,
+            this.rawAxis(),
+            targetPos,
+            stiffness,
+            damping,
+        );
     }
 
-    public configureMotor(targetPos: number, targetVel: number, stiffness: number, damping: number) {
-        this.rawSet.jointConfigureMotor(this.handle, this.rawAxis(), targetPos, targetVel, stiffness, damping);
+    public configureMotor(
+        targetPos: number,
+        targetVel: number,
+        stiffness: number,
+        damping: number,
+    ) {
+        this.rawSet.jointConfigureMotor(
+            this.handle,
+            this.rawAxis(),
+            targetPos,
+            targetVel,
+            stiffness,
+            damping,
+        );
     }
 }
 
-export class FixedImpulseJoint extends ImpulseJoint {
-}
+export class FixedImpulseJoint extends ImpulseJoint {}
 
 export class PrismaticImpulseJoint extends UnitImpulseJoint {
     public rawAxis(): RawJointAxis {
@@ -222,20 +265,17 @@ export class SphericalImpulseJoint extends ImpulseJoint {
 }
 // #endif
 
-
-
 export class JointData {
-    anchor1: Vector
-    anchor2: Vector
-    axis: Vector
-    frame1: Rotation
-    frame2: Rotation
-    jointType: JointType
-    limitsEnabled: boolean
-    limits: Array<number>
+    anchor1: Vector;
+    anchor2: Vector;
+    axis: Vector;
+    frame1: Rotation;
+    frame2: Rotation;
+    jointType: JointType;
+    limitsEnabled: boolean;
+    limits: Array<number>;
 
-    private constructor() {
-    }
+    private constructor() {}
 
     /**
      * Creates a new joint descriptor that builds a Fixed joint.
@@ -250,7 +290,12 @@ export class JointData {
      *                  local-space of the rigid-body.
      * @param frame2 - The reference orientation of the joint wrt. the second rigid-body.
      */
-    public static fixed(anchor1: Vector, frame1: Rotation, anchor2: Vector, frame2: Rotation): JointData {
+    public static fixed(
+        anchor1: Vector,
+        frame1: Rotation,
+        anchor2: Vector,
+        frame2: Rotation,
+    ): JointData {
         let res = new JointData();
         res.anchor1 = anchor1;
         res.anchor2 = anchor2;
@@ -294,7 +339,11 @@ export class JointData {
      *                  local-space of the rigid-body.
      * @param axis - Axis of the joint, expressed in the local-space of the rigid-bodies it is attached to.
      */
-    public static prismatic(anchor1: Vector, anchor2: Vector, axis: Vector): JointData {
+    public static prismatic(
+        anchor1: Vector,
+        anchor2: Vector,
+        axis: Vector,
+    ): JointData {
         let res = new JointData();
         res.anchor1 = anchor1;
         res.anchor2 = anchor2;

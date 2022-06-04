@@ -1,14 +1,17 @@
-import { RawQueryPipeline, RawRayColliderIntersection } from "../raw";
+import {RawQueryPipeline, RawRayColliderIntersection} from "../raw";
 import {
     ColliderHandle,
     ColliderSet,
-    InteractionGroups, PointColliderProjection,
+    InteractionGroups,
+    PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi, Shape, ShapeColliderTOI
+    RayColliderToi,
+    Shape,
+    ShapeColliderTOI,
 } from "../geometry";
-import { IslandManager, RigidBodySet } from "../dynamics";
-import { Rotation, RotationOps, Vector, VectorOps } from "../math";
+import {IslandManager, RigidBodySet} from "../dynamics";
+import {Rotation, RotationOps, Vector, VectorOps} from "../math";
 
 /**
  * A pipeline for performing queries on all the colliders of a scene.
@@ -17,7 +20,7 @@ import { Rotation, RotationOps, Vector, VectorOps } from "../math";
  * once you are done using it (and all the rigid-bodies it created).
  */
 export class QueryPipeline {
-    raw: RawQueryPipeline
+    raw: RawQueryPipeline;
 
     /**
      * Release the WASM memory occupied by this query pipeline.
@@ -36,7 +39,11 @@ export class QueryPipeline {
      * @param bodies - The set of rigid-bodies taking part in this pipeline.
      * @param colliders - The set of colliders taking part in this pipeline.
      */
-    public update(islands: IslandManager, bodies: RigidBodySet, colliders: ColliderSet) {
+    public update(
+        islands: IslandManager,
+        bodies: RigidBodySet,
+        colliders: ColliderSet,
+    ) {
         this.raw.update(islands.raw, bodies.raw, colliders.raw);
     }
 
@@ -59,26 +66,28 @@ export class QueryPipeline {
         maxToi: number,
         solid: boolean,
         groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean
+        filter?: (collider: ColliderHandle) => boolean,
     ): RayColliderToi | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
-        let result = RayColliderToi.fromRaw(colliders, this.raw.castRay(
-            colliders.raw,
-            rawOrig,
-            rawDir,
-            maxToi,
-            solid,
-            groups,
-            filter
-        ));
+        let result = RayColliderToi.fromRaw(
+            colliders,
+            this.raw.castRay(
+                colliders.raw,
+                rawOrig,
+                rawDir,
+                maxToi,
+                solid,
+                groups,
+                filter,
+            ),
+        );
 
         rawOrig.free();
         rawDir.free();
 
         return result;
     }
-
 
     /**
      * Find the closest intersection between a ray and a set of collider.
@@ -99,26 +108,28 @@ export class QueryPipeline {
         maxToi: number,
         solid: boolean,
         groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean
+        filter?: (collider: ColliderHandle) => boolean,
     ): RayColliderIntersection | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
-        let result = RayColliderIntersection.fromRaw(colliders, this.raw.castRayAndGetNormal(
-            colliders.raw,
-            rawOrig,
-            rawDir,
-            maxToi,
-            solid,
-            groups,
-            filter
-        ));
+        let result = RayColliderIntersection.fromRaw(
+            colliders,
+            this.raw.castRayAndGetNormal(
+                colliders.raw,
+                rawOrig,
+                rawDir,
+                maxToi,
+                solid,
+                groups,
+                filter,
+            ),
+        );
 
         rawOrig.free();
         rawDir.free();
 
         return result;
     }
-
 
     /**
      * Cast a ray and collects all the intersections between a ray and the scene.
@@ -141,12 +152,14 @@ export class QueryPipeline {
         solid: boolean,
         groups: InteractionGroups,
         callback: (intersect: RayColliderIntersection) => boolean,
-        filter?: (collider: ColliderHandle) => boolean
+        filter?: (collider: ColliderHandle) => boolean,
     ) {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
         let rawCallback = (rawInter: RawRayColliderIntersection) => {
-            return callback(RayColliderIntersection.fromRaw(colliders, rawInter));
+            return callback(
+                RayColliderIntersection.fromRaw(colliders, rawInter),
+            );
         };
 
         this.raw.intersectionsWithRay(
@@ -157,7 +170,7 @@ export class QueryPipeline {
             solid,
             groups,
             rawCallback,
-            filter
+            filter,
         );
 
         rawOrig.free();
@@ -180,7 +193,7 @@ export class QueryPipeline {
         shapeRot: Rotation,
         shape: Shape,
         groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean
+        filter?: (collider: ColliderHandle) => boolean,
     ): ColliderHandle | null {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
@@ -191,7 +204,7 @@ export class QueryPipeline {
             rawRot,
             rawShape,
             groups,
-            filter
+            filter,
         );
 
         rawPos.free();
@@ -219,16 +232,19 @@ export class QueryPipeline {
         point: Vector,
         solid: boolean,
         groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean
+        filter?: (collider: ColliderHandle) => boolean,
     ): PointColliderProjection | null {
         let rawPoint = VectorOps.intoRaw(point);
-        let result = PointColliderProjection.fromRaw(colliders, this.raw.projectPoint(
-            colliders.raw,
-            rawPoint,
-            solid,
-            groups,
-            filter
-        ));
+        let result = PointColliderProjection.fromRaw(
+            colliders,
+            this.raw.projectPoint(
+                colliders.raw,
+                rawPoint,
+                solid,
+                groups,
+                filter,
+            ),
+        );
 
         rawPoint.free();
 
@@ -249,11 +265,10 @@ export class QueryPipeline {
         groups: InteractionGroups,
     ): PointColliderProjection | null {
         let rawPoint = VectorOps.intoRaw(point);
-        let result = PointColliderProjection.fromRaw(colliders, this.raw.projectPointAndGetFeature(
-            colliders.raw,
-            rawPoint,
-            groups,
-        ));
+        let result = PointColliderProjection.fromRaw(
+            colliders,
+            this.raw.projectPointAndGetFeature(colliders.raw, rawPoint, groups),
+        );
 
         rawPoint.free();
 
@@ -275,7 +290,7 @@ export class QueryPipeline {
         point: Vector,
         groups: InteractionGroups,
         callback: (handle: ColliderHandle) => boolean,
-        filter?: (collider: ColliderHandle) => boolean
+        filter?: (collider: ColliderHandle) => boolean,
     ) {
         let rawPoint = VectorOps.intoRaw(point);
 
@@ -284,7 +299,7 @@ export class QueryPipeline {
             rawPoint,
             groups,
             callback,
-            filter
+            filter,
         );
 
         rawPoint.free();
@@ -313,23 +328,26 @@ export class QueryPipeline {
         shape: Shape,
         maxToi: number,
         groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean
+        filter?: (collider: ColliderHandle) => boolean,
     ): ShapeColliderTOI | null {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawVel = VectorOps.intoRaw(shapeVel);
         let rawShape = shape.intoRaw();
 
-        let result = ShapeColliderTOI.fromRaw(colliders, this.raw.castShape(
-            colliders.raw,
-            rawPos,
-            rawRot,
-            rawVel,
-            rawShape,
-            maxToi,
-            groups,
-            filter
-        ));
+        let result = ShapeColliderTOI.fromRaw(
+            colliders,
+            this.raw.castShape(
+                colliders.raw,
+                rawPos,
+                rawRot,
+                rawVel,
+                rawShape,
+                maxToi,
+                groups,
+                filter,
+            ),
+        );
 
         rawPos.free();
         rawRot.free();
@@ -357,7 +375,7 @@ export class QueryPipeline {
         shape: Shape,
         groups: InteractionGroups,
         callback: (handle: ColliderHandle) => boolean,
-        filter?: (collider: ColliderHandle) => boolean
+        filter?: (collider: ColliderHandle) => boolean,
     ) {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
@@ -370,7 +388,7 @@ export class QueryPipeline {
             rawShape,
             groups,
             callback,
-            filter
+            filter,
         );
 
         rawPos.free();
@@ -393,7 +411,11 @@ export class QueryPipeline {
     ) {
         let rawCenter = VectorOps.intoRaw(aabbCenter);
         let rawHalfExtents = VectorOps.intoRaw(aabbHalfExtents);
-        this.raw.collidersWithAabbIntersectingAabb(rawCenter, rawHalfExtents, callback);
+        this.raw.collidersWithAabbIntersectingAabb(
+            rawCenter,
+            rawHalfExtents,
+            callback,
+        );
         rawCenter.free();
         rawHalfExtents.free();
     }

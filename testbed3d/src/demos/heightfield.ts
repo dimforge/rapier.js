@@ -1,12 +1,12 @@
-import seedrandom from 'seedrandom'
-import type { Testbed } from '../Testbed';
+import seedrandom from "seedrandom";
+import type {Testbed} from "../Testbed";
 
-type RAPIER_API = typeof import('@dimforge/rapier3d')
+type RAPIER_API = typeof import("@dimforge/rapier3d");
 
 function generateHeightfield(nsubdivs: number) {
     let heights = [];
 
-    let rng = seedrandom('heightfield');
+    let rng = seedrandom("heightfield");
 
     let i, j;
     for (i = 0; i <= nsubdivs; ++i) {
@@ -27,8 +27,13 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let scale = new RAPIER.Vector3(70.0, 4.0, 70.0);
     let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let body = world.createRigidBody(bodyDesc);
-    let heights = generateHeightfield(nsubdivs)
-    let colliderDesc = RAPIER.ColliderDesc.heightfield(nsubdivs, nsubdivs, heights, scale);
+    let heights = generateHeightfield(nsubdivs);
+    let colliderDesc = RAPIER.ColliderDesc.heightfield(
+        nsubdivs,
+        nsubdivs,
+        heights,
+        scale,
+    );
     world.createCollider(colliderDesc, body);
 
     // Dynamic cubes.
@@ -50,36 +55,53 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
                 let z = k * shift + offset;
 
                 // Create dynamic cube.
-                let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
-                    .setTranslation(x, y, z);
+                let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(
+                    x,
+                    y,
+                    z,
+                );
                 let body = world.createRigidBody(bodyDesc);
                 let colliderDesc;
 
                 switch (j % 5) {
                     case 0:
-                        colliderDesc
-                            = RAPIER.ColliderDesc.cuboid(rad, rad, rad);
+                        colliderDesc = RAPIER.ColliderDesc.cuboid(
+                            rad,
+                            rad,
+                            rad,
+                        );
                         break;
                     case 1:
-                        colliderDesc
-                            = RAPIER.ColliderDesc.ball(rad);
+                        colliderDesc = RAPIER.ColliderDesc.ball(rad);
                         break;
                     case 2:
-                        colliderDesc
-                            = RAPIER.ColliderDesc.roundCylinder(rad, rad, rad / 10.0);
+                        colliderDesc = RAPIER.ColliderDesc.roundCylinder(
+                            rad,
+                            rad,
+                            rad / 10.0,
+                        );
                         break;
                     case 3:
-                        colliderDesc
-                            = RAPIER.ColliderDesc.cone(rad, rad);
+                        colliderDesc = RAPIER.ColliderDesc.cone(rad, rad);
                         break;
                     case 4:
-                        colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad / 2.0, rad / 2.0);
+                        colliderDesc = RAPIER.ColliderDesc.cuboid(
+                            rad / 2.0,
+                            rad / 2.0,
+                            rad / 2.0,
+                        );
                         world.createCollider(colliderDesc, body);
-                        colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad, rad / 2.0)
-                            .setTranslation(rad, 0.0, 0.0);
+                        colliderDesc = RAPIER.ColliderDesc.cuboid(
+                            rad / 2.0,
+                            rad,
+                            rad / 2.0,
+                        ).setTranslation(rad, 0.0, 0.0);
                         world.createCollider(colliderDesc, body);
-                        colliderDesc = RAPIER.ColliderDesc.cuboid(rad / 2.0, rad, rad / 2.0)
-                            .setTranslation(-rad, 0.0, 0.0);
+                        colliderDesc = RAPIER.ColliderDesc.cuboid(
+                            rad / 2.0,
+                            rad,
+                            rad / 2.0,
+                        ).setTranslation(-rad, 0.0, 0.0);
                         break;
                 }
 
@@ -93,8 +115,12 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
 
     let cameraPosition = {
-        eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},
-        target: {x: 0.0, y: 0.0, z: 0.0}
+        eye: {
+            x: -88.48024008669711,
+            y: 46.911325612198354,
+            z: 83.56055570254844,
+        },
+        target: {x: 0.0, y: 0.0, z: 0.0},
     };
-    testbed.lookAt(cameraPosition)
+    testbed.lookAt(cameraPosition);
 }

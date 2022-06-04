@@ -1,5 +1,5 @@
-import {RawMultibodyJointSet} from "../raw"
-import {Coarena} from "../coarena"
+import {RawMultibodyJointSet} from "../raw";
+import {Coarena} from "../coarena";
 import {RigidBodySet} from "./rigid_body_set";
 import {
     MultibodyJoint,
@@ -8,13 +8,10 @@ import {
     FixedMultibodyJoint,
     PrismaticMultibodyJoint,
     // #if DIM3
-    SphericalMultibodyJoint
+    SphericalMultibodyJoint,
     // #endif
 } from "./multibody_joint";
-import {
-    ImpulseJointHandle,
-    JointData, JointType
-} from "./impulse_joint";
+import {ImpulseJointHandle, JointData, JointType} from "./impulse_joint";
 import {IslandManager} from "./island_manager";
 import {ColliderHandle} from "../geometry";
 import {RigidBodyHandle} from "./rigid_body";
@@ -27,7 +24,7 @@ import {RigidBodyHandle} from "./rigid_body";
  */
 export class MultibodyJointSet {
     raw: RawMultibodyJointSet;
-    private map: Coarena<MultibodyJoint>
+    private map: Coarena<MultibodyJoint>;
 
     /**
      * Release the WASM memory occupied by this joint set.
@@ -65,7 +62,12 @@ export class MultibodyJointSet {
         wakeUp: boolean,
     ): MultibodyJoint {
         const rawParams = desc.intoRaw();
-        const handle = this.raw.createJoint(rawParams, parent1, parent2, wakeUp);
+        const handle = this.raw.createJoint(
+            rawParams,
+            parent1,
+            parent2,
+            wakeUp,
+        );
         rawParams.free();
         let joint = MultibodyJoint.newTyped(this.raw, handle);
         this.map.set(handle, joint);
@@ -114,7 +116,7 @@ export class MultibodyJointSet {
      *
      * @param handle - The integer handle of the joint to retrieve.
      */
-    public get(handle: MultibodyJointHandle): MultibodyJoint  | null {
+    public get(handle: MultibodyJointHandle): MultibodyJoint | null {
         return this.map.get(handle);
     }
 
@@ -132,7 +134,10 @@ export class MultibodyJointSet {
      *
      * @param f - The closure called with the integer handle of each multibody joint attached to the rigid-body.
      */
-    public forEachJointHandleAttachedToRigidBody(handle: RigidBodyHandle, f: (handle: MultibodyJointHandle) => void) {
+    public forEachJointHandleAttachedToRigidBody(
+        handle: RigidBodyHandle,
+        f: (handle: MultibodyJointHandle) => void,
+    ) {
         this.raw.forEachJointAttachedToRigidBody(handle, f);
     }
 

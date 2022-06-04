@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="https://www.rapier.rs/img/rapier_logo_color_textpath_dark.svg" alt="crates.io">
 </p>
@@ -24,11 +23,11 @@
         <a href="https://rapier.rs">Website</a> | <a href="https://rapier.rs/docs/">Documentation</a>
 </p>
 
------
+---
 
 <p align = "center">
 <b>3D physics engine</b>
 <i>for the JavaScript programming language (official bindings).</i>
 </p>
 
------
+---

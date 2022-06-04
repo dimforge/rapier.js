@@ -1,12 +1,12 @@
-import {Graphics} from './Graphics'
-import {Gui} from './Gui'
-import type {DebugInfos} from './Gui'
+import {Graphics} from "./Graphics";
+import {Gui} from "./Gui";
+import type {DebugInfos} from "./Gui";
 import * as md5 from "md5";
 import type * as RAPIER from "@dimforge/rapier2d";
 
-type RAPIER_API = typeof import('@dimforge/rapier2d')
+type RAPIER_API = typeof import("@dimforge/rapier2d");
 
-type Builders = Map<string, (RAPIER: RAPIER_API, testbed: Testbed) => void>
+type Builders = Map<string, (RAPIER: RAPIER_API, testbed: Testbed) => void>;
 
 class SimulationParameters {
     backend: string;
@@ -17,27 +17,27 @@ class SimulationParameters {
     running: boolean;
     stepping: boolean;
     debugRender: boolean;
-    step: () => void
-    restart: () => void
-    takeSnapshot: () => void
-    restoreSnapshot: () => void
+    step: () => void;
+    restart: () => void;
+    takeSnapshot: () => void;
+    restoreSnapshot: () => void;
     backends: Array<string>;
     builders: Builders;
     debugInfos: boolean;
 
     constructor(backends: Array<string>, builders: Builders) {
-        this.backend = 'rapier';
-        this.prevBackend = 'rapier';
-        this.demo = 'collision groups';
+        this.backend = "rapier";
+        this.prevBackend = "rapier";
+        this.demo = "collision groups";
         this.numVelocityIter = 4;
         this.numPositionIter = 1;
         this.running = true;
         this.stepping = false;
         this.debugRender = false;
-        this.step = function () {}
-        this.restart = function () {}
-        this.takeSnapshot = function () {}
-        this.restoreSnapshot = function () {}
+        this.step = function () {};
+        this.restart = function () {};
+        this.takeSnapshot = function () {};
+        this.restoreSnapshot = function () {};
         this.backends = backends;
         this.builders = builders;
         this.debugInfos = false;
@@ -51,7 +51,7 @@ export class Testbed {
     inhibitLookAt: boolean;
     parameters: SimulationParameters;
     demoToken: number;
-    mouse: {x: number, y: number};
+    mouse: {x: number; y: number};
     events: RAPIER.EventQueue;
     world: RAPIER.World;
     preTimestepAction?: (gfx: Graphics) => void;
@@ -62,9 +62,7 @@ export class Testbed {
     snapStepId: number;
 
     constructor(RAPIER: RAPIER_API, builders: Builders) {
-        let backends = [
-            "rapier",
-        ];
+        let backends = ["rapier"];
         this.RAPIER = RAPIER;
         let parameters = new SimulationParameters(backends, builders);
         this.gui = new Gui(this, parameters);
@@ -76,8 +74,7 @@ export class Testbed {
         this.events = new RAPIER.EventQueue(true);
         this.switchToDemo(builders.keys().next().value);
 
-
-        window.addEventListener('mousemove', event => {
+        window.addEventListener("mousemove", (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = 1 - (event.clientY / window.innerHeight) * 2;
         });
@@ -96,16 +93,16 @@ export class Testbed {
         this.stepId = 0;
         this.gui.resetTiming();
 
-        world.forEachCollider(coll => {
+        world.forEachCollider((coll) => {
             this.graphics.addCollider(this.RAPIER, world, coll);
         });
 
         this.lastMessageTime = new Date().getTime();
     }
 
-    lookAt(pos: Parameters<Graphics['lookAt']>[0]) {
+    lookAt(pos: Parameters<Graphics["lookAt"]>[0]) {
         if (!this.inhibitLookAt) {
-            this.graphics.lookAt(pos)
+            this.graphics.lookAt(pos);
         }
 
         this.inhibitLookAt = false;
@@ -144,7 +141,8 @@ export class Testbed {
     run() {
         if (this.parameters.running || this.parameters.stepping) {
             this.world.maxVelocityIterations = this.parameters.numVelocityIter;
-            this.world.maxVelocityFrictionIterations = this.parameters.numVelocityIter * 2;
+            this.world.maxVelocityFrictionIterations =
+                this.parameters.numVelocityIter * 2;
 
             let t0 = new Date().getTime();
             this.world.step(this.events);
@@ -160,7 +158,7 @@ export class Testbed {
                 let debugInfos: DebugInfos = {
                     token: this.demoToken,
                     stepId: this.stepId,
-                    worldHash: '',
+                    worldHash: "",
                     worldHashTime: 0,
                     snapshotTime: 0,
                 };
@@ -175,7 +173,6 @@ export class Testbed {
                 this.gui.setDebugInfos(debugInfos);
             }
         }
-
 
         if (this.parameters.stepping) {
             this.parameters.running = false;

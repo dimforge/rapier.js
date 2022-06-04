@@ -1,5 +1,5 @@
-import { Vector, VectorOps } from "../math";
-import { RawShapeContact } from "../raw";
+import {Vector, VectorOps} from "../math";
+import {RawShapeContact} from "../raw";
 
 /**
  * The contact info between two shapes.
@@ -10,17 +10,17 @@ export class ShapeContact {
      * If this is negative, this contact represents a penetration.
      */
     distance: number;
-    
+
     /**
      * Position of the contact on the first shape.
      */
     point1: Vector;
-    
+
     /**
      * Position of the contact on the second shape.
      */
     point2: Vector;
-    
+
     /**
      * Contact normal, pointing towards the exterior of the first shape.
      */
@@ -32,7 +32,13 @@ export class ShapeContact {
      */
     normal2: Vector;
 
-    constructor(dist: number, point1: Vector, point2: Vector, normal1: Vector, normal2: Vector) {
+    constructor(
+        dist: number,
+        point1: Vector,
+        point2: Vector,
+        normal1: Vector,
+        normal2: Vector,
+    ) {
         this.distance = dist;
         this.point1 = point1;
         this.point2 = point2;
@@ -41,8 +47,7 @@ export class ShapeContact {
     }
 
     public static fromRaw(raw: RawShapeContact): ShapeContact {
-        if (!raw)
-            return null;
+        if (!raw) return null;
 
         const result = new ShapeContact(
             raw.distance(),

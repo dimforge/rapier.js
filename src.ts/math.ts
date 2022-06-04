@@ -30,8 +30,7 @@ export class VectorOps {
 
     // FIXME: type ram: RawVector?
     public static fromRaw(raw: RawVector): Vector {
-        if (!raw)
-            return null;
+        if (!raw) return null;
 
         let res = VectorOps.new(raw.x, raw.y);
         raw.free();
@@ -54,8 +53,7 @@ export class RotationOps {
     }
 
     public static fromRaw(raw: RawRotation): Rotation {
-        if (!raw)
-            return null;
+        if (!raw) return null;
 
         let res = raw.angle;
         raw.free();
@@ -68,7 +66,6 @@ export class RotationOps {
 }
 
 // #endif
-
 
 // #if DIM3
 export interface Vector {
@@ -107,8 +104,7 @@ export class VectorOps {
 
     // FIXME: type ram: RawVector?
     public static fromRaw(raw: RawVector): Vector {
-        if (!raw)
-            return null;
+        if (!raw) return null;
 
         let res = VectorOps.new(raw.x, raw.y, raw.z);
         raw.free();
@@ -146,8 +142,7 @@ export class RotationOps {
     }
 
     public static fromRaw(raw: RawRotation): Rotation {
-        if (!raw)
-            return null;
+        if (!raw) return null;
 
         let res = new Quaternion(raw.x, raw.y, raw.z, raw.w);
         raw.free();

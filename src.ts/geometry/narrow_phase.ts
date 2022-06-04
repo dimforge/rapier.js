@@ -1,4 +1,4 @@
-import {RawNarrowPhase, RawContactManifold} from "../raw"
+import {RawNarrowPhase, RawContactManifold} from "../raw";
 import {ColliderHandle} from "./collider";
 import {Vector, VectorOps} from "../math";
 
@@ -31,16 +31,22 @@ export class NarrowPhase {
      * @param collider1 - The second collider involved in the contact.
      * @param f - Closure that will be called on each collider that is in contact with `collider1`.
      */
-    public contactsWith(collider1: ColliderHandle, f: (collider2: ColliderHandle) => void) {
-        this.raw.contacts_with(collider1, f)
+    public contactsWith(
+        collider1: ColliderHandle,
+        f: (collider2: ColliderHandle) => void,
+    ) {
+        this.raw.contacts_with(collider1, f);
     }
 
     /**
      * Enumerates all the colliders intersecting the given colliders, assuming one of them
      * is a sensor.
      */
-    public intersectionsWith(collider1: ColliderHandle, f: (collider2: ColliderHandle) => void) {
-        this.raw.intersections_with(collider1, f)
+    public intersectionsWith(
+        collider1: ColliderHandle,
+        f: (collider2: ColliderHandle) => void,
+    ) {
+        this.raw.intersections_with(collider1, f);
     }
 
     /**
@@ -52,7 +58,11 @@ export class NarrowPhase {
      *            passed to this closure is `true`, then the contact manifold data is flipped, i.e., methods like `localNormal1`
      *            actually apply to the `collider2` and fields like `localNormal2` apply to the `collider1`.
      */
-    public contactPair(collider1: ColliderHandle, collider2: ColliderHandle, f: (manifold: TempContactManifold, flipped: boolean) => void) {
+    public contactPair(
+        collider1: ColliderHandle,
+        collider2: ColliderHandle,
+        f: (manifold: TempContactManifold, flipped: boolean) => void,
+    ) {
         const rawPair = this.raw.contact_pair(collider1, collider2);
 
         if (!!rawPair) {
@@ -79,7 +89,10 @@ export class NarrowPhase {
      * @param collider1 − The first collider involved in the intersection.
      * @param collider2 − The second collider involved in the intersection.
      */
-    public intersectionPair(collider1: ColliderHandle, collider2: ColliderHandle): boolean {
+    public intersectionPair(
+        collider1: ColliderHandle,
+        collider2: ColliderHandle,
+    ): boolean {
         return this.raw.intersection_pair(collider1, collider2);
     }
 }

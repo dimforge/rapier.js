@@ -1,6 +1,6 @@
-import type { Testbed } from '../Testbed';
+import type {Testbed} from "../Testbed";
 
-type RAPIER_API = typeof import('@dimforge/rapier3d')
+type RAPIER_API = typeof import("@dimforge/rapier3d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
@@ -47,11 +47,18 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
                 // Alternate between the green and blue groups.
                 let group = k % 2 == 0 ? group1 : group2;
-                let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y, z);
+                let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(
+                    x,
+                    y,
+                    z,
+                );
                 let body = world.createRigidBody(bodyDesc);
 
-                colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad, rad)
-                    .setCollisionGroups(group);
+                colliderDesc = RAPIER.ColliderDesc.cuboid(
+                    rad,
+                    rad,
+                    rad,
+                ).setCollisionGroups(group);
                 world.createCollider(colliderDesc, body);
             }
         }
@@ -60,7 +67,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
     let cameraPosition = {
         eye: {x: 10.0, y: 5.0, z: 10.0},
-        target: {x: 0.0, y: 0.0, z: 0.0}
+        target: {x: 0.0, y: 0.0, z: 0.0},
     };
-    testbed.lookAt(cameraPosition)
+    testbed.lookAt(cameraPosition);
 }

@@ -2,7 +2,7 @@
 export enum FeatureType {
     Vertex,
     Face,
-    Unknown
+    Unknown,
 }
 // #endif
 
@@ -11,6 +11,6 @@ export enum FeatureType {
     Vertex,
     Edge,
     Face,
-    Unknown
+    Unknown,
 }
 // #endif

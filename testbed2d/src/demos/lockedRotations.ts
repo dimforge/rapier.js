@@ -1,6 +1,6 @@
-import type { Testbed } from '../Testbed';
+import type {Testbed} from "../Testbed";
 
-type RAPIER_API = typeof import('@dimforge/rapier2d');
+type RAPIER_API = typeof import("@dimforge/rapier2d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector2(0.0, -9.81);
@@ -12,8 +12,10 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let ground_size = 1.8;
     let ground_height = 1.0;
 
-    let bodyDesc = RAPIER.RigidBodyDesc.fixed()
-        .setTranslation(0.0, -ground_height);
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(
+        0.0,
+        -ground_height,
+    );
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(ground_size, ground_height);
     world.createCollider(colliderDesc, body);
@@ -27,7 +29,6 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     body = world.createRigidBody(bodyDesc);
     colliderDesc = RAPIER.ColliderDesc.cuboid(2.0, 0.6);
     world.createCollider(colliderDesc, body);
-
 
     /*
      * A cuboid that cannot rotate.
@@ -45,6 +46,6 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
     testbed.lookAt({
         target: {x: 0.0, y: -2.0},
-        zoom: 50.0
+        zoom: 50.0,
     });
 }

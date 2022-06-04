@@ -1,11 +1,10 @@
+import type * as RAPIER from "@dimforge/rapier2d";
+import type {Testbed} from "../Testbed";
 
-import type * as RAPIER from '@dimforge/rapier2d';
-import type { Testbed } from '../Testbed';
-
-type RAPIER_API = typeof import('@dimforge/rapier2d');
+type RAPIER_API = typeof import("@dimforge/rapier2d");
 
 function buildBlock(
-    RAPIER:RAPIER_API,
+    RAPIER: RAPIER_API,
     world: RAPIER.World,
     halfExtents: RAPIER.Vector,
     shift: RAPIER.Vector,
@@ -13,7 +12,7 @@ function buildBlock(
     numy: number,
     numz: number,
 ) {
-    let halfExtents_yx = {x: halfExtents.y, y: halfExtents.x}
+    let halfExtents_yx = {x: halfExtents.y, y: halfExtents.x};
     let dimensions = [halfExtents, halfExtents_yx];
     let spacing = (halfExtents.y * numx - halfExtents.x) / (numz - 1.0);
 
@@ -29,11 +28,10 @@ function buildBlock(
             let x = i % 2 == 0 ? spacing * j * 2.0 : dim.x * j * 2.0;
 
             // Build the rigid body.
-            let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
-                .setTranslation(
-                    x + dim.x + shift.x,
-                    y + dim.y + shift.y,
-                );
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(
+                x + dim.x + shift.x,
+                y + dim.y + shift.y,
+            );
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(dim.x, dim.y);
             world.createCollider(colliderDesc, body);
@@ -43,7 +41,6 @@ function buildBlock(
     }
 }
 
-
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector2(0.0, -9.81);
     let world = new RAPIER.World(gravity);
@@ -51,8 +48,10 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     // Create Ground.
     let groundSize = 150.0;
     let groundHeight = 0.1;
-    let bodyDesc = RAPIER.RigidBodyDesc.fixed()
-        .setTranslation(0.0, -groundHeight);
+    let bodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(
+        0.0,
+        -groundHeight,
+    );
     let body = world.createRigidBody(bodyDesc);
     let colliderDesc = RAPIER.ColliderDesc.cuboid(groundSize, groundHeight);
     world.createCollider(colliderDesc, body);
@@ -88,6 +87,6 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
     testbed.lookAt({
         target: {x: -10.0, y: -5.0},
-        zoom: 4.0
+        zoom: 4.0,
     });
 }

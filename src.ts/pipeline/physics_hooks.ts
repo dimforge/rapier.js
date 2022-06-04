@@ -25,8 +25,12 @@ export interface PhysicsHooks {
      * @param body1 − Handle of the first body involved in the potential contact.
      * @param body2 − Handle of the second body involved in the potential contact.
      */
-    filterContactPair(collider1: ColliderHandle, collider2: ColliderHandle, body1: RigidBodyHandle, body2: RigidBodyHandle): SolverFlags | null;
-
+    filterContactPair(
+        collider1: ColliderHandle,
+        collider2: ColliderHandle,
+        body1: RigidBodyHandle,
+        body2: RigidBodyHandle,
+    ): SolverFlags | null;
 
     /**
      * Function that determines if intersection computation should happen between two colliders (where at least
@@ -40,5 +44,10 @@ export interface PhysicsHooks {
      * @param body1 − Handle of the first body involved in the potential contact.
      * @param body2 − Handle of the second body involved in the potential contact.
      */
-    filterIntersectionPair(collider1: ColliderHandle, collider2: ColliderHandle, body1: RigidBodyHandle, body2: RigidBodyHandle): boolean;
+    filterIntersectionPair(
+        collider1: ColliderHandle,
+        collider2: ColliderHandle,
+        body1: RigidBodyHandle,
+        body2: RigidBodyHandle,
+    ): boolean;
 }

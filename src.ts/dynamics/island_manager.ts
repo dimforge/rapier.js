@@ -1,4 +1,4 @@
-import {RawIslandManager} from "../raw"
+import {RawIslandManager} from "../raw";
 import {RigidBodyHandle} from "./rigid_body";
 
 /**
@@ -30,6 +30,6 @@ export class IslandManager {
      * @param f - The closure to apply.
      */
     public forEachActiveRigidBodyHandle(f: (handle: RigidBodyHandle) => void) {
-        this.raw.forEachActiveRigidBodyHandle(f)
+        this.raw.forEachActiveRigidBodyHandle(f);
     }
 }

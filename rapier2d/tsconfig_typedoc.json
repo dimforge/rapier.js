@@ -1,11 +1,9 @@
 {
-  "compilerOptions": {
-    "outDir": "./pkg",
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "declaration": true
-  },
-  "files": [
-    "./pkg/rapier.d.ts"
-  ]
+    "compilerOptions": {
+        "outDir": "./pkg",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "declaration": true
+    },
+    "files": ["./pkg/rapier.d.ts"]
 }

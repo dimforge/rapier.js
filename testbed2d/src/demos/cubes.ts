@@ -1,6 +1,6 @@
-import type { Testbed } from '../Testbed';
+import type {Testbed} from "../Testbed";
 
-type RAPIER_API = typeof import('@dimforge/rapier2d');
+type RAPIER_API = typeof import("@dimforge/rapier2d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector2(0.0, -9.81);
@@ -14,9 +14,11 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
         {x: groundSize, y: groundSize, hx: 0.1, hy: groundSize},
     ];
 
-    grounds.forEach(ground => {
-        let bodyDesc = RAPIER.RigidBodyDesc.fixed()
-            .setTranslation(ground.x, ground.y);
+    grounds.forEach((ground) => {
+        let bodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(
+            ground.x,
+            ground.y,
+        );
         let body = world.createRigidBody(bodyDesc);
         let colliderDesc = RAPIER.ColliderDesc.cuboid(ground.hx, ground.hy);
         world.createCollider(colliderDesc, body);
@@ -39,8 +41,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
             let y = j * shift + centery + 3.0;
 
             // Create dynamic cube.
-            let bodyDesc = RAPIER.RigidBodyDesc.dynamic()
-                .setTranslation(x, y);
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad);
             world.createCollider(colliderDesc, body);
@@ -50,6 +51,6 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
     testbed.lookAt({
         target: {x: -10.0, y: -30.0},
-        zoom: 7.0
+        zoom: 7.0,
     });
 }

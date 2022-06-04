@@ -1,8 +1,12 @@
-import {
-    RawSerializationPipeline,
-} from "../raw";
+import {RawSerializationPipeline} from "../raw";
 import {Vector, VectorOps} from "../math";
-import {IntegrationParameters, IslandManager, ImpulseJointSet, MultibodyJointSet, RigidBodySet} from "../dynamics";
+import {
+    IntegrationParameters,
+    IslandManager,
+    ImpulseJointSet,
+    MultibodyJointSet,
+    RigidBodySet,
+} from "../dynamics";
 import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
 import {World} from "./world";
 
@@ -13,7 +17,7 @@ import {World} from "./world";
  * once you are done using it (and all the rigid-bodies it created).
  */
 export class SerializationPipeline {
-    raw: RawSerializationPipeline
+    raw: RawSerializationPipeline;
 
     /**
      * Release the WASM memory occupied by this serialization pipeline.

@@ -1,6 +1,6 @@
-import * as dat from 'dat.gui'
+import * as dat from "dat.gui";
 import * as Stats from "stats.js";
-import type { Testbed } from './Testbed';
+import type {Testbed} from "./Testbed";
 
 export interface DebugInfos {
     token: number;
@@ -19,7 +19,7 @@ export class Gui {
     gui: dat.GUI;
     debugText: HTMLDivElement;
 
-    constructor(testbed: Testbed, simulationParameters: Testbed['parameters']) {
+    constructor(testbed: Testbed, simulationParameters: Testbed["parameters"]) {
         // Timings
         this.stats = new Stats();
         this.rapierVersion = testbed.RAPIER.version();
@@ -28,8 +28,12 @@ export class Gui {
         // on firefox. This means that on firefox we have to show the panel 2 instead of the panel
         // 3. To work around this, we just add the pannel twice so that the 3rd panel on firefox
         // exist and gives the timing information.
-        this.stepTimePanel1 = this.stats.addPanel(new Stats.Panel('ms (step)', '#ff8', '#221'));
-        this.stepTimePanel2 = this.stats.addPanel(new Stats.Panel('ms (step)', '#ff8', '#221'));
+        this.stepTimePanel1 = this.stats.addPanel(
+            new Stats.Panel("ms (step)", "#ff8", "#221"),
+        );
+        this.stepTimePanel2 = this.stats.addPanel(
+            new Stats.Panel("ms (step)", "#ff8", "#221"),
+        );
         this.stats.showPanel(3);
         document.body.appendChild(this.stats.dom);
 
@@ -39,46 +43,50 @@ export class Gui {
 
         // For configuring simulation parameters.
         this.gui = new dat.GUI({
-            name: "Rapier JS demos"
+            name: "Rapier JS demos",
         });
-        this.gui.add(simulationParameters, 'backend', backends)
+        this.gui
+            .add(simulationParameters, "backend", backends)
             .onChange(function (backend) {
-                testbed.switchToBackend(backend)
+                testbed.switchToBackend(backend);
             });
-        var currDemo = this.gui.add(simulationParameters, 'demo', demos)
+        var currDemo = this.gui
+            .add(simulationParameters, "demo", demos)
             .onChange(function (demo) {
-                testbed.switchToDemo(demo)
+                testbed.switchToDemo(demo);
             });
-        this.gui.add(simulationParameters, 'numVelocityIter', 0, 20).step(1).listen();
-        this.gui.add(simulationParameters, 'debugInfos').listen();
-        this.gui.add(simulationParameters, 'debugRender').listen();
-        this.gui.add(simulationParameters, 'running', true).listen();
-        this.gui.add(simulationParameters, 'step')
+        this.gui
+            .add(simulationParameters, "numVelocityIter", 0, 20)
+            .step(1)
+            .listen();
+        this.gui.add(simulationParameters, "debugInfos").listen();
+        this.gui.add(simulationParameters, "debugRender").listen();
+        this.gui.add(simulationParameters, "running", true).listen();
+        this.gui.add(simulationParameters, "step").onChange(function () {
+            simulationParameters.stepping = true;
+        });
+        this.gui
+            .add(simulationParameters, "takeSnapshot")
             .onChange(function () {
-                simulationParameters.stepping = true;
+                testbed.takeSnapshot();
             });
-        this.gui.add(simulationParameters, 'takeSnapshot')
+        this.gui
+            .add(simulationParameters, "restoreSnapshot")
             .onChange(function () {
-                testbed.takeSnapshot()
-            })
-        this.gui.add(simulationParameters, 'restoreSnapshot')
-            .onChange(function () {
-                testbed.restoreSnapshot()
-            })
-        this.gui.add(simulationParameters, 'restart')
-            .onChange(function () {
-                testbed.switchToDemo(currDemo.getValue())
-            })
-
+                testbed.restoreSnapshot();
+            });
+        this.gui.add(simulationParameters, "restart").onChange(function () {
+            testbed.switchToDemo(currDemo.getValue());
+        });
 
         /*
          * Block of text for debug infos.
          */
-        this.debugText = document.createElement('div');
-        this.debugText.style.position = 'absolute';
+        this.debugText = document.createElement("div");
+        this.debugText.style.position = "absolute";
         this.debugText.innerHTML = "";
-        this.debugText.style.top = 50 + 'px';
-        this.debugText.style.visibility = 'visible';
+        this.debugText.style.top = 50 + "px";
+        this.debugText.style.visibility = "visible";
         document.body.appendChild(this.debugText);
     }
 
