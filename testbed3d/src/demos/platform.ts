@@ -1,32 +1,63 @@
 import seedrandom from 'seedrandom'
+import type { Testbed } from '../Testbed';
 
-function generateHeightfield(nsubdivs) {
-    let heights = [];
+type RAPIER_API = typeof import('@dimforge/rapier3d')
 
-    let rng = seedrandom('heightfield');
+function generateTriMesh(nsubdivs: number, wx: number, wy: number, wz: number) {
+    let vertices = [];
+    let indices = [];
+
+    let elementWidth = 1.0 / nsubdivs;
+    let rng = seedrandom('trimesh');
 
     let i, j;
     for (i = 0; i <= nsubdivs; ++i) {
         for (j = 0; j <= nsubdivs; ++j) {
-            heights.push(rng());
+            let x = (j * elementWidth - 0.5) * wx;
+            let y = rng() * wy;
+            let z = (i * elementWidth - 0.5) * wz;
+
+            vertices.push(x, y, z);
         }
     }
 
-    return heights;
+    for (i = 0; i < nsubdivs; ++i) {
+        for (j = 0; j < nsubdivs; ++j) {
+            let i1 = (i + 0) * (nsubdivs + 1) + (j + 0);
+            let i2 = (i + 0) * (nsubdivs + 1) + (j + 1);
+            let i3 = (i + 1) * (nsubdivs + 1) + (j + 0);
+            let i4 = (i + 1) * (nsubdivs + 1) + (j + 1);
+
+            indices.push(i1, i3, i2);
+            indices.push(i3, i4, i2);
+        }
+    }
+
+    return {
+        vertices: new Float32Array(vertices),
+        indices: new Uint32Array(indices),
+    }
 }
 
-export function initWorld(RAPIER, testbed) {
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
 
     // Create Ground.
-    let nsubdivs = 20;
-    let scale = new RAPIER.Vector3(70.0, 4.0, 70.0);
-    let bodyDesc = RAPIER.RigidBodyDesc.fixed();
-    let body = world.createRigidBody(bodyDesc);
-    let heights = generateHeightfield(nsubdivs)
-    let colliderDesc = RAPIER.ColliderDesc.heightfield(nsubdivs, nsubdivs, heights, scale);
-    world.createCollider(colliderDesc, body);
+    let bodyDesc = RAPIER.RigidBodyDesc.kinematicVelocityBased();
+    let platformBody = world.createRigidBody(bodyDesc);
+    let trimesh = generateTriMesh(20, 70.0, 4.0, 70.0)
+    let colliderDesc = RAPIER.ColliderDesc.trimesh(trimesh.vertices, trimesh.indices);
+    world.createCollider(colliderDesc, platformBody);
+    let t = 0.0;
+
+    let movePlatform = () => {
+        t += 0.016;
+        let dy = Math.sin(t) * 10.0;
+        let dang = Math.sin(t) * 0.2;
+        platformBody.setLinvel({x: 0.0, y: dy, z: 0.0}, true);
+        platformBody.setAngvel({x: 0.0, y: dang, z: 0.0}, true);
+    }
 
     // Dynamic cubes.
     let num = 4;
@@ -88,10 +119,11 @@ export function initWorld(RAPIER, testbed) {
     }
 
     testbed.setWorld(world);
+    testbed.setpreTimestepAction(movePlatform);
 
     let cameraPosition = {
-        eye: {x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844},
-        target: {x: 0.0, y: 0.0, z: 0.0}
+        eye: { x: -88.48024008669711, y: 46.911325612198354, z: 83.56055570254844 },
+        target: { x: 0.0, y: 0.0, z: 0.0 }
     };
     testbed.lookAt(cameraPosition)
 }

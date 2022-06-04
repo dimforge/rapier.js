@@ -1,8 +1,13 @@
+import type RAPIER from '@dimforge/rapier3d';
+import type { Testbed } from '../Testbed';
+
+type RAPIER_API = typeof import('@dimforge/rapier3d')
+
 function createPrismaticJoints(
-    RAPIER,
-    world,
-    origin,
-    num,
+    RAPIER: RAPIER_API,
+    world: RAPIER.World,
+    origin: RAPIER.Vector,
+    num: number,
 ) {
     let rad = 0.4;
     let shift = 1.0;
@@ -40,7 +45,7 @@ function createPrismaticJoints(
         );
         prism.limitsEnabled = true;
         prism.limits = [-2.0, 2.0];
-        world.createImpulseJoint(prism, currParent, currChild);
+        world.createImpulseJoint(prism, currParent, currChild, true);
 
         currParent = currChild;
     }
@@ -48,10 +53,10 @@ function createPrismaticJoints(
 
 
 function createRevoluteJoints(
-    RAPIER,
-    world,
-    origin,
-    num,
+    RAPIER: RAPIER_API,
+    world: RAPIER.World,
+    origin: RAPIER.Vector3,
+    num: number,
 ) {
     let rad = 0.4;
     let shift = 2.0;
@@ -100,10 +105,10 @@ function createRevoluteJoints(
             RAPIER.JointData.revolute(o, new RAPIER.Vector3(shift, 0.0, 0.0), x),
         ];
 
-        world.createImpulseJoint(revs[0], currParent, parents[0]);
-        world.createImpulseJoint(revs[1], parents[0], parents[1]);
-        world.createImpulseJoint(revs[2], parents[1], parents[2]);
-        world.createImpulseJoint(revs[3], parents[2], parents[3]);
+        world.createImpulseJoint(revs[0], currParent, parents[0], true);
+        world.createImpulseJoint(revs[1], parents[0], parents[1], true);
+        world.createImpulseJoint(revs[2], parents[1], parents[2], true);
+        world.createImpulseJoint(revs[3], parents[2], parents[3], true);
 
         currParent = parents[3];
     }
@@ -111,10 +116,10 @@ function createRevoluteJoints(
 
 
 function createFixedJoints(
-    RAPIER,
-    world,
-    origin,
-    num,
+    RAPIER: RAPIER_API,
+    world: RAPIER.World,
+    origin: RAPIER.Vector3,
+    num: number,
 ) {
     let rad = 0.4;
     let shift = 1.0;
@@ -153,7 +158,7 @@ function createFixedJoints(
                     new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
                 );
 
-                world.createImpulseJoint(params, parent, child);
+                world.createImpulseJoint(params, parent, child, true);
             }
 
             // Horizontal joint.
@@ -167,7 +172,7 @@ function createFixedJoints(
                     new RAPIER.Quaternion(0.0, 0.0, 0.0, 1.0),
                 );
 
-                world.createImpulseJoint(params, parent, child);
+                world.createImpulseJoint(params, parent, child, true);
             }
 
             parents.push(child);
@@ -177,9 +182,9 @@ function createFixedJoints(
 
 
 function createBallJoints(
-    RAPIER,
-    world,
-    num,
+    RAPIER: RAPIER_API,
+    world: RAPIER.World,
+    num: number,
 ) {
     let rad = 0.4;
     let shift = 1.0;
@@ -212,7 +217,7 @@ function createBallJoints(
                 let parent =
                     parents[parents.length - 1];
                 let params = RAPIER.JointData.spherical(o, new RAPIER.Vector3(0.0, 0.0, -shift));
-                world.createImpulseJoint(params, parent, child);
+                world.createImpulseJoint(params, parent, child, true);
             }
 
             // Horizontal joint.
@@ -220,7 +225,7 @@ function createBallJoints(
                 let parent_index = parents.length - num;
                 let parent = parents[parent_index];
                 let params = RAPIER.JointData.spherical(o, new RAPIER.Vector3(-shift, 0.0, 0.0));
-                world.createImpulseJoint(params, parent, child);
+                world.createImpulseJoint(params, parent, child, true);
             }
 
             parents.push(child);
@@ -229,7 +234,7 @@ function createBallJoints(
 }
 
 
-export function initWorld(RAPIER, testbed) {
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
 

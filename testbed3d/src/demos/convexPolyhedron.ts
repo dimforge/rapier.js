@@ -1,6 +1,9 @@
+import type { Testbed } from '../Testbed';
 import seedrandom from 'seedrandom'
 
-function generateTriMesh(nsubdivs, wx, wy, wz) {
+type RAPIER_API = typeof import('@dimforge/rapier3d')
+
+function generateTriMesh(nsubdivs: number, wx: number, wy: number, wz: number) {
     let vertices = [];
     let indices = [];
 
@@ -36,7 +39,7 @@ function generateTriMesh(nsubdivs, wx, wy, wz) {
     }
 }
 
-export function initWorld(RAPIER, testbed) {
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
 
@@ -73,12 +76,12 @@ export function initWorld(RAPIER, testbed) {
                 for (l = 0; l < 10; ++l) {
                     vertices.push(rng() * scale, rng() * scale, rng() * scale);
                 }
-                vertices = new Float32Array(vertices);
+                let v = new Float32Array(vertices);
 
                 // Build the rigid body.
                 bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y, z);
                 body = world.createRigidBody(bodyDesc);
-                colliderDesc = RAPIER.ColliderDesc.roundConvexHull(vertices, border_rad);
+                colliderDesc = RAPIER.ColliderDesc.roundConvexHull(v, border_rad);
                 world.createCollider(colliderDesc, body);
             }
         }

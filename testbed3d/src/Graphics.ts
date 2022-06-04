@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
-import seedrandom from "seedrandom";
+import RAPIER from '@dimforge/rapier3d'
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
@@ -10,7 +10,17 @@ const CONE_INSTANCE_INDEX = 3;
 var dummy = new THREE.Object3D();
 var kk = 0;
 
-function genHeightfieldGeometry(collider) {
+interface InstanceDesc {
+    groupId: number
+    instanceId: number
+    elementId: number
+    highlighted: boolean
+    scale?: THREE.Vector3
+}
+
+type RAPIER_API = typeof import('@dimforge/rapier3d')
+
+function genHeightfieldGeometry(collider: RAPIER.Collider) {
     let heights = collider.heightfieldHeights();
     let nrows = collider.heightfieldNRows();
     let ncols = collider.heightfieldNCols();
@@ -21,7 +31,8 @@ function genHeightfieldGeometry(collider) {
     let eltWX = 1.0 / nrows;
     let eltWY = 1.0 / ncols;
 
-    let i, j;
+    let i: number;
+    let j: number;
     for (j = 0; j <= ncols; ++j) {
         for (i = 0; i <= nrows; ++i) {
             let x = (j * eltWX - 0.5) * scale.x;
@@ -51,7 +62,22 @@ function genHeightfieldGeometry(collider) {
 }
 
 export class Graphics {
-    constructor(simulationParameters) {
+    raycaster: THREE.Raycaster
+    highlightedCollider: null | number;
+    coll2instance: Map<number, InstanceDesc>;
+    coll2mesh: Map<number, THREE.Mesh>;
+    rb2colls: Map<number, Array<RAPIER.Collider>>;
+    colorIndex: number
+    colorPalette: Array<number>
+    scene: THREE.Scene;
+    camera: THREE.PerspectiveCamera;
+    renderer: THREE.WebGLRenderer;
+    light: THREE.PointLight;
+    lines: THREE.LineSegments;
+    controls: OrbitControls;
+    instanceGroups: Array<Array<THREE.InstancedMesh>>;
+
+    constructor() {
         this.raycaster = new THREE.Raycaster();
         this.highlightedCollider = null;
         this.coll2instance = new Map();
@@ -78,7 +104,7 @@ export class Graphics {
         {
             let material = new THREE.LineBasicMaterial({
                 color: 0xffffff,
-                vertexColors: THREE.VertexColors
+                vertexColors: true
             });
             let geometry = new THREE.BufferGeometry();
             this.lines = new THREE.LineSegments(geometry, material);
@@ -131,7 +157,7 @@ export class Graphics {
 
         this.instanceGroups.forEach(groups => {
             groups.forEach(instance => {
-                instance.elementId2coll = new Map();
+                instance.userData.elementId2coll = new Map()
                 instance.count = 0;
                 instance.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
                 this.scene.add(instance);
@@ -139,7 +165,7 @@ export class Graphics {
         });
     }
 
-    render(world, debugRender) {
+    render(world: RAPIER.World, debugRender: boolean) {
         kk += 1;
         this.controls.update();
         // if (kk % 100 == 0) {
@@ -162,13 +188,16 @@ export class Graphics {
         this.renderer.render(this.scene, this.camera);
     }
 
-    rayAtMousePosition(pos) {
+    rayAtMousePosition(pos: { x: number, y: number }) {
         this.raycaster.setFromCamera(pos, this.camera);
         return this.raycaster.ray;
     }
 
 
-    lookAt(pos) {
+    lookAt(pos: {
+        target: { x: number, y: number, z: number },
+        eye: { x: number, y: number, z: number },
+    }) {
         this.camera.position.set(pos.eye.x, pos.eye.y, pos.eye.z);
         this.controls.target.set(pos.target.x, pos.target.y, pos.target.z);
         this.controls.update();
@@ -179,7 +208,7 @@ export class Graphics {
         return this.colorPalette.length - 1;
     }
 
-    highlightCollider(handle) {
+    highlightCollider(handle: number) {
         if (handle == this.highlightedCollider) // Avoid flickering when moving the mouse on a single collider.
             return;
 
@@ -202,7 +231,7 @@ export class Graphics {
         this.highlightedCollider = handle;
     }
 
-    updatePositions(world) {
+    updatePositions(world: RAPIER.World) {
         world.forEachCollider(elt => {
             let gfx = this.coll2instance.get(elt.handle);
             let translation = elt.translation();
@@ -226,12 +255,12 @@ export class Graphics {
                 highlightInstance.instanceMatrix.needsUpdate = true;
             }
 
-            gfx = this.coll2mesh.get(elt.handle);
+            let mesh = this.coll2mesh.get(elt.handle);
 
-            if (!!gfx) {
-                gfx.position.set(translation.x, translation.y, translation.z);
-                gfx.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
-                gfx.updateMatrix();
+            if (!!mesh) {
+                mesh.position.set(translation.x, translation.y, translation.z);
+                mesh.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+                mesh.updateMatrix();
             }
         })
     }
@@ -239,7 +268,7 @@ export class Graphics {
     reset() {
         this.instanceGroups.forEach(groups => {
             groups.forEach(instance => {
-                instance.elementId2coll = new Map();
+                instance.userData.elementId2coll = new Map();
                 instance.count = 0;
             })
         });
@@ -253,36 +282,36 @@ export class Graphics {
         this.colorIndex = 0;
     }
 
-    applyModifications(RAPIER, world, modifications) {
-        if (!!modifications) {
-            modifications.addCollider.forEach(coll => {
-                let collider = world.getCollider(coll.handle);
-                this.addCollider(RAPIER, world, collider);
-            });
-            modifications.removeRigidBody.forEach(body => {
-                if (!!this.rb2colls.get(body.handle)) {
-                    this.rb2colls.get(body.handle).forEach(coll => this.removeCollider(coll));
-                    this.rb2colls.delete(body.handle);
-                }
-            });
-        }
-    }
+    // applyModifications(RAPIER: RAPIER_API, world: RAPIER.World, modifications) {
+    //     if (!!modifications) {
+    //         modifications.addCollider.forEach(coll => {
+    //             let collider = world.getCollider(coll.handle);
+    //             this.addCollider(RAPIER, world, collider);
+    //         });
+    //         modifications.removeRigidBody.forEach(body => {
+    //             if (!!this.rb2colls.get(body.handle)) {
+    //                 this.rb2colls.get(body.handle).forEach(coll => this.removeCollider(coll));
+    //                 this.rb2colls.delete(body.handle);
+    //             }
+    //         });
+    //     }
+    // }
 
-    removeRigidBody(body) {
+    removeRigidBody(body: RAPIER.RigidBody) {
         if (!!this.rb2colls.get(body.handle)) {
             this.rb2colls.get(body.handle).forEach(coll => this.removeCollider(coll));
             this.rb2colls.delete(body.handle);
         }
     }
 
-    removeCollider(collider) {
+    removeCollider(collider: RAPIER.Collider) {
         let gfx = this.coll2instance.get(collider.handle);
         let instance = this.instanceGroups[gfx.groupId][gfx.instanceId];
 
         if (instance.count > 1) {
-            let coll2 = instance.elementId2coll.get(instance.count - 1);
-            instance.elementId2coll.delete(instance.count - 1);
-            instance.elementId2coll.set(gfx.elementId, coll2);
+            let coll2 = instance.userData.elementId2coll.get(instance.count - 1);
+            instance.userData.elementId2coll.delete(instance.count - 1);
+            instance.userData.elementId2coll.set(gfx.elementId, coll2);
 
             let gfx2 = this.coll2instance.get(coll2.handle);
             gfx2.elementId = gfx.elementId;
@@ -292,7 +321,7 @@ export class Graphics {
         this.coll2instance.delete(collider.handle);
     }
 
-    addCollider(RAPIER, world, collider) {
+    addCollider(RAPIER: RAPIER_API, world: RAPIER.World, collider: RAPIER.Collider) {
         this.colorIndex = (this.colorIndex + 1) % (this.colorPalette.length - 2);
         let parent = collider.parent();
         if (!this.rb2colls.get(parent.handle)) {
@@ -302,7 +331,7 @@ export class Graphics {
         }
 
         let instance;
-        let instanceDesc = {
+        let instanceDesc: InstanceDesc = {
             groupId: 0,
             instanceId: parent.isFixed() ? 0 : (this.colorIndex + 1),
             elementId: 0,
@@ -375,7 +404,7 @@ export class Graphics {
 
         if (!!instance) {
             instanceDesc.elementId = instance.count;
-            instance.elementId2coll.set(instance.count, collider);
+            instance.userData.elementId2coll.set(instance.count, collider);
             instance.count += 1;
         }
 

@@ -1,4 +1,8 @@
-export function initWorld(RAPIER, testbed) {
+import type { Testbed } from '../Testbed';
+
+type RAPIER_API = typeof import('@dimforge/rapier3d')
+
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, 0.0, 0.0);
     let world = new RAPIER.World(gravity);
 

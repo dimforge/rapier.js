@@ -1,11 +1,16 @@
+import type RAPIER from '@dimforge/rapier3d';
+import type { Testbed } from '../Testbed';
+
+type RAPIER_API = typeof import('@dimforge/rapier3d')
+
 function buildBlock(
-    RAPIER,
-    world,
-    halfExtents,
-    shift,
-    numx,
-    numy,
-    numz
+    RAPIER: RAPIER_API,
+    world: RAPIER.World,
+    halfExtents: RAPIER.Vector,
+    shift: RAPIER.Vector,
+    numx: number,
+    numy: number,
+    numz: number
 ) {
     let half_extents_zyx = {x: halfExtents.z, y: halfExtents.y, z: halfExtents.x};
     let dimensions = [halfExtents, half_extents_zyx];
@@ -61,7 +66,7 @@ function buildBlock(
 }
 
 
-export function initWorld(RAPIER, testbed) {
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
 

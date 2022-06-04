@@ -1,9 +1,31 @@
 import {Graphics} from './Graphics'
 import {Gui} from './Gui'
-import md5 from "md5";
+import type {DebugInfos} from './Gui'
+import * as md5 from "md5";
+import type * as RAPIER from "@dimforge/rapier2d";
+
+type RAPIER_API = typeof import('@dimforge/rapier2d')
+
+type Builders = Map<string, (RAPIER: RAPIER_API, testbed: Testbed) => void>
 
 class SimulationParameters {
-    constructor(backends, builders) {
+    backend: string;
+    prevBackend: string;
+    demo: string;
+    numVelocityIter: number;
+    numPositionIter: number;
+    running: boolean;
+    stepping: boolean;
+    debugRender: boolean;
+    step: () => void
+    restart: () => void
+    takeSnapshot: () => void
+    restoreSnapshot: () => void
+    backends: Array<string>;
+    builders: Builders;
+    debugInfos: boolean;
+
+    constructor(backends: Array<string>, builders: Builders) {
         this.backend = 'rapier';
         this.prevBackend = 'rapier';
         this.demo = 'collision groups';
@@ -12,14 +34,10 @@ class SimulationParameters {
         this.running = true;
         this.stepping = false;
         this.debugRender = false;
-        this.step = function () {
-        }
-        this.restart = function () {
-        }
-        this.takeSnapshot = function () {
-        }
-        this.restoreSnapshot = function () {
-        }
+        this.step = function () {}
+        this.restart = function () {}
+        this.takeSnapshot = function () {}
+        this.restoreSnapshot = function () {}
         this.backends = backends;
         this.builders = builders;
         this.debugInfos = false;
@@ -27,7 +45,23 @@ class SimulationParameters {
 }
 
 export class Testbed {
-    constructor(RAPIER, builders) {
+    RAPIER: RAPIER_API;
+    gui: Gui;
+    graphics: Graphics;
+    inhibitLookAt: boolean;
+    parameters: SimulationParameters;
+    demoToken: number;
+    mouse: {x: number, y: number};
+    events: RAPIER.EventQueue;
+    world: RAPIER.World;
+    preTimestepAction?: (gfx: Graphics) => void;
+    stepId: number;
+    prevDemo: string;
+    lastMessageTime: number;
+    snap: Uint8Array;
+    snapStepId: number;
+
+    constructor(RAPIER: RAPIER_API, builders: Builders) {
         let backends = [
             "rapier",
         ];
@@ -42,56 +76,6 @@ export class Testbed {
         this.events = new RAPIER.EventQueue(true);
         this.switchToDemo(builders.keys().next().value);
 
-        // this.worker.onmessage = msg => {
-        //     if (!!msg.data && msg.data.token != this.demoToken) {
-        //         // This messages comes from an older demo update loop
-        //         // so we can stop the loop now.
-        //         return;
-        //     }
-        //
-        //     let modifications;
-        //
-        //     if (!!msg.data && msg.data.token == this.demoToken) {
-        //         switch (msg.data.type) {
-        //             case 'collider.highlight':
-        //                 this.graphics.highlightCollider(msg.data.handle);
-        //                 return;
-        //             case 'colliders.setPositions':
-        //                 this.graphics.updatePositions(msg.data.positions);
-        //                 break;
-        //         }
-        //         this.gui.setTiming(msg.data.stepTime);
-        //         this.gui.setDebugInfos(msg.data);
-        //     }
-        //
-        //     let now = new Date().getTime();
-        //     let raycastMessage = this.raycastMessage();
-        //     let timestepTimeMS = this.world.timestep * 1000 * 0.75;
-        //     /// Don't step the physics world faster than the real world.
-        //     if (now - this.lastMessageTime >= timestepTimeMS) {
-        //         if (!!this.preTimestepAction && this.parameters.running) {
-        //             modifications = this.preTimestepAction();
-        //         }
-        //         let stepMessage = this.stepMessage(modifications);
-        //
-        //         this.graphics.applyModifications(this.RAPIER, this.world, modifications);
-        //         this.worker.postMessage(raycastMessage);
-        //         this.worker.postMessage(stepMessage);
-        //         this.lastMessageTime = now;
-        //     } else {
-        //         setTimeout(() => {
-        //             if (!!this.preTimestepAction && this.parameters.running) {
-        //                 modifications = this.preTimestepAction();
-        //             }
-        //             let stepMessage = this.stepMessage(modifications);
-        //
-        //             this.graphics.applyModifications(this.RAPIER, this.world, modifications);
-        //             this.worker.postMessage(raycastMessage);
-        //             this.worker.postMessage(stepMessage);
-        //             this.lastMessageTime = new Date().getTime();
-        //         }, timestepTimeMS - (now - this.lastMessageTime));
-        //     }
-        // };
 
         window.addEventListener('mousemove', event => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -99,24 +83,15 @@ export class Testbed {
         });
     }
 
-    // raycastMessage() {
-    //     let ray = this.graphics.rayAtMousePosition(this.mouse);
-    //     return {
-    //         type: 'castRay',
-    //         token: this.demoToken,
-    //         ray: ray
-    //     };
-    // }
-
-    setpreTimestepAction(action) {
+    setpreTimestepAction(action: (gfx: Graphics) => void) {
         this.preTimestepAction = action;
     }
 
-    setWorld(world) {
+    setWorld(world: RAPIER.World) {
         this.preTimestepAction = null;
         this.world = world;
         this.world.maxVelocityIterations = this.parameters.numVelocityIter;
-        this.world.maxPositionIterations = this.parameters.numPositionIter;
+        // this.world.maxPositionIterations = this.parameters.numPositionIter;
         this.demoToken += 1;
         this.stepId = 0;
         this.gui.resetTiming();
@@ -128,7 +103,7 @@ export class Testbed {
         this.lastMessageTime = new Date().getTime();
     }
 
-    lookAt(pos) {
+    lookAt(pos: Parameters<Graphics['lookAt']>[0]) {
         if (!this.inhibitLookAt) {
             this.graphics.lookAt(pos)
         }
@@ -136,7 +111,7 @@ export class Testbed {
         this.inhibitLookAt = false;
     }
 
-    switchToDemo(demo) {
+    switchToDemo(demo: string) {
         if (demo == this.prevDemo) {
             this.inhibitLookAt = true;
         }
@@ -149,8 +124,7 @@ export class Testbed {
         this.parameters.builders.get(demo)(this.RAPIER, this);
     }
 
-    switchToBackend(backend) {
-        this.otherWorld = undefined;
+    switchToBackend(backend: string) {
         this.switchToDemo(this.parameters.demo);
     }
 
@@ -183,9 +157,12 @@ export class Testbed {
                 let t1 = performance.now();
                 let snapshotTime = t1 - t0;
 
-                let debugInfos = {
+                let debugInfos: DebugInfos = {
                     token: this.demoToken,
                     stepId: this.stepId,
+                    worldHash: '',
+                    worldHashTime: 0,
+                    snapshotTime: 0,
                 };
                 t0 = performance.now();
                 debugInfos.worldHash = md5(snapshot);

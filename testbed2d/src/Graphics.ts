@@ -1,6 +1,8 @@
 import * as PIXI from "pixi.js";
 import {Viewport} from "pixi-viewport";
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import type * as RAPIER from "@dimforge/rapier2d";
+
+type RAPIER_API = typeof import('@dimforge/rapier2d')
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
@@ -8,9 +10,18 @@ const BALL_INSTANCE_INDEX = 1;
 var kk = 0;
 
 export class Graphics {
-    constructor(simulationParameters) {
+    coll2gfx: Map<number, PIXI.Graphics>;
+    colorIndex: number;
+    colorPalette: Array<number>;
+    renderer: PIXI.Renderer;
+    scene: PIXI.Container;
+    viewport: Viewport;
+    instanceGroups: Array<Array<PIXI.Graphics>>
+    lines:  PIXI.Graphics
+
+    constructor() {
         // High pixel Ratio make the rendering extremely slow, so we cap it.
-        const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
+        // const pixelRatio = window.devicePixelRatio ? Math.min(window.devicePixelRatio, 1.5) : 1;
 
         this.coll2gfx = new Map();
         this.colorIndex = 0;
@@ -18,11 +29,11 @@ export class Graphics {
         this.renderer = new PIXI.Renderer({
             backgroundColor: 0x292929,
             antialias: true,
-            resolution: pixelRatio,
-            autoResize: true
+            // resolution: pixelRatio,
+            width: window.innerWidth,
+            height: window.innerHeight,
         });
 
-        this.renderer.resize(window.innerWidth, window.innerHeight);
         this.scene = new PIXI.Container();
         document.body.appendChild(this.renderer.view);
 
@@ -34,7 +45,6 @@ export class Graphics {
             interaction: this.renderer.plugins.interaction
         });
 
-
         this.scene.addChild(this.viewport);
         this.viewport
             .drag()
@@ -42,14 +52,13 @@ export class Graphics {
             .wheel()
             .decelerate();
 
-
         let me = this;
 
         function onWindowResize() {
             me.renderer.resize(window.innerWidth, window.innerHeight);
         }
 
-        function onContextMenu(event) {
+        function onContextMenu(event: UIEvent) {
             event.preventDefault();
         }
 
@@ -80,7 +89,7 @@ export class Graphics {
         }));
     }
 
-    render(world, debugRender) {
+    render(world: RAPIER.World, debugRender: Boolean) {
         kk += 1;
 
         if (!this.lines) {
@@ -109,13 +118,12 @@ export class Graphics {
         this.renderer.render(this.scene);
     }
 
-    lookAt(pos) {
-        console.log(pos);
+    lookAt(pos: { zoom:  number, target: { x: number, y: number }}) {
         this.viewport.setZoom(pos.zoom);
         this.viewport.moveCenter(pos.target.x, pos.target.y);
     }
 
-    updatePositions(world) {
+    updatePositions(world: RAPIER.World) {
         world.forEachCollider(elt => {
             let gfx = this.coll2gfx.get(elt.handle);
             let translation = elt.translation();
@@ -138,7 +146,7 @@ export class Graphics {
         this.colorIndex = 0;
     }
 
-    addCollider(RAPIER, world, collider) {
+    addCollider(RAPIER: RAPIER_API, world: RAPIER.World, collider: RAPIER.Collider) {
         let i;
         let parent = collider.parent();
         let instance;
@@ -154,7 +162,6 @@ export class Graphics {
                 graphics.scale.x = hext.x;
                 graphics.scale.y = hext.y;
                 this.viewport.addChild(graphics);
-                instance.count += 1;
                 break;
             case RAPIER.ShapeType.Ball:
                 let rad = collider.radius();
@@ -163,7 +170,6 @@ export class Graphics {
                 graphics.scale.x = rad;
                 graphics.scale.y = rad;
                 this.viewport.addChild(graphics);
-                instance.count += 1;
                 break;
             case RAPIER.ShapeType.Polyline:
                 vertices = Array.from(collider.vertices());
@@ -219,7 +225,7 @@ export class Graphics {
 //        instance.instanceMatrix.needsUpdate = true;
         graphics.position.x = t.x;
         graphics.position.y = -t.y;
-        graphics.position.rotation = -r.angle;
+        graphics.rotation = r;
 
 
         this.coll2gfx.set(collider.handle, graphics);

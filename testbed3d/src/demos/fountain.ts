@@ -1,4 +1,8 @@
-export function initWorld(RAPIER, testbed) {
+import type { Testbed } from '../Testbed';
+
+type RAPIER_API = typeof import('@dimforge/rapier3d')
+
+export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
     let removableBodies = new Array();
@@ -14,7 +18,7 @@ export function initWorld(RAPIER, testbed) {
     let j = 0;
     let spawn_interval = 5;
 
-    let spawnBodies = (graphics) => {
+    let spawnBodies = (graphics: Testbed['graphics']) => {
         j += 1;
         if (j % spawn_interval != 0) {
             return;
