@@ -12,7 +12,7 @@
     },
     "dependencies": {
         "@dimforge/rapier2d": "^0.8.0",
-        "dat.gui": "^0.7.7",
+        "lil-gui": "^0.16.1",
         "md5": "^2.3.0",
         "pixi-viewport": "^4.34.4",
         "pixi.js": "^6.3.2",
@@ -20,7 +20,6 @@
         "stats.js": "^0.17.0"
     },
     "devDependencies": {
-        "@types/dat.gui": "^0.7.7",
         "@types/md5": "^2.3.2",
         "@types/seedrandom": "^3.0.2",
         "@types/stats.js": "^0.17.0",
