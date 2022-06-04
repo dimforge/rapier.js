@@ -4,7 +4,8 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "declaration": true,
-        "lib": ["es6"]
+        "lib": ["es6"],
+        "skipLibCheck": true
     },
     "files": ["./pkg/rapier.d.ts"]
 }

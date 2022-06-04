@@ -17,6 +17,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: "16.x"
+                  cache: "npm"
             - run: npm ci
             - name: Check formatting
               run: npm run fmt -- --check
@@ -31,6 +32,10 @@ jobs:
             RUSTFLAGS: -D warnings
         steps:
             - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "16.x"
+                  cache: "npm"
             - uses: actions/cache@v3
               with:
                   path: |
@@ -44,7 +49,6 @@ jobs:
             - name: Build rapier-compat
               run: |
                   cd rapier-compat;
-                  npm ci;
                   npm run build;
             - name: Build rapier2d
               run: |
