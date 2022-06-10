@@ -268,7 +268,12 @@ export class QueryPipeline {
         let rawPoint = VectorOps.intoRaw(point);
         let result = PointColliderProjection.fromRaw(
             colliders,
-            this.raw.projectPointAndGetFeature(colliders.raw, rawPoint, groups, filter),
+            this.raw.projectPointAndGetFeature(
+                colliders.raw,
+                rawPoint,
+                groups,
+                filter,
+            ),
         );
 
         rawPoint.free();
