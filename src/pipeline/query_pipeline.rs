@@ -180,13 +180,27 @@ impl RawQueryPipeline {
         colliders: &RawColliderSet,
         point: &RawVector,
         groups: u32,
+        filter: &js_sys::Function,
     ) -> Option<RawPointColliderProjection> {
+        let filtercb = |handle: ColliderHandle| match filter.call1(
+            &JsValue::null(),
+            &JsValue::from(handle.into_raw_parts().0 as u32),
+        ) {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
+        };
+        let rfilter: Option<&dyn Fn(ColliderHandle) -> bool> = if filter.is_function() {
+            Some(&filtercb)
+        } else {
+            None
+        };
+
         self.0
             .project_point_and_get_feature(
                 &colliders.0,
                 &point.0.into(),
                 crate::geometry::unpack_interaction_groups(groups),
-                None,
+                rfilter,
             )
             .map(|(handle, proj, feature)| RawPointColliderProjection {
                 handle,
