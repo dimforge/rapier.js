@@ -669,11 +669,13 @@ export class World {
     public projectPointAndGetFeature(
         point: Vector,
         groups: InteractionGroups,
+        filter?: (collider: Collider) => boolean,
     ): PointColliderProjection | null {
         return this.queryPipeline.projectPointAndGetFeature(
             this.colliders,
             point,
             groups,
+            castClosure(this.colliders, filter),
         );
     }
 
