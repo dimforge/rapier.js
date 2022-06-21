@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import RAPIER from "@dimforge/rapier3d";
+import {Matrix4, Quaternion, Vector3} from "three";
 
 const BOX_INSTANCE_INDEX = 0;
 const BALL_INSTANCE_INDEX = 1;
@@ -14,7 +15,6 @@ interface InstanceDesc {
     groupId: number;
     instanceId: number;
     elementId: number;
-    highlighted: boolean;
     scale?: THREE.Vector3;
 }
 
@@ -61,9 +61,12 @@ function genHeightfieldGeometry(collider: RAPIER.Collider) {
     };
 }
 
+const _position = new Vector3();
+const _rotation = new Quaternion();
+const _matrix = new Matrix4();
+
 export class Graphics {
     raycaster: THREE.Raycaster;
-    highlightedCollider: null | number;
     coll2instance: Map<number, InstanceDesc>;
     coll2mesh: Map<number, THREE.Mesh>;
     rb2colls: Map<number, Array<RAPIER.Collider>>;
@@ -79,7 +82,6 @@ export class Graphics {
 
     constructor() {
         this.raycaster = new THREE.Raycaster();
-        this.highlightedCollider = null;
         this.coll2instance = new Map();
         this.coll2mesh = new Map();
         this.rb2colls = new Map();
@@ -195,13 +197,9 @@ export class Graphics {
         });
     }
 
-    render(world: RAPIER.World, debugRender: boolean) {
+    render(world: RAPIER.World, debugRender: boolean, alpha: number) {
         kk += 1;
         this.controls.update();
-        // if (kk % 100 == 0) {
-        //     console.log(this.camera.position);
-        //     console.log(this.controls.target);
-        // }
 
         this.light.position.set(
             this.camera.position.x,
@@ -224,7 +222,7 @@ export class Graphics {
             this.lines.visible = false;
         }
 
-        this.updatePositions(world);
+        this.updatePositions(world, alpha);
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -242,80 +240,37 @@ export class Graphics {
         this.controls.update();
     }
 
-    highlightInstanceId() {
-        return this.colorPalette.length - 1;
-    }
+    updatePositions(world: RAPIER.World, alpha: number) {
+        world.forEachCollider((collider) => {
+            let gfx = this.coll2instance.get(collider.handle);
+            let translation = collider.translation();
+            let rotation = collider.rotation();
 
-    highlightCollider(handle: number) {
-        if (handle == this.highlightedCollider)
-            // Avoid flickering when moving the mouse on a single collider.
-            return;
-
-        if (this.highlightedCollider != null) {
-            let desc = this.coll2instance.get(this.highlightedCollider);
-
-            if (!!desc) {
-                desc.highlighted = false;
-                this.instanceGroups[desc.groupId][
-                    this.highlightInstanceId()
-                ].count = 0;
-            }
-        }
-        if (handle != null) {
-            let desc = this.coll2instance.get(handle);
-
-            if (!!desc) {
-                if (desc.instanceId != 0)
-                    // Don't highlight static/kinematic bodies.
-                    desc.highlighted = true;
-            }
-        }
-        this.highlightedCollider = handle;
-    }
-
-    updatePositions(world: RAPIER.World) {
-        world.forEachCollider((elt) => {
-            let gfx = this.coll2instance.get(elt.handle);
-            let translation = elt.translation();
-            let rotation = elt.rotation();
+            _position.set(translation.x, translation.y, translation.z);
+            _rotation.set(rotation.x, rotation.y, rotation.z, rotation.w);
 
             if (!!gfx) {
                 let instance = this.instanceGroups[gfx.groupId][gfx.instanceId];
-                dummy.scale.set(gfx.scale.x, gfx.scale.y, gfx.scale.z);
-                dummy.position.set(translation.x, translation.y, translation.z);
-                dummy.quaternion.set(
-                    rotation.x,
-                    rotation.y,
-                    rotation.z,
-                    rotation.w,
+
+                instance.getMatrixAt(gfx.elementId, _matrix);
+                _matrix.decompose(
+                    dummy.position,
+                    dummy.quaternion,
+                    dummy.scale,
                 );
+                dummy.position.lerp(_position, alpha);
+                dummy.quaternion.slerp(_rotation, alpha);
                 dummy.updateMatrix();
+
                 instance.setMatrixAt(gfx.elementId, dummy.matrix);
-
-                let highlightInstance =
-                    this.instanceGroups[gfx.groupId][
-                        this.highlightInstanceId()
-                    ];
-                if (gfx.highlighted) {
-                    highlightInstance.count = 1;
-                    highlightInstance.setMatrixAt(0, dummy.matrix);
-                }
-
                 instance.instanceMatrix.needsUpdate = true;
-                highlightInstance.instanceMatrix.needsUpdate = true;
             }
 
-            let mesh = this.coll2mesh.get(elt.handle);
+            let mesh = this.coll2mesh.get(collider.handle);
 
             if (!!mesh) {
-                mesh.position.set(translation.x, translation.y, translation.z);
-                mesh.quaternion.set(
-                    rotation.x,
-                    rotation.y,
-                    rotation.z,
-                    rotation.w,
-                );
-                mesh.updateMatrix();
+                mesh.position.lerp(_position, alpha);
+                mesh.quaternion.slerp(_rotation, alpha);
             }
         });
     }
@@ -336,21 +291,6 @@ export class Graphics {
         this.rb2colls = new Map();
         this.colorIndex = 0;
     }
-
-    // applyModifications(RAPIER: RAPIER_API, world: RAPIER.World, modifications) {
-    //     if (!!modifications) {
-    //         modifications.addCollider.forEach(coll => {
-    //             let collider = world.getCollider(coll.handle);
-    //             this.addCollider(RAPIER, world, collider);
-    //         });
-    //         modifications.removeRigidBody.forEach(body => {
-    //             if (!!this.rb2colls.get(body.handle)) {
-    //                 this.rb2colls.get(body.handle).forEach(coll => this.removeCollider(coll));
-    //                 this.rb2colls.delete(body.handle);
-    //             }
-    //         });
-    //     }
-    // }
 
     removeRigidBody(body: RAPIER.RigidBody) {
         if (!!this.rb2colls.get(body.handle)) {
@@ -399,7 +339,6 @@ export class Graphics {
             groupId: 0,
             instanceId: parent.isFixed() ? 0 : this.colorIndex + 1,
             elementId: 0,
-            highlighted: false,
         };
 
         switch (collider.shapeType()) {
@@ -494,12 +433,6 @@ export class Graphics {
             instance.userData.elementId2coll.set(instance.count, collider);
             instance.count += 1;
         }
-
-        let highlightInstance =
-            this.instanceGroups[instanceDesc.groupId][
-                this.highlightInstanceId()
-            ];
-        highlightInstance.count = 0;
 
         let t = collider.translation();
         let r = collider.rotation();

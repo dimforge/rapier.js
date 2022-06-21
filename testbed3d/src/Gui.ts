@@ -47,10 +47,6 @@ export class Gui {
             .step(1)
             .listen();
         this.gui
-            .add(simulationParameters, "numPositionIter", 0, 20)
-            .step(1)
-            .listen();
-        this.gui
             .add(simulationParameters, "debugInfos")
             .listen()
             .onChange((value: boolean) => {
