@@ -146,7 +146,7 @@ export class Testbed {
     run() {
         const time = performance.now();
         const fixedStep = this.world.timestep;
-        const frameTime = Math.min(0.25, (time - this.time) / 1000);
+        const frameTime = Math.min(0.01, (time - this.time) / 1000);
 
         this.time = time;
         this.accumulator += frameTime;
