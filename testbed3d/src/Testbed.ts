@@ -55,10 +55,10 @@ export class Testbed {
     preTimestepAction?: (gfx: Graphics) => void;
     stepId: number;
     prevDemo: string;
-    lastMessageTime: number;
     snap: Uint8Array;
     snapStepId: number;
     time: number;
+    physicsTime: number;
     accumulator: number;
 
     constructor(RAPIER: RAPIER_API, builders: Builders) {
@@ -73,6 +73,7 @@ export class Testbed {
         this.mouse = {x: 0, y: 0};
         this.events = new RAPIER.EventQueue(true);
         this.time = 0;
+        this.physicsTime = 0;
         this.accumulator = 0;
 
         this.switchToDemo(builders.keys().next().value);
@@ -94,7 +95,6 @@ export class Testbed {
         this.preTimestepAction = null;
         this.world = world;
         this.world.maxVelocityIterations = this.parameters.numVelocityIter;
-        this.world.timestep = 1 / 60;
         this.demoToken += 1;
         this.stepId = 0;
         this.gui.resetTiming();
@@ -102,8 +102,6 @@ export class Testbed {
         world.forEachCollider((coll) => {
             this.graphics.addCollider(this.RAPIER, world, coll);
         });
-
-        this.lastMessageTime = new Date().getTime();
     }
 
     lookAt(pos: Parameters<Graphics["lookAt"]>[0]) {
@@ -144,15 +142,15 @@ export class Testbed {
     }
 
     run() {
-        const time = performance.now();
-        const fixedStep = this.world.timestep;
-        const frameTime = Math.min(0.01, (time - this.time) / 1000);
+        let time = performance.now();
+        let fixedStep = this.world.timestep;
+        let deltaTime = (time - this.time) / 1000;
+        let physicsDeltaTime = (time - this.physicsTime) / 1000;
 
         this.time = time;
-        this.accumulator += frameTime;
+        this.accumulator += deltaTime;
 
-        // Run physics at a fixed update interval
-        while (this.accumulator >= fixedStep) {
+        if (physicsDeltaTime >= fixedStep) {
             if (this.parameters.running || this.parameters.stepping) {
                 this.world.maxVelocityIterations =
                     this.parameters.numVelocityIter;
@@ -161,8 +159,9 @@ export class Testbed {
                     this.preTimestepAction(this.graphics);
                 }
 
+                let t = performance.now();
                 this.world.step(this.events);
-                this.gui.setTiming(performance.now() - time);
+                this.gui.setTiming(performance.now() - t);
                 this.stepId += 1;
 
                 if (!!this.parameters.debugInfos) {
@@ -190,10 +189,14 @@ export class Testbed {
                 }
             }
 
+            this.physicsTime = time;
             this.accumulator -= fixedStep;
         }
 
-        const alpha = this.accumulator / fixedStep;
+        // let alpha = this.accumulator / fixedStep;
+        let alpha = 1;
+
+        console.log(alpha);
 
         if (this.parameters.stepping) {
             this.parameters.running = false;
