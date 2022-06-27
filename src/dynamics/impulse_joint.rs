@@ -81,12 +81,12 @@ impl RawImpulseJointSet {
         self.map(handle, |j| j.data.limits[axis as usize].min)
     }
 
-
     /// If this is a prismatic joint, returns its upper limit.
     pub fn jointLimitsMax(&self, handle: FlatHandle, axis: RawJointAxis) -> f32 {
         self.map(handle, |j| j.data.limits[axis as usize].max)
     }
 
+    /// Enables and sets the joint limits
      pub fn setJointLimits(
         &mut self,
         handle: FlatHandle,
