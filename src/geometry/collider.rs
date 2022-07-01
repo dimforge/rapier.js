@@ -373,6 +373,11 @@ impl RawColliderSet {
         self.map(handle, |co| co.active_events().bits())
     }
 
+    /// The total force magnitude beyond which a contact force event can be emitted.
+    pub fn contactForceEventThreshold(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.contact_force_event_threshold())
+    }
+
     pub fn coContainsPoint(&self, handle: FlatHandle, point: &RawVector) -> bool {
         self.map(handle, |co| {
             co.shared_shape()
@@ -619,5 +624,9 @@ impl RawColliderSet {
 
     pub fn coSetShape(&mut self, handle: FlatHandle, shape: &RawShape) {
         self.map_mut(handle, |co| co.set_shape(shape.0.clone()));
+    }
+
+    pub fn coSetContactForceEventThreshold(&mut self, handle: FlatHandle, threshold: f32) {
+        self.map_mut(handle, |co| co.set_contact_force_event_threshold(threshold))
     }
 }

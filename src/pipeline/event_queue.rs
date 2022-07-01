@@ -1,6 +1,6 @@
 use crate::utils;
 use rapier::crossbeam::channel::Receiver;
-use rapier::geometry::CollisionEvent;
+use rapier::geometry::{CollisionEvent, ContactForceEvent};
 use rapier::pipeline::ChannelEventCollector;
 use wasm_bindgen::prelude::*;
 
@@ -10,8 +10,12 @@ use wasm_bindgen::prelude::*;
 pub struct RawEventQueue {
     pub(crate) collector: ChannelEventCollector,
     collision_events: Receiver<CollisionEvent>,
+    contact_force_events: Receiver<ContactForceEvent>,
     pub(crate) auto_drain: bool,
 }
+
+#[wasm_bindgen]
+pub struct RawContactForceEvent(ContactForceEvent);
 
 // #[wasm_bindgen]
 // /// The proximity state of a sensor collider and another collider.
@@ -36,11 +40,13 @@ impl RawEventQueue {
     #[wasm_bindgen(constructor)]
     pub fn new(autoDrain: bool) -> Self {
         let collision_channel = rapier::crossbeam::channel::unbounded();
-        let collector = ChannelEventCollector::new(collision_channel.0);
+        let contact_force_channel = rapier::crossbeam::channel::unbounded();
+        let collector = ChannelEventCollector::new(collision_channel.0, contact_force_channel.0);
 
         Self {
             collector,
             collision_events: collision_channel.1,
+            contact_force_events: contact_force_channel.1,
             auto_drain: autoDrain,
         }
     }
@@ -78,6 +84,13 @@ impl RawEventQueue {
                     );
                 }
             }
+        }
+    }
+
+    pub fn drainContactForceEvents(&mut self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        while let Ok(event) = self.contact_force_events.try_recv() {
+            let _ = f.call1(&this, &JsValue::from(RawContactForceEvent(event)));
         }
     }
 

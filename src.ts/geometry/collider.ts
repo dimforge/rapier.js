@@ -304,6 +304,22 @@ export class Collider {
     }
 
     /**
+     * Sets the total force magnitude beyond which a contact force event can be emitted.
+     *
+     * @param threshold - The new force threshold.
+     */
+    public setContactForceEventThreshold(threshold) {
+        return this.colliderSet.raw.coSetContactForceEventThreshold(this.handle);
+    }
+
+    /**
+     * The total force magnitude beyond which a contact force event can be emitted.
+     */
+    public contactForceEventThreshold(): number {
+        return this.colliderSet.raw.coContactForceEventThreshold(this.handle);
+    }
+
+    /**
      * Set the collision types active for this collider.
      *
      * @param activeCollisionTypes - The hooks active for contact/intersection pairs involving this collider.
@@ -869,6 +885,7 @@ export class ColliderDesc {
     activeEvents: ActiveEvents;
     activeHooks: ActiveHooks;
     activeCollisionTypes: ActiveCollisionTypes;
+    contactForceEventThreshold: number;
 
     /**
      * Initializes a collider descriptor from the collision shape.
@@ -893,6 +910,8 @@ export class ColliderDesc {
         this.activeHooks = 0;
         this.mass = 0.0;
         this.centerOfMass = VectorOps.zeros();
+        this.contactForceEventThreshold = 3.40282347E+38; // MAX f32 value.
+
         // #if DIM2
         this.principalAngularInertia = 0.0;
         this.rotationsEnabled = true;
@@ -1487,6 +1506,18 @@ export class ColliderDesc {
         activeCollisionTypes: ActiveCollisionTypes,
     ): ColliderDesc {
         this.activeCollisionTypes = activeCollisionTypes;
+        return this;
+    }
+
+    /**
+     * Sets the total force magnitude beyond which a contact force event can be emitted.
+     *
+     * @param threshold - The force threshold to set.
+     */
+    public setContactForceEventThreshold(
+        threshold: number
+    ): ColliderDesc {
+        this.contactForceEventThreshold = threshold;
         return this;
     }
 }

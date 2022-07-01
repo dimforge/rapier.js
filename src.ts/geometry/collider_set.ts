@@ -101,6 +101,7 @@ export class ColliderSet {
             desc.activeCollisionTypes,
             desc.activeHooks,
             desc.activeEvents,
+            desc.contactForceEventThreshold,
             hasParent,
             hasParent ? parentHandle : 0,
             bodies.raw,
