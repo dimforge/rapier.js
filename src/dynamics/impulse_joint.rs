@@ -95,7 +95,7 @@ impl RawImpulseJointSet {
         max: f32,
     ) {
         self.map_mut(handle, |j| {
-            j.data.set_limits(JointAxis::from(axis).into(), [min, max]);
+            j.data.set_limits(axis.into(), [min, max]);
         });
     }
 
