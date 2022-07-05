@@ -48,22 +48,14 @@ impl RawImpulseJointSet {
     }
 
     /// Sets the position of the first local anchor
-    pub fn setJointAnchor1(
-        &mut self,
-        handle: FlatHandle,
-        newPos: &RawVector,
-    ) {
+    pub fn setJointAnchor1(&mut self, handle: FlatHandle, newPos: &RawVector) {
         self.map_mut(handle, |j| {
             j.data.set_local_anchor1(newPos.0.into());
         });
     }
 
     /// Sets the position of the second local anchor
-    pub fn setJointAnchor2(
-        &mut self,
-        handle: FlatHandle,
-        newPos: &RawVector,
-    ) {
+    pub fn setJointAnchor2(&mut self, handle: FlatHandle, newPos: &RawVector) {
         self.map_mut(handle, |j| {
             j.data.set_local_anchor2(newPos.0.into());
         })
@@ -87,13 +79,7 @@ impl RawImpulseJointSet {
     }
 
     /// Enables and sets the joint limits
-     pub fn setJointLimits(
-        &mut self,
-        handle: FlatHandle,
-        axis: RawJointAxis,
-        min: f32,
-        max: f32,
-    ) {
+    pub fn setJointLimits(&mut self, handle: FlatHandle, axis: RawJointAxis, min: f32, max: f32) {
         self.map_mut(handle, |j| {
             j.data.set_limits(axis.into(), [min, max]);
         });
