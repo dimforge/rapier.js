@@ -196,10 +196,8 @@ impl RawImpulseJointSet {
         damping: f32,
     ) {
         self.map_mut(handle, |j| {
-            j.data.motors[axis as usize].target_pos = targetPos;
-            j.data.motors[axis as usize].target_vel = targetVel;
-            j.data.motors[axis as usize].stiffness = stiffness;
-            j.data.motors[axis as usize].damping = damping;
+            j.data
+                .set_motor(axis.into(), targetPos, targetVel, stiffness, damping);
         })
     }
 }
