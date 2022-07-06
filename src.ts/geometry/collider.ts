@@ -40,34 +40,52 @@ import {ShapeColliderTOI, ShapeTOI} from "./toi";
 import {ShapeContact} from "./contact";
 import {ColliderSet} from "./collider_set";
 
-/// Flags affecting whether or not collision-detection happens between two colliders
-/// depending on the type of rigid-bodies they are attached to.
+/**
+ * Flags affecting whether collision-detection happens between two colliders
+ * depending on the type of rigid-bodies they are attached to.
+ */
 export enum ActiveCollisionTypes {
-    /// Enable collision-detection between a collider attached to a dynamic body
-    /// and another collider attached to a dynamic body.
+    /**
+     * Enable collision-detection between a collider attached to a dynamic body
+     * and another collider attached to a dynamic body.
+     */
     DYNAMIC_DYNAMIC = 0b0000_0000_0000_0001,
-    /// Enable collision-detection between a collider attached to a dynamic body
-    /// and another collider attached to a kinematic body.
+    /**
+     * Enable collision-detection between a collider attached to a dynamic body
+     * and another collider attached to a kinematic body.
+     */
     DYNAMIC_KINEMATIC = 0b0000_0000_0000_1100,
-    /// Enable collision-detection between a collider attached to a dynamic body
-    /// and another collider attached to a fixed body (or not attached to any body).
+    /**
+     * Enable collision-detection between a collider attached to a dynamic body
+     * and another collider attached to a fixed body (or not attached to any body).
+     */
     DYNAMIC_FIXED = 0b0000_0000_0000_0010,
-    /// Enable collision-detection between a collider attached to a kinematic body
-    /// and another collider attached to a kinematic body.
+    /**
+     * Enable collision-detection between a collider attached to a kinematic body
+     * and another collider attached to a kinematic body.
+     */
     KINEMATIC_KINEMATIC = 0b1100_1100_0000_0000,
 
-    /// Enable collision-detection between a collider attached to a kinematic body
-    /// and another collider attached to a fixed body (or not attached to any body).
+    /**
+     * Enable collision-detection between a collider attached to a kinematic body
+     * and another collider attached to a fixed body (or not attached to any body).
+     */
     KINEMATIC_FIXED = 0b0010_0010_0000_0000,
 
-    /// Enable collision-detection between a collider attached to a fixed body (or
-    /// not attached to any body) and another collider attached to a fixed body (or
-    /// not attached to any body).
+    /**
+     * Enable collision-detection between a collider attached to a fixed body (or
+     * not attached to any body) and another collider attached to a fixed body (or
+     * not attached to any body).
+     */
     FIXED_FIXED = 0b0000_0000_0010_0000,
-    /// The default active collision types, enabling collisions between a dynamic body
-    /// and another body of any type, but not enabling collisions between two non-dynamic bodies.
+    /**
+     * The default active collision types, enabling collisions between a dynamic body
+     * and another body of any type, but not enabling collisions between two non-dynamic bodies.
+     */
     DEFAULT = DYNAMIC_KINEMATIC | DYNAMIC_DYNAMIC | DYNAMIC_FIXED,
-    /// Enable collisions between any kind of rigid-bodies (including between two non-dynamic bodies).
+    /**
+     * Enable collisions between any kind of rigid-bodies (including between two non-dynamic bodies).
+     */
     ALL = DYNAMIC_KINEMATIC |
         DYNAMIC_DYNAMIC |
         DYNAMIC_FIXED |

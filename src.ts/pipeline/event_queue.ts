@@ -2,9 +2,13 @@ import {RawEventQueue} from "../raw";
 import {RigidBodyHandle} from "../dynamics";
 import {Collider, ColliderHandle} from "../geometry";
 
-/// Flags indicating what events are enabled for colliders.
+/**
+ * Flags indicating what events are enabled for colliders.
+ */
 export enum ActiveEvents {
-    /// Enable collision events.
+    /**
+     * Enable collision events.
+     */
     COLLISION_EVENTS = 0b0001,
 }
 

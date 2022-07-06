@@ -47,6 +47,18 @@ impl RawMultibodyJointSet {
         self.map(handle, |j| j.data.local_frame2.translation.vector.into())
     }
 
+    /// Are contacts between the rigid-bodies attached by this joint enabled?
+    pub fn jointContactsEnabled(&self, handle: FlatHandle) -> bool {
+        self.map(handle, |j| j.data.contacts_enabled)
+    }
+
+    /// Sets whether contacts are enabled between the rigid-bodies attached by this joint.
+    pub fn jointSetContactsEnabled(&mut self, handle: FlatHandle, enabled: bool) {
+        self.map_mut(handle, |j| {
+            j.data.contacts_enabled = enabled;
+        });
+    }
+
     /// Are the limits for this joint enabled?
     pub fn jointLimitsEnabled(&self, handle: FlatHandle, axis: RawJointAxis) -> bool {
         self.map(handle, |j| {
