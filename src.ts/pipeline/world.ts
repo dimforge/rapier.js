@@ -49,7 +49,7 @@ import {
 } from "../dynamics";
 import {Rotation, Vector, VectorOps} from "../math";
 import {PhysicsPipeline} from "./physics_pipeline";
-import {QueryPipeline} from "./query_pipeline";
+import {QueryFilterFlags, QueryPipeline} from "./query_pipeline";
 import {SerializationPipeline} from "./serialization_pipeline";
 import {EventQueue} from "./event_queue";
 import {PhysicsHooks} from "./physics_hooks";
@@ -531,16 +531,23 @@ export class World {
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ): RayColliderToi | null {
         return this.queryPipeline.castRay(
+            this.bodies,
             this.colliders,
             ray,
             maxToi,
             solid,
-            groups,
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
     }
 
@@ -560,16 +567,23 @@ export class World {
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ): RayColliderIntersection | null {
         return this.queryPipeline.castRayAndGetNormal(
+            this.bodies,
             this.colliders,
             ray,
             maxToi,
             solid,
-            groups,
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
     }
 
@@ -590,18 +604,25 @@ export class World {
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups,
         callback: (intersect: RayColliderIntersection) => boolean,
-        filter?: (collider: Collider) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ) {
         this.queryPipeline.intersectionsWithRay(
+            this.bodies,
             this.colliders,
             ray,
             maxToi,
             solid,
-            groups,
             callback,
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
     }
 
@@ -617,17 +638,23 @@ export class World {
     public intersectionWithShape(
         shapePos: Vector,
         shapeRot: Rotation,
-        shape: Shape,
-        groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean,
+        shape: Shape,        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ): Collider | null {
         let handle = this.queryPipeline.intersectionWithShape(
+            this.bodies,
             this.colliders,
             shapePos,
             shapeRot,
             shape,
-            groups,
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
         return handle != null ? this.colliders.get(handle) : null;
     }
@@ -647,15 +674,22 @@ export class World {
     public projectPoint(
         point: Vector,
         solid: boolean,
-        groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ): PointColliderProjection | null {
         return this.queryPipeline.projectPoint(
+            this.bodies,
             this.colliders,
             point,
             solid,
-            groups,
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
     }
 
@@ -668,14 +702,21 @@ export class World {
      */
     public projectPointAndGetFeature(
         point: Vector,
-        groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ): PointColliderProjection | null {
         return this.queryPipeline.projectPointAndGetFeature(
+            this.bodies,
             this.colliders,
             point,
-            groups,
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
     }
 
@@ -690,16 +731,23 @@ export class World {
      */
     public intersectionsWithPoint(
         point: Vector,
-        groups: InteractionGroups,
         callback: (handle: Collider) => boolean,
-        filter?: (collider: Collider) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ) {
         this.queryPipeline.intersectionsWithPoint(
+            this.bodies,
             this.colliders,
             point,
-            groups,
             castClosure(this.colliders, callback),
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
     }
 
@@ -723,18 +771,25 @@ export class World {
         shapeVel: Vector,
         shape: Shape,
         maxToi: number,
-        groups: InteractionGroups,
-        filter?: (collider: Collider) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ): ShapeColliderTOI | null {
         return this.queryPipeline.castShape(
+            this.bodies,
             this.colliders,
             shapePos,
             shapeRot,
             shapeVel,
             shape,
             maxToi,
-            groups,
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
     }
 
@@ -752,18 +807,25 @@ export class World {
         shapePos: Vector,
         shapeRot: Rotation,
         shape: Shape,
-        groups: InteractionGroups,
-        callback: (handle: Collider) => boolean,
-        filter?: (collider: Collider) => boolean,
+        callback: (collider: Collider) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: Collider,
+        filterExcludeRigidBody?: RigidBody,
+        filterPredicate?: (collider: Collider) => boolean,
     ) {
         this.queryPipeline.intersectionsWithShape(
+            this.bodies,
             this.colliders,
             shapePos,
             shapeRot,
             shape,
-            groups,
             castClosure(this.colliders, callback),
-            castClosure(this.colliders, filter),
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider ? filterExcludeCollider.handle : null,
+            filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
+            castClosure(this.colliders, filterPredicate),
         );
     }
 

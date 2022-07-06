@@ -308,8 +308,8 @@ export class Collider {
      *
      * @param threshold - The new force threshold.
      */
-    public setContactForceEventThreshold(threshold) {
-        return this.colliderSet.raw.coSetContactForceEventThreshold(this.handle);
+    public setContactForceEventThreshold(threshold: number) {
+        return this.colliderSet.raw.coSetContactForceEventThreshold(this.handle, threshold);
     }
 
     /**
