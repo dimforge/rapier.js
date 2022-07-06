@@ -47,6 +47,20 @@ impl RawImpulseJointSet {
         self.map(handle, |j| j.data.local_frame2.translation.vector.into())
     }
 
+    /// Sets the position of the first local anchor
+    pub fn setJointAnchor1(&mut self, handle: FlatHandle, newPos: &RawVector) {
+        self.map_mut(handle, |j| {
+            j.data.set_local_anchor1(newPos.0.into());
+        });
+    }
+
+    /// Sets the position of the second local anchor
+    pub fn setJointAnchor2(&mut self, handle: FlatHandle, newPos: &RawVector) {
+        self.map_mut(handle, |j| {
+            j.data.set_local_anchor2(newPos.0.into());
+        })
+    }
+
     /// Are the limits for this joint enabled?
     pub fn jointLimitsEnabled(&self, handle: FlatHandle, axis: RawJointAxis) -> bool {
         self.map(handle, |j| {
@@ -62,6 +76,13 @@ impl RawImpulseJointSet {
     /// If this is a prismatic joint, returns its upper limit.
     pub fn jointLimitsMax(&self, handle: FlatHandle, axis: RawJointAxis) -> f32 {
         self.map(handle, |j| j.data.limits[axis as usize].max)
+    }
+
+    /// Enables and sets the joint limits
+    pub fn setJointLimits(&mut self, handle: FlatHandle, axis: RawJointAxis, min: f32, max: f32) {
+        self.map_mut(handle, |j| {
+            j.data.set_limits(axis.into(), [min, max]);
+        });
     }
 
     pub fn jointConfigureMotorModel(
