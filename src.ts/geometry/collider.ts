@@ -859,9 +859,15 @@ export class Collider {
     }
 }
 
+enum MassPropsMode {
+    Density,
+    Mass,
+    MassProps,
+}
+
 export class ColliderDesc {
     shape: Shape;
-    useMassProps: boolean;
+    massPropsMode: MassPropsMode;
     mass: number;
     centerOfMass: Vector;
     // #if DIM2
@@ -894,7 +900,7 @@ export class ColliderDesc {
      */
     constructor(shape: Shape) {
         this.shape = shape;
-        this.useMassProps = false;
+        this.massPropsMode = MassPropsMode.Density;
         this.density = 1.0;
         this.friction = 0.5;
         this.restitution = 0.0;
@@ -1336,12 +1342,27 @@ export class ColliderDesc {
     /**
      * Sets the density of the collider being built.
      *
+     * The mass and angular inertia tensor will be computed automatically based on this density and the collider’s shape.
+     *
      * @param density - The density to set, must be greater or equal to 0. A density of 0 means that this collider
      *                  will not affect the mass or angular inertia of the rigid-body it is attached to.
      */
     public setDensity(density: number): ColliderDesc {
-        this.useMassProps = false;
+        this.massPropsMode = MassPropsMode.Density;
         this.density = density;
+        return this;
+    }
+
+    /**
+     * Sets the mass of the collider being built.
+     *
+     * The angular inertia tensor will be computed automatically based on this mass and the collider’s shape.
+     *
+     * @param mass - The mass to set, must be greater or equal to 0.
+     */
+    public setMass(mass: number): ColliderDesc {
+        this.massPropsMode = MassPropsMode.Mass;
+        this.mass = mass;
         return this;
     }
 
@@ -1361,7 +1382,7 @@ export class ColliderDesc {
         centerOfMass: Vector,
         principalAngularInertia: number,
     ): ColliderDesc {
-        this.useMassProps = true;
+        this.massPropsMode = MassPropsMode.MassProps;
         this.mass = mass;
         this.centerOfMass = centerOfMass;
         this.principalAngularInertia = principalAngularInertia;
@@ -1389,7 +1410,7 @@ export class ColliderDesc {
         principalAngularInertia: Vector,
         angularInertiaLocalFrame: Rotation,
     ): ColliderDesc {
-        this.useMassProps = true;
+        this.massPropsMode = MassPropsMode.MassProps;
         this.mass = mass;
         this.centerOfMass = centerOfMass;
         this.principalAngularInertia = principalAngularInertia;

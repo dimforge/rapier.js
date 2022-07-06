@@ -74,6 +74,7 @@ export class RigidBodySet {
             rawRot,
             desc.gravityScale,
             desc.mass,
+            desc.massOnly,
             rawCom,
             rawLv,
             // #if DIM2

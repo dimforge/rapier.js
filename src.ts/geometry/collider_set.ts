@@ -80,7 +80,7 @@ export class ColliderSet {
             rawShape,
             rawTra,
             rawRot,
-            desc.useMassProps,
+            desc.massPropsMode,
             desc.mass,
             rawCom,
             // #if DIM2

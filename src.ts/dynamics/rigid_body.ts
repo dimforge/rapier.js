@@ -705,18 +705,19 @@ export class RigidBodyDesc {
     rotation: Rotation;
     gravityScale: number;
     mass: number;
+    massOnly: boolean;
     centerOfMass: Vector;
     translationsEnabledX: boolean;
     translationsEnabledY: boolean;
     linvel: Vector;
     // #if DIM2
     angvel: number;
-    principalAngularInertia: number;
+    principalAngularInertia: number | null;
     rotationsEnabled: boolean;
     // #endif
     // #if DIM3
     angvel: Vector;
-    principalAngularInertia: Vector;
+    principalAngularInertia: Vector | null;
     angularInertiaLocalFrame: Rotation;
     translationsEnabledZ: boolean;
     rotationsEnabledX: boolean;
@@ -739,6 +740,7 @@ export class RigidBodyDesc {
         this.gravityScale = 1.0;
         this.linvel = VectorOps.zeros();
         this.mass = 0.0;
+        this.massOnly = false;
         this.centerOfMass = VectorOps.zeros();
         this.translationsEnabledX = true;
         this.translationsEnabledY = true;
@@ -896,6 +898,7 @@ export class RigidBodyDesc {
      */
     public setAdditionalMass(mass: number): RigidBodyDesc {
         this.mass = mass;
+        this.massOnly = true;
         return this;
     }
 
@@ -948,18 +951,7 @@ export class RigidBodyDesc {
         this.mass = mass;
         this.centerOfMass = centerOfMass;
         this.principalAngularInertia = principalAngularInertia;
-        return this;
-    }
-
-    /**
-     * Sets the mass properties of the rigid-body being built.
-     *
-     * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
-     */
-    public setAdditionalPrincipalAngularInertia(
-        principalAngularInertia: number,
-    ): RigidBodyDesc {
-        this.principalAngularInertia = principalAngularInertia;
+        this.massOnly = false;
         return this;
     }
 
@@ -1055,18 +1047,7 @@ export class RigidBodyDesc {
         this.centerOfMass = centerOfMass;
         this.principalAngularInertia = principalAngularInertia;
         this.angularInertiaLocalFrame = angularInertiaLocalFrame;
-        return this;
-    }
-
-    /**
-     * Sets the mass properties of the rigid-body being built.
-     *
-     * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
-     */
-    public setAdditionalPrincipalAngularInertia(
-        principalAngularInertia: Vector,
-    ): RigidBodyDesc {
-        this.principalAngularInertia = principalAngularInertia;
+        this.massOnly = false;
         return this;
     }
 

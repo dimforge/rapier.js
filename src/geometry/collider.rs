@@ -340,7 +340,7 @@ impl RawColliderSet {
     }
 
     /// The density of this collider.
-    pub fn coDensity(&self, handle: FlatHandle) -> Option<f32> {
+    pub fn coDensity(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |co| co.density())
     }
 
@@ -374,7 +374,7 @@ impl RawColliderSet {
     }
 
     /// The total force magnitude beyond which a contact force event can be emitted.
-    pub fn contactForceEventThreshold(&self, handle: FlatHandle) -> f32 {
+    pub fn coContactForceEventThreshold(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |co| co.contact_force_event_threshold())
     }
 
