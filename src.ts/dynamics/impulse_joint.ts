@@ -324,7 +324,6 @@ export class JointData {
     jointType: JointType;
     limitsEnabled: boolean;
     limits: Array<number>;
-    contactEnabled: boolean;
 
     private constructor() {}
 

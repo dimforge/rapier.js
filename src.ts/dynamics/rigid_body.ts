@@ -967,7 +967,12 @@ export class RigidBodyDesc {
      * @param rot - The rotation to set.
      */
     public setRotation(rot: Rotation): RigidBodyDesc {
+        // #if DIM2
         this.rotation = rot;
+        // #endif
+        // #if DIM3
+        RotationOps.copy(this.rotation, rot);
+        // #endif
         return this;
     }
 
@@ -1041,7 +1046,7 @@ export class RigidBodyDesc {
         principalAngularInertia: number,
     ): RigidBodyDesc {
         this.mass = mass;
-        this.centerOfMass = centerOfMass;
+        VectorOps.copy(this.centerOfMass, centerOfMass);
         this.principalAngularInertia = principalAngularInertia;
         this.massOnly = false;
         return this;
@@ -1106,7 +1111,7 @@ export class RigidBodyDesc {
      * @param vel - The angular velocity to set.
      */
     public setAngvel(vel: Vector): RigidBodyDesc {
-        this.angvel = vel;
+        VectorOps.copy(this.angvel, vel);
         return this;
     }
 
@@ -1136,9 +1141,9 @@ export class RigidBodyDesc {
         angularInertiaLocalFrame: Rotation,
     ): RigidBodyDesc {
         this.mass = mass;
-        this.centerOfMass = centerOfMass;
-        this.principalAngularInertia = principalAngularInertia;
-        this.angularInertiaLocalFrame = angularInertiaLocalFrame;
+        VectorOps.copy(this.centerOfMass, centerOfMass);
+        VectorOps.copy(this.principalAngularInertia, principalAngularInertia);
+        RotationOps.copy(this.angularInertiaLocalFrame, angularInertiaLocalFrame);
         this.massOnly = false;
         return this;
     }

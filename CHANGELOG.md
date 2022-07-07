@@ -12,6 +12,9 @@
   `RigidBodyDesc.setAdditionalMassProperties` instead.
 - The methods of `RigidBodyDesc` and `ColliderDesc` will now always copy the object provided by
   the user instead of storing the object itself.
+- The following method will now copy the user’s objects instead of storing it: `ColliderDesc.setRotation`,
+ `ColliderDesc.setMassProperties`, `RigidBodyDesc.setRotation`, `RigidBodyDesc.setAdditionalMassProperties`,
+ `RigidBodyDesc.setAngvel`.
 
 #### Added
 - Add `ImpulseJoint.setContactsEnabled`, and `MultibodyJoint.setContactsEnabled` to set whether

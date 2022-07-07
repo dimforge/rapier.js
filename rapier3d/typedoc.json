@@ -6,7 +6,6 @@
     "excludeExternals": true,
     "excludeNotDocumented": false,
     "intentionallyNotExported": [
-        "pkg/pipeline/query_pipeline.d.ts:QueryPipeline",
         "pkg/rapier_wasm3d.d.ts:RawBroadPhase",
         "pkg/rapier_wasm3d.d.ts:RawCCDSolver",
         "pkg/rapier_wasm3d.d.ts:RawColliderSet",
@@ -35,6 +34,7 @@
         "pkg/rapier_wasm3d.d.ts:RawShapeTOI",
         "pkg/rapier_wasm3d.d.ts:RawQueryPipeline",
         "pkg/rapier_wasm3d.d.ts:RawDeserializedWorld",
-        "pkg/rapier_wasm3d.d.ts:RawDebugRenderPipeline"
+        "pkg/rapier_wasm3d.d.ts:RawDebugRenderPipeline",
+        "pkg/rapier_wasm3d.d.ts:RawContactForceEvent"
     ]
 }

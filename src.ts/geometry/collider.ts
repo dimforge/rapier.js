@@ -1429,7 +1429,12 @@ export class ColliderDesc {
      * @param rot - The rotation of the collider to be created relative to the rigid-body it is attached to.
      */
     public setRotation(rot: Rotation): ColliderDesc {
+        // #if DIM2
         this.rotation = rot;
+        // #endif
+        // #if DIM3
+        RotationOps.copy(this.rotation, rot);
+        // #endif
         return this;
     }
 
@@ -1439,10 +1444,10 @@ export class ColliderDesc {
      * A sensor collider does not take part of the physics simulation, but generates
      * proximity events.
      *
-     * @param is - Set to `true` of the collider built is to be a sensor.
+     * @param sensor - Set to `true` of the collider built is to be a sensor.
      */
-    public setSensor(is: boolean): ColliderDesc {
-        this.isSensor = is;
+    public setSensor(sensor: boolean): ColliderDesc {
+        this.isSensor = sensor;
         return this;
     }
 
@@ -1491,7 +1496,7 @@ export class ColliderDesc {
     ): ColliderDesc {
         this.massPropsMode = MassPropsMode.MassProps;
         this.mass = mass;
-        this.centerOfMass = centerOfMass;
+        VectorOps.copy(this.centerOfMass, centerOfMass);
         this.principalAngularInertia = principalAngularInertia;
         return this;
     }
@@ -1519,9 +1524,9 @@ export class ColliderDesc {
     ): ColliderDesc {
         this.massPropsMode = MassPropsMode.MassProps;
         this.mass = mass;
-        this.centerOfMass = centerOfMass;
-        this.principalAngularInertia = principalAngularInertia;
-        this.angularInertiaLocalFrame = angularInertiaLocalFrame;
+        VectorOps.copy(this.centerOfMass, centerOfMass);
+        VectorOps.copy(this.principalAngularInertia, principalAngularInertia);
+        RotationOps.copy(this.angularInertiaLocalFrame, angularInertiaLocalFrame);
         return this;
     }
     // #endif
