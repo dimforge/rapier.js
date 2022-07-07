@@ -934,7 +934,7 @@ export class ColliderDesc {
         this.activeHooks = 0;
         this.mass = 0.0;
         this.centerOfMass = VectorOps.zeros();
-        this.contactForceEventThreshold = 3.40282347E+38; // MAX f32 value.
+        this.contactForceEventThreshold = 0.0;
 
         // #if DIM2
         this.principalAngularInertia = 0.0;

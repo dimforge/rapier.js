@@ -1,4 +1,6 @@
+use crate::math::RawVector;
 use crate::utils;
+use crate::utils::FlatHandle;
 use rapier::crossbeam::channel::Receiver;
 use rapier::geometry::{CollisionEvent, ContactForceEvent};
 use rapier::pipeline::ChannelEventCollector;
@@ -16,6 +18,43 @@ pub struct RawEventQueue {
 
 #[wasm_bindgen]
 pub struct RawContactForceEvent(ContactForceEvent);
+
+#[wasm_bindgen]
+impl RawContactForceEvent {
+    /// The first collider involved in the contact.
+    pub fn collider1(&self) -> FlatHandle {
+        crate::utils::flat_handle(self.0.collider1.0)
+    }
+
+    /// The second collider involved in the contact.
+    pub fn collider2(&self) -> FlatHandle {
+        crate::utils::flat_handle(self.0.collider2.0)
+    }
+
+    /// The sum of all the forces between the two colliders.
+    pub fn total_force(&self) -> RawVector {
+        RawVector(self.0.total_force)
+    }
+
+    /// The sum of the magnitudes of each force between the two colliders.
+    ///
+    /// Note that this is **not** the same as the magnitude of `self.total_force`.
+    /// Here we are summing the magnitude of all the forces, instead of taking
+    /// the magnitude of their sum.
+    pub fn total_force_magnitude(&self) -> f32 {
+        self.0.total_force_magnitude
+    }
+
+    /// The world-space (unit) direction of the force with strongest magnitude.
+    pub fn max_force_direction(&self) -> RawVector {
+        RawVector(self.0.max_force_direction)
+    }
+
+    /// The magnitude of the largest force at a contact point of this contact pair.
+    pub fn max_force_magnitude(&self) -> f32 {
+        self.0.max_force_magnitude
+    }
+}
 
 // #[wasm_bindgen]
 // /// The proximity state of a sensor collider and another collider.
