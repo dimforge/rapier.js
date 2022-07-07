@@ -1,6 +1,8 @@
 use crate::dynamics::{RawRigidBodySet, RawRigidBodyType};
+use crate::geometry::RawColliderSet;
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
+use rapier::dynamics::MassProperties;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -219,6 +221,58 @@ impl RawRigidBodySet {
     pub fn rbSetNextKinematicRotation(&mut self, handle: FlatHandle, angle: f32) {
         self.map_mut(handle, |rb| {
             rb.set_next_kinematic_rotation(angle);
+        })
+    }
+
+    pub fn rbRecomputeMassPropertiesFromColliders(
+        &mut self,
+        handle: FlatHandle,
+        colliders: &RawColliderSet,
+    ) {
+        self.map_mut(handle, |rb| {
+            rb.recompute_mass_properties_from_colliders(&colliders.0)
+        })
+    }
+
+    pub fn rbSetAdditionalMass(&mut self, handle: FlatHandle, mass: f32, wake_up: bool) {
+        self.map_mut(handle, |rb| {
+            rb.set_additional_mass(mass, wake_up);
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn rbSetAdditionalMassProperties(
+        &mut self,
+        handle: FlatHandle,
+        mass: f32,
+        centerOfMass: &RawVector,
+        principalAngularInertia: &RawVector,
+        angularInertiaFrame: &RawRotation,
+        wake_up: bool,
+    ) {
+        self.map_mut(handle, |rb| {
+            let mprops = MassProperties::with_principal_inertia_frame(
+                centerOfMass.0.into(),
+                mass,
+                principalAngularInertia.0,
+                angularInertiaFrame.0,
+            );
+            rb.set_additional_mass_properties(mprops, wake_up)
+        })
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn rbSetAdditionalMassProperties(
+        &mut self,
+        handle: FlatHandle,
+        mass: f32,
+        centerOfMass: &RawVector,
+        principalAngularInertia: f32,
+        wake_up: bool,
+    ) {
+        self.map_mut(handle, |rb| {
+            let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
+            rb.set_additional_mass_properties(props, wake_up)
         })
     }
 

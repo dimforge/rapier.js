@@ -554,6 +554,98 @@ export class RigidBody {
     }
 
     /**
+     * Recompute the mass-properties of this rigid-bodies based on its currently attached colliders.
+     */
+    public recomputeMassPropertiesFromColliders() {
+        this.rawSet.rbRecomputeMassPropertiesFromColliders(this.handle, this.colliderSet.raw);
+    }
+
+    /**
+     * Sets the rigid-body's additional mass.
+     *
+     * The total angular inertia of the rigid-body will be scaled automatically based on this additional mass. If this
+     * scaling effect isn’t desired, use Self::additional_mass_properties instead of this method.
+     *
+     * This is only the "additional" mass because the total mass of the rigid-body is equal to the sum of this
+     * additional mass and the mass computed from the colliders (with non-zero densities) attached to this rigid-body.
+     *
+     * That total mass (which includes the attached colliders’ contributions) will be updated at the name physics step,
+     * or can be updated manually with `this.recomputeMassPropertiesFromColliders`.
+     *
+     * This will override any previous additional mass-properties set by `this.setAdditionalMass`,
+     * `this.setAdditionalMassProperties`, `RigidBodyDesc::setAdditionalMass`, or
+     * `RigidBodyDesc.setAdditionalMassfProperties` for this rigid-body.
+     *
+     * @param mass - The additional mass to set.
+     * @param wakeUp - If `true` then the rigid-body will be woken up if it was put to sleep because it did not move for a while.
+     */
+    public setAdditionalMass(mass: number, wakeUp: boolean) {
+        this.rawSet.rbSetAdditionalMass(this.handle, mass, wakeUp);
+    }
+
+    // #if DIM3
+    /**
+     * Sets the rigid-body's additional mass-properties.
+     *
+     * This is only the "additional" mass-properties because the total mass-properties of the rigid-body is equal to the
+     * sum of this additional mass-properties and the mass computed from the colliders (with non-zero densities) attached
+     * to this rigid-body.
+     *
+     * That total mass-properties (which include the attached colliders’ contributions) will be updated at the name
+     * physics step, or can be updated manually with `this.recomputeMassPropertiesFromColliders`.
+     *
+     * This will override any previous mass-properties set by `this.setAdditionalMass`,
+     * `this.setAdditionalMassProperties`, `RigidBodyDesc.setAdditionalMass`, or `RigidBodyDesc.setAdditionalMassProperties`
+     * for this rigid-body.
+     *
+     * If `wake_up` is true then the rigid-body will be woken up if it was put to sleep because it did not move for a while.
+     */
+    public setAdditionalMassProperties(mass: number,
+                                       centerOfMass: Vector,
+                                       principalAngularInertia: Vector,
+                                       angularInertiaLocalFrame: Rotation,
+                                       wakeUp: boolean) {
+        let rawCom = VectorOps.intoRaw(centerOfMass);
+        let rawPrincipalInertia = VectorOps.intoRaw(
+            principalAngularInertia,
+        );
+        let rawInertiaFrame = RotationOps.intoRaw(
+            angularInertiaLocalFrame,
+        );
+
+        this.rawSet.rbSetAdditionalMassProperties(this.handle, mass, rawCom, rawPrincipalInertia, rawInertiaFrame, wakeUp);
+
+        rawCom.free();
+        rawPrincipalInertia.free();
+        rawInertiaFrame.free();
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * Sets the rigid-body's additional mass-properties.
+     *
+     * This is only the "additional" mass-properties because the total mass-properties of the rigid-body is equal to the
+     * sum of this additional mass-properties and the mass computed from the colliders (with non-zero densities) attached
+     * to this rigid-body.
+     *
+     * That total mass-properties (which include the attached colliders’ contributions) will be updated at the name
+     * physics step, or can be updated manually with `this.recomputeMassPropertiesFromColliders`.
+     *
+     * This will override any previous mass-properties set by `this.setAdditionalMass`,
+     * `this.setAdditionalMassProperties`, `RigidBodyDesc.setAdditionalMass`, or `RigidBodyDesc.setAdditionalMassProperties`
+     * for this rigid-body.
+     *
+     * If `wake_up` is true then the rigid-body will be woken up if it was put to sleep because it did not move for a while.
+     */
+    public setAdditionalMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number, wakeUp: boolean) {
+        let rawCom = VectorOps.intoRaw(centerOfMass);
+        this.rawSet.rbSetAdditionalMassProperties(this.handle, mass, rawCom, principalAngularInertia, wakeUp);
+        rawCom.free();
+    }
+    // #endif
+
+    /**
      * Sets the linear damping factor applied to this rigid-body.
      *
      * @param factor - The damping factor to set.
@@ -712,12 +804,12 @@ export class RigidBodyDesc {
     linvel: Vector;
     // #if DIM2
     angvel: number;
-    principalAngularInertia: number | null;
+    principalAngularInertia: number;
     rotationsEnabled: boolean;
     // #endif
     // #if DIM3
     angvel: Vector;
-    principalAngularInertia: Vector | null;
+    principalAngularInertia: Vector;
     angularInertiaLocalFrame: Rotation;
     translationsEnabledZ: boolean;
     rotationsEnabledX: boolean;

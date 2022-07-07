@@ -350,6 +350,81 @@ export class Collider {
     }
 
     /**
+     * Sets the uniform density of this collider.
+     *
+     * This will override any previous mass-properties set by `this.setDensity`,
+     * `this.setMass`, `this.setMassProperties`, `ColliderDesc.density`,
+     * `ColliderDesc.mass`, or `ColliderDesc.massProperties` for this collider.
+     *
+     * The mass and angular inertia of this collider will be computed automatically based on its
+     * shape.
+     */
+    public setDensity(density: number) {
+        this.colliderSet.raw.coSetDensity(this.handle, density)
+    }
+
+    /**
+     * Sets the mass of this collider.
+     *
+     * This will override any previous mass-properties set by `this.setDensity`,
+     * `this.setMass`, `this.setMassProperties`, `ColliderDesc.density`,
+     * `ColliderDesc.mass`, or `ColliderDesc.massProperties` for this collider.
+     *
+     * The angular inertia of this collider will be computed automatically based on its shape
+     * and this mass value.
+     */
+    public setMass(mass: number) {
+        this.colliderSet.raw.coSetMass(this.handle, mass);
+    }
+
+    // #if DIM3
+    /**
+     * Sets the mass of this collider.
+     *
+     * This will override any previous mass-properties set by `this.setDensity`,
+     * `this.setMass`, `this.setMassProperties`, `ColliderDesc.density`,
+     * `ColliderDesc.mass`, or `ColliderDesc.massProperties` for this collider.
+     */
+    public setMassProperties(mass: number,
+                             centerOfMass: Vector,
+                             principalAngularInertia: Vector,
+                             angularInertiaLocalFrame: Rotation) {
+        let rawCom = VectorOps.intoRaw(centerOfMass);
+        let rawPrincipalInertia = VectorOps.intoRaw(
+            principalAngularInertia,
+        );
+        let rawInertiaFrame = RotationOps.intoRaw(
+            angularInertiaLocalFrame,
+        );
+
+        this.colliderSet.raw.coSetMassProperties(this.handle, mass, rawCom, rawPrincipalInertia, rawInertiaFrame);
+
+        rawCom.free();
+        rawPrincipalInertia.free();
+        rawInertiaFrame.free();
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * Sets the mass of this collider.
+     *
+     * This will override any previous mass-properties set by `this.setDensity`,
+     * `this.setMass`, `this.setMassProperties`, `ColliderDesc.density`,
+     * `ColliderDesc.mass`, or `ColliderDesc.massProperties` for this collider.
+     */
+    public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number) {
+        let rawCom = VectorOps.intoRaw(centerOfMass);
+        let rawPrincipalInertia = VectorOps.intoRaw(principalAngularInertia);
+
+        this.colliderSet.raw.coSetMassProperties(this.handle, mass, rawCom, rawPrincipalInertia);
+
+        rawCom.free();
+        rawPrincipalInertia.free();
+    }
+    // #endif
+
+    /**
      * Sets the translation of this collider.
      *
      * @param tra - The world-space position of the collider.
@@ -573,6 +648,20 @@ export class Collider {
      */
     public density(): number {
         return this.colliderSet.raw.coDensity(this.handle);
+    }
+
+    /**
+     * The mass of this collider.
+     */
+    public mass(): number {
+        return this.colliderSet.raw.coMass(this.handle);
+    }
+
+    /**
+     * The volume of this collider.
+     */
+    public volume(): number {
+        return this.colliderSet.raw.coVolume(this.handle);
     }
 
     /**
@@ -877,7 +966,7 @@ export class Collider {
     }
 }
 
-enum MassPropsMode {
+export enum MassPropsMode {
     Density,
     Mass,
     MassProps,
