@@ -671,7 +671,7 @@ impl RawColliderSet {
     }
 
     #[cfg(feature = "dim2")]
-    pub fn rbSetMassProperties(
+    pub fn coSetMassProperties(
         &mut self,
         handle: FlatHandle,
         mass: f32,

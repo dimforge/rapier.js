@@ -415,12 +415,8 @@ export class Collider {
      */
     public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number) {
         let rawCom = VectorOps.intoRaw(centerOfMass);
-        let rawPrincipalInertia = VectorOps.intoRaw(principalAngularInertia);
-
-        this.colliderSet.raw.coSetMassProperties(this.handle, mass, rawCom, rawPrincipalInertia);
-
+        this.colliderSet.raw.coSetMassProperties(this.handle, mass, rawCom, principalAngularInertia);
         rawCom.free();
-        rawPrincipalInertia.free();
     }
     // #endif
 

@@ -172,7 +172,7 @@ export class RigidBody {
         enableZ: boolean,
         wakeUp: boolean,
     ) {
-        this.setEnabledTranslations(enableX, enableY, enableZ);
+        this.setEnabledTranslations(enableX, enableY, enableZ, wakeUp);
     }
 
     /**
@@ -189,7 +189,7 @@ export class RigidBody {
         enableZ: boolean,
         wakeUp: boolean,
     ) {
-        return this.rawSet.rbRestrictRotations(
+        return this.rawSet.rbSetEnabledRotations(
             this.handle,
             enableX,
             enableY,
