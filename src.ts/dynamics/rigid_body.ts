@@ -104,17 +104,33 @@ export class RigidBody {
      * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
-    public restrictTranslations(
+    public setEnabledTranslations(
         enableX: boolean,
         enableY: boolean,
         wakeUp: boolean,
     ) {
-        return this.rawSet.rbRestrictTranslations(
+        return this.rawSet.rbSetEnabledTranslations(
             this.handle,
             enableX,
             enableY,
             wakeUp,
         );
+    }
+
+    /**
+     * Locks or unlocks the ability of this rigid-body to translation along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     * @deprecated use `this.setEnabledTranslations` with the same arguments instead.
+     */
+    public restrictTranslations(
+        enableX: boolean,
+        enableY: boolean,
+        wakeUp: boolean,
+    ) {
+        this.setEnabledTranslations(enableX, enableX, wakeUp);
     }
     // #endif
     // #if DIM3
@@ -126,13 +142,54 @@ export class RigidBody {
      * @param enableZ - If `false`, this rigid-body will no longer translate due to torques and impulses, along the Z coordinate axis.
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
+    public setEnabledTranslations(
+        enableX: boolean,
+        enableY: boolean,
+        enableZ: boolean,
+        wakeUp: boolean,
+    ) {
+        return this.rawSet.rbSetEnabledTranslations(
+            this.handle,
+            enableX,
+            enableY,
+            enableZ,
+            wakeUp,
+        );
+    }
+
+    /**
+     * Locks or unlocks the ability of this rigid-body to translate along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer translate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer translate due to torques and impulses, along the Y coordinate axis.
+     * @param enableZ - If `false`, this rigid-body will no longer translate due to torques and impulses, along the Z coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     * @deprecated use `this.setEnabledTranslations` with the same arguments instead.
+     */
     public restrictTranslations(
         enableX: boolean,
         enableY: boolean,
         enableZ: boolean,
         wakeUp: boolean,
     ) {
-        return this.rawSet.rbRestrictTranslations(
+        this.setEnabledTranslations(enableX, enableY, enableZ);
+    }
+
+    /**
+     * Locks or unlocks the ability of this rigid-body to rotate along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
+     * @param enableZ - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Z coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     */
+    public setEnabledRotations(
+        enableX: boolean,
+        enableY: boolean,
+        enableZ: boolean,
+        wakeUp: boolean,
+    ) {
+        return this.rawSet.rbRestrictRotations(
             this.handle,
             enableX,
             enableY,
@@ -148,6 +205,7 @@ export class RigidBody {
      * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
      * @param enableZ - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Z coordinate axis.
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     * @deprecated use `this.setEnabledRotations` with the same arguments instead.
      */
     public restrictRotations(
         enableX: boolean,
@@ -155,13 +213,7 @@ export class RigidBody {
         enableZ: boolean,
         wakeUp: boolean,
     ) {
-        return this.rawSet.rbRestrictRotations(
-            this.handle,
-            enableX,
-            enableY,
-            enableZ,
-            wakeUp,
-        );
+        this.setEnabledRotations(enableX, enableY, enableZ, wakeUp);
     }
     // #endif
 
@@ -1057,13 +1109,26 @@ export class RigidBodyDesc {
      * @param translationsEnabledX - Are translations along the X axis enabled?
      * @param translationsEnabledY - Are translations along the y axis enabled?
      */
-    public restrictTranslations(
+    public enabledTranslations(
         translationsEnabledX: boolean,
         translationsEnabledY: boolean,
     ): RigidBodyDesc {
         this.translationsEnabledX = translationsEnabledX;
         this.translationsEnabledY = translationsEnabledY;
         return this;
+    }
+
+    /**
+     * Allow translation of this rigid-body only along specific axes.
+     * @param translationsEnabledX - Are translations along the X axis enabled?
+     * @param translationsEnabledY - Are translations along the y axis enabled?
+     * @deprecated use `this.enabledTranslations` with the same arguments instead.
+     */
+    public restrictTranslations(
+        translationsEnabledX: boolean,
+        translationsEnabledY: boolean,
+    ): RigidBodyDesc {
+        return this.enabledTranslations(translationsEnabledX, translationsEnabledY);
     }
 
     /**
@@ -1154,7 +1219,7 @@ export class RigidBodyDesc {
      * @param translationsEnabledY - Are translations along the y axis enabled?
      * @param translationsEnabledZ - Are translations along the Z axis enabled?
      */
-    public restrictTranslations(
+    public enabledTranslations(
         translationsEnabledX: boolean,
         translationsEnabledY: boolean,
         translationsEnabledZ: boolean,
@@ -1164,13 +1229,27 @@ export class RigidBodyDesc {
         this.translationsEnabledZ = translationsEnabledZ;
         return this;
     }
+    /**
+     * Allow translation of this rigid-body only along specific axes.
+     * @param translationsEnabledX - Are translations along the X axis enabled?
+     * @param translationsEnabledY - Are translations along the y axis enabled?
+     * @param translationsEnabledZ - Are translations along the Z axis enabled?
+     * @deprecated use `this.enabledTranslations` with the same arguments instead.
+     */
+    public restrictTranslations(
+        translationsEnabledX: boolean,
+        translationsEnabledY: boolean,
+        translationsEnabledZ: boolean,
+    ): RigidBodyDesc {
+        return this.enabledTranslations(translationsEnabledX, translationsEnabledY, translationsEnabledZ);
+    }
 
     /**
      * Locks all translations that would have resulted from forces on
      * the created rigid-body.
      */
     public lockTranslations(): RigidBodyDesc {
-        return this.restrictTranslations(false, false, false);
+        return this.enabledTranslations(false, false, false);
     }
 
     /**
@@ -1179,7 +1258,7 @@ export class RigidBodyDesc {
      * @param rotationsEnabledY - Are rotations along the y axis enabled?
      * @param rotationsEnabledZ - Are rotations along the Z axis enabled?
      */
-    public restrictRotations(
+    public enabledRotations(
         rotationsEnabledX: boolean,
         rotationsEnabledY: boolean,
         rotationsEnabledZ: boolean,
@@ -1188,6 +1267,21 @@ export class RigidBodyDesc {
         this.rotationsEnabledY = rotationsEnabledY;
         this.rotationsEnabledZ = rotationsEnabledZ;
         return this;
+    }
+
+    /**
+     * Allow rotation of this rigid-body only along specific axes.
+     * @param rotationsEnabledX - Are rotations along the X axis enabled?
+     * @param rotationsEnabledY - Are rotations along the y axis enabled?
+     * @param rotationsEnabledZ - Are rotations along the Z axis enabled?
+     * @deprecated use `this.enabledRotations` with the same arguments instead.
+     */
+    public restrictRotations(
+        rotationsEnabledX: boolean,
+        rotationsEnabledY: boolean,
+        rotationsEnabledZ: boolean,
+    ): RigidBodyDesc {
+        return this.enabledRotations(rotationsEnabledX, rotationsEnabledY, rotationsEnabledZ);
     }
 
     /**

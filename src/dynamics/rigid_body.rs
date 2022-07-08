@@ -298,7 +298,7 @@ impl RawRigidBodySet {
     }
 
     #[cfg(feature = "dim2")]
-    pub fn rbRestrictTranslations(
+    pub fn rbSetEnabledTranslations(
         &mut self,
         handle: FlatHandle,
         allow_x: bool,
@@ -306,12 +306,12 @@ impl RawRigidBodySet {
         wake_up: bool,
     ) {
         self.map_mut(handle, |rb| {
-            rb.restrict_translations(allow_x, allow_y, wake_up)
+            rb.set_enabled_translations(allow_x, allow_y, wake_up)
         })
     }
 
     #[cfg(feature = "dim3")]
-    pub fn rbRestrictTranslations(
+    pub fn rbSetEnabledTranslations(
         &mut self,
         handle: FlatHandle,
         allow_x: bool,
@@ -320,7 +320,7 @@ impl RawRigidBodySet {
         wake_up: bool,
     ) {
         self.map_mut(handle, |rb| {
-            rb.restrict_translations(allow_x, allow_y, allow_z, wake_up)
+            rb.set_enabled_translations(allow_x, allow_y, allow_z, wake_up)
         })
     }
 
@@ -329,7 +329,7 @@ impl RawRigidBodySet {
     }
 
     #[cfg(feature = "dim3")]
-    pub fn rbRestrictRotations(
+    pub fn rbSetEnabledRotations(
         &mut self,
         handle: FlatHandle,
         allow_x: bool,
@@ -338,7 +338,7 @@ impl RawRigidBodySet {
         wake_up: bool,
     ) {
         self.map_mut(handle, |rb| {
-            rb.restrict_rotations(allow_x, allow_y, allow_z, wake_up)
+            rb.set_enabled_rotations(allow_x, allow_y, allow_z, wake_up)
         })
     }
 

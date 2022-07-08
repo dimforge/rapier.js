@@ -15,7 +15,11 @@
 - The following method will now copy the user’s objects instead of storing it: `ColliderDesc.setRotation`,
  `ColliderDesc.setMassProperties`, `RigidBodyDesc.setRotation`, `RigidBodyDesc.setAdditionalMassProperties`,
  `RigidBodyDesc.setAngvel`.
-
+- Rename `RigidBody.restrictRotations` and `RigidBody.restrictTranslations` to
+  `RigidBody.setEnabledRotations` and `RigidBody.setEnabledTranslations`.
+- Rename `RigidBodyDesc.restrictRotations` and `RigidBodyDesc.restrictTranslations` to
+  `RigidBodyDesc.enabledRotations` and `RigidBodyDesc.enabledTranslations`.
+- 
 #### Added
 - Add `ImpulseJoint.setContactsEnabled`, and `MultibodyJoint.setContactsEnabled` to set whether
   contacts are enabled between colliders attached to rigid-bodies linked by this joint.

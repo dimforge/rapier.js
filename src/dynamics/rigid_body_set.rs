@@ -97,12 +97,12 @@ impl RawRigidBodySet {
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
             .position(pos)
             .gravity_scale(gravityScale)
-            .restrict_translations(
+            .enabled_translations(
                 translationEnabledX,
                 translationEnabledY,
                 translationEnabledZ,
             )
-            .restrict_rotations(rotationEnabledX, rotationEnabledY, rotationEnabledZ)
+            .enabled_rotations(rotationEnabledX, rotationEnabledY, rotationEnabledZ)
             .linvel(linvel.0)
             .angvel(angvel.0)
             .linear_damping(linearDamping)
@@ -154,7 +154,7 @@ impl RawRigidBodySet {
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
             .position(pos)
             .gravity_scale(gravityScale)
-            .restrict_translations(translationEnabledX, translationEnabledY)
+            .enabled_translations(translationEnabledX, translationEnabledY)
             .linvel(linvel.0)
             .angvel(angvel)
             .linear_damping(linearDamping)
