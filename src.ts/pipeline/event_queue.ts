@@ -137,7 +137,7 @@ export class EventQueue {
      */
     public drainContactForceEvents(f: (event: TempContactForceEvent) => void) {
         let event = new TempContactForceEvent();
-        this.raw.drainContactForceEvents((raw) => {
+        this.raw.drainContactForceEvents((raw: RawContactForceEvent) => {
             event.raw = raw;
             f(event);
             event.free();
