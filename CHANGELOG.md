@@ -21,7 +21,6 @@
     `RigidBody.setEnabledRotations` and `RigidBody.setEnabledTranslations`.
 -   Rename `RigidBodyDesc.restrictRotations` and `RigidBodyDesc.restrictTranslations` to
     `RigidBodyDesc.enabledRotations` and `RigidBodyDesc.enabledTranslations`.
--
 
 #### Added
 
@@ -66,6 +65,11 @@ to the `master` branch.
 -   Most APIs that relied on rigid-body handles or collider handles have been modified to rely on `RigidBody`
     or `Collider` objects instead. Handles are now only needed for events and hooks.
 -   Rename STATIC to FIXED in the `ActiveCollisionTypes` flags.
+-   The `RigidBody.applyForce` and `.applyTorque` methods have been replaced by `.addForce` and `.addTorque`. These
+    force/torques are no longer automatically zeroed after a timestep. To zero them manually, call `.resetForce` or
+    `.resetTorque`.
+-   The `EventQueue.drainContactEvents` and `EventQueue.drainIntersectionEvents` have been merged into a single
+    method: `EventQueue:drainCollisionEvents`.
 
 #### Added
 
