@@ -609,7 +609,10 @@ export class RigidBody {
      * Recompute the mass-properties of this rigid-bodies based on its currently attached colliders.
      */
     public recomputeMassPropertiesFromColliders() {
-        this.rawSet.rbRecomputeMassPropertiesFromColliders(this.handle, this.colliderSet.raw);
+        this.rawSet.rbRecomputeMassPropertiesFromColliders(
+            this.handle,
+            this.colliderSet.raw,
+        );
     }
 
     /**
@@ -652,20 +655,25 @@ export class RigidBody {
      *
      * If `wake_up` is true then the rigid-body will be woken up if it was put to sleep because it did not move for a while.
      */
-    public setAdditionalMassProperties(mass: number,
-                                       centerOfMass: Vector,
-                                       principalAngularInertia: Vector,
-                                       angularInertiaLocalFrame: Rotation,
-                                       wakeUp: boolean) {
+    public setAdditionalMassProperties(
+        mass: number,
+        centerOfMass: Vector,
+        principalAngularInertia: Vector,
+        angularInertiaLocalFrame: Rotation,
+        wakeUp: boolean,
+    ) {
         let rawCom = VectorOps.intoRaw(centerOfMass);
-        let rawPrincipalInertia = VectorOps.intoRaw(
-            principalAngularInertia,
-        );
-        let rawInertiaFrame = RotationOps.intoRaw(
-            angularInertiaLocalFrame,
-        );
+        let rawPrincipalInertia = VectorOps.intoRaw(principalAngularInertia);
+        let rawInertiaFrame = RotationOps.intoRaw(angularInertiaLocalFrame);
 
-        this.rawSet.rbSetAdditionalMassProperties(this.handle, mass, rawCom, rawPrincipalInertia, rawInertiaFrame, wakeUp);
+        this.rawSet.rbSetAdditionalMassProperties(
+            this.handle,
+            mass,
+            rawCom,
+            rawPrincipalInertia,
+            rawInertiaFrame,
+            wakeUp,
+        );
 
         rawCom.free();
         rawPrincipalInertia.free();
@@ -690,9 +698,20 @@ export class RigidBody {
      *
      * If `wake_up` is true then the rigid-body will be woken up if it was put to sleep because it did not move for a while.
      */
-    public setAdditionalMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number, wakeUp: boolean) {
+    public setAdditionalMassProperties(
+        mass: number,
+        centerOfMass: Vector,
+        principalAngularInertia: number,
+        wakeUp: boolean,
+    ) {
         let rawCom = VectorOps.intoRaw(centerOfMass);
-        this.rawSet.rbSetAdditionalMassProperties(this.handle, mass, rawCom, principalAngularInertia, wakeUp);
+        this.rawSet.rbSetAdditionalMassProperties(
+            this.handle,
+            mass,
+            rawCom,
+            principalAngularInertia,
+            wakeUp,
+        );
         rawCom.free();
     }
     // #endif
@@ -1128,7 +1147,10 @@ export class RigidBodyDesc {
         translationsEnabledX: boolean,
         translationsEnabledY: boolean,
     ): RigidBodyDesc {
-        return this.enabledTranslations(translationsEnabledX, translationsEnabledY);
+        return this.enabledTranslations(
+            translationsEnabledX,
+            translationsEnabledY,
+        );
     }
 
     /**
@@ -1208,7 +1230,10 @@ export class RigidBodyDesc {
         this.mass = mass;
         VectorOps.copy(this.centerOfMass, centerOfMass);
         VectorOps.copy(this.principalAngularInertia, principalAngularInertia);
-        RotationOps.copy(this.angularInertiaLocalFrame, angularInertiaLocalFrame);
+        RotationOps.copy(
+            this.angularInertiaLocalFrame,
+            angularInertiaLocalFrame,
+        );
         this.massOnly = false;
         return this;
     }
@@ -1241,7 +1266,11 @@ export class RigidBodyDesc {
         translationsEnabledY: boolean,
         translationsEnabledZ: boolean,
     ): RigidBodyDesc {
-        return this.enabledTranslations(translationsEnabledX, translationsEnabledY, translationsEnabledZ);
+        return this.enabledTranslations(
+            translationsEnabledX,
+            translationsEnabledY,
+            translationsEnabledZ,
+        );
     }
 
     /**
@@ -1281,7 +1310,11 @@ export class RigidBodyDesc {
         rotationsEnabledY: boolean,
         rotationsEnabledZ: boolean,
     ): RigidBodyDesc {
-        return this.enabledRotations(rotationsEnabledX, rotationsEnabledY, rotationsEnabledZ);
+        return this.enabledRotations(
+            rotationsEnabledX,
+            rotationsEnabledY,
+            rotationsEnabledZ,
+        );
     }
 
     /**

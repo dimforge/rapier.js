@@ -638,7 +638,8 @@ export class World {
     public intersectionWithShape(
         shapePos: Vector,
         shapeRot: Rotation,
-        shape: Shape,        filterFlags?: QueryFilterFlags,
+        shape: Shape,
+        filterFlags?: QueryFilterFlags,
         filterGroups?: InteractionGroups,
         filterExcludeCollider?: Collider,
         filterExcludeRigidBody?: RigidBody,

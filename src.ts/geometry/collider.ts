@@ -327,7 +327,10 @@ export class Collider {
      * @param threshold - The new force threshold.
      */
     public setContactForceEventThreshold(threshold: number) {
-        return this.colliderSet.raw.coSetContactForceEventThreshold(this.handle, threshold);
+        return this.colliderSet.raw.coSetContactForceEventThreshold(
+            this.handle,
+            threshold,
+        );
     }
 
     /**
@@ -360,7 +363,7 @@ export class Collider {
      * shape.
      */
     public setDensity(density: number) {
-        this.colliderSet.raw.coSetDensity(this.handle, density)
+        this.colliderSet.raw.coSetDensity(this.handle, density);
     }
 
     /**
@@ -385,19 +388,23 @@ export class Collider {
      * `this.setMass`, `this.setMassProperties`, `ColliderDesc.density`,
      * `ColliderDesc.mass`, or `ColliderDesc.massProperties` for this collider.
      */
-    public setMassProperties(mass: number,
-                             centerOfMass: Vector,
-                             principalAngularInertia: Vector,
-                             angularInertiaLocalFrame: Rotation) {
+    public setMassProperties(
+        mass: number,
+        centerOfMass: Vector,
+        principalAngularInertia: Vector,
+        angularInertiaLocalFrame: Rotation,
+    ) {
         let rawCom = VectorOps.intoRaw(centerOfMass);
-        let rawPrincipalInertia = VectorOps.intoRaw(
-            principalAngularInertia,
-        );
-        let rawInertiaFrame = RotationOps.intoRaw(
-            angularInertiaLocalFrame,
-        );
+        let rawPrincipalInertia = VectorOps.intoRaw(principalAngularInertia);
+        let rawInertiaFrame = RotationOps.intoRaw(angularInertiaLocalFrame);
 
-        this.colliderSet.raw.coSetMassProperties(this.handle, mass, rawCom, rawPrincipalInertia, rawInertiaFrame);
+        this.colliderSet.raw.coSetMassProperties(
+            this.handle,
+            mass,
+            rawCom,
+            rawPrincipalInertia,
+            rawInertiaFrame,
+        );
 
         rawCom.free();
         rawPrincipalInertia.free();
@@ -413,9 +420,18 @@ export class Collider {
      * `this.setMass`, `this.setMassProperties`, `ColliderDesc.density`,
      * `ColliderDesc.mass`, or `ColliderDesc.massProperties` for this collider.
      */
-    public setMassProperties(mass: number, centerOfMass: Vector, principalAngularInertia: number) {
+    public setMassProperties(
+        mass: number,
+        centerOfMass: Vector,
+        principalAngularInertia: number,
+    ) {
         let rawCom = VectorOps.intoRaw(centerOfMass);
-        this.colliderSet.raw.coSetMassProperties(this.handle, mass, rawCom, principalAngularInertia);
+        this.colliderSet.raw.coSetMassProperties(
+            this.handle,
+            mass,
+            rawCom,
+            principalAngularInertia,
+        );
         rawCom.free();
     }
     // #endif
@@ -1522,7 +1538,10 @@ export class ColliderDesc {
         this.mass = mass;
         VectorOps.copy(this.centerOfMass, centerOfMass);
         VectorOps.copy(this.principalAngularInertia, principalAngularInertia);
-        RotationOps.copy(this.angularInertiaLocalFrame, angularInertiaLocalFrame);
+        RotationOps.copy(
+            this.angularInertiaLocalFrame,
+            angularInertiaLocalFrame,
+        );
         return this;
     }
     // #endif
@@ -1643,9 +1662,7 @@ export class ColliderDesc {
      *
      * @param threshold - The force threshold to set.
      */
-    public setContactForceEventThreshold(
-        threshold: number
-    ): ColliderDesc {
+    public setContactForceEventThreshold(threshold: number): ColliderDesc {
         this.contactForceEventThreshold = threshold;
         return this;
     }

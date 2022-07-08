@@ -135,11 +135,9 @@ export class EventQueue {
      * @param f - JavaScript closure applied to each collision event. The
      *            closure must take one `TempContactForceEvent` argument.
      */
-    public drainContactForceEvents(
-        f: (event: TempContactForceEvent) => void,
-    ) {
+    public drainContactForceEvents(f: (event: TempContactForceEvent) => void) {
         let event = new TempContactForceEvent();
-        this.raw.drainContactForceEvents(raw => {
+        this.raw.drainContactForceEvents((raw) => {
             event.raw = raw;
             f(event);
             event.free();
