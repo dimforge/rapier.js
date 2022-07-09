@@ -133,7 +133,7 @@ export class ImpulseJoint {
     /**
      * The position of the first anchor of this joint.
      *
-     * The first anchor gives the position of the points application point on the
+     * The first anchor gives the position of the application point on the
      * local frame of the first rigid-body it is attached to.
      */
     public anchor1(): Vector {
@@ -143,23 +143,51 @@ export class ImpulseJoint {
     /**
      * The position of the second anchor of this joint.
      *
-     * The second anchor gives the position of the points application point on the
+     * The second anchor gives the position of the application point on the
      * local frame of the second rigid-body it is attached to.
      */
     public anchor2(): Vector {
         return VectorOps.fromRaw(this.rawSet.jointAnchor2(this.handle));
     }
 
+    /**
+     * Sets the position of the first anchor of this joint.
+     *
+     * The first anchor gives the position of the application point on the
+     * local frame of the first rigid-body it is attached to.
+     */
     public setAnchor1(newPos: Vector) {
         const rawPoint = VectorOps.intoRaw(newPos);
-        this.rawSet.setJointAnchor1(this.handle, rawPoint);
+        this.rawSet.jointSetAnchor1(this.handle, rawPoint);
         rawPoint.free();
     }
 
+    /**
+     * Sets the position of the second anchor of this joint.
+     *
+     * The second anchor gives the position of the application point on the
+     * local frame of the second rigid-body it is attached to.
+     */
     public setAnchor2(newPos: Vector) {
         const rawPoint = VectorOps.intoRaw(newPos);
-        this.rawSet.setJointAnchor2(this.handle, rawPoint);
+        this.rawSet.jointSetAnchor2(this.handle, rawPoint);
         rawPoint.free();
+    }
+
+    /**
+     * Controls whether contacts are computed between colliders attached
+     * to the rigid-bodies linked by this joint.
+     */
+    public setContactsEnabled(enabled: boolean) {
+        this.rawSet.jointSetContactsEnabled(this.handle, enabled);
+    }
+
+    /**
+     * Indicates if contacts are enabled between colliders attached
+     * to the rigid-bodies linked by this joint.
+     */
+    public contactsEnabled(): boolean {
+        return this.rawSet.jointContactsEnabled(this.handle);
     }
 }
 
@@ -190,8 +218,14 @@ export class UnitImpulseJoint extends ImpulseJoint {
         return this.rawSet.jointLimitsMax(this.handle, this.rawAxis());
     }
 
-    public setJointLimits(min: number, max: number) {
-        this.rawSet.setJointLimits(this.handle, this.rawAxis(), min, max);
+    /**
+     * Sets the limits of this joint.
+     *
+     * @param min - The minimum bound of this joint’s free coordinate.
+     * @param max - The maximum bound of this joint’s free coordinate.
+     */
+    public setLimits(min: number, max: number) {
+        this.rawSet.jointSetLimits(this.handle, this.rawAxis(), min, max);
     }
 
     public configureMotorModel(model: MotorModel) {

@@ -31,7 +31,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     bodyDesc = RAPIER.RigidBodyDesc.dynamic()
         .setTranslation(0.0, 3.0, 0.0)
         .lockTranslations()
-        .restrictRotations(true, false, false);
+        .enabledRotations(true, false, false);
     body = world.createRigidBody(bodyDesc);
     colliderDesc = RAPIER.ColliderDesc.cuboid(0.2, 0.6, 2.0);
     world.createCollider(colliderDesc, body);

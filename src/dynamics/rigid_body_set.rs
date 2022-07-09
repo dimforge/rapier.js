@@ -72,6 +72,7 @@ impl RawRigidBodySet {
         rotation: &RawRotation,
         gravityScale: f32,
         mass: f32,
+        massOnly: bool,
         centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: &RawVector,
@@ -92,25 +93,16 @@ impl RawRigidBodySet {
         dominanceGroup: i8,
     ) -> FlatHandle {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
-        let props = MassProperties::with_principal_inertia_frame(
-            centerOfMass.0.into(),
-            mass,
-            principalAngularInertia.0,
-            angularInertiaFrame.0,
-        );
 
-        let rigid_body = RigidBodyBuilder::new(rb_type.into())
+        let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
             .position(pos)
             .gravity_scale(gravityScale)
-            .additional_mass(mass)
-            .additional_principal_angular_inertia(principalAngularInertia.0)
-            .restrict_translations(
+            .enabled_translations(
                 translationEnabledX,
                 translationEnabledY,
                 translationEnabledZ,
             )
-            .restrict_rotations(rotationEnabledX, rotationEnabledY, rotationEnabledZ)
-            .additional_mass_properties(props)
+            .enabled_rotations(rotationEnabledX, rotationEnabledY, rotationEnabledZ)
             .linvel(linvel.0)
             .angvel(angvel.0)
             .linear_damping(linearDamping)
@@ -119,6 +111,18 @@ impl RawRigidBodySet {
             .sleeping(sleeping)
             .ccd_enabled(ccdEnabled)
             .dominance_group(dominanceGroup);
+
+        rigid_body = if massOnly {
+            rigid_body.additional_mass(mass)
+        } else {
+            let props = MassProperties::with_principal_inertia_frame(
+                centerOfMass.0.into(),
+                mass,
+                principalAngularInertia.0,
+                angularInertiaFrame.0,
+            );
+            rigid_body.additional_mass_properties(props)
+        };
 
         utils::flat_handle(self.0.insert(rigid_body.build()).0)
     }
@@ -130,6 +134,7 @@ impl RawRigidBodySet {
         rotation: &RawRotation,
         gravityScale: f32,
         mass: f32,
+        massOnly: bool,
         centerOfMass: &RawVector,
         linvel: &RawVector,
         angvel: f32,
@@ -146,14 +151,10 @@ impl RawRigidBodySet {
         dominanceGroup: i8,
     ) -> FlatHandle {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
-        let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
             .position(pos)
             .gravity_scale(gravityScale)
-            .additional_mass(mass)
-            .additional_principal_angular_inertia(principalAngularInertia)
-            .additional_mass_properties(props)
-            .restrict_translations(translationEnabledX, translationEnabledY)
+            .enabled_translations(translationEnabledX, translationEnabledY)
             .linvel(linvel.0)
             .angvel(angvel)
             .linear_damping(linearDamping)
@@ -162,6 +163,13 @@ impl RawRigidBodySet {
             .sleeping(sleeping)
             .ccd_enabled(ccdEnabled)
             .dominance_group(dominanceGroup);
+
+        rigid_body = if massOnly {
+            rigid_body.additional_mass(mass)
+        } else {
+            let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
+            rigid_body.additional_mass_properties(props)
+        };
 
         if !rotationsEnabled {
             rigid_body = rigid_body.lock_rotations();

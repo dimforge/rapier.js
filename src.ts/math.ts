@@ -40,6 +40,11 @@ export class VectorOps {
     public static intoRaw(v: Vector): RawVector {
         return new RawVector(v.x, v.y);
     }
+
+    public static copy(out: Vector, input: Vector) {
+        out.x = input.x;
+        out.y = input.y;
+    }
 }
 
 /**
@@ -110,6 +115,12 @@ export class VectorOps {
         raw.free();
         return res;
     }
+
+    public static copy(out: Vector, input: Vector) {
+        out.x = input.x;
+        out.y = input.y;
+        out.z = input.z;
+    }
 }
 
 export interface Rotation {
@@ -151,6 +162,13 @@ export class RotationOps {
 
     public static intoRaw(rot: Rotation): RawRotation {
         return new RawRotation(rot.x, rot.y, rot.z, rot.w);
+    }
+
+    public static copy(out: Rotation, input: Rotation) {
+        out.x = input.x;
+        out.y = input.y;
+        out.z = input.z;
+        out.w = input.w;
     }
 }
 

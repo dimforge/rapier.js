@@ -104,17 +104,33 @@ export class RigidBody {
      * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
-    public restrictTranslations(
+    public setEnabledTranslations(
         enableX: boolean,
         enableY: boolean,
         wakeUp: boolean,
     ) {
-        return this.rawSet.rbRestrictTranslations(
+        return this.rawSet.rbSetEnabledTranslations(
             this.handle,
             enableX,
             enableY,
             wakeUp,
         );
+    }
+
+    /**
+     * Locks or unlocks the ability of this rigid-body to translation along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     * @deprecated use `this.setEnabledTranslations` with the same arguments instead.
+     */
+    public restrictTranslations(
+        enableX: boolean,
+        enableY: boolean,
+        wakeUp: boolean,
+    ) {
+        this.setEnabledTranslations(enableX, enableX, wakeUp);
     }
     // #endif
     // #if DIM3
@@ -126,13 +142,54 @@ export class RigidBody {
      * @param enableZ - If `false`, this rigid-body will no longer translate due to torques and impulses, along the Z coordinate axis.
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
      */
+    public setEnabledTranslations(
+        enableX: boolean,
+        enableY: boolean,
+        enableZ: boolean,
+        wakeUp: boolean,
+    ) {
+        return this.rawSet.rbSetEnabledTranslations(
+            this.handle,
+            enableX,
+            enableY,
+            enableZ,
+            wakeUp,
+        );
+    }
+
+    /**
+     * Locks or unlocks the ability of this rigid-body to translate along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer translate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer translate due to torques and impulses, along the Y coordinate axis.
+     * @param enableZ - If `false`, this rigid-body will no longer translate due to torques and impulses, along the Z coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     * @deprecated use `this.setEnabledTranslations` with the same arguments instead.
+     */
     public restrictTranslations(
         enableX: boolean,
         enableY: boolean,
         enableZ: boolean,
         wakeUp: boolean,
     ) {
-        return this.rawSet.rbRestrictTranslations(
+        this.setEnabledTranslations(enableX, enableY, enableZ, wakeUp);
+    }
+
+    /**
+     * Locks or unlocks the ability of this rigid-body to rotate along individual coordinate axes.
+     *
+     * @param enableX - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the X coordinate axis.
+     * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
+     * @param enableZ - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Z coordinate axis.
+     * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     */
+    public setEnabledRotations(
+        enableX: boolean,
+        enableY: boolean,
+        enableZ: boolean,
+        wakeUp: boolean,
+    ) {
+        return this.rawSet.rbSetEnabledRotations(
             this.handle,
             enableX,
             enableY,
@@ -148,6 +205,7 @@ export class RigidBody {
      * @param enableY - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Y coordinate axis.
      * @param enableZ - If `false`, this rigid-body will no longer rotate due to torques and impulses, along the Z coordinate axis.
      * @param wakeUp - If `true`, this rigid-body will be automatically awaken if it is currently asleep.
+     * @deprecated use `this.setEnabledRotations` with the same arguments instead.
      */
     public restrictRotations(
         enableX: boolean,
@@ -155,13 +213,7 @@ export class RigidBody {
         enableZ: boolean,
         wakeUp: boolean,
     ) {
-        return this.rawSet.rbRestrictRotations(
-            this.handle,
-            enableX,
-            enableY,
-            enableZ,
-            wakeUp,
-        );
+        this.setEnabledRotations(enableX, enableY, enableZ, wakeUp);
     }
     // #endif
 
@@ -554,6 +606,117 @@ export class RigidBody {
     }
 
     /**
+     * Recompute the mass-properties of this rigid-bodies based on its currently attached colliders.
+     */
+    public recomputeMassPropertiesFromColliders() {
+        this.rawSet.rbRecomputeMassPropertiesFromColliders(
+            this.handle,
+            this.colliderSet.raw,
+        );
+    }
+
+    /**
+     * Sets the rigid-body's additional mass.
+     *
+     * The total angular inertia of the rigid-body will be scaled automatically based on this additional mass. If this
+     * scaling effect isn’t desired, use Self::additional_mass_properties instead of this method.
+     *
+     * This is only the "additional" mass because the total mass of the rigid-body is equal to the sum of this
+     * additional mass and the mass computed from the colliders (with non-zero densities) attached to this rigid-body.
+     *
+     * That total mass (which includes the attached colliders’ contributions) will be updated at the name physics step,
+     * or can be updated manually with `this.recomputeMassPropertiesFromColliders`.
+     *
+     * This will override any previous additional mass-properties set by `this.setAdditionalMass`,
+     * `this.setAdditionalMassProperties`, `RigidBodyDesc::setAdditionalMass`, or
+     * `RigidBodyDesc.setAdditionalMassfProperties` for this rigid-body.
+     *
+     * @param mass - The additional mass to set.
+     * @param wakeUp - If `true` then the rigid-body will be woken up if it was put to sleep because it did not move for a while.
+     */
+    public setAdditionalMass(mass: number, wakeUp: boolean) {
+        this.rawSet.rbSetAdditionalMass(this.handle, mass, wakeUp);
+    }
+
+    // #if DIM3
+    /**
+     * Sets the rigid-body's additional mass-properties.
+     *
+     * This is only the "additional" mass-properties because the total mass-properties of the rigid-body is equal to the
+     * sum of this additional mass-properties and the mass computed from the colliders (with non-zero densities) attached
+     * to this rigid-body.
+     *
+     * That total mass-properties (which include the attached colliders’ contributions) will be updated at the name
+     * physics step, or can be updated manually with `this.recomputeMassPropertiesFromColliders`.
+     *
+     * This will override any previous mass-properties set by `this.setAdditionalMass`,
+     * `this.setAdditionalMassProperties`, `RigidBodyDesc.setAdditionalMass`, or `RigidBodyDesc.setAdditionalMassProperties`
+     * for this rigid-body.
+     *
+     * If `wake_up` is true then the rigid-body will be woken up if it was put to sleep because it did not move for a while.
+     */
+    public setAdditionalMassProperties(
+        mass: number,
+        centerOfMass: Vector,
+        principalAngularInertia: Vector,
+        angularInertiaLocalFrame: Rotation,
+        wakeUp: boolean,
+    ) {
+        let rawCom = VectorOps.intoRaw(centerOfMass);
+        let rawPrincipalInertia = VectorOps.intoRaw(principalAngularInertia);
+        let rawInertiaFrame = RotationOps.intoRaw(angularInertiaLocalFrame);
+
+        this.rawSet.rbSetAdditionalMassProperties(
+            this.handle,
+            mass,
+            rawCom,
+            rawPrincipalInertia,
+            rawInertiaFrame,
+            wakeUp,
+        );
+
+        rawCom.free();
+        rawPrincipalInertia.free();
+        rawInertiaFrame.free();
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * Sets the rigid-body's additional mass-properties.
+     *
+     * This is only the "additional" mass-properties because the total mass-properties of the rigid-body is equal to the
+     * sum of this additional mass-properties and the mass computed from the colliders (with non-zero densities) attached
+     * to this rigid-body.
+     *
+     * That total mass-properties (which include the attached colliders’ contributions) will be updated at the name
+     * physics step, or can be updated manually with `this.recomputeMassPropertiesFromColliders`.
+     *
+     * This will override any previous mass-properties set by `this.setAdditionalMass`,
+     * `this.setAdditionalMassProperties`, `RigidBodyDesc.setAdditionalMass`, or `RigidBodyDesc.setAdditionalMassProperties`
+     * for this rigid-body.
+     *
+     * If `wake_up` is true then the rigid-body will be woken up if it was put to sleep because it did not move for a while.
+     */
+    public setAdditionalMassProperties(
+        mass: number,
+        centerOfMass: Vector,
+        principalAngularInertia: number,
+        wakeUp: boolean,
+    ) {
+        let rawCom = VectorOps.intoRaw(centerOfMass);
+        this.rawSet.rbSetAdditionalMassProperties(
+            this.handle,
+            mass,
+            rawCom,
+            principalAngularInertia,
+            wakeUp,
+        );
+        rawCom.free();
+    }
+    // #endif
+
+    /**
      * Sets the linear damping factor applied to this rigid-body.
      *
      * @param factor - The damping factor to set.
@@ -705,6 +868,7 @@ export class RigidBodyDesc {
     rotation: Rotation;
     gravityScale: number;
     mass: number;
+    massOnly: boolean;
     centerOfMass: Vector;
     translationsEnabledX: boolean;
     translationsEnabledY: boolean;
@@ -739,6 +903,7 @@ export class RigidBodyDesc {
         this.gravityScale = 1.0;
         this.linvel = VectorOps.zeros();
         this.mass = 0.0;
+        this.massOnly = false;
         this.centerOfMass = VectorOps.zeros();
         this.translationsEnabledX = true;
         this.translationsEnabledY = true;
@@ -873,7 +1038,12 @@ export class RigidBodyDesc {
      * @param rot - The rotation to set.
      */
     public setRotation(rot: Rotation): RigidBodyDesc {
+        // #if DIM2
         this.rotation = rot;
+        // #endif
+        // #if DIM3
+        RotationOps.copy(this.rotation, rot);
+        // #endif
         return this;
     }
 
@@ -896,6 +1066,7 @@ export class RigidBodyDesc {
      */
     public setAdditionalMass(mass: number): RigidBodyDesc {
         this.mass = mass;
+        this.massOnly = true;
         return this;
     }
 
@@ -946,20 +1117,9 @@ export class RigidBodyDesc {
         principalAngularInertia: number,
     ): RigidBodyDesc {
         this.mass = mass;
-        this.centerOfMass = centerOfMass;
+        VectorOps.copy(this.centerOfMass, centerOfMass);
         this.principalAngularInertia = principalAngularInertia;
-        return this;
-    }
-
-    /**
-     * Sets the mass properties of the rigid-body being built.
-     *
-     * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
-     */
-    public setAdditionalPrincipalAngularInertia(
-        principalAngularInertia: number,
-    ): RigidBodyDesc {
-        this.principalAngularInertia = principalAngularInertia;
+        this.massOnly = false;
         return this;
     }
 
@@ -968,13 +1128,29 @@ export class RigidBodyDesc {
      * @param translationsEnabledX - Are translations along the X axis enabled?
      * @param translationsEnabledY - Are translations along the y axis enabled?
      */
-    public restrictTranslations(
+    public enabledTranslations(
         translationsEnabledX: boolean,
         translationsEnabledY: boolean,
     ): RigidBodyDesc {
         this.translationsEnabledX = translationsEnabledX;
         this.translationsEnabledY = translationsEnabledY;
         return this;
+    }
+
+    /**
+     * Allow translation of this rigid-body only along specific axes.
+     * @param translationsEnabledX - Are translations along the X axis enabled?
+     * @param translationsEnabledY - Are translations along the y axis enabled?
+     * @deprecated use `this.enabledTranslations` with the same arguments instead.
+     */
+    public restrictTranslations(
+        translationsEnabledX: boolean,
+        translationsEnabledY: boolean,
+    ): RigidBodyDesc {
+        return this.enabledTranslations(
+            translationsEnabledX,
+            translationsEnabledY,
+        );
     }
 
     /**
@@ -1022,7 +1198,7 @@ export class RigidBodyDesc {
      * @param vel - The angular velocity to set.
      */
     public setAngvel(vel: Vector): RigidBodyDesc {
-        this.angvel = vel;
+        VectorOps.copy(this.angvel, vel);
         return this;
     }
 
@@ -1052,21 +1228,13 @@ export class RigidBodyDesc {
         angularInertiaLocalFrame: Rotation,
     ): RigidBodyDesc {
         this.mass = mass;
-        this.centerOfMass = centerOfMass;
-        this.principalAngularInertia = principalAngularInertia;
-        this.angularInertiaLocalFrame = angularInertiaLocalFrame;
-        return this;
-    }
-
-    /**
-     * Sets the mass properties of the rigid-body being built.
-     *
-     * @param principalAngularInertia − The initial principal angular inertia of the rigid-body to create.
-     */
-    public setAdditionalPrincipalAngularInertia(
-        principalAngularInertia: Vector,
-    ): RigidBodyDesc {
-        this.principalAngularInertia = principalAngularInertia;
+        VectorOps.copy(this.centerOfMass, centerOfMass);
+        VectorOps.copy(this.principalAngularInertia, principalAngularInertia);
+        RotationOps.copy(
+            this.angularInertiaLocalFrame,
+            angularInertiaLocalFrame,
+        );
+        this.massOnly = false;
         return this;
     }
 
@@ -1076,7 +1244,7 @@ export class RigidBodyDesc {
      * @param translationsEnabledY - Are translations along the y axis enabled?
      * @param translationsEnabledZ - Are translations along the Z axis enabled?
      */
-    public restrictTranslations(
+    public enabledTranslations(
         translationsEnabledX: boolean,
         translationsEnabledY: boolean,
         translationsEnabledZ: boolean,
@@ -1086,13 +1254,31 @@ export class RigidBodyDesc {
         this.translationsEnabledZ = translationsEnabledZ;
         return this;
     }
+    /**
+     * Allow translation of this rigid-body only along specific axes.
+     * @param translationsEnabledX - Are translations along the X axis enabled?
+     * @param translationsEnabledY - Are translations along the y axis enabled?
+     * @param translationsEnabledZ - Are translations along the Z axis enabled?
+     * @deprecated use `this.enabledTranslations` with the same arguments instead.
+     */
+    public restrictTranslations(
+        translationsEnabledX: boolean,
+        translationsEnabledY: boolean,
+        translationsEnabledZ: boolean,
+    ): RigidBodyDesc {
+        return this.enabledTranslations(
+            translationsEnabledX,
+            translationsEnabledY,
+            translationsEnabledZ,
+        );
+    }
 
     /**
      * Locks all translations that would have resulted from forces on
      * the created rigid-body.
      */
     public lockTranslations(): RigidBodyDesc {
-        return this.restrictTranslations(false, false, false);
+        return this.enabledTranslations(false, false, false);
     }
 
     /**
@@ -1101,7 +1287,7 @@ export class RigidBodyDesc {
      * @param rotationsEnabledY - Are rotations along the y axis enabled?
      * @param rotationsEnabledZ - Are rotations along the Z axis enabled?
      */
-    public restrictRotations(
+    public enabledRotations(
         rotationsEnabledX: boolean,
         rotationsEnabledY: boolean,
         rotationsEnabledZ: boolean,
@@ -1110,6 +1296,25 @@ export class RigidBodyDesc {
         this.rotationsEnabledY = rotationsEnabledY;
         this.rotationsEnabledZ = rotationsEnabledZ;
         return this;
+    }
+
+    /**
+     * Allow rotation of this rigid-body only along specific axes.
+     * @param rotationsEnabledX - Are rotations along the X axis enabled?
+     * @param rotationsEnabledY - Are rotations along the y axis enabled?
+     * @param rotationsEnabledZ - Are rotations along the Z axis enabled?
+     * @deprecated use `this.enabledRotations` with the same arguments instead.
+     */
+    public restrictRotations(
+        rotationsEnabledX: boolean,
+        rotationsEnabledY: boolean,
+        rotationsEnabledZ: boolean,
+    ): RigidBodyDesc {
+        return this.enabledRotations(
+            rotationsEnabledX,
+            rotationsEnabledY,
+            rotationsEnabledZ,
+        );
     }
 
     /**

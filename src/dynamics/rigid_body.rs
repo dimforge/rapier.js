@@ -1,6 +1,8 @@
 use crate::dynamics::{RawRigidBodySet, RawRigidBodyType};
+use crate::geometry::RawColliderSet;
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
+use rapier::dynamics::MassProperties;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -222,6 +224,58 @@ impl RawRigidBodySet {
         })
     }
 
+    pub fn rbRecomputeMassPropertiesFromColliders(
+        &mut self,
+        handle: FlatHandle,
+        colliders: &RawColliderSet,
+    ) {
+        self.map_mut(handle, |rb| {
+            rb.recompute_mass_properties_from_colliders(&colliders.0)
+        })
+    }
+
+    pub fn rbSetAdditionalMass(&mut self, handle: FlatHandle, mass: f32, wake_up: bool) {
+        self.map_mut(handle, |rb| {
+            rb.set_additional_mass(mass, wake_up);
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn rbSetAdditionalMassProperties(
+        &mut self,
+        handle: FlatHandle,
+        mass: f32,
+        centerOfMass: &RawVector,
+        principalAngularInertia: &RawVector,
+        angularInertiaFrame: &RawRotation,
+        wake_up: bool,
+    ) {
+        self.map_mut(handle, |rb| {
+            let mprops = MassProperties::with_principal_inertia_frame(
+                centerOfMass.0.into(),
+                mass,
+                principalAngularInertia.0,
+                angularInertiaFrame.0,
+            );
+            rb.set_additional_mass_properties(mprops, wake_up)
+        })
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn rbSetAdditionalMassProperties(
+        &mut self,
+        handle: FlatHandle,
+        mass: f32,
+        centerOfMass: &RawVector,
+        principalAngularInertia: f32,
+        wake_up: bool,
+    ) {
+        self.map_mut(handle, |rb| {
+            let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
+            rb.set_additional_mass_properties(props, wake_up)
+        })
+    }
+
     /// The linear velocity of this rigid-body.
     pub fn rbLinvel(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |rb| RawVector(*rb.linvel()))
@@ -244,7 +298,7 @@ impl RawRigidBodySet {
     }
 
     #[cfg(feature = "dim2")]
-    pub fn rbRestrictTranslations(
+    pub fn rbSetEnabledTranslations(
         &mut self,
         handle: FlatHandle,
         allow_x: bool,
@@ -252,12 +306,12 @@ impl RawRigidBodySet {
         wake_up: bool,
     ) {
         self.map_mut(handle, |rb| {
-            rb.restrict_translations(allow_x, allow_y, wake_up)
+            rb.set_enabled_translations(allow_x, allow_y, wake_up)
         })
     }
 
     #[cfg(feature = "dim3")]
-    pub fn rbRestrictTranslations(
+    pub fn rbSetEnabledTranslations(
         &mut self,
         handle: FlatHandle,
         allow_x: bool,
@@ -266,7 +320,7 @@ impl RawRigidBodySet {
         wake_up: bool,
     ) {
         self.map_mut(handle, |rb| {
-            rb.restrict_translations(allow_x, allow_y, allow_z, wake_up)
+            rb.set_enabled_translations(allow_x, allow_y, allow_z, wake_up)
         })
     }
 
@@ -275,7 +329,7 @@ impl RawRigidBodySet {
     }
 
     #[cfg(feature = "dim3")]
-    pub fn rbRestrictRotations(
+    pub fn rbSetEnabledRotations(
         &mut self,
         handle: FlatHandle,
         allow_x: bool,
@@ -284,7 +338,7 @@ impl RawRigidBodySet {
         wake_up: bool,
     ) {
         self.map_mut(handle, |rb| {
-            rb.restrict_rotations(allow_x, allow_y, allow_z, wake_up)
+            rb.set_enabled_rotations(allow_x, allow_y, allow_z, wake_up)
         })
     }
 

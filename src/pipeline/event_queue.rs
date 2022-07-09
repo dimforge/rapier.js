@@ -1,6 +1,8 @@
+use crate::math::RawVector;
 use crate::utils;
+use crate::utils::FlatHandle;
 use rapier::crossbeam::channel::Receiver;
-use rapier::geometry::CollisionEvent;
+use rapier::geometry::{CollisionEvent, ContactForceEvent};
 use rapier::pipeline::ChannelEventCollector;
 use wasm_bindgen::prelude::*;
 
@@ -10,7 +12,48 @@ use wasm_bindgen::prelude::*;
 pub struct RawEventQueue {
     pub(crate) collector: ChannelEventCollector,
     collision_events: Receiver<CollisionEvent>,
+    contact_force_events: Receiver<ContactForceEvent>,
     pub(crate) auto_drain: bool,
+}
+
+#[wasm_bindgen]
+pub struct RawContactForceEvent(ContactForceEvent);
+
+#[wasm_bindgen]
+impl RawContactForceEvent {
+    /// The first collider involved in the contact.
+    pub fn collider1(&self) -> FlatHandle {
+        crate::utils::flat_handle(self.0.collider1.0)
+    }
+
+    /// The second collider involved in the contact.
+    pub fn collider2(&self) -> FlatHandle {
+        crate::utils::flat_handle(self.0.collider2.0)
+    }
+
+    /// The sum of all the forces between the two colliders.
+    pub fn total_force(&self) -> RawVector {
+        RawVector(self.0.total_force)
+    }
+
+    /// The sum of the magnitudes of each force between the two colliders.
+    ///
+    /// Note that this is **not** the same as the magnitude of `self.total_force`.
+    /// Here we are summing the magnitude of all the forces, instead of taking
+    /// the magnitude of their sum.
+    pub fn total_force_magnitude(&self) -> f32 {
+        self.0.total_force_magnitude
+    }
+
+    /// The world-space (unit) direction of the force with strongest magnitude.
+    pub fn max_force_direction(&self) -> RawVector {
+        RawVector(self.0.max_force_direction)
+    }
+
+    /// The magnitude of the largest force at a contact point of this contact pair.
+    pub fn max_force_magnitude(&self) -> f32 {
+        self.0.max_force_magnitude
+    }
 }
 
 // #[wasm_bindgen]
@@ -36,11 +79,13 @@ impl RawEventQueue {
     #[wasm_bindgen(constructor)]
     pub fn new(autoDrain: bool) -> Self {
         let collision_channel = rapier::crossbeam::channel::unbounded();
-        let collector = ChannelEventCollector::new(collision_channel.0);
+        let contact_force_channel = rapier::crossbeam::channel::unbounded();
+        let collector = ChannelEventCollector::new(collision_channel.0, contact_force_channel.0);
 
         Self {
             collector,
             collision_events: collision_channel.1,
+            contact_force_events: contact_force_channel.1,
             auto_drain: autoDrain,
         }
     }
@@ -78,6 +123,13 @@ impl RawEventQueue {
                     );
                 }
             }
+        }
+    }
+
+    pub fn drainContactForceEvents(&mut self, f: &js_sys::Function) {
+        let this = JsValue::null();
+        while let Ok(event) = self.contact_force_events.try_recv() {
+            let _ = f.call1(&this, &JsValue::from(RawContactForceEvent(event)));
         }
     }
 

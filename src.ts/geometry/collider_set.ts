@@ -80,7 +80,7 @@ export class ColliderSet {
             rawShape,
             rawTra,
             rawRot,
-            desc.useMassProps,
+            desc.massPropsMode,
             desc.mass,
             rawCom,
             // #if DIM2
@@ -101,6 +101,7 @@ export class ColliderSet {
             desc.activeCollisionTypes,
             desc.activeHooks,
             desc.activeEvents,
+            desc.contactForceEventThreshold,
             hasParent,
             hasParent ? parentHandle : 0,
             bodies.raw,

@@ -1,3 +1,53 @@
+### Unreleased
+
+#### Fixed
+
+-   Fix unpredictable broad-phase panic when using small colliders in the simulation.
+-   Fix collision events being incorrectly generated for any shape that produces multiple
+    contact manifolds (like triangle meshes).
+
+#### Modified
+
+-   The `RigidBodyDesc.setAdditionalMass` method will now result in the additional angular inertia
+    being automatically computed based on the shapes of the colliders attached to the rigid-body.
+-   Removed the method `RigidBodyDesc.setAdditionalPrincipalAngularInertia`. Use
+    `RigidBodyDesc.setAdditionalMassProperties` instead.
+-   The methods of `RigidBodyDesc` and `ColliderDesc` will now always copy the object provided by
+    the user instead of storing the object itself.
+-   The following method will now copy the user’s objects instead of storing it: `ColliderDesc.setRotation`,
+    `ColliderDesc.setMassProperties`, `RigidBodyDesc.setRotation`, `RigidBodyDesc.setAdditionalMassProperties`,
+    `RigidBodyDesc.setAngvel`.
+-   Rename `RigidBody.restrictRotations` and `RigidBody.restrictTranslations` to
+    `RigidBody.setEnabledRotations` and `RigidBody.setEnabledTranslations`.
+-   Rename `RigidBodyDesc.restrictRotations` and `RigidBodyDesc.restrictTranslations` to
+    `RigidBodyDesc.enabledRotations` and `RigidBodyDesc.enabledTranslations`.
+
+#### Added
+
+-   Add `ImpulseJoint.setContactsEnabled`, and `MultibodyJoint.setContactsEnabled` to set whether
+    contacts are enabled between colliders attached to rigid-bodies linked by this joint.
+-   Add `UnitImpulseJoint.setLimits` to set the limits of a unit joint.
+-   Add `RigidBody.recomputeMassPropertiesFromColliders` to force the immediate computation
+    of a rigid-body’s mass properties (instead of waiting for them to be recomputed during the next
+    timestep). This is useful to be able to read immediately the result of a change of a rigid-body
+    additional mass-properties or a change of one of its collider’s mass-properties.
+-   Add `RigidBody::setAdditionalMass` to set the additional mass for the rigid-body. The additional
+    angular inertia is automatically computed based on the attached colliders shapes. If this automatic
+    angular inertia computation isn’t desired, use `RigidBody::setAdditionalMassProperties` instead.
+-   Add `Collider.setDensity`, `.setMass`, `.setMassProperties`, to alter a collider’s mass
+    properties. Note that `.setMass` will result in the collider’s angular inertia being automatically
+    computed based on this mass and on its shape.
+-   Add `ColliderDesc.setMass` to set the mass of the collider instead of its density. Its angular
+    inertia tensor will be automatically computed based on this mass and its shape.
+-   Add more filtering options for scene-queries. All the scene query methods now take additional optional
+    arguments to indicate if one particular collider, rigid-body, or type of colliders/rigid-bodies have to
+    be ignored by the query.
+-   Add force reporting based on contact force events. The `EventHandler` trait has been modified to include
+    the method `EventQueue.drainContactForceEvents`. Contact force events are generated whenever the sum of the
+    magnitudes of all the forces between two colliders is greater than any of their
+    `Collider.contactForceEventThreshold` values (only the colliders with the `ActiveEvents.CONTACT_FORCE_EVENT`
+    flag set are taken into account for this threshold).
+
 ### 0.8.1 (2022-04-06)
 
 Starting with this release, all the examples in `testbed2d` and `testbed3d` have been updated to `webpack 5`,
@@ -15,6 +65,11 @@ to the `master` branch.
 -   Most APIs that relied on rigid-body handles or collider handles have been modified to rely on `RigidBody`
     or `Collider` objects instead. Handles are now only needed for events and hooks.
 -   Rename STATIC to FIXED in the `ActiveCollisionTypes` flags.
+-   The `RigidBody.applyForce` and `.applyTorque` methods have been replaced by `.addForce` and `.addTorque`. These
+    force/torques are no longer automatically zeroed after a timestep. To zero them manually, call `.resetForce` or
+    `.resetTorque`.
+-   The `EventQueue.drainContactEvents` and `EventQueue.drainIntersectionEvents` have been merged into a single
+    method: `EventQueue:drainCollisionEvents`.
 
 #### Added
 

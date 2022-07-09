@@ -5,6 +5,7 @@ use crate::geometry::{
 };
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
+use rapier::dynamics::MassProperties;
 use rapier::geometry::{ActiveCollisionTypes, ShapeType};
 use rapier::math::{Isometry, Point};
 use rapier::parry::query;
@@ -340,8 +341,18 @@ impl RawColliderSet {
     }
 
     /// The density of this collider.
-    pub fn coDensity(&self, handle: FlatHandle) -> Option<f32> {
+    pub fn coDensity(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |co| co.density())
+    }
+
+    /// The mass of this collider.
+    pub fn coMass(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.mass())
+    }
+
+    /// The volume of this collider.
+    pub fn coVolume(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.volume())
     }
 
     /// The collision groups of this collider.
@@ -371,6 +382,11 @@ impl RawColliderSet {
     /// The events enabled for this collider.
     pub fn coActiveEvents(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |co| co.active_events().bits())
+    }
+
+    /// The total force magnitude beyond which a contact force event can be emitted.
+    pub fn coContactForceEventThreshold(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.contact_force_event_threshold())
     }
 
     pub fn coContainsPoint(&self, handle: FlatHandle, point: &RawVector) -> bool {
@@ -619,5 +635,52 @@ impl RawColliderSet {
 
     pub fn coSetShape(&mut self, handle: FlatHandle, shape: &RawShape) {
         self.map_mut(handle, |co| co.set_shape(shape.0.clone()));
+    }
+
+    pub fn coSetContactForceEventThreshold(&mut self, handle: FlatHandle, threshold: f32) {
+        self.map_mut(handle, |co| co.set_contact_force_event_threshold(threshold))
+    }
+
+    pub fn coSetDensity(&mut self, handle: FlatHandle, density: f32) {
+        self.map_mut(handle, |co| co.set_density(density))
+    }
+
+    pub fn coSetMass(&mut self, handle: FlatHandle, mass: f32) {
+        self.map_mut(handle, |co| co.set_mass(mass))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn coSetMassProperties(
+        &mut self,
+        handle: FlatHandle,
+        mass: f32,
+        centerOfMass: &RawVector,
+        principalAngularInertia: &RawVector,
+        angularInertiaFrame: &RawRotation,
+    ) {
+        self.map_mut(handle, |co| {
+            let mprops = MassProperties::with_principal_inertia_frame(
+                centerOfMass.0.into(),
+                mass,
+                principalAngularInertia.0,
+                angularInertiaFrame.0,
+            );
+
+            co.set_mass_properties(mprops)
+        })
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn coSetMassProperties(
+        &mut self,
+        handle: FlatHandle,
+        mass: f32,
+        centerOfMass: &RawVector,
+        principalAngularInertia: f32,
+    ) {
+        self.map_mut(handle, |co| {
+            let props = MassProperties::new(centerOfMass.0.into(), mass, principalAngularInertia);
+            co.set_mass_properties(props)
+        })
     }
 }

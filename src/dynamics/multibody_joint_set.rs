@@ -15,17 +15,17 @@ impl RawMultibodyJointSet {
         f(body.link(link_id).unwrap().joint())
     }
 
-    // pub(crate) fn map_mut<T>(
-    //     &mut self,
-    //     handle: FlatHandle,
-    //     f: impl FnOnce(&mut MultibodyJoint) -> T,
-    // ) -> T {
-    //     let (body, link_id, _) = self
-    //         .0
-    //         .get_mut(utils::multibody_handle(handle))
-    //         .expect("Invalid Joint reference. It may have been removed from the physics World.");
-    //     f(body.link(link_id).unwrap().joint())
-    // }
+    pub(crate) fn map_mut<T>(
+        &mut self,
+        handle: FlatHandle,
+        f: impl FnOnce(&mut MultibodyJoint) -> T,
+    ) -> T {
+        let (body, link_id) = self
+            .0
+            .get_mut(utils::multibody_joint_handle(handle))
+            .expect("Invalid Joint reference. It may have been removed from the physics World.");
+        f(&mut body.link_mut(link_id).unwrap().joint)
+    }
 }
 
 #[wasm_bindgen]

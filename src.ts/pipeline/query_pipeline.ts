@@ -10,8 +10,51 @@ import {
     Shape,
     ShapeColliderTOI,
 } from "../geometry";
-import {IslandManager, RigidBodySet} from "../dynamics";
+import {IslandManager, RigidBodyHandle, RigidBodySet} from "../dynamics";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
+
+// NOTE: must match the bits in the QueryFilterFlags on the Rust side.
+/**
+ * Flags for excluding whole sets of colliders from a scene query.
+ */
+export enum QueryFilterFlags {
+    /**
+     * Exclude from the query any collider attached to a fixed rigid-body and colliders with no rigid-body attached.
+     */
+    EXCLUDE_FIXED = 0b0000_0001,
+    /**
+     * Exclude from the query any collider attached to a dynamic rigid-body.
+     */
+    EXCLUDE_KINEMATIC = 0b0000_0010,
+    /**
+     * Exclude from the query any collider attached to a kinematic rigid-body.
+     */
+    EXCLUDE_DYNAMIC = 0b0000_0100,
+    /**
+     * Exclude from the query any collider that is a sensor.
+     */
+    EXCLUDE_SENSORS = 0b0000_1000,
+    /**
+     * Exclude from the query any collider that is not a sensor.
+     */
+    EXCLUDE_SOLIDS = 0b0001_0000,
+    /**
+     * Excludes all colliders not attached to a dynamic rigid-body.
+     */
+    ONLY_DYNAMIC = QueryFilterFlags.EXCLUDE_FIXED |
+        QueryFilterFlags.EXCLUDE_KINEMATIC,
+    /**
+     * Excludes all colliders not attached to a kinematic rigid-body.
+     */
+    ONLY_KINEMATIC = QueryFilterFlags.EXCLUDE_DYNAMIC |
+        QueryFilterFlags.EXCLUDE_FIXED,
+    /**
+     * Exclude all colliders attached to a non-fixed rigid-body
+     * (this will not exclude colliders not attached to any rigid-body).
+     */
+    ONLY_FIXED = QueryFilterFlags.EXCLUDE_DYNAMIC |
+        QueryFilterFlags.EXCLUDE_KINEMATIC,
+}
 
 /**
  * A pipeline for performing queries on all the colliders of a scene.
@@ -61,25 +104,33 @@ export class QueryPipeline {
      * @param filter - The callback to filter out which collider will be hit.
      */
     public castRay(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ): RayColliderToi | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
         let result = RayColliderToi.fromRaw(
             colliders,
             this.raw.castRay(
+                bodies.raw,
                 colliders.raw,
                 rawOrig,
                 rawDir,
                 maxToi,
                 solid,
-                groups,
-                filter,
+                filterFlags,
+                filterGroups,
+                filterExcludeCollider,
+                filterExcludeRigidBody,
+                filterPredicate,
             ),
         );
 
@@ -103,25 +154,33 @@ export class QueryPipeline {
      * @param groups - Used to filter the colliders that can or cannot be hit by the ray.
      */
     public castRayAndGetNormal(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ): RayColliderIntersection | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
         let result = RayColliderIntersection.fromRaw(
             colliders,
             this.raw.castRayAndGetNormal(
+                bodies.raw,
                 colliders.raw,
                 rawOrig,
                 rawDir,
                 maxToi,
                 solid,
-                groups,
-                filter,
+                filterFlags,
+                filterGroups,
+                filterExcludeCollider,
+                filterExcludeRigidBody,
+                filterPredicate,
             ),
         );
 
@@ -146,13 +205,17 @@ export class QueryPipeline {
      *   If this callback returns `false`, then the cast will stop and no further hits will be detected/reported.
      */
     public intersectionsWithRay(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         ray: Ray,
         maxToi: number,
         solid: boolean,
-        groups: InteractionGroups,
         callback: (intersect: RayColliderIntersection) => boolean,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ) {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
@@ -163,14 +226,18 @@ export class QueryPipeline {
         };
 
         this.raw.intersectionsWithRay(
+            bodies.raw,
             colliders.raw,
             rawOrig,
             rawDir,
             maxToi,
             solid,
-            groups,
             rawCallback,
-            filter,
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider,
+            filterExcludeRigidBody,
+            filterPredicate,
         );
 
         rawOrig.free();
@@ -188,23 +255,31 @@ export class QueryPipeline {
      *   hit the colliders with collision groups compatible with the ray's group.
      */
     public intersectionWithShape(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         shapePos: Vector,
         shapeRot: Rotation,
         shape: Shape,
-        groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ): ColliderHandle | null {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawShape = shape.intoRaw();
         let result = this.raw.intersectionWithShape(
+            bodies.raw,
             colliders.raw,
             rawPos,
             rawRot,
             rawShape,
-            groups,
-            filter,
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider,
+            filterExcludeRigidBody,
+            filterPredicate,
         );
 
         rawPos.free();
@@ -228,21 +303,29 @@ export class QueryPipeline {
      *   project on colliders with collision groups compatible with the ray's group.
      */
     public projectPoint(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         point: Vector,
         solid: boolean,
-        groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ): PointColliderProjection | null {
         let rawPoint = VectorOps.intoRaw(point);
         let result = PointColliderProjection.fromRaw(
             colliders,
             this.raw.projectPoint(
+                bodies.raw,
                 colliders.raw,
                 rawPoint,
                 solid,
-                groups,
-                filter,
+                filterFlags,
+                filterGroups,
+                filterExcludeCollider,
+                filterExcludeRigidBody,
+                filterPredicate,
             ),
         );
 
@@ -260,19 +343,27 @@ export class QueryPipeline {
      *   project on colliders with collision groups compatible with the ray's group.
      */
     public projectPointAndGetFeature(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         point: Vector,
-        groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ): PointColliderProjection | null {
         let rawPoint = VectorOps.intoRaw(point);
         let result = PointColliderProjection.fromRaw(
             colliders,
             this.raw.projectPointAndGetFeature(
+                bodies.raw,
                 colliders.raw,
                 rawPoint,
-                groups,
-                filter,
+                filterFlags,
+                filterGroups,
+                filterExcludeCollider,
+                filterExcludeRigidBody,
+                filterPredicate,
             ),
         );
 
@@ -292,20 +383,28 @@ export class QueryPipeline {
      *   containing the `point`.
      */
     public intersectionsWithPoint(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         point: Vector,
-        groups: InteractionGroups,
         callback: (handle: ColliderHandle) => boolean,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ) {
         let rawPoint = VectorOps.intoRaw(point);
 
         this.raw.intersectionsWithPoint(
+            bodies.raw,
             colliders.raw,
             rawPoint,
-            groups,
             callback,
-            filter,
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider,
+            filterExcludeRigidBody,
+            filterPredicate,
         );
 
         rawPoint.free();
@@ -327,14 +426,18 @@ export class QueryPipeline {
      *   test on colliders with collision groups compatible with this group.
      */
     public castShape(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         shapePos: Vector,
         shapeRot: Rotation,
         shapeVel: Vector,
         shape: Shape,
         maxToi: number,
-        groups: InteractionGroups,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ): ShapeColliderTOI | null {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
@@ -344,14 +447,18 @@ export class QueryPipeline {
         let result = ShapeColliderTOI.fromRaw(
             colliders,
             this.raw.castShape(
+                bodies.raw,
                 colliders.raw,
                 rawPos,
                 rawRot,
                 rawVel,
                 rawShape,
                 maxToi,
-                groups,
-                filter,
+                filterFlags,
+                filterGroups,
+                filterExcludeCollider,
+                filterExcludeRigidBody,
+                filterPredicate,
             ),
         );
 
@@ -375,26 +482,34 @@ export class QueryPipeline {
      * @param callback - A function called with the handles of each collider intersecting the `shape`.
      */
     public intersectionsWithShape(
+        bodies: RigidBodySet,
         colliders: ColliderSet,
         shapePos: Vector,
         shapeRot: Rotation,
         shape: Shape,
-        groups: InteractionGroups,
         callback: (handle: ColliderHandle) => boolean,
-        filter?: (collider: ColliderHandle) => boolean,
+        filterFlags?: QueryFilterFlags,
+        filterGroups?: InteractionGroups,
+        filterExcludeCollider?: ColliderHandle,
+        filterExcludeRigidBody?: RigidBodyHandle,
+        filterPredicate?: (collider: ColliderHandle) => boolean,
     ) {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawShape = shape.intoRaw();
 
         this.raw.intersectionsWithShape(
+            bodies.raw,
             colliders.raw,
             rawPos,
             rawRot,
             rawShape,
-            groups,
             callback,
-            filter,
+            filterFlags,
+            filterGroups,
+            filterExcludeCollider,
+            filterExcludeRigidBody,
+            filterPredicate,
         );
 
         rawPos.free();
