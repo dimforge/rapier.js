@@ -860,13 +860,3 @@ dependencies = [
  "bytemuck",
  "safe_arch",
 ]
-
-[[patch.unused]]
-name = "rapier2d"
-version = "0.13.0"
-source = "git+https://github.com/dimforge/rapier?rev=573affd73cf8f9d1c998f68535b5832a33c73848#573affd73cf8f9d1c998f68535b5832a33c73848"
-
-[[patch.unused]]
-name = "rapier3d"
-version = "0.13.0"
-source = "git+https://github.com/dimforge/rapier?rev=573affd73cf8f9d1c998f68535b5832a33c73848#573affd73cf8f9d1c998f68535b5832a33c73848"
