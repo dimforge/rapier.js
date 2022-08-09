@@ -1,3 +1,8 @@
+### Unreleased
+
+-    Reduce rounding errors in 3D when setting the rotation of a rigid-body or collider.
+
+
 ### 0.9.0 (2022-10-07)
 
 #### Fixed

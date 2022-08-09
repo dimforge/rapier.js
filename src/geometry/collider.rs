@@ -81,7 +81,7 @@ impl RawColliderSet {
     #[cfg(feature = "dim3")]
     pub fn coSetRotation(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32, w: f32) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
-            self.map_mut(handle, |co| co.set_rotation(q.scaled_axis()))
+            self.map_mut(handle, |co| co.set_rotation(q))
         }
     }
 
@@ -93,7 +93,7 @@ impl RawColliderSet {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
     pub fn coSetRotation(&mut self, handle: FlatHandle, angle: f32) {
-        self.map_mut(handle, |co| co.set_rotation(angle))
+        self.map_mut(handle, |co| co.set_rotation(na::UnitComplex::new(angle)))
     }
 
     #[cfg(feature = "dim3")]

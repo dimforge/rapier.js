@@ -103,7 +103,7 @@ impl RawRigidBodySet {
         wakeUp: bool,
     ) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
-            self.map_mut(handle, |rb| rb.set_rotation(q.scaled_axis(), wakeUp))
+            self.map_mut(handle, |rb| rb.set_rotation(q, wakeUp))
         }
     }
 
@@ -115,7 +115,9 @@ impl RawRigidBodySet {
     /// wasn't moving before modifying its position.
     #[cfg(feature = "dim2")]
     pub fn rbSetRotation(&mut self, handle: FlatHandle, angle: f32, wakeUp: bool) {
-        self.map_mut(handle, |rb| rb.set_rotation(angle, wakeUp))
+        self.map_mut(handle, |rb| {
+            rb.set_rotation(na::UnitComplex::new(angle), wakeUp)
+        })
     }
 
     /// Sets the linear velocity of this rigid-body.
@@ -202,7 +204,7 @@ impl RawRigidBodySet {
     ) {
         if let Some(q) = na::Unit::try_new(na::Quaternion::new(w, x, y, z), 0.0) {
             self.map_mut(handle, |rb| {
-                rb.set_next_kinematic_rotation(q.scaled_axis());
+                rb.set_next_kinematic_rotation(q);
             })
         }
     }
@@ -220,7 +222,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim2")]
     pub fn rbSetNextKinematicRotation(&mut self, handle: FlatHandle, angle: f32) {
         self.map_mut(handle, |rb| {
-            rb.set_next_kinematic_rotation(angle);
+            rb.set_next_kinematic_rotation(na::UnitComplex::new(angle));
         })
     }
 
