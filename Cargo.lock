@@ -590,7 +590,7 @@ dependencies = [
 [[package]]
 name = "rapier2d"
 version = "0.14.0"
-source = "git+https://github.com/dimforge/rapier?rev=ecce077ce965c3d0ded994781ad35bc84276c9d8#ecce077ce965c3d0ded994781ad35bc84276c9d8"
+source = "git+https://github.com/dimforge/rapier?rev=68d250f0ad80bb2e5e10e43f2fd1b8824e2a1216#68d250f0ad80bb2e5e10e43f2fd1b8824e2a1216"
 dependencies = [
  "approx",
  "arrayvec",
@@ -612,7 +612,7 @@ dependencies = [
 [[package]]
 name = "rapier3d"
 version = "0.14.0"
-source = "git+https://github.com/dimforge/rapier?rev=ecce077ce965c3d0ded994781ad35bc84276c9d8#ecce077ce965c3d0ded994781ad35bc84276c9d8"
+source = "git+https://github.com/dimforge/rapier?rev=68d250f0ad80bb2e5e10e43f2fd1b8824e2a1216#68d250f0ad80bb2e5e10e43f2fd1b8824e2a1216"
 dependencies = [
  "approx",
  "arrayvec",
