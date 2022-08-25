@@ -24,16 +24,17 @@ mod toi;
 
 use rapier::dynamics::CoefficientCombineRule;
 use rapier::geometry::InteractionGroups;
+use rapier::prelude::Group;
 
 pub const fn unpack_interaction_groups(memberships_filter: u32) -> InteractionGroups {
     InteractionGroups::new(
-        (memberships_filter >> 16) as u32,
-        (memberships_filter & 0x0000_ffff) as u32,
+        unsafe { Group::from_bits_unchecked((memberships_filter >> 16) as u32) },
+        unsafe { Group::from_bits_unchecked((memberships_filter & 0x0000_ffff) as u32) },
     )
 }
 
 pub const fn pack_interaction_groups(groups: InteractionGroups) -> u32 {
-    (groups.memberships << 16) | groups.filter
+    (groups.memberships.bits() << 16) | groups.filter.bits()
 }
 
 pub const fn combine_rule_from_u32(rule: u32) -> CoefficientCombineRule {
