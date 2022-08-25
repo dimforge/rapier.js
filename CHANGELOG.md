@@ -1,39 +1,19 @@
 ### Unreleased
 
 #### Added
+
 -   Export deterministic implementations of usual transcendental functions:
-  `acoshf`,
-  `asinf`,
-  `asinhf`,
-  `atan2f`,
-  `atanf`,
-  `atanhf`,
-  `cbrtf`,
-  `ceilf`,
-  `cosf`,
-  `coshf`,
-  `exp2f`,
-  `exp10f`,
-  `expf`,
-  `expm1f`,
-  `fabsf`,
-  `floorf`,
-  `fmodf`,
-  `hypotf`,
-  `log2f`,
-  `log10f`,
-  `logf`,
-  `powf`,
-  `sinf`,
-  `sinhf`,
-  `sqrtf`,
-  `tanf`,
-  `tanhf`.
+    `acoshf`, `asinf`, `asinhf`, `atan2f`, `atanf`, `atanhf`, `cbrtf`, `ceilf`,
+    `cosf`, `coshf`, `exp2f`, `exp10f`, `expf`, `expm1f`, `fabsf`, `floorf`, `fmodf`,
+    `hypotf`, `log2f`, `log10f`, `logf`, `powf`, `sinf`, `sinhf`, `sqrtf`, `tanf`,
+    `tanhf`.
 
 #### Modified
+
 -   Reduce rounding errors in 3D when setting the rotation of a rigid-body or collider.
 
 #### Fixed
+
 -   Fix incorrect application of torque if the torque is applies right after setting the rigid-body’s
     position, but before calling `World.step`.
 
