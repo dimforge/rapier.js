@@ -1,4 +1,33 @@
 import {RawVector, RawRotation} from "./raw";
+export {
+    acoshf,
+    asinf,
+    asinhf,
+    atan2f,
+    atanf,
+    atanhf,
+    cbrtf,
+    ceilf,
+    cosf,
+    coshf,
+    exp2f,
+    exp10f,
+    expf,
+    expm1f,
+    fabsf,
+    floorf,
+    fmodf,
+    hypotf,
+    log2f,
+    log10f,
+    logf,
+    powf,
+    sinf,
+    sinhf,
+    sqrtf,
+    tanf,
+    tanhf,
+} from "./raw";
 
 // #if DIM2
 export interface Vector {
