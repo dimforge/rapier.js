@@ -204,9 +204,12 @@ export abstract class Shape {
      * @param shapePos2 - The initial position of the second shape.
      * @param shapeRot2 - The rotation of the second shape.
      * @param shapeVel2 - The velocity of the second shape.
-     * @param maxToi - The maximum time when the inpact can happen.
-     * @returns If the two moving shapes collider at some point along their trajectories, this retruns the
-     *  time at which the two shape collider as well as the contact information durning the impact. Returns
+     * @param maxToi - The maximum time when the impact can happen.
+     * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
+     *   the shape is penetrating another shape at its starting point **and** its trajectory is such
+     *   that it’s on a path to exist that penetration state.
+     * @returns If the two moving shapes collider at some point along their trajectories, this returns the
+     *  time at which the two shape collider as well as the contact information during the impact. Returns
      *  `null`if the two shapes never collide along their paths.
      */
     public castShape(

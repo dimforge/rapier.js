@@ -1,5 +1,12 @@
 ### Unreleased
 
+#### Added
+
+- Add `World.createCharacterController`, `World.removeCharacterController` to create/remove a kinematic character
+  controller.
+- Add a character-controller implementation with the `KinematicCharacterController` class and its method
+  `KinematicCharacterController.computeColliderMovement`.
+
 #### Modified
 
 -   Change the signature of `Collider.castShape` and World.castShape by adding a boolean argument `stop_at_penetration`
