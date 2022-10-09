@@ -770,6 +770,7 @@ export class Collider {
         shape2Rot: Rotation,
         shape2Vel: Vector,
         maxToi: number,
+        stopAtPenetration: boolean,
     ): ShapeTOI | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawShape2Pos = VectorOps.intoRaw(shape2Pos);
@@ -787,6 +788,7 @@ export class Collider {
                 rawShape2Rot,
                 rawShape2Vel,
                 maxToi,
+                stopAtPenetration,
             ),
         );
 
@@ -813,6 +815,7 @@ export class Collider {
         collider2: Collider,
         collider2Vel: Vector,
         maxToi: number,
+        stopAtPenetration: boolean,
     ): ShapeColliderTOI | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawCollider2Vel = VectorOps.intoRaw(collider2Vel);
@@ -825,6 +828,7 @@ export class Collider {
                 collider2.handle,
                 rawCollider2Vel,
                 maxToi,
+                stopAtPenetration,
             ),
         );
 

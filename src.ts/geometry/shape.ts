@@ -218,6 +218,7 @@ export abstract class Shape {
         shapeRot2: Rotation,
         shapeVel2: Vector,
         maxToi: number,
+        stopAtPenetration: boolean,
     ): ShapeTOI | null {
         let rawPos1 = VectorOps.intoRaw(shapePos1);
         let rawRot1 = RotationOps.intoRaw(shapeRot1);
@@ -240,6 +241,7 @@ export abstract class Shape {
                 rawRot2,
                 rawVel2,
                 maxToi,
+                stopAtPenetration,
             ),
         );
 

@@ -3,7 +3,8 @@
         "outDir": "./pkg",
         "moduleResolution": "node",
         "sourceMap": true,
-        "declaration": true
+        "declaration": true,
+        "lib": ["es6"]
     },
     "files": ["./pkg/rapier.d.ts"]
 }

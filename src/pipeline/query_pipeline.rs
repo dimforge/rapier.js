@@ -44,7 +44,7 @@ impl RawQueryPipeline {
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) -> Option<RawRayColliderToi> {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -77,7 +77,7 @@ impl RawQueryPipeline {
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) -> Option<RawRayColliderIntersection> {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -117,7 +117,7 @@ impl RawQueryPipeline {
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -162,7 +162,7 @@ impl RawQueryPipeline {
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) -> Option<FlatHandle> {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -192,7 +192,7 @@ impl RawQueryPipeline {
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) -> Option<RawPointColliderProjection> {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -230,7 +230,7 @@ impl RawQueryPipeline {
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) -> Option<RawPointColliderProjection> {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -264,7 +264,7 @@ impl RawQueryPipeline {
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -301,13 +301,14 @@ impl RawQueryPipeline {
         shapeVel: &RawVector,
         shape: &RawShape,
         maxToi: f32,
+        stop_at_penetration: bool,
         filter_flags: u32,
         filter_groups: Option<u32>,
         filter_exclude_collider: Option<FlatHandle>,
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) -> Option<RawShapeColliderTOI> {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -328,6 +329,7 @@ impl RawQueryPipeline {
                 &shapeVel.0,
                 &*shape.0,
                 maxToi,
+                stop_at_penetration,
                 query_filter,
             )
             .map(|(handle, toi)| RawShapeColliderTOI { handle, toi })
@@ -348,7 +350,7 @@ impl RawQueryPipeline {
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
     ) {
-        let predicate = wrap_filter(filter_predicate);
+        let predicate = utils::wrap_filter(filter_predicate);
         let predicate = predicate
             .as_ref()
             .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
@@ -398,23 +400,5 @@ impl RawQueryPipeline {
 
         self.0
             .colliders_with_aabb_intersecting_aabb(&aabb, rcallback)
-    }
-}
-
-fn wrap_filter(
-    filter: &js_sys::Function,
-) -> Option<impl Fn(ColliderHandle, &Collider) -> bool + '_> {
-    if filter.is_function() {
-        let filtercb = move |handle: ColliderHandle, _: &Collider| match filter.call1(
-            &JsValue::null(),
-            &JsValue::from(utils::flat_handle(handle.0)),
-        ) {
-            Err(_) => true,
-            Ok(val) => val.as_bool().unwrap_or(true),
-        };
-
-        Some(filtercb)
-    } else {
-        None
     }
 }
