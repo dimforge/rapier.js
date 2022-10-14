@@ -150,7 +150,9 @@ impl RawColliderSet {
 
     pub fn coHalfspaceNormal(&self, handle: FlatHandle) -> Option<RawVector> {
         self.map(handle, |co| {
-            co.shape().as_halfspace().map(|h| h.normal.into_inner().into())
+            co.shape()
+                .as_halfspace()
+                .map(|h| h.normal.into_inner().into())
         })
     }
 
