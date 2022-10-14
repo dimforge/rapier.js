@@ -1,7 +1,4 @@
-import {
-    RawKinematicCharacterController,
-    RawCharacterCollision
-} from "../raw";
+import {RawKinematicCharacterController, RawCharacterCollision} from "../raw";
 import {Rotation, Vector, VectorOps} from "../math";
 import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry";
 import {QueryFilterFlags, QueryPipeline, World} from "../pipeline";
@@ -314,14 +311,19 @@ export class KinematicCharacterController {
      * @param i - The i-th collision will be returned.
      * @param out - If this argument is set, it will be filled with the collision information.
      */
-    public computedCollision(i: number, out?: CharacterCollision): CharacterCollision | null {
+    public computedCollision(
+        i: number,
+        out?: CharacterCollision,
+    ): CharacterCollision | null {
         if (!this.raw.computedCollision(i, this.rawCharacterCollision)) {
             return null;
         } else {
             let c = this.rawCharacterCollision;
             out = out ?? new CharacterCollision();
             out.translationApplied = VectorOps.fromRaw(c.translationApplied());
-            out.translationRemaining = VectorOps.fromRaw(c.translationRemaining());
+            out.translationRemaining = VectorOps.fromRaw(
+                c.translationRemaining(),
+            );
             out.toi = c.toi();
             out.witness1 = VectorOps.fromRaw(c.worldWitness1());
             out.witness2 = VectorOps.fromRaw(c.worldWitness2());

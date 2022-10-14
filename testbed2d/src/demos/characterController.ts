@@ -21,28 +21,30 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let height = 5.0;
 
     for (i = 0; i < num; ++i) {
-            for (k = i; k < num; ++k) {
-                let x =
-                    (i * shift) / 2.0 + (k - i) * shift - center;
-                let y = i * shift / 2.0 + height;
+        for (k = i; k < num; ++k) {
+            let x = (i * shift) / 2.0 + (k - i) * shift - center;
+            let y = (i * shift) / 2.0 + height;
 
-                // Create dynamic cube.
-                let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(
-                    x,
-                    y,
-                );
-                let body = world.createRigidBody(bodyDesc);
-                let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad / 2.0);
-                world.createCollider(colliderDesc, body);
+            // Create dynamic cube.
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
+            let body = world.createRigidBody(bodyDesc);
+            let colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad / 2.0);
+            world.createCollider(colliderDesc, body);
         }
     }
 
     // Character.
-    let characterDesc = RAPIER.RigidBodyDesc.kinematicPositionBased()
-        .setTranslation(-10.0, 4.0);
+    let characterDesc =
+        RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(
+            -10.0,
+            4.0,
+        );
     let character = world.createRigidBody(characterDesc);
     let characterColliderDesc = RAPIER.ColliderDesc.cuboid(0.6, 1.2);
-    let characterCollider = world.createCollider(characterColliderDesc, character);
+    let characterCollider = world.createCollider(
+        characterColliderDesc,
+        character,
+    );
 
     let characterController = world.createCharacterController(0.1);
     characterController.enableAutostep(0.7, 0.3, true);
@@ -68,24 +70,17 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     testbed.setWorld(world);
     testbed.setpreTimestepAction(updateCharacter);
 
-    document.onkeydown = function(event: KeyboardEvent) {
-        if (event.key == "ArrowLeft")
-            movementDirection.x = -speed;
-        if (event.key == "ArrowRight")
-            movementDirection.x = speed;
-        if (event.key == " ")
-            movementDirection.y = speed;
+    document.onkeydown = function (event: KeyboardEvent) {
+        if (event.key == "ArrowLeft") movementDirection.x = -speed;
+        if (event.key == "ArrowRight") movementDirection.x = speed;
+        if (event.key == " ") movementDirection.y = speed;
     };
 
-    document.onkeyup = function(event: KeyboardEvent) {
-        if (event.key == "ArrowLeft")
-            movementDirection.x = 0.0;
-        if (event.key == "ArrowRight")
-            movementDirection.x = 0.0;
-        if (event.key == " ")
-            movementDirection.y = -speed; // Gravity
-    }
-
+    document.onkeyup = function (event: KeyboardEvent) {
+        if (event.key == "ArrowLeft") movementDirection.x = 0.0;
+        if (event.key == "ArrowRight") movementDirection.x = 0.0;
+        if (event.key == " ") movementDirection.y = -speed; // Gravity
+    };
 
     testbed.lookAt({
         target: {x: 0.0, y: -1.0},

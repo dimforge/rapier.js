@@ -2,11 +2,11 @@
 
 #### Added
 
-- Add `World.createCharacterController`, `World.removeCharacterController` to create/remove a kinematic character
-  controller.
-- Add a character-controller implementation with the `KinematicCharacterController` class and its method
-  `KinematicCharacterController.computeColliderMovement`.
-- Add the `HalfSpace` (infinite plane) shape. Colliders with this shape can be built using `ColliderDesc.halfspace`.
+-   Add `World.createCharacterController`, `World.removeCharacterController` to create/remove a kinematic character
+    controller.
+-   Add a character-controller implementation with the `KinematicCharacterController` class and its method
+    `KinematicCharacterController.computeColliderMovement`.
+-   Add the `HalfSpace` (infinite plane) shape. Colliders with this shape can be built using `ColliderDesc.halfspace`.
 
 #### Modified
 
