@@ -4,6 +4,7 @@ use crate::math::{RawRotation, RawVector};
 use na::DMatrix;
 #[cfg(feature = "dim2")]
 use na::DVector;
+use na::Unit;
 use rapier::geometry::{Shape, SharedShape};
 use rapier::math::{Isometry, Point, Real, Vector, DIM};
 use rapier::parry::query;
@@ -180,6 +181,7 @@ pub enum RawShapeType {
     RoundCuboid = 10,
     RoundTriangle = 11,
     RoundConvexPolygon = 12,
+    HalfSpace = 13,
 }
 
 #[wasm_bindgen]
@@ -202,6 +204,7 @@ pub enum RawShapeType {
     RoundCylinder = 14,
     RoundCone = 15,
     RoundConvexPolyhedron = 16,
+    HalfSpace = 17,
 }
 
 #[wasm_bindgen]
@@ -231,6 +234,10 @@ impl RawShape {
 
     pub fn ball(radius: f32) -> Self {
         Self(SharedShape::ball(radius))
+    }
+
+    pub fn halfspace(normal: &RawVector) -> Self {
+        Self(SharedShape::halfspace(Unit::new_normalize(normal.0)))
     }
 
     pub fn capsule(halfHeight: f32, radius: f32) -> Self {

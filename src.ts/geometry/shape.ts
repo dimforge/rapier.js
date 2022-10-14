@@ -29,6 +29,7 @@ export abstract class Shape {
         let indices: Uint32Array;
         let halfHeight: number;
         let radius: number;
+        let normal: Vector;
 
         switch (rawType) {
             case ShapeType.Ball:
@@ -125,6 +126,10 @@ export abstract class Shape {
                     borderRadius,
                 );
             // #endif
+
+            case ShapeType.HalfSpace:
+                normal = VectorOps.fromRaw(rawSet.coHalfspaceNormal(handle));
+                return new HalfSpace(normal);
 
             case ShapeType.TriMesh:
                 vs = rawSet.coVertices(handle);
@@ -499,6 +504,7 @@ export enum ShapeType {
     RoundCuboid = 10,
     RoundTriangle = 11,
     RoundConvexPolygon = 12,
+    HalfSpace = 13,
 }
 
 // #endif
@@ -525,6 +531,7 @@ export enum ShapeType {
     RoundCylinder = 14,
     RoundCone = 15,
     RoundConvexPolyhedron = 16,
+    HalfSpace = 17,
 }
 
 // #endif
@@ -551,6 +558,32 @@ export class Ball extends Shape {
 
     public intoRaw(): RawShape {
         return RawShape.ball(this.radius);
+    }
+}
+
+export class HalfSpace extends Shape {
+    readonly type = ShapeType.HalfSpace;
+
+    /**
+     * The outward normal of the half-space.
+     */
+    normal: Vector;
+
+    /**
+     * Creates a new halfspace delimited by an infinite plane.
+     *
+     * @param normal - The outward normal of the plane.
+     */
+    constructor(normal: Vector) {
+        super();
+        this.normal = normal;
+    }
+
+    public intoRaw(): RawShape {
+        let n = VectorOps.intoRaw(this.normal);
+        let result = RawShape.halfspace(n);
+        n.free();
+        return result;
     }
 }
 
