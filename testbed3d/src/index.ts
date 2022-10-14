@@ -11,9 +11,11 @@ import * as LockedRotations from "./demos/lockedRotations";
 import * as ConvexPolyhedron from "./demos/convexPolyhedron";
 import * as CCD from "./demos/ccd";
 import * as Platform from "./demos/platform";
+import * as CharacterController from "./demos/characterController";
 
 import("@dimforge/rapier3d").then((RAPIER) => {
     let builders = new Map([
+        ["character controller", CharacterController.initWorld],
         ["collision groups", CollisionGroups.initWorld],
         ["convex polyhedron", ConvexPolyhedron.initWorld],
         ["CCD", CCD.initWorld],
