@@ -125,6 +125,7 @@ impl RawColliderSet {
             ShapeType::TriMesh => RawShapeType::TriMesh,
             ShapeType::HeightField => RawShapeType::HeightField,
             ShapeType::Compound => RawShapeType::Compound,
+            ShapeType::HalfSpace => RawShapeType::HalfSpace,
             #[cfg(feature = "dim3")]
             ShapeType::ConvexPolyhedron => RawShapeType::ConvexPolyhedron,
             #[cfg(feature = "dim2")]
@@ -143,7 +144,15 @@ impl RawColliderSet {
             ShapeType::RoundConvexPolyhedron => RawShapeType::RoundConvexPolyhedron,
             #[cfg(feature = "dim2")]
             ShapeType::RoundConvexPolygon => RawShapeType::RoundConvexPolygon,
-            ShapeType::HalfSpace | ShapeType::Custom => panic!("Not yet implemented."),
+            ShapeType::Custom => panic!("Not yet implemented."),
+        })
+    }
+
+    pub fn coHalfspaceNormal(&self, handle: FlatHandle) -> Option<RawVector> {
+        self.map(handle, |co| {
+            co.shape()
+                .as_halfspace()
+                .map(|h| h.normal.into_inner().into())
         })
     }
 
