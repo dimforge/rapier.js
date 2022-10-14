@@ -5,7 +5,15 @@
 -   Add `World.createCharacterController`, `World.removeCharacterController` to create/remove a kinematic character
     controller.
 -   Add a character-controller implementation with the `KinematicCharacterController` class and its method
-    `KinematicCharacterController.computeColliderMovement`.
+    `KinematicCharacterController.computeColliderMovement`. The character controller features currently supported are:
+    -   Slide on uneven terrains
+    -   Interaction with dynamic bodies.
+    -   Climb stairs automatically.
+    -   Automatically snap the body to the floor when going downstairs.
+    -   Prevent sliding up slopes that are too steep
+    -   Prevent sliding down slopes that are not steep enough
+    -   Interactions with moving platforms.
+    -   Report information on the obstacles it hit on its path.
 -   Add the `HalfSpace` (infinite plane) shape. Colliders with this shape can be built using `ColliderDesc.halfspace`.
 
 #### Modified
