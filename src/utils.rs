@@ -59,9 +59,11 @@ pub fn flat_handle(id: Index) -> FlatHandle {
 //     i as u32 | ((g as u32) << 16)
 // }
 
-pub fn wrap_filter(
+#[inline(always)]
+pub fn with_filter<T>(
     filter: &js_sys::Function,
-) -> Option<impl Fn(ColliderHandle, &Collider) -> bool + '_> {
+    f: impl FnOnce(Option<&dyn Fn(ColliderHandle, &Collider) -> bool>) -> T,
+) -> T {
     if filter.is_function() {
         let filtercb = move |handle: ColliderHandle, _: &Collider| match filter
             .call1(&JsValue::null(), &JsValue::from(flat_handle(handle.0)))
@@ -70,8 +72,8 @@ pub fn wrap_filter(
             Ok(val) => val.as_bool().unwrap_or(true),
         };
 
-        Some(filtercb)
+        f(Some(&filtercb))
     } else {
-        None
+        f(None)
     }
 }

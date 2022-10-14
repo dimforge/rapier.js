@@ -7,7 +7,6 @@ use na::Unit;
 use rapier::control::{
     CharacterAutostep, CharacterLength, EffectiveCharacterMovement, KinematicCharacterController,
 };
-use rapier::geometry::{Collider, ColliderHandle};
 use rapier::math::{Real, Vector};
 use rapier::pipeline::{QueryFilter, QueryFilterFlags};
 use wasm_bindgen::prelude::*;
@@ -154,30 +153,28 @@ impl RawKinematicCharacterController {
     ) {
         let handle = crate::utils::collider_handle(collider_handle);
         if let Some(collider) = colliders.0.get(handle) {
-            let predicate = crate::utils::wrap_filter(filter_predicate);
-            let predicate = predicate
-                .as_ref()
-                .map(|f| f as &dyn Fn(ColliderHandle, &Collider) -> bool);
-            let query_filter = QueryFilter {
-                flags: QueryFilterFlags::from_bits(filter_flags)
-                    .unwrap_or(QueryFilterFlags::empty()),
-                groups: filter_groups.map(crate::geometry::unpack_interaction_groups),
-                exclude_collider: Some(handle),
-                exclude_rigid_body: collider.parent(),
-                predicate,
-            };
+            crate::utils::with_filter(filter_predicate, |predicate| {
+                let query_filter = QueryFilter {
+                    flags: QueryFilterFlags::from_bits(filter_flags)
+                        .unwrap_or(QueryFilterFlags::empty()),
+                    groups: filter_groups.map(crate::geometry::unpack_interaction_groups),
+                    exclude_collider: Some(handle),
+                    exclude_rigid_body: collider.parent(),
+                    predicate,
+                };
 
-            out.0 = self.0.move_shape(
-                dt,
-                &bodies.0,
-                &colliders.0,
-                &queries.0,
-                collider.shape(),
-                collider.position(),
-                desired_translation.0,
-                query_filter,
-                |_| {},
-            );
+                out.0 = self.0.move_shape(
+                    dt,
+                    &bodies.0,
+                    &colliders.0,
+                    &queries.0,
+                    collider.shape(),
+                    collider.position(),
+                    desired_translation.0,
+                    query_filter,
+                    |_| {},
+                );
+            });
         } else {
             out.0.translation.fill(0.0);
         }
