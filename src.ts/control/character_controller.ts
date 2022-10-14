@@ -51,9 +51,11 @@ export class KinematicCharacterController {
     public free() {
         if (!!this.raw) {
             this.raw.free();
+            this.rawCharacterCollision.free();
         }
 
         this.raw = undefined;
+        this.rawCharacterCollision = undefined;
     }
 
     /**
