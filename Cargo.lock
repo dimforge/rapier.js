@@ -164,7 +164,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.9.0"
+version = "0.10.0"
 dependencies = [
  "bincode",
  "crossbeam-channel 0.4.4",
@@ -180,12 +180,11 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.9.0"
+version = "0.10.0"
 dependencies = [
  "bincode",
  "crossbeam-channel 0.4.4",
  "js-sys",
- "libm",
  "nalgebra",
  "palette",
  "rapier3d",
@@ -544,8 +543,7 @@ checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 [[package]]
 name = "rapier2d"
 version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "daba24ce52b431f4bb3ac798f457db72de6b6cc4718201227a466d81ba705637"
+source = "git+https://github.com/dimforge/rapier?rev=9febe341fcf97a1b42cdb293b825e017821b86ca#9febe341fcf97a1b42cdb293b825e017821b86ca"
 dependencies = [
  "approx",
  "arrayvec",
@@ -567,8 +565,7 @@ dependencies = [
 [[package]]
 name = "rapier3d"
 version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3393d49fd2b9a66cba62e45a778a59f73cbed56afff461a5dda32d3b630fd029"
+source = "git+https://github.com/dimforge/rapier?rev=9febe341fcf97a1b42cdb293b825e017821b86ca#9febe341fcf97a1b42cdb293b825e017821b86ca"
 dependencies = [
  "approx",
  "arrayvec",

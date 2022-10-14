@@ -7,10 +7,12 @@ import * as Polyline from "./demos/polyline";
 import * as RevoluteJoints from "./demos/revoluteJoints";
 import * as LockedRotations from "./demos/lockedRotations";
 import * as ConvexPolygons from "./demos/convexPolygons";
+import * as CharacterController from "./demos/characterController";
 
 import("@dimforge/rapier2d").then((RAPIER) => {
     let builders = new Map([
         ["collision groups", CollisionGroups.initWorld],
+        ["character controller", CharacterController.initWorld],
         ["convex polygons", ConvexPolygons.initWorld],
         ["cubes", Cubes.initWorld],
         ["heightfield", Heightfield.initWorld],

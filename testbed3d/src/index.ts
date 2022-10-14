@@ -15,8 +15,8 @@ import * as CharacterController from "./demos/characterController";
 
 import("@dimforge/rapier3d").then((RAPIER) => {
     let builders = new Map([
-        ["character controller", CharacterController.initWorld],
         ["collision groups", CollisionGroups.initWorld],
+        ["character controller", CharacterController.initWorld],
         ["convex polyhedron", ConvexPolyhedron.initWorld],
         ["CCD", CCD.initWorld],
         ["damping", Damping.initWorld],

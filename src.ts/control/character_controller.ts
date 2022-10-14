@@ -1,34 +1,21 @@
 import {
     RawKinematicCharacterController,
-    RawIntegrationParameters,
-    RawRigidBodySet,
-    RawColliderSet,
-    RawQueryPipeline,
-    RawEffectiveCharacterMovement,
+    RawCharacterCollision
 } from "../raw";
 import {Rotation, Vector, VectorOps} from "../math";
 import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry";
 import {QueryFilterFlags, QueryPipeline, World} from "../pipeline";
 import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics";
 
-/**
- * The actual movement a character is able to execute after hitting and sliding on obstacles.
- */
-export class EffectiveCharacterMovement {
-    /**
-     * The translational movement.
-     */
-    public translation: Vector;
-    /**
-     * Is the character touching the ground?
-     */
-    public grounded: boolean;
-
-    /** @internal */
-    constructor(translation: Vector, grounded: boolean) {
-        this.translation = translation;
-        this.grounded = grounded;
-    }
+export class CharacterCollision {
+    public collider: Collider;
+    public translationApplied: Vector;
+    public translationRemaining: Vector;
+    public toi: number;
+    public witness1: Vector;
+    public witness2: Vector;
+    public normal1: Vector;
+    public normal2: Vector;
 }
 
 /**
@@ -36,14 +23,15 @@ export class EffectiveCharacterMovement {
  * and sliding against obstacles.
  */
 export class KinematicCharacterController {
-    // NOTE: none of the raw objects need to be freed by the character controller itself.
     private raw: RawKinematicCharacterController;
-    private rawResult: RawEffectiveCharacterMovement;
+    private rawCharacterCollision: RawCharacterCollision;
 
     private params: IntegrationParameters;
     private bodies: RigidBodySet;
     private colliders: ColliderSet;
     private queries: QueryPipeline;
+    private _applyImpulsesToDynamicBodies: boolean;
+    private _characterMass: number | null;
 
     constructor(
         offset: number,
@@ -57,18 +45,18 @@ export class KinematicCharacterController {
         this.colliders = colliders;
         this.queries = queries;
         this.raw = new RawKinematicCharacterController(offset);
-        this.rawResult = new RawEffectiveCharacterMovement();
+        this.rawCharacterCollision = new RawCharacterCollision();
+        this._applyImpulsesToDynamicBodies = false;
+        this._characterMass = null;
     }
 
     /** @internal */
     public free() {
         if (!!this.raw) {
             this.raw.free();
-            this.rawResult.free();
         }
 
         this.raw = undefined;
-        this.rawResult = undefined;
     }
 
     /**
@@ -85,6 +73,35 @@ export class KinematicCharacterController {
         let rawVect = VectorOps.intoRaw(vector);
         return this.raw.setUp(rawVect);
         rawVect.free();
+    }
+
+    public applyImpulsesToDynamicBodies(): boolean {
+        return this._applyImpulsesToDynamicBodies;
+    }
+
+    public setApplyImpulsesToDynamicBodies(enabled: boolean) {
+        this._applyImpulsesToDynamicBodies = enabled;
+    }
+
+    /**
+     * Returns the custom value of the character mass, if it was set by `this.setCharacterMass`.
+     */
+    public characterMass(): number | null {
+        return this._characterMass;
+    }
+
+    /**
+     * Set the mass of the character to be used for impulse resolution if `self.applyImpulsesToDynamicBodies`
+     * is set to `true`.
+     *
+     * If no character mass is set explicitly (or if it is set to `null`) it is automatically assumed to be equal
+     * to the mass of the rigid-body the character collider is attached to; or equal to 0 if the character collider
+     * isn’t attached to any rigid-body.
+     *
+     * @param mass - The mass to set.
+     */
+    public setCharacterMass(mass: number | null) {
+        this._characterMass = mass;
     }
 
     /**
@@ -250,7 +267,7 @@ export class KinematicCharacterController {
         filterFlags?: QueryFilterFlags,
         filterGroups?: InteractionGroups,
         filterPredicate?: (collider: Collider) => boolean,
-    ): EffectiveCharacterMovement {
+    ) {
         let rawTranslation = VectorOps.intoRaw(desiredTranslation);
         this.raw.computeColliderMovement(
             this.params.dt,
@@ -259,16 +276,57 @@ export class KinematicCharacterController {
             this.queries.raw,
             collider.handle,
             rawTranslation,
+            this._applyImpulsesToDynamicBodies,
+            this._characterMass,
             filterFlags,
             filterGroups,
             this.colliders.castClosure(filterPredicate),
-            this.rawResult,
         );
         rawTranslation.free();
+    }
 
-        return new EffectiveCharacterMovement(
-            VectorOps.fromRaw(this.rawResult.translation()),
-            this.rawResult.grounded(),
-        );
+    /**
+     * The movement computed by the last call to `this.computeColliderMovement`.
+     */
+    public computedMovement(): Vector {
+        return VectorOps.fromRaw(this.raw.computedMovement());
+    }
+
+    /**
+     * The result of ground detection computed by the last call to `this.computeColliderMovement`.
+     */
+    public computedGrounded(): boolean {
+        return this.raw.computedGrounded();
+    }
+
+    /**
+     * The number of collisions against obstacles detected along the path of the last call
+     * to `this.computeColliderMovement`.
+     */
+    public numComputedCollisions(): number {
+        return this.raw.numComputedCollisions();
+    }
+
+    /**
+     * Returns the collision against one of the obstacles detected along the path of the last
+     * call to `this.computeColliderMovement`.
+     *
+     * @param i - The i-th collision will be returned.
+     * @param out - If this argument is set, it will be filled with the collision information.
+     */
+    public computedCollision(i: number, out?: CharacterCollision): CharacterCollision | null {
+        if (!this.raw.computedCollision(i, this.rawCharacterCollision)) {
+            return null;
+        } else {
+            let c = this.rawCharacterCollision;
+            out = out ?? new CharacterCollision();
+            out.translationApplied = VectorOps.fromRaw(c.translationApplied());
+            out.translationRemaining = VectorOps.fromRaw(c.translationRemaining());
+            out.toi = c.toi();
+            out.witness1 = VectorOps.fromRaw(c.worldWitness1());
+            out.witness2 = VectorOps.fromRaw(c.worldWitness2());
+            out.normal1 = VectorOps.fromRaw(c.worldNormal1());
+            out.normal2 = VectorOps.fromRaw(c.worldNormal2());
+        }
     }
 }
