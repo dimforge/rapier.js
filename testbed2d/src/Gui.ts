@@ -45,11 +45,6 @@ export class Gui {
         this.gui = new GUI({
             title: "Rapier JS demos",
         });
-        this.gui
-            .add(simulationParameters, "backend", backends)
-            .onChange((backend: string) => {
-                testbed.switchToBackend(backend);
-            });
         var currDemo = this.gui
             .add(simulationParameters, "demo", demos)
             .onChange((demo: string) => {

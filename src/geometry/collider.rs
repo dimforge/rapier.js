@@ -414,6 +414,7 @@ impl RawColliderSet {
         shape2Rot: &RawRotation,
         shape2Vel: &RawVector,
         maxToi: f32,
+        stop_at_penetration: bool,
     ) -> Option<RawShapeTOI> {
         let pos2 = Isometry::from_parts(shape2Pos.0.into(), shape2Rot.0);
 
@@ -426,6 +427,7 @@ impl RawColliderSet {
                 &pos2,
                 &shape2Vel.0.into(),
                 maxToi,
+                stop_at_penetration,
             )
         })
     }
@@ -437,6 +439,7 @@ impl RawColliderSet {
         collider2handle: FlatHandle,
         collider2Vel: &RawVector,
         max_toi: f32,
+        stop_at_penetration: bool,
     ) -> Option<RawShapeColliderTOI> {
         let handle2 = utils::collider_handle(collider2handle);
         let co2 = self
@@ -453,6 +456,7 @@ impl RawColliderSet {
                 &collider2Vel.0,
                 co2.shape(),
                 max_toi,
+                stop_at_penetration,
             )
             .unwrap_or(None)
             .map_or(None, |toi| {

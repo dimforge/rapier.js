@@ -86,6 +86,9 @@ export class Testbed {
     }
 
     setWorld(world: RAPIER.World) {
+        document.onkeydown = null; // Reset key events.
+        document.onkeyup = null; // Reset key events.
+
         this.preTimestepAction = null;
         this.world = world;
         this.world.maxVelocityIterations = this.parameters.numVelocityIter;

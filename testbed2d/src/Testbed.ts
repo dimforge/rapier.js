@@ -85,6 +85,8 @@ export class Testbed {
     }
 
     setWorld(world: RAPIER.World) {
+        document.onkeyup = null;
+        document.onkeydown = null;
         this.preTimestepAction = null;
         this.world = world;
         this.world.maxVelocityIterations = this.parameters.numVelocityIter;
@@ -143,6 +145,10 @@ export class Testbed {
             this.world.maxVelocityIterations = this.parameters.numVelocityIter;
             this.world.maxVelocityFrictionIterations =
                 this.parameters.numVelocityIter * 2;
+
+            if (!!this.preTimestepAction) {
+                this.preTimestepAction(this.graphics);
+            }
 
             let t0 = new Date().getTime();
             this.world.step(this.events);

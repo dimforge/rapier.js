@@ -54,6 +54,8 @@ import {SerializationPipeline} from "./serialization_pipeline";
 import {EventQueue} from "./event_queue";
 import {PhysicsHooks} from "./physics_hooks";
 import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
+import {KinematicCharacterController} from "../control";
+import {Coarena} from "../coarena";
 
 /**
  * The physics world.
@@ -76,6 +78,7 @@ export class World {
     physicsPipeline: PhysicsPipeline;
     serializationPipeline: SerializationPipeline;
     debugRenderPipeline: DebugRenderPipeline;
+    characterControllers: Set<KinematicCharacterController>;
 
     /**
      * Release the WASM memory occupied by this physics world.
@@ -97,6 +100,7 @@ export class World {
         this.physicsPipeline.free();
         this.serializationPipeline.free();
         this.debugRenderPipeline.free();
+        this.characterControllers.forEach((controller) => controller.free());
 
         this.integrationParameters = undefined;
         this.islands = undefined;
@@ -111,6 +115,7 @@ export class World {
         this.physicsPipeline = undefined;
         this.serializationPipeline = undefined;
         this.debugRenderPipeline = undefined;
+        this.characterControllers = undefined;
     }
 
     constructor(
@@ -149,6 +154,7 @@ export class World {
         this.debugRenderPipeline = new DebugRenderPipeline(
             rawDebugRenderPipeline,
         );
+        this.characterControllers = new Set<KinematicCharacterController>();
 
         this.impulseJoints.finalizeDeserialization(this.bodies);
         this.bodies.finalizeDeserialization(this.colliders);
@@ -329,6 +335,35 @@ export class World {
      */
     public createRigidBody(body: RigidBodyDesc): RigidBody {
         return this.bodies.createRigidBody(this.colliders, body);
+    }
+
+    /**
+     * Creates a new character controller.
+     *
+     * @param offset - The artificial gap added between the character’s chape and its environment.
+     */
+    public createCharacterController(
+        offset: number,
+    ): KinematicCharacterController {
+        let controller = new KinematicCharacterController(
+            offset,
+            this.integrationParameters,
+            this.bodies,
+            this.colliders,
+            this.queryPipeline,
+        );
+        this.characterControllers.add(controller);
+        return controller;
+    }
+
+    /**
+     * Removes a character controller from this world.
+     *
+     * @param controller - The character controller to remove.
+     */
+    public removeCharacterController(controller: KinematicCharacterController) {
+        this.characterControllers.delete(controller);
+        controller.free();
     }
 
     /**
@@ -547,7 +582,7 @@ export class World {
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
     }
 
@@ -583,7 +618,7 @@ export class World {
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
     }
 
@@ -622,7 +657,7 @@ export class World {
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
     }
 
@@ -655,7 +690,7 @@ export class World {
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
         return handle != null ? this.colliders.get(handle) : null;
     }
@@ -690,7 +725,7 @@ export class World {
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
     }
 
@@ -717,7 +752,7 @@ export class World {
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
     }
 
@@ -743,12 +778,12 @@ export class World {
             this.bodies,
             this.colliders,
             point,
-            castClosure(this.colliders, callback),
+            this.colliders.castClosure(callback),
             filterFlags,
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
     }
 
@@ -763,6 +798,9 @@ export class World {
      * @param shape - The shape to cast.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
+     * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
+     *   the shape is penetrating another shape at its starting point **and** its trajectory is such
+     *   that it’s on a path to exist that penetration state.
      * @param groups - The bit groups and filter associated to the shape to cast, in order to only
      *   test on colliders with collision groups compatible with this group.
      */
@@ -772,6 +810,7 @@ export class World {
         shapeVel: Vector,
         shape: Shape,
         maxToi: number,
+        stopAtPenetration: boolean,
         filterFlags?: QueryFilterFlags,
         filterGroups?: InteractionGroups,
         filterExcludeCollider?: Collider,
@@ -786,11 +825,12 @@ export class World {
             shapeVel,
             shape,
             maxToi,
+            stopAtPenetration,
             filterFlags,
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
     }
 
@@ -821,12 +861,12 @@ export class World {
             shapePos,
             shapeRot,
             shape,
-            castClosure(this.colliders, callback),
+            this.colliders.castClosure(callback),
             filterFlags,
             filterGroups,
             filterExcludeCollider ? filterExcludeCollider.handle : null,
             filterExcludeRigidBody ? filterExcludeRigidBody.handle : null,
-            castClosure(this.colliders, filterPredicate),
+            this.colliders.castClosure(filterPredicate),
         );
     }
 
@@ -846,7 +886,7 @@ export class World {
         this.queryPipeline.collidersWithAabbIntersectingAabb(
             aabbCenter,
             aabbHalfExtents,
-            castClosure(this.colliders, callback),
+            this.colliders.castClosure(callback),
         );
     }
 
@@ -859,7 +899,7 @@ export class World {
     public contactsWith(collider1: Collider, f: (collider2: Collider) => void) {
         this.narrowPhase.contactsWith(
             collider1.handle,
-            castClosure(this.colliders, f),
+            this.colliders.castClosure(f),
         );
     }
 
@@ -873,7 +913,7 @@ export class World {
     ) {
         this.narrowPhase.intersectionsWith(
             collider1.handle,
-            castClosure(this.colliders, f),
+            this.colliders.castClosure(f),
         );
     }
 
@@ -905,17 +945,4 @@ export class World {
             collider2.handle,
         );
     }
-}
-
-function castClosure<Res>(
-    set: ColliderSet,
-    f?: (collider: Collider) => Res,
-): (handle: ColliderHandle) => Res | undefined {
-    return (handle) => {
-        if (!!f) {
-            return f(set.get(handle));
-        } else {
-            return undefined;
-        }
-    };
 }

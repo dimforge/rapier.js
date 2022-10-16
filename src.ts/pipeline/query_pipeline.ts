@@ -422,6 +422,9 @@ export class QueryPipeline {
      * @param shape - The shape to cast.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
+     * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
+     *   the shape is penetrating another shape at its starting point **and** its trajectory is such
+     *   that it’s on a path to exist that penetration state.
      * @param groups - The bit groups and filter associated to the shape to cast, in order to only
      *   test on colliders with collision groups compatible with this group.
      */
@@ -433,6 +436,7 @@ export class QueryPipeline {
         shapeVel: Vector,
         shape: Shape,
         maxToi: number,
+        stopAtPenetration: boolean,
         filterFlags?: QueryFilterFlags,
         filterGroups?: InteractionGroups,
         filterExcludeCollider?: ColliderHandle,
@@ -454,6 +458,7 @@ export class QueryPipeline {
                 rawVel,
                 rawShape,
                 maxToi,
+                stopAtPenetration,
                 filterFlags,
                 filterGroups,
                 filterExcludeCollider,

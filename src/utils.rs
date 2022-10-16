@@ -1,6 +1,7 @@
 use rapier::data::Index;
 use rapier::dynamics::{ImpulseJointHandle, MultibodyJointHandle, RigidBodyHandle};
-use rapier::geometry::ColliderHandle;
+use rapier::geometry::{Collider, ColliderHandle};
+use wasm_bindgen::JsValue;
 
 pub type FlatHandle = f64;
 
@@ -57,3 +58,22 @@ pub fn flat_handle(id: Index) -> FlatHandle {
 //     let (i, g) = id.into_raw_parts();
 //     i as u32 | ((g as u32) << 16)
 // }
+
+#[inline(always)]
+pub fn with_filter<T>(
+    filter: &js_sys::Function,
+    f: impl FnOnce(Option<&dyn Fn(ColliderHandle, &Collider) -> bool>) -> T,
+) -> T {
+    if filter.is_function() {
+        let filtercb = move |handle: ColliderHandle, _: &Collider| match filter
+            .call1(&JsValue::null(), &JsValue::from(flat_handle(handle.0)))
+        {
+            Err(_) => true,
+            Ok(val) => val.as_bool().unwrap_or(true),
+        };
+
+        f(Some(&filtercb))
+    } else {
+        f(None)
+    }
+}

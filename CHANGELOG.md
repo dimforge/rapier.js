@@ -2,11 +2,26 @@
 
 #### Added
 
--   Export deterministic implementations of usual transcendental functions:
-    `acoshf`, `asinf`, `asinhf`, `atan2f`, `atanf`, `atanhf`, `cbrtf`, `ceilf`,
-    `cosf`, `coshf`, `exp2f`, `exp10f`, `expf`, `expm1f`, `fabsf`, `floorf`, `fmodf`,
-    `hypotf`, `log2f`, `log10f`, `logf`, `powf`, `sinf`, `sinhf`, `sqrtf`, `tanf`,
-    `tanhf`.
+-   Add `World.createCharacterController`, `World.removeCharacterController` to create/remove a kinematic character
+    controller.
+-   Add a character-controller implementation with the `KinematicCharacterController` class and its method
+    `KinematicCharacterController.computeColliderMovement`. The character controller features currently supported are:
+    -   Slide on uneven terrains
+    -   Interaction with dynamic bodies.
+    -   Climb stairs automatically.
+    -   Automatically snap the body to the floor when going downstairs.
+    -   Prevent sliding up slopes that are too steep
+    -   Prevent sliding down slopes that are not steep enough
+    -   Interactions with moving platforms.
+    -   Report information on the obstacles it hit on its path.
+-   Add the `HalfSpace` (infinite plane) shape. Colliders with this shape can be built using `ColliderDesc.halfspace`.
+
+#### Modified
+
+-   Change the signature of `Collider.castShape` and World.castShape by adding a boolean argument `stop_at_penetration`
+    before the filter-related arguments. Set this argument to `true` to get the same result as before. If this is set to
+    `false` and the shape being cast starts it path already intersecting another shape, then a hit won’t be returned
+    with that intersecting shape unless the casting movement would result in more penetrations.
 
 #### Modified
 

@@ -762,6 +762,9 @@ export class Collider {
      * @param shape2Vel - The constant velocity of the second shape.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `collider1Vel.norm() * maxToi`.
+     * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
+     *   the shape is penetrating another shape at its starting point **and** its trajectory is such
+     *   that it’s on a path to exist that penetration state.
      */
     public castShape(
         collider1Vel: Vector,
@@ -770,6 +773,7 @@ export class Collider {
         shape2Rot: Rotation,
         shape2Vel: Vector,
         maxToi: number,
+        stopAtPenetration: boolean,
     ): ShapeTOI | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawShape2Pos = VectorOps.intoRaw(shape2Pos);
@@ -787,6 +791,7 @@ export class Collider {
                 rawShape2Rot,
                 rawShape2Vel,
                 maxToi,
+                stopAtPenetration,
             ),
         );
 
@@ -807,12 +812,16 @@ export class Collider {
      * @param collider2Vel - The constant velocity of the second collider.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
+     * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
+     *   the shape is penetrating another shape at its starting point **and** its trajectory is such
+     *   that it’s on a path to exist that penetration state.
      */
     public castCollider(
         collider1Vel: Vector,
         collider2: Collider,
         collider2Vel: Vector,
         maxToi: number,
+        stopAtPenetration: boolean,
     ): ShapeColliderTOI | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawCollider2Vel = VectorOps.intoRaw(collider2Vel);
@@ -825,6 +834,7 @@ export class Collider {
                 collider2.handle,
                 rawCollider2Vel,
                 maxToi,
+                stopAtPenetration,
             ),
         );
 

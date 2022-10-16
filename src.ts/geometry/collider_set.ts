@@ -37,6 +37,19 @@ export class ColliderSet {
     }
 
     /** @internal */
+    public castClosure<Res>(
+        f?: (collider: Collider) => Res,
+    ): (handle: ColliderHandle) => Res | undefined {
+        return (handle) => {
+            if (!!f) {
+                return f(this.get(handle));
+            } else {
+                return undefined;
+            }
+        };
+    }
+
+    /** @internal */
     public finalizeDeserialization(bodies: RigidBodySet) {
         this.map.forEach((collider) =>
             collider.finalizeDeserialization(bodies),

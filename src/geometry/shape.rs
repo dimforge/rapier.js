@@ -20,6 +20,7 @@ pub trait SharedShapeUtility {
         shapePos2: &Isometry<Real>,
         shapeVel2: &Vector<Real>,
         maxToi: f32,
+        stop_at_penetration: bool,
     ) -> Option<RawShapeTOI>;
 
     fn intersectsShape(
@@ -83,9 +84,17 @@ impl SharedShapeUtility for SharedShape {
         shapePos2: &Isometry<Real>,
         shapeVel2: &Vector<Real>,
         maxToi: f32,
+        stop_at_penetration: bool,
     ) -> Option<RawShapeTOI> {
         query::time_of_impact(
-            shapePos1, shapeVel1, &*self.0, shapePos2, &shapeVel2, shape2, maxToi,
+            shapePos1,
+            shapeVel1,
+            &*self.0,
+            shapePos2,
+            &shapeVel2,
+            shape2,
+            maxToi,
+            stop_at_penetration,
         )
         .ok()
         .flatten()
@@ -370,12 +379,20 @@ impl RawShape {
         shapeRot2: &RawRotation,
         shapeVel2: &RawVector,
         maxToi: f32,
+        stop_at_penetration: bool,
     ) -> Option<RawShapeTOI> {
         let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
         let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
 
-        self.0
-            .castShape(&pos1, &shapeVel1.0, &*shape2.0, &pos2, &shapeVel2.0, maxToi)
+        self.0.castShape(
+            &pos1,
+            &shapeVel1.0,
+            &*shape2.0,
+            &pos2,
+            &shapeVel2.0,
+            maxToi,
+            stop_at_penetration,
+        )
     }
 
     pub fn intersectsShape(
