@@ -22,6 +22,8 @@ jobs:
               run: npm run fmt -- --check
             - name: Check Rust formatting
               run: cargo fmt -- --check
+            - name: Check Rust lint
+              run: cargo clippy -- -D warnings
     build:
         strategy:
             matrix:
