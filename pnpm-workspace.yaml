@@ -1,0 +1,4 @@
+packages:
+    - "rapier-compat"
+    - "testbed2d"
+    - "testbed3d"

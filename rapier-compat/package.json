@@ -5,34 +5,34 @@
     "scripts": {
         "build-rust-2d": "cd ../rapier2d && wasm-pack build --target web",
         "build-rust-3d": "cd ../rapier3d && wasm-pack build --target web",
-        "build-rust": "npm run build-rust-2d && npm run build-rust-3d",
+        "build-rust": "pnpm build-rust-2d && pnpm build-rust-3d",
         "build-genjs": "sh ./gen_src.sh",
         "build-js": "rollup --config rollup.config.js",
         "fix-raw-file": "sh ./fix_raw_file.sh",
-        "build": "npm run clean && npm run build-rust && npm run build-genjs && npm run build-js && npm run fix-raw-file",
+        "build": "pnpm clean && pnpm build-rust && pnpm build-genjs && pnpm build-js && pnpm fix-raw-file",
         "clean": "npx rimraf ../rapier2d/pkg ../rapier3d/pkg pkg2d pkg3d gen2d gen3d ../rapier2d/docs ../rapier3d/docs",
         "test": "jest --detectOpenHandles",
-        "all": "npm run build"
+        "all": "pnpm build"
     },
     "dependencies": {
         "base64-js": "^1.5.1"
     },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^20.0.0",
-        "@rollup/plugin-node-resolve": "^13.0.4",
-        "@rollup/plugin-typescript": "=8.2.3",
-        "@types/jest": "^27.0.0",
-        "jest": "^27.0.6",
-        "jest-cli": "^27.0.6",
-        "rimraf": "^3.0.2",
-        "rollup": "^2.53.2",
-        "rollup-plugin-base64": "^1.0.1",
-        "rollup-plugin-copy": "^3.4.0",
-        "rollup-plugin-filesize": "^9.1.1",
-        "rollup-plugin-terser": "^7.0.2",
-        "ts-jest": "^27.0.4",
-        "tslib": "^2.3.0",
-        "typescript": "=4.3.5"
+        "@rollup/plugin-commonjs": "20.0.0",
+        "@rollup/plugin-node-resolve": "13.0.4",
+        "@rollup/plugin-typescript": "8.2.3",
+        "@types/jest": "27.0.0",
+        "jest": "27.0.6",
+        "jest-cli": "27.0.6",
+        "rimraf": "3.0.2",
+        "rollup": "2.53.2",
+        "rollup-plugin-base64": "1.0.1",
+        "rollup-plugin-copy": "3.4.0",
+        "rollup-plugin-filesize": "9.1.2",
+        "rollup-plugin-terser": "7.0.2",
+        "ts-jest": "27.0.4",
+        "tslib": "2.4.0",
+        "typescript": "4.8.4"
     },
     "jest": {
         "roots": [

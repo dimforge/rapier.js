@@ -17,9 +17,19 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: "16.x"
-            - run: npm ci
+            - uses: pnpm/action-setup@v2
+            - id: pnpm-cache
+              shell: bash
+              run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+            - uses: actions/cache@v3
+              name: Setup pnpm cache
+              with:
+                  path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-store-
+            - run: pnpm install --frozen-lockfile
             - name: Check formatting
-              run: npm run fmt -- --check
+              run: pnpm fmt --check
             - name: Check Rust formatting
               run: cargo fmt -- --check
     build:
@@ -31,6 +41,9 @@ jobs:
             RUSTFLAGS: -D warnings
         steps:
             - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: "16.x"
             - uses: actions/cache@v3
               with:
                   path: |
@@ -40,11 +53,20 @@ jobs:
                       ~/.cargo/git/db/
                       target/
                   key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-            - run: npm ci;
+            - uses: pnpm/action-setup@v2
+            - id: pnpm-cache
+              shell: bash
+              run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+            - uses: actions/cache@v3
+              name: Setup pnpm cache
+              with:
+                  path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: ${{ runner.os }}-pnpm-store-
+            - run: pnpm install --frozen-lockfile
             - name: Build rapier-compat
               run: |
                   cd rapier-compat;
-                  npm ci;
                   npm run build;
             - name: Build rapier2d
               run: |
@@ -77,7 +99,8 @@ jobs:
                   registry-url: "https://registry.npmjs.org"
             - name: Publish rapier3d
               run: |
-                  cd rapier3d/pkg; npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false; 
+                  cd rapier3d/pkg; 
+                  npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false; 
                   npm publish --tag canary --access public;
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
