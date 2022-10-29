@@ -12,9 +12,9 @@
     },
     "dependencies": {
         "@dimforge/rapier2d": "^0.9.0",
-        "lil-gui": "^0.16.1",
+        "lil-gui": "^0.17.0",
         "md5": "^2.3.0",
-        "pixi-viewport": "^4.34.4",
+        "pixi-viewport": "^4.37.0",
         "pixi.js": "^6.3.2",
         "seedrandom": "^3.0.5",
         "stats.js": "^0.17.0"
@@ -25,10 +25,10 @@
         "@types/stats.js": "^0.17.0",
         "copy-webpack-plugin": "^11.0.0",
         "rimraf": "^3.0.2",
-        "ts-loader": "^9.3.0",
-        "typescript": "^4.7.2",
-        "webpack": "^5.72.1",
-        "webpack-cli": "^4.9.2",
-        "webpack-dev-server": "^4.9.1"
+        "ts-loader": "^9.4.1",
+        "typescript": "^4.8.4",
+        "webpack": "^5.74.0",
+        "webpack-cli": "^4.10.0",
+        "webpack-dev-server": "^4.11.1"
     }
 }
