@@ -135,11 +135,11 @@ impl RawContactManifold {
     }
 
     pub fn contact_fid1(&self, i: usize) -> u32 {
-        unsafe { (*self.0).points.get(i).map(|c| c.fid1).unwrap_or(0) }
+        unsafe { (*self.0).points.get(i).map(|c| c.fid1.0).unwrap_or(0) }
     }
 
     pub fn contact_fid2(&self, i: usize) -> u32 {
-        unsafe { (*self.0).points.get(i).map(|c| c.fid2).unwrap_or(0) }
+        unsafe { (*self.0).points.get(i).map(|c| c.fid2.0).unwrap_or(0) }
     }
 
     pub fn contact_impulse(&self, i: usize) -> Real {
