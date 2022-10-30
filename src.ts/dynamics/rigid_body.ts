@@ -512,8 +512,8 @@ export class RigidBody {
     /**
      * Is CCD enabled for this rigid-body?
      */
-    public isCcdEnabled() {
-        this.rawSet.rbIsCcdEnabled(this.handle);
+    public isCcdEnabled(): boolean {
+        return this.rawSet.rbIsCcdEnabled(this.handle);
     }
 
     /**
