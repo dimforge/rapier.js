@@ -5,7 +5,7 @@ use na::DMatrix;
 #[cfg(feature = "dim2")]
 use na::DVector;
 use na::Unit;
-use rapier::geometry::{Shape, SharedShape};
+use rapier::geometry::{Shape, SharedShape, TriMeshFlags};
 use rapier::math::{Isometry, Point, Real, Vector, DIM};
 use rapier::parry::query;
 use rapier::parry::query::Ray;
@@ -292,7 +292,16 @@ impl RawShape {
     pub fn trimesh(vertices: Vec<f32>, indices: Vec<u32>) -> Self {
         let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
         let indices = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
-        Self(SharedShape::trimesh(vertices, indices))
+        // NOTE: for the JS bindings, let’s just assume that the triangle mesh isn’t necessarily
+        // clean. We could provide more flexibility by allowing other flags to be given, but
+        // the API surface of the JS trimesh doesn’t really allow to benefit from other flags.
+        // So, let’s just keep MERGE_DUPLICATE_VERTICES which is useful to avoid internal edge
+        // problems.
+        Self(SharedShape::trimesh_with_flags(
+            vertices,
+            indices,
+            TriMeshFlags::MERGE_DUPLICATE_VERTICES,
+        ))
     }
 
     #[cfg(feature = "dim2")]

@@ -5,7 +5,7 @@ use crate::geometry::{
 };
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
-use rapier::geometry::{ColliderHandle, Ray, AABB};
+use rapier::geometry::{Aabb, ColliderHandle, Ray};
 use rapier::math::{Isometry, Point};
 use rapier::pipeline::{QueryFilter, QueryFilterFlags, QueryPipeline};
 use rapier::prelude::FeatureId;
@@ -393,7 +393,7 @@ impl RawQueryPipeline {
         };
 
         let center = Point::from(aabbCenter.0);
-        let aabb = AABB::new(center - aabbHalfExtents.0, center + aabbHalfExtents.0);
+        let aabb = Aabb::new(center - aabbHalfExtents.0, center + aabbHalfExtents.0);
 
         self.0
             .colliders_with_aabb_intersecting_aabb(&aabb, rcallback)

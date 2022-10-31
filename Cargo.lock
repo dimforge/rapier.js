@@ -415,9 +415,9 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.10.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee29895c34e7dae094c8ea355af4f6fb3f3ab6b76ea037b49bc51bf5972d2464"
+checksum = "f2451e4bf2c6ba705bf584f94bb51772e22977e37c82575ce2445dd797eb35a9"
 dependencies = [
  "approx",
  "arrayvec",
@@ -438,9 +438,9 @@ dependencies = [
 
 [[package]]
 name = "parry3d"
-version = "0.10.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2420ecc938f3acf004ca7f5059aca5145324a88525879745e18ba6ea785d793"
+checksum = "ee763b47e68f62d578bcfc3f83cf75d9d970aed5df20b6d90287ca9b3195155d"
 dependencies = [
  "approx",
  "arrayvec",
@@ -542,8 +542,9 @@ checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 
 [[package]]
 name = "rapier2d"
-version = "0.15.0"
-source = "git+https://github.com/dimforge/rapier?rev=9febe341fcf97a1b42cdb293b825e017821b86ca#9febe341fcf97a1b42cdb293b825e017821b86ca"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12435d8c8ea7eee77be71f90e87fea038e9630baf89008e4602f68fe39fcac06"
 dependencies = [
  "approx",
  "arrayvec",
@@ -564,8 +565,9 @@ dependencies = [
 
 [[package]]
 name = "rapier3d"
-version = "0.15.0"
-source = "git+https://github.com/dimforge/rapier?rev=9febe341fcf97a1b42cdb293b825e017821b86ca#9febe341fcf97a1b42cdb293b825e017821b86ca"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfab9e1384b38fccb76f2c4d799b94e8214fa1913e657e4645efbce5ba88bd02"
 dependencies = [
  "approx",
  "arrayvec",
@@ -658,9 +660,9 @@ dependencies = [
 
 [[package]]
 name = "simba"
-version = "0.7.2"
+version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c48e45e5961033db030b56ad67aef22e9c908c493a6e8348c0a0f6b93433cd77"
+checksum = "2f3fd720c48c53cace224ae62bef1bbff363a70c68c4802a78b5cc6159618176"
 dependencies = [
  "approx",
  "libm",
