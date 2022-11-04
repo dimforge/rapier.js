@@ -11,7 +11,9 @@ export class IntegrationParameters {
      * Free the WASM memory used by these integration parameters.
      */
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
     }
 

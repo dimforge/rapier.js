@@ -28,7 +28,9 @@ export class TempContactForceEvent {
     raw: RawContactForceEvent;
 
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
     }
 
@@ -105,7 +107,9 @@ export class EventQueue {
      * Release the WASM memory occupied by this event-queue.
      */
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
     }
 

@@ -21,9 +21,14 @@ export class RigidBodySet {
      * Release the WASM memory occupied by this rigid-body set.
      */
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
-        this.map.clear();
+
+        if (!!this.map) {
+            this.map.clear();
+        }
         this.map = undefined;
     }
 

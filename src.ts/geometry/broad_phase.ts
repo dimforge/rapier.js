@@ -13,7 +13,9 @@ export class BroadPhase {
      * Release the WASM memory occupied by this broad-phase.
      */
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
     }
 

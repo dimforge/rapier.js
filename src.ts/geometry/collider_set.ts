@@ -19,9 +19,14 @@ export class ColliderSet {
      * Release the WASM memory occupied by this collider set.
      */
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
-        this.map.clear();
+
+        if (!!this.map) {
+            this.map.clear();
+        }
         this.map = undefined;
     }
 
