@@ -26,7 +26,7 @@
 
 ---
 
-### Building
+## Building
 
 Unix: 
 ```shell
