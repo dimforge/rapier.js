@@ -4,6 +4,7 @@
         "build": "node ./scripts/build.js"
     },
     "devDependencies": {
+        "fs-extra": "^10.1.0",
         "prettier": "2.7.1",
         "rimraf": "3.0.2",
         "typedoc": "0.23.19",
