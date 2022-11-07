@@ -25,3 +25,18 @@
 </p>
 
 ---
+
+### Building
+
+Unix: 
+```shell
+./rapier2d/build_all.sh
+./rapier3d/build_all.sh
+```
+
+Windows:
+
+Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/).
+```shell
+npm run build
+```

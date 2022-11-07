@@ -1,6 +1,7 @@
 {
     "scripts": {
-        "fmt": "prettier ."
+        "fmt": "prettier .",
+        "build": "node ./scripts/build.js"
     },
     "devDependencies": {
         "prettier": "2.7.1",
