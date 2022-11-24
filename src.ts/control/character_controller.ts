@@ -4,14 +4,25 @@ import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry";
 import {QueryFilterFlags, QueryPipeline, World} from "../pipeline";
 import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics";
 
+/**
+ * A collision between the character and an obstacle hit on its path.
+ */
 export class CharacterCollision {
-    public collider: Collider;
+    /** The collider involved in the collision. Null if the collider no longer exists in the physics world. */
+    public collider: Collider | null;
+    /** The translation applied to the character before this collision took place. */
     public translationApplied: Vector;
+    /** The translation the character would move after this collision if there is no other obstacles. */
     public translationRemaining: Vector;
+    /** The time-of-impact between the character and the obstacles. */
     public toi: number;
+    /** The world-space contact point on the collider when the collision happens. */
     public witness1: Vector;
+    /** The local-space contact point on the character when the collision happens. */
     public witness2: Vector;
+    /** The world-space outward contact normal on the collider when the collision happens. */
     public normal1: Vector;
+    /** The local-space outward contact normal on the character when the collision happens. */
     public normal2: Vector;
 }
 
@@ -220,8 +231,8 @@ export class KinematicCharacterController {
     }
 
     /**
-     * Should the character be automatically snapped to the ground if the distance between
-     * the ground and its feed are smaller than the specified threshold?
+     * If snap-to-ground is enabled, should the character be automatically snapped to the ground if
+     * the distance between the ground and its feet are smaller than the specified threshold?
      */
     public snapToGroundDistance(): number | null {
         return this.raw.snapToGroundDistance();
@@ -229,7 +240,7 @@ export class KinematicCharacterController {
 
     /**
      * Enables automatically snapping the character to the ground if the distance between
-     * the ground and its feed are smaller than the specified threshold.
+     * the ground and its feet are smaller than the specified threshold.
      */
     public enableSnapToGround(distance: number) {
         this.raw.enableSnapToGround(distance);
@@ -331,6 +342,8 @@ export class KinematicCharacterController {
             out.witness2 = VectorOps.fromRaw(c.worldWitness2());
             out.normal1 = VectorOps.fromRaw(c.worldNormal1());
             out.normal2 = VectorOps.fromRaw(c.worldNormal2());
+            out.collider = this.colliders.get(c.handle());
+            return out;
         }
     }
 }
