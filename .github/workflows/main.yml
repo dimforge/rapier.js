@@ -46,6 +46,7 @@ jobs:
                   cd rapier-compat;
                   npm ci;
                   npm run build;
+                  npm run test;
             - name: Build rapier2d
               run: |
                   cd rapier2d;
