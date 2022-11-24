@@ -48,7 +48,9 @@ export class DebugRenderPipeline {
      * Release the WASM memory occupied by this serialization pipeline.
      */
     free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
         this.vertices = undefined;
         this.colors = undefined;

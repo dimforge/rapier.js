@@ -30,9 +30,14 @@ export class MultibodyJointSet {
      * Release the WASM memory occupied by this joint set.
      */
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
-        this.map.clear();
+
+        if (!!this.map) {
+            this.map.clear();
+        }
         this.map = undefined;
     }
 

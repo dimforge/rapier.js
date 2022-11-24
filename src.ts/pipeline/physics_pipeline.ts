@@ -22,7 +22,9 @@ export class PhysicsPipeline {
     raw: RawPhysicsPipeline;
 
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
     }
 

@@ -14,7 +14,9 @@ export class IslandManager {
      * Release the WASM memory occupied by this narrow-phase.
      */
     public free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
     }
 

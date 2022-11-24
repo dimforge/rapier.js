@@ -69,7 +69,9 @@ export class QueryPipeline {
      * Release the WASM memory occupied by this query pipeline.
      */
     free() {
-        this.raw.free();
+        if (!!this.raw) {
+            this.raw.free();
+        }
         this.raw = undefined;
     }
 
