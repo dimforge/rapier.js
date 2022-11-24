@@ -553,11 +553,30 @@ export class Collider {
     }
 
     /**
+     * Sets the half-extents of this collider if it is a cuboid shape.
+     *
+     * @param newHalfExtents - desired half extents.
+     */
+    public setHalfExtents(newHalfExtents: Vector) {
+        const rawPoint = VectorOps.intoRaw(newHalfExtents);
+        this.colliderSet.raw.coSetHalfExtents(this.handle, rawPoint);
+    }
+
+    /**
      * The radius of this collider if it is a ball, cylinder, capsule, or cone shape.
      * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public radius(): number {
         return this.colliderSet.raw.coRadius(this.handle);
+    }
+
+    /**
+     * Sets the radius of this collider if it is a ball, cylinder, capsule, or cone shape.
+     *
+     * @param newRadius - desired radius.
+     */
+    public setRadius(newRadius: number): void {
+        this.colliderSet.raw.coSetRadius(this.handle, newRadius);
     }
 
     /**
@@ -569,11 +588,29 @@ export class Collider {
     }
 
     /**
+     * Sets the radius of the round edges of this collider if it has round edges.
+     *
+     * @param newBorderRadius - desired round edge radius.
+     */
+    public setRoundRadius(newBorderRadius: number) {
+        this.colliderSet.raw.coSetRoundRadius(this.handle, newBorderRadius);
+    }
+
+    /**
      * The half height of this collider if it is a cylinder, capsule, or cone shape.
      * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public halfHeight(): number {
         return this.colliderSet.raw.coHalfHeight(this.handle);
+    }
+
+    /**
+     * Sets the half height of this collider if it is a cylinder, capsule, or cone shape.
+     *
+     * @param newHalfheight - desired half height.
+     */
+    public setHalfHeight(newHalfheight: number) {
+        this.colliderSet.raw.coSetHalfHeight(this.handle, newHalfheight);
     }
 
     /**
