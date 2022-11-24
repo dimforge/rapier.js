@@ -173,8 +173,14 @@ impl RawColliderSet {
     /// Set the half-extents of this collider if it has a cuboid shape.
     pub fn coSetHalfExtents(&mut self, handle: FlatHandle, newHalfExtents: &RawVector) {
         self.map_mut(handle, |co| match co.shape().shape_type() {
-            ShapeType::Cuboid => co.shape_mut().as_cuboid_mut().map(|b| b.half_extents = newHalfExtents.0.into()),
-            ShapeType::RoundCuboid => co.shape_mut().as_round_cuboid_mut().map(|b| b.inner_shape.half_extents = newHalfExtents.0.into()),
+            ShapeType::Cuboid => co
+                .shape_mut()
+                .as_cuboid_mut()
+                .map(|b| b.half_extents = newHalfExtents.0.into()),
+            ShapeType::RoundCuboid => co
+                .shape_mut()
+                .as_round_cuboid_mut()
+                .map(|b| b.inner_shape.half_extents = newHalfExtents.0.into()),
             _ => None,
         });
     }
@@ -200,11 +206,20 @@ impl RawColliderSet {
     pub fn coSetRadius(&mut self, handle: FlatHandle, newRadius: Real) {
         self.map_mut(handle, |co| match co.shape().shape_type() {
             ShapeType::Ball => co.shape_mut().as_ball_mut().map(|b| b.radius = newRadius),
-            ShapeType::Capsule => co.shape_mut().as_capsule_mut().map(|b| b.radius = newRadius),
+            ShapeType::Capsule => co
+                .shape_mut()
+                .as_capsule_mut()
+                .map(|b| b.radius = newRadius),
             #[cfg(feature = "dim3")]
-            ShapeType::Cylinder => co.shape_mut().as_cylinder_mut().map(|b| b.radius = newRadius),
+            ShapeType::Cylinder => co
+                .shape_mut()
+                .as_cylinder_mut()
+                .map(|b| b.radius = newRadius),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCylinder => co.shape_mut().as_round_cylinder_mut().map(|b| b.inner_shape.radius = newRadius),
+            ShapeType::RoundCylinder => co
+                .shape_mut()
+                .as_round_cylinder_mut()
+                .map(|b| b.inner_shape.radius = newRadius),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape_mut().as_cone_mut().map(|b| b.radius = newRadius),
             _ => None,
@@ -214,7 +229,7 @@ impl RawColliderSet {
     /// The half height of this collider if it is a capsule, cylinder, or cone shape.
     pub fn coHalfHeight(&self, handle: FlatHandle) -> Option<f32> {
         self.map(handle, |co| match co.shape().shape_type() {
-            ShapeType::Capsule => co.shape().as_capsule().map(|b| b.half_height()), 
+            ShapeType::Capsule => co.shape().as_capsule().map(|b| b.half_height()),
             #[cfg(feature = "dim3")]
             ShapeType::Cylinder => co.shape().as_cylinder().map(|b| b.half_height),
             #[cfg(feature = "dim3")]
@@ -237,16 +252,22 @@ impl RawColliderSet {
                     b.segment.a = -point;
                     b.segment.b = point;
                 })
-            },
+            }
             #[cfg(feature = "dim3")]
-            ShapeType::Cylinder => co.shape_mut().as_cylinder_mut().map(|b| b.half_height = newHalfheight),
+            ShapeType::Cylinder => co
+                .shape_mut()
+                .as_cylinder_mut()
+                .map(|b| b.half_height = newHalfheight),
             #[cfg(feature = "dim3")]
             ShapeType::RoundCylinder => co
                 .shape_mut()
                 .as_round_cylinder_mut()
                 .map(|b| b.inner_shape.half_height = newHalfheight),
             #[cfg(feature = "dim3")]
-            ShapeType::Cone => co.shape_mut().as_cone_mut().map(|b| b.half_height = newHalfheight),
+            ShapeType::Cone => co
+                .shape_mut()
+                .as_cone_mut()
+                .map(|b| b.half_height = newHalfheight),
             _ => None,
         });
     }
@@ -275,14 +296,26 @@ impl RawColliderSet {
     }
 
     /// Set the radius of the round edges of this collider.
-    pub fn coSetRoundRadius(&mut self, handle: FlatHandle, newBorderRadius: Real){
+    pub fn coSetRoundRadius(&mut self, handle: FlatHandle, newBorderRadius: Real) {
         self.map_mut(handle, |co| match co.shape().shape_type() {
-            ShapeType::RoundCuboid => co.shape_mut().as_round_cuboid_mut().map(|b| b.border_radius = newBorderRadius),
-            ShapeType::RoundTriangle => co.shape_mut().as_round_triangle_mut().map(|b| b.border_radius = newBorderRadius),
+            ShapeType::RoundCuboid => co
+                .shape_mut()
+                .as_round_cuboid_mut()
+                .map(|b| b.border_radius = newBorderRadius),
+            ShapeType::RoundTriangle => co
+                .shape_mut()
+                .as_round_triangle_mut()
+                .map(|b| b.border_radius = newBorderRadius),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCylinder => co.shape_mut().as_round_cylinder_mut().map(|b| b.border_radius = newBorderRadius),
+            ShapeType::RoundCylinder => co
+                .shape_mut()
+                .as_round_cylinder_mut()
+                .map(|b| b.border_radius = newBorderRadius),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundCone => co.shape_mut().as_round_cone_mut().map(|b| b.border_radius = newBorderRadius),
+            ShapeType::RoundCone => co
+                .shape_mut()
+                .as_round_cone_mut()
+                .map(|b| b.border_radius = newBorderRadius),
             #[cfg(feature = "dim3")]
             ShapeType::RoundConvexPolyhedron => co
                 .shape_mut()
