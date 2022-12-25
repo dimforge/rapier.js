@@ -11,7 +11,7 @@
         "test": "cargo test && wasm-pack test --headless"
     },
     "dependencies": {
-        "@dimforge/rapier2d": "file:../rapier2d",
+        "@dimforge/rapier2d": "^0.9.0",
         "lil-gui": "^0.17.0",
         "md5": "^2.3.0",
         "pixi-viewport": "^4.37.0",

@@ -50,13 +50,11 @@ jobs:
             - name: Build rapier2d
               run: |
                   cd rapier2d;
-                  npm ci;
-                  npm run build;
+                  ./build_all.sh;
             - name: Build rapier3d
               run: |
                   cd rapier3d;
-                  npm ci;
-                  npm run build;
+                  ./build_all.sh;
             - uses: actions/upload-artifact@v3
               with:
                   name: pkg ${{ matrix.os }}

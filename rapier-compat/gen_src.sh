@@ -26,6 +26,9 @@ gen_js "3d"
 find gen2d/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if DIM3:,\:#endif:d'
 find gen3d/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if DIM2:,\:#endif:d'
 
+cp ../rapier2d/pkg/rapier_wasm* pkg2d/
+cp ../rapier3d/pkg/rapier_wasm* pkg3d/
+
 # "import.meta" causes Babel to choke, but the code path is never taken so just remove it.
 sed -i.bak 's/import.meta.url/"<deleted>"/g' pkg2d/rapier_wasm2d.js
 sed -i.bak 's/import.meta.url/"<deleted>"/g' pkg3d/rapier_wasm3d.js
