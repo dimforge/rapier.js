@@ -1,6 +1,6 @@
 import GUI from "lil-gui";
 import * as Stats from "stats.js";
-import type {Testbed} from "./Testbed";
+import type { Testbed } from "./Testbed";
 
 export interface DebugInfos {
     token: number;
@@ -14,8 +14,7 @@ export class Gui {
     stats: Stats;
     rapierVersion: string;
     maxTimePanelValue: number;
-    stepTimePanel1: Stats.Panel;
-    stepTimePanel2: Stats.Panel;
+    stepTimePanel: Stats.Panel;
     gui: GUI;
     debugText: HTMLDivElement;
 
@@ -24,17 +23,10 @@ export class Gui {
         this.stats = new Stats();
         this.rapierVersion = testbed.RAPIER.version();
         this.maxTimePanelValue = 16.0;
-        // NOTE: we add the same panel twice because it appears the memory use panel is missing
-        // on firefox. This means that on firefox we have to show the panel 2 instead of the panel
-        // 3. To work around this, we just add the pannel twice so that the 3rd panel on firefox
-        // exist and gives the timing information.
-        this.stepTimePanel1 = this.stats.addPanel(
+        this.stepTimePanel = this.stats.addPanel(
             new Stats.Panel("ms (step)", "#ff8", "#221"),
         );
-        this.stepTimePanel2 = this.stats.addPanel(
-            new Stats.Panel("ms (step)", "#ff8", "#221"),
-        );
-        this.stats.showPanel(3);
+        this.stats.showPanel(this.stats.dom.children.length - 1);
         document.body.appendChild(this.stats.dom);
 
         var backends = simulationParameters.backends;
@@ -110,14 +102,12 @@ export class Gui {
     setTiming(timing: number) {
         if (!!timing) {
             this.maxTimePanelValue = Math.max(this.maxTimePanelValue, timing);
-            this.stepTimePanel1.update(timing, this.maxTimePanelValue);
-            this.stepTimePanel2.update(timing, this.maxTimePanelValue);
+            this.stepTimePanel.update(timing, this.maxTimePanelValue);
         }
     }
 
     resetTiming() {
         this.maxTimePanelValue = 1.0;
-        this.stepTimePanel1.update(0.0, 16.0);
-        this.stepTimePanel2.update(0.0, 16.0);
+        this.stepTimePanel.update(0.0, 16.0);
     }
 }
