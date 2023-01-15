@@ -84,12 +84,8 @@ export class QueryPipeline {
      * @param bodies - The set of rigid-bodies taking part in this pipeline.
      * @param colliders - The set of colliders taking part in this pipeline.
      */
-    public update(
-        islands: IslandManager,
-        bodies: RigidBodySet,
-        colliders: ColliderSet,
-    ) {
-        this.raw.update(islands.raw, bodies.raw, colliders.raw);
+    public update(bodies: RigidBodySet, colliders: ColliderSet) {
+        this.raw.update(bodies.raw, colliders.raw);
     }
 
     /**

@@ -75,6 +75,7 @@ export class RigidBodySet {
         // #endif
 
         let handle = this.raw.createRigidBody(
+            desc.enabled,
             rawTra,
             rawRot,
             desc.gravityScale,

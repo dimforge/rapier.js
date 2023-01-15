@@ -95,6 +95,7 @@ export class ColliderSet {
         // #endif
 
         let handle = this.raw.createCollider(
+            desc.enabled,
             rawShape,
             rawTra,
             rawRot,
