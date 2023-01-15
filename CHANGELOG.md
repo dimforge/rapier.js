@@ -1,4 +1,4 @@
-### Unreleased
+### 0.11.0 (2023-01-15)
 
 #### Added
 
@@ -10,6 +10,11 @@
 -   Add `Collider.isEnabled, Collider.setEnabled, ColliderDesc.setEnabled` to disable a collider without removing it
     from the physics world.
 -   Add shape-specific methods to modify a collider’s size: `Collider.setRadius, setHalfExtents, setRoundRadius, setHalfHeight`.
+
+#### Modified
+
+-   Add a boolean argument to `RigidBody.setBodyType` to indicate if the rigid-body should awaken after changing
+    its type.
 
 #### Fixed
 
