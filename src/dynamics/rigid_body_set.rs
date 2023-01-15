@@ -223,6 +223,7 @@ impl RawRigidBodySet {
     }
 
     pub fn propagateModifiedBodyPositionsToColliders(&mut self, colliders: &mut RawColliderSet) {
-        self.0.propagate_modified_body_positions_to_colliders(&mut colliders.0);
+        self.0
+            .propagate_modified_body_positions_to_colliders(&mut colliders.0);
     }
 }
