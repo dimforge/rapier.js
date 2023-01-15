@@ -42,6 +42,7 @@ impl RawColliderSet {
     // for the method arguments.
     pub fn do_create_collider(
         &mut self,
+        enabled: bool,
         shape: &RawShape,
         translation: &RawVector,
         rotation: &RawRotation,
@@ -69,6 +70,7 @@ impl RawColliderSet {
     ) -> Option<FlatHandle> {
         let pos = Isometry::from_parts(translation.0.into(), rotation.0);
         let mut builder = ColliderBuilder::new(shape.0.clone())
+            .enabled(enabled)
             .position(pos)
             .friction(friction)
             .restitution(restitution)
@@ -135,6 +137,7 @@ impl RawColliderSet {
     #[cfg(feature = "dim2")]
     pub fn createCollider(
         &mut self,
+        enabled: bool,
         shape: &RawShape,
         translation: &RawVector,
         rotation: &RawRotation,
@@ -159,6 +162,7 @@ impl RawColliderSet {
         bodies: &mut RawRigidBodySet,
     ) -> Option<FlatHandle> {
         self.do_create_collider(
+            enabled,
             shape,
             translation,
             rotation,
@@ -187,6 +191,7 @@ impl RawColliderSet {
     #[cfg(feature = "dim3")]
     pub fn createCollider(
         &mut self,
+        enabled: bool,
         shape: &RawShape,
         translation: &RawVector,
         rotation: &RawRotation,
@@ -212,6 +217,7 @@ impl RawColliderSet {
         bodies: &mut RawRigidBodySet,
     ) -> Option<FlatHandle> {
         self.do_create_collider(
+            enabled,
             shape,
             translation,
             rotation,

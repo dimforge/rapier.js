@@ -1,4 +1,4 @@
-use crate::dynamics::{RawIslandManager, RawRigidBodySet};
+use crate::dynamics::RawRigidBodySet;
 use crate::geometry::{
     RawColliderSet, RawPointColliderProjection, RawRayColliderIntersection, RawRayColliderToi,
     RawShape, RawShapeColliderTOI,
@@ -21,13 +21,8 @@ impl RawQueryPipeline {
         RawQueryPipeline(QueryPipeline::new())
     }
 
-    pub fn update(
-        &mut self,
-        islands: &RawIslandManager,
-        bodies: &RawRigidBodySet,
-        colliders: &RawColliderSet,
-    ) {
-        self.0.update(&islands.0, &bodies.0, &colliders.0);
+    pub fn update(&mut self, bodies: &RawRigidBodySet, colliders: &RawColliderSet) {
+        self.0.update(&bodies.0, &colliders.0);
     }
 
     pub fn castRay(

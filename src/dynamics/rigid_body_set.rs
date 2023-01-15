@@ -68,6 +68,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn createRigidBody(
         &mut self,
+        enabled: bool,
         translation: &RawVector,
         rotation: &RawRotation,
         gravityScale: f32,
@@ -95,6 +96,7 @@ impl RawRigidBodySet {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
 
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
+            .enabled(enabled)
             .position(pos)
             .gravity_scale(gravityScale)
             .enabled_translations(
