@@ -68,6 +68,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn createRigidBody(
         &mut self,
+        enabled: bool,
         translation: &RawVector,
         rotation: &RawRotation,
         gravityScale: f32,
@@ -95,6 +96,7 @@ impl RawRigidBodySet {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
 
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
+            .enabled(enabled)
             .position(pos)
             .gravity_scale(gravityScale)
             .enabled_translations(
@@ -130,6 +132,7 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim2")]
     pub fn createRigidBody(
         &mut self,
+        enabled: bool,
         translation: &RawVector,
         rotation: &RawRotation,
         gravityScale: f32,
@@ -152,6 +155,7 @@ impl RawRigidBodySet {
     ) -> FlatHandle {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
+            .enabled(enabled)
             .position(pos)
             .gravity_scale(gravityScale)
             .enabled_translations(translationEnabledX, translationEnabledY)
@@ -216,5 +220,10 @@ impl RawRigidBodySet {
         for (handle, _) in self.0.iter() {
             let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
+    }
+
+    pub fn propagateModifiedBodyPositionsToColliders(&mut self, colliders: &mut RawColliderSet) {
+        self.0
+            .propagate_modified_body_positions_to_colliders(&mut colliders.0);
     }
 }

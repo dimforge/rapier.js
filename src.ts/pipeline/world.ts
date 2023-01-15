@@ -247,7 +247,30 @@ export class World {
             eventQueue,
             hooks,
         );
-        this.queryPipeline.update(this.islands, this.bodies, this.colliders);
+        this.queryPipeline.update(this.bodies, this.colliders);
+    }
+
+    /**
+     * Update colliders positions after rigid-bodies moved.
+     *
+     * When a rigid-body moves, the positions of the colliders attached to it need to be updated. This update is
+     * generally automatically done at the beginning and the end of each simulation step with World.step.
+     * If the positions need to be updated without running a simulation step this method can be called manually.
+     */
+    public propagateModifiedBodyPositionsToColliders() {
+        this.bodies.raw.propagateModifiedBodyPositionsToColliders(
+            this.colliders.raw,
+        );
+    }
+
+    /**
+     * Ensure subsequent scene queries take into account the collider positions set before this method is called.
+     *
+     * This does not step the physics simulation forward.
+     */
+    public updateSceneQueries() {
+        this.propagateModifiedBodyPositionsToColliders();
+        this.queryPipeline.update(this.bodies, this.colliders);
     }
 
     /**

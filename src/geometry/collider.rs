@@ -443,6 +443,14 @@ impl RawColliderSet {
         self.map(handle, |co| co.parent().map(|p| utils::flat_handle(p.0)))
     }
 
+    pub fn coSetEnabled(&mut self, handle: FlatHandle, enabled: bool) {
+        self.map_mut(handle, |co| co.set_enabled(enabled))
+    }
+
+    pub fn coIsEnabled(&self, handle: FlatHandle) -> bool {
+        self.map(handle, |co| co.is_enabled())
+    }
+
     /// The friction coefficient of this collider.
     pub fn coFriction(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |co| co.material().friction)

@@ -197,6 +197,22 @@ export class Collider {
     }
 
     /**
+     * Sets whether this collider is enabled or not.
+     *
+     * @param enabled - Set to `false` to disable this collider (its parent rigid-body won’t be disabled automatically by this).
+     */
+    public setEnabled(enabled: boolean) {
+        this.colliderSet.raw.coSetEnabled(this.handle, enabled);
+    }
+
+    /**
+     * Is this collider enabled?
+     */
+    public isEnabled(): boolean {
+        return this.colliderSet.raw.coIsEnabled(this.handle);
+    }
+
+    /**
      * Sets the restitution coefficient of the collider to be created.
      *
      * @param restitution - The restitution coefficient in `[0, 1]`. A value of 0 (the default) means no bouncing behavior
@@ -1033,6 +1049,7 @@ export enum MassPropsMode {
 }
 
 export class ColliderDesc {
+    enabled: boolean;
     shape: Shape;
     massPropsMode: MassPropsMode;
     mass: number;
@@ -1518,6 +1535,15 @@ export class ColliderDesc {
      */
     public setSensor(sensor: boolean): ColliderDesc {
         this.isSensor = sensor;
+        return this;
+    }
+
+    /**
+     * Sets whether the created collider will be enabled or disabled.
+     * @param enabled − If set to `false` the collider will be disabled at creation.
+     */
+    public setEnabled(enabled: boolean): ColliderDesc {
+        this.enabled = enabled;
         return this;
     }
 

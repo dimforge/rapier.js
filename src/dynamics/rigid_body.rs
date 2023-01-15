@@ -397,8 +397,8 @@ impl RawRigidBodySet {
     }
 
     /// Set a new status for this rigid-body: fixed, dynamic, or kinematic.
-    pub fn rbSetBodyType(&mut self, handle: FlatHandle, status: RawRigidBodyType) {
-        self.map_mut(handle, |rb| rb.set_body_type(status.into()));
+    pub fn rbSetBodyType(&mut self, handle: FlatHandle, status: RawRigidBodyType, wake_up: bool) {
+        self.map_mut(handle, |rb| rb.set_body_type(status.into(), wake_up));
     }
 
     /// Is this rigid-body fixed?
@@ -432,6 +432,14 @@ impl RawRigidBodySet {
 
     pub fn rbSetAngularDamping(&mut self, handle: FlatHandle, factor: f32) {
         self.map_mut(handle, |rb| rb.set_angular_damping(factor));
+    }
+
+    pub fn rbSetEnabled(&mut self, handle: FlatHandle, enabled: bool) {
+        self.map_mut(handle, |rb| rb.set_enabled(enabled))
+    }
+
+    pub fn rbIsEnabled(&self, handle: FlatHandle) -> bool {
+        self.map(handle, |rb| rb.is_enabled())
     }
 
     pub fn rbGravityScale(&self, handle: FlatHandle) -> f32 {

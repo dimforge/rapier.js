@@ -534,6 +534,22 @@ export class RigidBody {
     }
 
     /**
+     * Sets whether this rigid-body is enabled or not.
+     *
+     * @param enabled - Set to `false` to disable this rigid-body and all its attached colliders.
+     */
+    public setEnabled(enabled: boolean) {
+        this.rawSet.rbSetEnabled(this.handle, enabled);
+    }
+
+    /**
+     * Is this rigid-body enabled?
+     */
+    public isEnabled() {
+        return this.rawSet.rbIsEnabled(this.handle);
+    }
+
+    /**
      * The status of this rigid-body: static, dynamic, or kinematic.
      */
     public bodyType(): RigidBodyType {
@@ -543,8 +559,8 @@ export class RigidBody {
     /**
      * Set a new status for this rigid-body: static, dynamic, or kinematic.
      */
-    public setBodyType(type: RigidBodyType) {
-        return this.rawSet.rbSetBodyType(this.handle, type);
+    public setBodyType(type: RigidBodyType, wakeUp: boolean) {
+        return this.rawSet.rbSetBodyType(this.handle, type, wakeUp);
     }
 
     /**
@@ -864,6 +880,7 @@ export class RigidBody {
 }
 
 export class RigidBodyDesc {
+    enabled: boolean;
     translation: Vector;
     rotation: Rotation;
     gravityScale: number;
@@ -897,6 +914,7 @@ export class RigidBodyDesc {
     userData?: unknown;
 
     constructor(status: RigidBodyType) {
+        this.enabled = true;
         this.status = status;
         this.translation = VectorOps.zeros();
         this.rotation = RotationOps.identity();
@@ -995,6 +1013,15 @@ export class RigidBodyDesc {
 
     public setDominanceGroup(group: number): RigidBodyDesc {
         this.dominanceGroup = group;
+        return this;
+    }
+
+    /**
+     * Sets whether the created rigid-body will be enabled or disabled.
+     * @param enabled − If set to `false` the rigid-body will be disabled at creation.
+     */
+    public setEnabled(enabled: boolean): RigidBodyDesc {
+        this.enabled = enabled;
         return this;
     }
 

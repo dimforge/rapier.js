@@ -1,3 +1,20 @@
+### Unreleased
+
+#### Added
+
+-   Add `World.propagateModifiedBodyPositionsToColliders` to propagate rigid-bodies position changes to their attached
+    colliders.
+-   Add `World.updateSceneQueries` to update the scene queries data structures without stepping the whole simulation.
+-   Add `RigidBody.isEnabled, RigidBody.setEnabled, RigidBodyDesc.setEnabled` to disable a rigid-body (and all its
+    attached colliders) without removing it from the physics world.
+-   Add `Collider.isEnabled, Collider.setEnabled, ColliderDesc.setEnabled` to disable a collider without removing it
+    from the physics world.
+-   Add shape-specific methods to modify a collider’s size: `Collider.setRadius, setHalfExtents, setRoundRadius, setHalfHeight`.
+
+#### Fixed
+
+-   Fix rigid-bodies automatically waking up at creation even if they were explicitly created sleeping.
+
 ### 0.10.0 (2022-11-06)
 
 #### Added
@@ -22,9 +39,6 @@
     before the filter-related arguments. Set this argument to `true` to get the same result as before. If this is set to
     `false` and the shape being cast starts it path already intersecting another shape, then a hit won’t be returned
     with that intersecting shape unless the casting movement would result in more penetrations.
-
-#### Modified
-
 -   Reduce rounding errors in 3D when setting the rotation of a rigid-body or collider.
 
 #### Fixed
