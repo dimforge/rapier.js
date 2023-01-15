@@ -27,7 +27,7 @@ const config = (dim) => ({
         copy({
             targets: [
                 {
-                    src: `../rapier${dim}/pkg/package.json`,
+                    src: `./wasm-build${dim}/package.json`,
                     dest: `./pkg${dim}/`,
                     transform(content) {
                         let config = JSON.parse(content.toString());

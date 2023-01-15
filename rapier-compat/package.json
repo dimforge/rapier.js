@@ -3,14 +3,14 @@
     "description": "Build scripts for compatibility package with inlined webassembly as base64.",
     "private": true,
     "scripts": {
-        "build-rust-2d": "wasm-pack build --target web --out-dir ../rapier-compat/pkg2d ../rapier2d",
-        "build-rust-3d": "wasm-pack build --target web --out-dir ../rapier-compat/pkg3d ../rapier3d",
+        "build-rust-2d": "wasm-pack build --target web --out-dir ../rapier-compat/wasm-build2d ../rapier2d",
+        "build-rust-3d": "wasm-pack build --target web --out-dir ../rapier-compat/wasm-build3d ../rapier3d",
         "build-rust": "npm run build-rust-2d && npm run build-rust-3d",
         "build-genjs": "sh ./gen_src.sh",
         "build-js": "rollup --config rollup.config.js --bundleConfigAsCjs",
         "fix-raw-file": "sh ./fix_raw_file.sh",
         "build": "npm run clean && npm run build-rust && npm run build-genjs && npm run build-js && npm run fix-raw-file",
-        "clean": "rimraf pkg2d pkg3d gen2d gen3d",
+        "clean": "rimraf pkg2d pkg3d gen2d gen3d wasm-build2d wasm-build3d",
         "test": "jest --detectOpenHandles",
         "all": "npm run build"
     },
