@@ -1,6 +1,6 @@
 import GUI from "lil-gui";
 import * as Stats from "stats.js";
-import type { Testbed } from "./Testbed";
+import type {Testbed} from "./Testbed";
 
 export interface DebugInfos {
     token: number;
