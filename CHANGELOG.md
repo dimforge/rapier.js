@@ -1,3 +1,9 @@
+### 0.11.1 (2023-01-16)
+
+#### Fixed
+
+-   Fix bug that disabled all colliders at construction time.
+
 ### 0.11.0 (2023-01-15)
 
 #### Added
