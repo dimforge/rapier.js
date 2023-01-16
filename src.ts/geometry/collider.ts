@@ -1083,6 +1083,7 @@ export class ColliderDesc {
      * @param shape - The shape of the collider being built.
      */
     constructor(shape: Shape) {
+        this.enabled = true;
         this.shape = shape;
         this.massPropsMode = MassPropsMode.Density;
         this.density = 1.0;
