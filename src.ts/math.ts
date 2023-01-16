@@ -1,4 +1,7 @@
 import {RawVector, RawRotation} from "./raw";
+// #if DIM3
+import {RawSdpMatrix3} from "./raw";
+// #endif
 
 // #if DIM2
 export interface Vector {
@@ -169,6 +172,49 @@ export class RotationOps {
         out.y = input.y;
         out.z = input.z;
         out.w = input.w;
+    }
+}
+
+export class SdpMatrix3 {
+    /**
+     * Row major list of the angular inertia SpdMatrix3 elements
+     */
+    elements: Float32Array;
+
+    get m11(): number {
+        return this.elements[0];
+    }
+
+    get m12(): number {
+        return this.elements[1];
+    }
+
+    get m13(): number {
+        return this.elements[2];
+    }
+
+    get m22(): number {
+        return this.elements[3];
+    }
+
+    get m23(): number {
+        return this.elements[4];
+    }
+
+    get m33(): number {
+        return this.elements[5];
+    }
+
+    constructor(elements: Float32Array) {
+        this.elements = elements;
+    }
+}
+
+export class SdpMatrix3Ops {
+    public static fromRaw(raw: RawSdpMatrix3): SdpMatrix3 {
+        const sdpMatrix3 = new SdpMatrix3(raw.elements());
+        raw.free();
+        return sdpMatrix3;
     }
 }
 

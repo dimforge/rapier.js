@@ -1,8 +1,14 @@
 //! Linear algebra primitives.
 
 #[cfg(feature = "dim3")]
+use js_sys::Float32Array;
+#[cfg(feature = "dim3")]
 use na::{Quaternion, Unit};
-use rapier::math::{Rotation, Vector};
+#[cfg(feature = "dim3")]
+use rapier::math::Real;
+use rapier::math::{Point, Rotation, Vector};
+#[cfg(feature = "dim3")]
+use rapier::parry::utils::SdpMatrix3;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -98,6 +104,20 @@ pub struct RawVector(pub(crate) Vector<f32>);
 impl From<Vector<f32>> for RawVector {
     fn from(v: Vector<f32>) -> Self {
         RawVector(v)
+    }
+}
+
+#[cfg(feature = "dim2")]
+impl From<Point<f32>> for RawVector {
+    fn from(v: Point<f32>) -> Self {
+        RawVector::new(v.x, v.y)
+    }
+}
+
+#[cfg(feature = "dim3")]
+impl From<Point<f32>> for RawVector {
+    fn from(v: Point<f32>) -> Self {
+        RawVector::new(v.x, v.y, v.x)
     }
 }
 
@@ -225,5 +245,30 @@ impl RawVector {
     #[cfg(feature = "dim3")]
     pub fn zyx(&self) -> Self {
         Self(self.0.zyx())
+    }
+}
+
+#[wasm_bindgen]
+#[repr(transparent)]
+#[derive(Copy, Clone)]
+#[cfg(feature = "dim3")]
+pub struct RawSdpMatrix3(pub(crate) SdpMatrix3<Real>);
+
+#[cfg(feature = "dim3")]
+impl From<SdpMatrix3<Real>> for RawSdpMatrix3 {
+    fn from(v: SdpMatrix3<Real>) -> Self {
+        RawSdpMatrix3(v)
+    }
+}
+
+#[wasm_bindgen]
+#[cfg(feature = "dim3")]
+impl RawSdpMatrix3 {
+    /// Row major list of the angular inertia SpdMatrix3 elements
+    pub fn elements(&self) -> Float32Array {
+        let m = self.0;
+        let output = Float32Array::new_with_length(6);
+        output.copy_from(&[m.m11, m.m12, m.m13, m.m22, m.m23, m.m33]);
+        output
     }
 }
