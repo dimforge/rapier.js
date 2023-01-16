@@ -545,7 +545,7 @@ export class RigidBody {
     /**
      * Is this rigid-body enabled?
      */
-    public isEnabled() {
+    public isEnabled(): boolean {
         return this.rawSet.rbIsEnabled(this.handle);
     }
 
