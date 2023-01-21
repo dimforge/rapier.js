@@ -175,33 +175,75 @@ export class RotationOps {
     }
 }
 
+/**
+ * A 3D symmetric-positive-definite matrix.
+ */
 export class SdpMatrix3 {
     /**
-     * Row major list of the angular inertia SpdMatrix3 elements
+     * Row major list of the upper-triangular part of the symmetric matrix.
      */
     elements: Float32Array;
 
-    get m11(): number {
+    /**
+     * Matrix element at row 1, column 1.
+     */
+    public get m11(): number {
         return this.elements[0];
     }
 
-    get m12(): number {
+    /**
+     * Matrix element at row 1, column 2.
+     */
+    public get m12(): number {
         return this.elements[1];
     }
 
-    get m13(): number {
+    /**
+     * Matrix element at row 2, column 1.
+     */
+    public get m21(): number {
+        return this.m12;
+    }
+
+    /**
+     * Matrix element at row 1, column 3.
+     */
+    public get m13(): number {
         return this.elements[2];
     }
 
-    get m22(): number {
+    /**
+     * Matrix element at row 3, column 1.
+     */
+    public get m31(): number {
+        return this.m13;
+    }
+
+    /**
+     * Matrix element at row 2, column 2.
+     */
+    public get m22(): number {
         return this.elements[3];
     }
 
-    get m23(): number {
+    /**
+     * Matrix element at row 2, column 3.
+     */
+    public get m23(): number {
         return this.elements[4];
     }
 
-    get m33(): number {
+    /**
+     * Matrix element at row 3, column 2.
+     */
+    public get m32(): number {
+        return this.m23;
+    }
+
+    /**
+     * Matrix element at row 3, column 3.
+     */
+    public get m33(): number {
         return this.elements[5];
     }
 
