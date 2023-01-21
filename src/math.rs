@@ -107,17 +107,9 @@ impl From<Vector<f32>> for RawVector {
     }
 }
 
-#[cfg(feature = "dim2")]
 impl From<Point<f32>> for RawVector {
-    fn from(v: Point<f32>) -> Self {
-        RawVector::new(v.x, v.y)
-    }
-}
-
-#[cfg(feature = "dim3")]
-impl From<Point<f32>> for RawVector {
-    fn from(v: Point<f32>) -> Self {
-        RawVector::new(v.x, v.y, v.x)
+    fn from(pt: Point<f32>) -> Self {
+        pt.coords.into()
     }
 }
 
