@@ -1,6 +1,9 @@
 import {RawRigidBodySet} from "../raw";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
-import {Collider, ColliderHandle, ColliderSet} from "../geometry";
+// #if DIM3
+import {SdpMatrix3, SdpMatrix3Ops} from "../math";
+// #endif
+import {Collider, ColliderSet} from "../geometry";
 
 /**
  * The integer identifier of a collider added to a `ColliderSet`.
@@ -484,6 +487,133 @@ export class RigidBody {
     public mass(): number {
         return this.rawSet.rbMass(this.handle);
     }
+
+    /**
+     * The inverse mass taking into account translation locking.
+     */
+    public effectiveInvMass(): Vector {
+        return VectorOps.fromRaw(this.rawSet.rbEffectiveInvMass(this.handle));
+    }
+
+    /**
+     * The inverse of the mass of a rigid-body.
+     *
+     * If this is zero, the rigid-body is assumed to have infinite mass.
+     */
+    public invMass(): number {
+        return this.rawSet.rbInvMass(this.handle);
+    }
+
+    /**
+     * The center of mass of a rigid-body expressed in its local-space.
+     */
+    public localCom(): Vector {
+        return VectorOps.fromRaw(this.rawSet.rbLocalCom(this.handle));
+    }
+
+    /**
+     * The world-space center of mass of the rigid-body.
+     */
+    public worldCom(): Vector {
+        return VectorOps.fromRaw(this.rawSet.rbWorldCom(this.handle));
+    }
+
+    // #if DIM2
+    /**
+     * The inverse of the principal angular inertia of the rigid-body.
+     *
+     * Components set to zero are assumed to be infinite along the corresponding principal axis.
+     */
+    public invPrincipalInertiaSqrt(): number {
+        return this.rawSet.rbInvPrincipalInertiaSqrt(this.handle);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The inverse of the principal angular inertia of the rigid-body.
+     *
+     * Components set to zero are assumed to be infinite along the corresponding principal axis.
+     */
+    public invPrincipalInertiaSqrt(): Vector {
+        return VectorOps.fromRaw(
+            this.rawSet.rbInvPrincipalInertiaSqrt(this.handle),
+        );
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * The angular inertia along the principal inertia axes of the rigid-body.
+     */
+    public principalInertia(): number {
+        return this.rawSet.rbPrincipalInertia(this.handle);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The angular inertia along the principal inertia axes of the rigid-body.
+     */
+    public principalInertia(): Vector {
+        return VectorOps.fromRaw(this.rawSet.rbPrincipalInertia(this.handle));
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The principal vectors of the local angular inertia tensor of the rigid-body.
+     */
+    public principalInertiaLocalFrame(): Rotation {
+        return RotationOps.fromRaw(
+            this.rawSet.rbPrincipalInertiaLocalFrame(this.handle),
+        );
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+     * taking into account rotation locking.
+     */
+    public effectiveWorldInvInertiaSqrt(): number {
+        return this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+     * taking into account rotation locking.
+     */
+    public effectiveWorldInvInertiaSqrt(): SdpMatrix3 {
+        return SdpMatrix3Ops.fromRaw(
+            this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle),
+        );
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * The effective world-space angular inertia (that takes the potential rotation locking into account) of
+     * this rigid-body.
+     */
+    public effectiveAngularInertia(): number {
+        return this.rawSet.rbEffectiveAngularInertia(this.handle);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The effective world-space angular inertia (that takes the potential rotation locking into account) of
+     * this rigid-body.
+     */
+    public effectiveAngularInertia(): SdpMatrix3 {
+        return SdpMatrix3Ops.fromRaw(
+            this.rawSet.rbEffectiveAngularInertia(this.handle),
+        );
+    }
+    // #endif
 
     /**
      * Put this rigid body to sleep.
