@@ -256,7 +256,7 @@ impl From<SdpMatrix3<Real>> for RawSdpMatrix3 {
 #[wasm_bindgen]
 #[cfg(feature = "dim3")]
 impl RawSdpMatrix3 {
-    /// Row major list of the angular inertia SpdMatrix3 elements
+    /// Row major list of the upper-triangular part of the symmetric matrix.
     pub fn elements(&self) -> Float32Array {
         let m = self.0;
         let output = Float32Array::new_with_length(6);
