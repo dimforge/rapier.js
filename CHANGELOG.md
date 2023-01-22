@@ -1,3 +1,15 @@
+### Unreleased
+
+#### Fixed
+
+-   Fix bug that made dynamic rigid-bodies behave like kinematic bodies after being disabled and then re-enabled.
+
+#### Added
+
+-   Add access to the mass-properties of a rigid-body: `RigidBody.effectiveInvMass`, `.invMass()`, `.localCom()`,
+    `.worldCom()`, `.invPrincipalInertiaSqrt()`, `.principalInertia()`, `.principalInertiaLocalFrame()`,
+    `.effectiveWorldInvInertiaSqrt()`, `.effectiveAngularInertia()`.
+
 ### 0.11.1 (2023-01-16)
 
 #### Fixed

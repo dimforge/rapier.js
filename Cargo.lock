@@ -503,9 +503,9 @@ checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 
 [[package]]
 name = "rapier2d"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "23262a297cfc3421bdd7588a2643e844c597872072eef60a87a3a1388a4d6fbd"
+checksum = "dcd37fc7fad61534f35ce9cb198283cd7055c08cdc4a1565d0974a1fe74d5e59"
 dependencies = [
  "approx",
  "arrayvec",
@@ -526,9 +526,9 @@ dependencies = [
 
 [[package]]
 name = "rapier3d"
-version = "0.17.0"
+version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8aa1871dbbf25b2d91832c5f426827defc648d5340607870dc05471ab2748522"
+checksum = "33c3a4adb69feadac44d74be058aaaec4502f9c193ec20c0e629b07387ee61a2"
 dependencies = [
  "approx",
  "arrayvec",
