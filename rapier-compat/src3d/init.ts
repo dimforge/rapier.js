@@ -1,12 +1,13 @@
 // @ts-ignore
-import wasmBase64 from "../pkg3d/rapier_wasm3d_bg.wasm";
+import wasmYEnc from "../pkg3d/rapier_wasm3d_bg.wasm";
 import wasmInit from "../pkg3d/rapier_wasm3d";
-import base64 from "base64-js";
+// @ts-ignore
+import {decode} from "simple-yenc";
 
 /**
  * Initializes RAPIER.
  * Has to be called and awaited before using any library methods.
  */
-export async function init() {
-    await wasmInit(base64.toByteArray(wasmBase64 as unknown as string).buffer);
+export function init() {
+    return wasmInit(decode(wasmYEnc as unknown as string));
 }
