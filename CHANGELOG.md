@@ -1,8 +1,12 @@
-### Unreleased
+### 0.11.2
 
 #### Fixed
 
 -   Fix bug that made dynamic rigid-bodies behave like kinematic bodies after being disabled and then re-enabled.
+-   Fix issue with convex polyhedron jitter due to missing contacts.
+-   Fix character controller getting stuck against vertical walls.
+-   Fix character controller’s snapping to ground not triggering sometimes.
+-   Fix character controller’s horizontal offset being mostly ignored and some instances of vertical offset being ignored.
 
 #### Added
 
