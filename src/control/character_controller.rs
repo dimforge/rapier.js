@@ -41,7 +41,7 @@ impl RawKinematicCharacterController {
         Self {
             controller,
             result: EffectiveCharacterMovement {
-                translation: Vector::zeros(),
+                translationDelta: Vector::zeros(),
                 grounded: false,
             },
             events: vec![],
@@ -139,7 +139,7 @@ impl RawKinematicCharacterController {
         colliders: &RawColliderSet,
         queries: &RawQueryPipeline,
         collider_handle: FlatHandle,
-        desired_translation: &RawVector,
+        desired_translationDelta: &RawVector,
         apply_impulses_to_dynamic_bodies: bool,
         character_mass: Option<Real>,
         filter_flags: u32,
@@ -167,7 +167,7 @@ impl RawKinematicCharacterController {
                     &queries.0,
                     collider.shape(),
                     collider.position(),
-                    desired_translation.0,
+                    desired_translationDelta.0,
                     query_filter,
                     |event| events.push(event),
                 );
@@ -196,12 +196,12 @@ impl RawKinematicCharacterController {
                 }
             });
         } else {
-            self.result.translation.fill(0.0);
+            self.result.translationDelta.fill(0.0);
         }
     }
 
     pub fn computedMovement(&self) -> RawVector {
-        self.result.translation.into()
+        self.result.translationDelta.into()
     }
 
     pub fn computedGrounded(&self) -> bool {
