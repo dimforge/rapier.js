@@ -231,8 +231,8 @@ impl RawCharacterCollision {
         Self(CharacterCollision {
             handle: ColliderHandle::invalid(),
             character_pos: Isometry::identity(),
-            translation_applied: Vector::zeros(),
-            translation_remaining: Vector::zeros(),
+            translationDelta_applied: Vector::zeros(),
+            translationDelta_remaining: Vector::zeros(),
             toi: TOI {
                 toi: 0.0,
                 witness1: Point::origin(),
@@ -249,11 +249,11 @@ impl RawCharacterCollision {
     }
 
     pub fn translationApplied(&self) -> RawVector {
-        self.0.translation_applied.into()
+        self.0.translationDelta_applied.into()
     }
 
     pub fn translationRemaining(&self) -> RawVector {
-        self.0.translation_remaining.into()
+        self.0.translationDelta_remaining.into()
     }
 
     pub fn toi(&self) -> Real {
