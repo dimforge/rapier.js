@@ -248,11 +248,11 @@ impl RawCharacterCollision {
         utils::flat_handle(self.0.handle.0)
     }
 
-    pub fn translationApplied(&self) -> RawVector {
+    pub fn translationDeltaApplied(&self) -> RawVector {
         self.0.translationDelta_applied.into()
     }
 
-    pub fn translationRemaining(&self) -> RawVector {
+    pub fn translationDeltaRemaining(&self) -> RawVector {
         self.0.translationDelta_remaining.into()
     }
 
