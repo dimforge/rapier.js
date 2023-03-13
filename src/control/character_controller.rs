@@ -41,7 +41,7 @@ impl RawKinematicCharacterController {
         Self {
             controller,
             result: EffectiveCharacterMovement {
-                translationDelta: Vector::zeros(),
+                translation: Vector::zeros(),
                 grounded: false,
             },
             events: vec![],
@@ -196,12 +196,12 @@ impl RawKinematicCharacterController {
                 }
             });
         } else {
-            self.result.translationDelta.fill(0.0);
+            self.result.translation.fill(0.0);
         }
     }
 
     pub fn computedMovement(&self) -> RawVector {
-        self.result.translationDelta.into()
+        self.result.translation.into()
     }
 
     pub fn computedGrounded(&self) -> bool {
@@ -231,8 +231,8 @@ impl RawCharacterCollision {
         Self(CharacterCollision {
             handle: ColliderHandle::invalid(),
             character_pos: Isometry::identity(),
-            translationDelta_applied: Vector::zeros(),
-            translationDelta_remaining: Vector::zeros(),
+            translation_applied: Vector::zeros(),
+            translation_remaining: Vector::zeros(),
             toi: TOI {
                 toi: 0.0,
                 witness1: Point::origin(),
@@ -249,11 +249,11 @@ impl RawCharacterCollision {
     }
 
     pub fn translationDeltaApplied(&self) -> RawVector {
-        self.0.translationDelta_applied.into()
+        self.0.translation_applied.into()
     }
 
     pub fn translationDeltaRemaining(&self) -> RawVector {
-        self.0.translationDelta_remaining.into()
+        self.0.translation_remaining.into()
     }
 
     pub fn toi(&self) -> Real {
