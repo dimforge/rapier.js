@@ -10,10 +10,10 @@ import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics";
 export class CharacterCollision {
     /** The collider involved in the collision. Null if the collider no longer exists in the physics world. */
     public collider: Collider | null;
-    /** The translation applied to the character before this collision took place. */
-    public translationApplied: Vector;
-    /** The translation the character would move after this collision if there is no other obstacles. */
-    public translationRemaining: Vector;
+    /** The translation delta applied to the character before this collision took place. */
+    public translationDeltaApplied: Vector;
+    /** The translation delta the character would move after this collision if there is no other obstacles. */
+    public translationDeltaRemaining: Vector;
     /** The time-of-impact between the character and the obstacles. */
     public toi: number;
     /** The world-space contact point on the collider when the collision happens. */
@@ -264,7 +264,7 @@ export class KinematicCharacterController {
      * Computes the movement the given collider is able to execute after hitting and sliding on obstacles.
      *
      * @param collider - The collider to move.
-     * @param desiredTranslation - The desired collider movement.
+     * @param desiredTranslationDelta - The desired collider movement.
      * @param filterFlags - Flags for excluding whole subsets of colliders from the obstacles taken into account.
      * @param filterGroups - Groups for excluding colliders with incompatible collision groups from the obstacles
      *                       taken into account.
@@ -273,26 +273,26 @@ export class KinematicCharacterController {
      */
     public computeColliderMovement(
         collider: Collider,
-        desiredTranslation: Vector,
+        desiredTranslationDelta: Vector,
         filterFlags?: QueryFilterFlags,
         filterGroups?: InteractionGroups,
         filterPredicate?: (collider: Collider) => boolean,
     ) {
-        let rawTranslation = VectorOps.intoRaw(desiredTranslation);
+        let rawTranslationDelta = VectorOps.intoRaw(desiredTranslationDelta);
         this.raw.computeColliderMovement(
             this.params.dt,
             this.bodies.raw,
             this.colliders.raw,
             this.queries.raw,
             collider.handle,
-            rawTranslation,
+            rawTranslationDelta,
             this._applyImpulsesToDynamicBodies,
             this._characterMass,
             filterFlags,
             filterGroups,
             this.colliders.castClosure(filterPredicate),
         );
-        rawTranslation.free();
+        rawTranslationDelta.free();
     }
 
     /**
@@ -333,9 +333,9 @@ export class KinematicCharacterController {
         } else {
             let c = this.rawCharacterCollision;
             out = out ?? new CharacterCollision();
-            out.translationApplied = VectorOps.fromRaw(c.translationApplied());
-            out.translationRemaining = VectorOps.fromRaw(
-                c.translationRemaining(),
+            out.translationDeltaApplied = VectorOps.fromRaw(c.translationDeltaApplied());
+            out.translationDeltaRemaining = VectorOps.fromRaw(
+                c.translationDeltaRemaining(),
             );
             out.toi = c.toi();
             out.witness1 = VectorOps.fromRaw(c.worldWitness1());
