@@ -333,7 +333,9 @@ export class KinematicCharacterController {
         } else {
             let c = this.rawCharacterCollision;
             out = out ?? new CharacterCollision();
-            out.translationDeltaApplied = VectorOps.fromRaw(c.translationDeltaApplied());
+            out.translationDeltaApplied = VectorOps.fromRaw(
+                c.translationDeltaApplied(),
+            );
             out.translationDeltaRemaining = VectorOps.fromRaw(
                 c.translationDeltaRemaining(),
             );
