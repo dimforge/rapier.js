@@ -139,7 +139,7 @@ impl RawKinematicCharacterController {
         colliders: &RawColliderSet,
         queries: &RawQueryPipeline,
         collider_handle: FlatHandle,
-        desired_translation: &RawVector,
+        desired_translation_delta: &RawVector,
         apply_impulses_to_dynamic_bodies: bool,
         character_mass: Option<Real>,
         filter_flags: u32,
@@ -167,7 +167,7 @@ impl RawKinematicCharacterController {
                     &queries.0,
                     collider.shape(),
                     collider.position(),
-                    desired_translation.0,
+                    desired_translation_delta.0,
                     query_filter,
                     |event| events.push(event),
                 );
@@ -248,11 +248,11 @@ impl RawCharacterCollision {
         utils::flat_handle(self.0.handle.0)
     }
 
-    pub fn translationApplied(&self) -> RawVector {
+    pub fn translationDeltaApplied(&self) -> RawVector {
         self.0.translation_applied.into()
     }
 
-    pub fn translationRemaining(&self) -> RawVector {
+    pub fn translationDeltaRemaining(&self) -> RawVector {
         self.0.translation_remaining.into()
     }
 

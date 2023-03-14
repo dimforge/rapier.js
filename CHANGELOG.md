@@ -1,3 +1,11 @@
+### Unreleased
+
+#### Modified
+
+-   Renamed `CharacterController.translationApplied`, `.translationRemaining` and the `desiredTranslation`
+    method argument to `CharacterController.translationDeltaApplied`, `.translationDeltaRemaining` and the
+    `desiredTranslationDelta` to avoid confusion with the usage of the `translation` world in `RigidBody.translation()`.
+
 ### 0.11.2
 
 #### Fixed
