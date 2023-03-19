@@ -54,7 +54,7 @@ import {SerializationPipeline} from "./serialization_pipeline";
 import {EventQueue} from "./event_queue";
 import {PhysicsHooks} from "./physics_hooks";
 import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
-import {KinematicCharacterController} from "../control";
+import {DynamicRayCastVehicleController, KinematicCharacterController} from "../control";
 import {Coarena} from "../coarena";
 
 /**
@@ -79,6 +79,7 @@ export class World {
     serializationPipeline: SerializationPipeline;
     debugRenderPipeline: DebugRenderPipeline;
     characterControllers: Set<KinematicCharacterController>;
+    vehicleControllers: Set<DynamicRayCastVehicleController>;
 
     /**
      * Release the WASM memory occupied by this physics world.
@@ -101,6 +102,7 @@ export class World {
         this.serializationPipeline.free();
         this.debugRenderPipeline.free();
         this.characterControllers.forEach((controller) => controller.free());
+        this.vehicleControllers.forEach((controller) => controller.free());
 
         this.integrationParameters = undefined;
         this.islands = undefined;
@@ -116,6 +118,7 @@ export class World {
         this.serializationPipeline = undefined;
         this.debugRenderPipeline = undefined;
         this.characterControllers = undefined;
+        this.vehicleControllers = undefined;
     }
 
     constructor(
@@ -155,6 +158,7 @@ export class World {
             rawDebugRenderPipeline,
         );
         this.characterControllers = new Set<KinematicCharacterController>();
+        this.vehicleControllers = new Set<DynamicRayCastVehicleController>();
 
         this.impulseJoints.finalizeDeserialization(this.bodies);
         this.bodies.finalizeDeserialization(this.colliders);
@@ -386,6 +390,35 @@ export class World {
      */
     public removeCharacterController(controller: KinematicCharacterController) {
         this.characterControllers.delete(controller);
+        controller.free();
+    }
+
+
+    /**
+     * Creates a new vehicle controller.
+     *
+     * @param chassis - The rigid-body used as the chassis of the vehicle controller.
+     */
+    public createVehicleController(
+        chassis: RigidBody,
+    ): DynamicRayCastVehicleController {
+        let controller = new DynamicRayCastVehicleController(
+            chassis,
+            this.bodies,
+            this.colliders,
+            this.queryPipeline,
+        );
+        this.vehicleControllers.add(controller);
+        return controller;
+    }
+
+    /**
+     * Removes a vehicle controller from this world.
+     *
+     * @param controller - The vehicle controller to remove.
+     */
+    public removeVehicleController(controller: DynamicRayCastVehicleController) {
+        this.vehicleControllers.delete(controller);
         controller.free();
     }
 
