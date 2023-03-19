@@ -6,6 +6,10 @@
     method argument to `CharacterController.translationDeltaApplied`, `.translationDeltaRemaining` and the
     `desiredTranslationDelta` to avoid confusion with the usage of the `translation` world in `RigidBody.translation()`.
 
+#### Added
+
+-   Added `DynamicRayCastVehicleController` to simulate vehicles based on ray-casting.
+
 ### 0.11.2
 
 #### Fixed
