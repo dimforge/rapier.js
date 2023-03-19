@@ -12,6 +12,7 @@ export class DynamicRayCastVehicleController {
     private bodies: RigidBodySet;
     private colliders: ColliderSet;
     private queries: QueryPipeline;
+    private _chassis: RigidBody;
 
     constructor(
         chassis: RigidBody,
@@ -23,6 +24,7 @@ export class DynamicRayCastVehicleController {
         this.bodies = bodies;
         this.colliders = colliders;
         this.queries = queries;
+        this._chassis = chassis;
     }
 
     /** @internal */
@@ -57,8 +59,8 @@ export class DynamicRayCastVehicleController {
             this.queries.raw,
             filterFlags,
             filterGroups,
-            this.colliders.castClosure(filterPredicate)
-        )
+            this.colliders.castClosure(filterPredicate),
+        );
     }
 
     /**
@@ -71,8 +73,8 @@ export class DynamicRayCastVehicleController {
     /**
      * The rigid-body used as the chassis.
      */
-    public chassis(): RigidBodyHandle {
-        return this.raw.chassis();
+    public chassis(): RigidBody {
+        return this._chassis;
     }
 
     /**
@@ -123,7 +125,13 @@ export class DynamicRayCastVehicleController {
         let rawDirectionCs = VectorOps.intoRaw(directionCs);
         let rawAxleCs = VectorOps.intoRaw(axleCs);
 
-        this.raw.add_wheel(rawChassisConnectionCs, rawDirectionCs, rawAxleCs, suspensionRestLength, radius);
+        this.raw.add_wheel(
+            rawChassisConnectionCs,
+            rawDirectionCs,
+            rawAxleCs,
+            suspensionRestLength,
+            radius,
+        );
 
         rawChassisConnectionCs.free();
         rawDirectionCs.free();
@@ -136,8 +144,6 @@ export class DynamicRayCastVehicleController {
     public numWheels(): number {
         return this.raw.num_wheels();
     }
-
-
 
     /*
      *
@@ -159,7 +165,7 @@ export class DynamicRayCastVehicleController {
      */
     public setWheelChassisConnectionPointCs(i: number, value: Vector) {
         let rawValue = VectorOps.intoRaw(value);
-        this.raw.set_wheel_chassis_connection_point_cs(i, value);
+        this.raw.set_wheel_chassis_connection_point_cs(i, rawValue);
         rawValue.free();
     }
 
@@ -187,8 +193,8 @@ export class DynamicRayCastVehicleController {
     /**
      * Sets the maximum distance the i-th wheel suspension can travel before and after its resting length.
      */
-    public setMaxSuspensionTravel(i: number, value: number) {
-        this.raw.set_max_suspension_travel(i, value);
+    public setWheelMaxSuspensionTravel(i: number, value: number) {
+        this.raw.set_wheel_max_suspension_travel(i, value);
     }
 
     /**
@@ -219,8 +225,8 @@ export class DynamicRayCastVehicleController {
      *
      * Increase this value if the suspension appears to not push the vehicle strong enough.
      */
-    public setSuspensionStiffness(i: number, value: number) {
-        this.raw.set_suspension_stiffness(i, value);
+    public setWheelSuspensionStiffness(i: number, value: number) {
+        this.raw.set_wheel_suspension_stiffness(i, value);
     }
 
     /**
@@ -233,8 +239,8 @@ export class DynamicRayCastVehicleController {
     /**
      * The i-th wheel’s suspension’s damping when it is being compressed.
      */
-    public setSuspensionCompression(i: number, value: number) {
-        this.raw.set_suspension_compression(i, value);
+    public setWheelSuspensionCompression(i: number, value: number) {
+        this.raw.set_wheel_suspension_compression(i, value);
     }
 
     /**
@@ -251,8 +257,8 @@ export class DynamicRayCastVehicleController {
      *
      * Increase this value if the suspension appears to overshoot.
      */
-    public setSuspensionRelaxation(i: number, value: number) {
-        this.raw.set_suspension_relaxation(i, value);
+    public setWheelSuspensionRelaxation(i: number, value: number) {
+        this.raw.set_wheel_suspension_relaxation(i, value);
     }
 
     /**
@@ -327,7 +333,7 @@ export class DynamicRayCastVehicleController {
      */
     public setWheelDirectionCs(i: number, value: Vector) {
         let rawValue = VectorOps.intoRaw(value);
-        this.raw.set_wheel_direction_cs(i, value);
+        this.raw.set_wheel_direction_cs(i, rawValue);
         rawValue.free();
     }
 
@@ -337,7 +343,7 @@ export class DynamicRayCastVehicleController {
      * The axis index defined as 0 = X, 1 = Y, 2 = Z.
      */
     public wheelAxleCs(i: number): Vector | null {
-        return  VectorOps.fromRaw(this.raw.wheel_axle_cs(i));
+        return VectorOps.fromRaw(this.raw.wheel_axle_cs(i));
     }
 
     /**
@@ -347,7 +353,7 @@ export class DynamicRayCastVehicleController {
      */
     public setWheelAxleCs(i: number, value: Vector) {
         let rawValue = VectorOps.intoRaw(value);
-        this.raw.set_wheel_axle_cs(i, value);
+        this.raw.set_wheel_axle_cs(i, rawValue);
         rawValue.free();
     }
 
