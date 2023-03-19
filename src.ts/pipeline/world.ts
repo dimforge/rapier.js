@@ -397,7 +397,9 @@ export class World {
     /**
      * Creates a new vehicle controller.
      *
-     * @param chassis - The rigid-body used as the chassis of the vehicle controller.
+     * @param chassis - The rigid-body used as the chassis of the vehicle controller. When the vehicle
+     *                  controller is updated, it will change directly the rigid-body’s velocity. This
+     *                  rigid-body must be a dynamic or kinematic-velocity-based rigid-body.
      */
     public createVehicleController(
         chassis: RigidBody,
