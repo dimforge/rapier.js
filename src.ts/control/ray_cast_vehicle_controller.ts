@@ -357,6 +357,28 @@ export class DynamicRayCastVehicleController {
         rawValue.free();
     }
 
+
+    /**
+     * Parameter controlling how much traction the tire has.
+     *
+     * The larger the value, the more instantaneous braking will happen (with the risk of
+     * causing the vehicle to flip if it’s too strong).
+     */
+    public wheelFrictionSlip(i: number): number | null {
+        return this.raw.wheel_friciton_slip(i);
+    }
+
+    /**
+     * Sets the parameter controlling how much traction the tire has.
+     *
+     * The larger the value, the more instantaneous braking will happen (with the risk of
+     * causing the vehicle to flip if it’s too strong).
+     */
+    public setWheelFrictionSlip(i: number, value: number) {
+        this.raw.set_wheel_friciton_slip(i, value);
+    }
+
+
     /*
      * Getters only.
      */
@@ -387,5 +409,47 @@ export class DynamicRayCastVehicleController {
      */
     public wheelSuspensionForce(i: number): number | null {
         return this.raw.wheel_suspension_force(i);
+    }
+
+    /**
+     *  The (world-space) contact normal between the i-th wheel and the floor.
+     */
+    public wheelContactNormal(i: number): Vector | null {
+        return VectorOps.fromRaw(this.raw.wheel_contact_normal_ws(i));
+    }
+
+    /**
+     *  The (world-space) point hit by the wheel’s ray-cast for the i-th wheel.
+     */
+    public wheelContactPoint(i: number): Vector | null {
+        return VectorOps.fromRaw(this.raw.wheel_contact_point_ws(i));
+    }
+
+    /**
+     *  The suspension length for the i-th wheel.
+     */
+    public wheelSuspensionLength(i: number): number | null {
+        return this.raw.wheel_suspension_length(i);
+    }
+
+    /**
+     *  The (world-space) starting point of the ray-cast for the i-th wheel.
+     */
+    public wheelHardPoint(i: number): Vector | null {
+        return VectorOps.fromRaw(this.raw.wheel_hard_point_ws(i));
+    }
+
+    /**
+     *  Is the i-th wheel in contact with the ground?
+     */
+    public wheelIsInContact(i: number): number | null {
+        return this.raw.wheel_is_in_contact(i);
+    }
+
+    /**
+     *  The collider hit by the ray-cast for the i-th wheel.
+     */
+    public wheelGroundObject(i: number): Collider | null {
+        return this.colliders.get(this.raw.wheel_ground_object(i));
     }
 }
