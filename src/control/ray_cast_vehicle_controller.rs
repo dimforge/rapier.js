@@ -245,6 +245,15 @@ impl RawDynamicRayCastVehicleController {
         }
     }
 
+    pub fn wheel_friction_slip(&self, i: usize) -> Option<Real> {
+        self.controller.wheels().get(i).map(|w| w.friction_slip)
+    }
+    pub fn set_wheel_friction_slip(&mut self, i: usize, value: Real) {
+        if let Some(wheel) = self.controller.wheels_mut().get_mut(i) {
+            wheel.friction_slip = value;
+        }
+    }
+
     /*
      * Getters only.
      */
@@ -265,5 +274,49 @@ impl RawDynamicRayCastVehicleController {
             .wheels()
             .get(i)
             .map(|w| w.wheel_suspension_force)
+    }
+
+    pub fn wheel_contact_normal_ws(&self, i: usize) -> Option<RawVector> {
+        self.controller
+            .wheels()
+            .get(i)
+            .map(|w| w.raycast_info().contact_normal_ws.into())
+    }
+
+    pub fn wheel_contact_point_ws(&self, i: usize) -> Option<RawVector> {
+        self.controller
+            .wheels()
+            .get(i)
+            .map(|w| w.raycast_info().contact_point_ws.into())
+    }
+
+    pub fn wheel_suspension_length(&self, i: usize) -> Option<Real> {
+        self.controller
+            .wheels()
+            .get(i)
+            .map(|w| w.raycast_info().suspension_length)
+    }
+
+    pub fn wheel_hard_point_ws(&self, i: usize) -> Option<RawVector> {
+        self.controller
+            .wheels()
+            .get(i)
+            .map(|w| w.raycast_info().hard_point_ws.into())
+    }
+
+    pub fn wheel_is_in_contact(&self, i: usize) -> bool {
+        self.controller
+            .wheels()
+            .get(i)
+            .map(|w| w.raycast_info().is_in_contact)
+            .unwrap_or(false)
+    }
+
+    pub fn wheel_ground_object(&self, i: usize) -> Option<FlatHandle> {
+        self.controller
+            .wheels()
+            .get(i)
+            .and_then(|w| w.raycast_info().ground_object)
+            .map(|h| utils::flat_handle(h.0))
     }
 }
