@@ -357,7 +357,6 @@ export class DynamicRayCastVehicleController {
         rawValue.free();
     }
 
-
     /**
      * Parameter controlling how much traction the tire has.
      *
@@ -365,7 +364,7 @@ export class DynamicRayCastVehicleController {
      * causing the vehicle to flip if it’s too strong).
      */
     public wheelFrictionSlip(i: number): number | null {
-        return this.raw.wheel_friciton_slip(i);
+        return this.raw.wheel_friction_slip(i);
     }
 
     /**
@@ -375,9 +374,8 @@ export class DynamicRayCastVehicleController {
      * causing the vehicle to flip if it’s too strong).
      */
     public setWheelFrictionSlip(i: number, value: number) {
-        this.raw.set_wheel_friciton_slip(i, value);
+        this.raw.set_wheel_friction_slip(i, value);
     }
-
 
     /*
      * Getters only.
@@ -442,7 +440,7 @@ export class DynamicRayCastVehicleController {
     /**
      *  Is the i-th wheel in contact with the ground?
      */
-    public wheelIsInContact(i: number): number | null {
+    public wheelIsInContact(i: number): boolean {
         return this.raw.wheel_is_in_contact(i);
     }
 

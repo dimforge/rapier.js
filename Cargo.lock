@@ -504,6 +504,7 @@ checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 [[package]]
 name = "rapier2d"
 version = "0.17.2"
+source = "git+https://github.com/dimforge/rapier?rev=59ad88c2a4b0a869ef7c633803b6e2a897c95494#59ad88c2a4b0a869ef7c633803b6e2a897c95494"
 dependencies = [
  "approx",
  "arrayvec",
@@ -525,6 +526,7 @@ dependencies = [
 [[package]]
 name = "rapier3d"
 version = "0.17.2"
+source = "git+https://github.com/dimforge/rapier?rev=59ad88c2a4b0a869ef7c633803b6e2a897c95494#59ad88c2a4b0a869ef7c633803b6e2a897c95494"
 dependencies = [
  "approx",
  "arrayvec",
