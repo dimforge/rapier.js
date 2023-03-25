@@ -302,7 +302,7 @@ export class RigidBody {
     }
 
     /**
-     * Sets the linear velocity fo this rigid-body.
+     * Sets the linear velocity of this rigid-body.
      *
      * @param vel - The linear velocity to set.
      * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
