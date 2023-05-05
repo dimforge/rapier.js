@@ -1,7 +1,7 @@
 import {Graphics} from "./Graphics";
 import {Gui} from "./Gui";
 import type {DebugInfos} from "./Gui";
-import * as md5 from "md5";
+import md5 from "md5";
 import type * as RAPIER from "@dimforge/rapier2d";
 
 type RAPIER_API = typeof import("@dimforge/rapier2d");
@@ -60,6 +60,10 @@ export class Testbed {
     lastMessageTime: number;
     snap: Uint8Array;
     snapStepId: number;
+    frameTime: number;
+    accumulator: number;
+    alpha: number;
+    maxSubsteps: number;
 
     constructor(RAPIER: RAPIER_API, builders: Builders) {
         let backends = ["rapier"];
@@ -73,6 +77,10 @@ export class Testbed {
         this.mouse = {x: 0, y: 0};
         this.events = new RAPIER.EventQueue(true);
         this.switchToDemo(builders.keys().next().value);
+        this.frameTime = 0;
+        this.accumulator = 0;
+        this.alpha = 0;
+        this.maxSubsteps = 6;
 
         window.addEventListener("mousemove", (event) => {
             this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -141,43 +149,60 @@ export class Testbed {
     }
 
     run() {
-        if (this.parameters.running || this.parameters.stepping) {
-            this.world.maxVelocityIterations = this.parameters.numVelocityIter;
-            this.world.maxVelocityFrictionIterations =
-                this.parameters.numVelocityIter * 2;
+        let time = performance.now();
+        let fixedStep = this.world.timestep;
+        let deltaTime = (time - this.frameTime) / 1000;
+        let substeps = 0;
 
-            if (!!this.preTimestepAction) {
-                this.preTimestepAction(this.graphics);
+        this.frameTime = time;
+        this.accumulator += deltaTime;
+
+        if (this.accumulator >= fixedStep && substeps < this.maxSubsteps) {
+            this.accumulator -= fixedStep;
+            substeps++;
+
+            if (this.parameters.running || this.parameters.stepping) {
+                this.world.maxVelocityIterations =
+                    this.parameters.numVelocityIter;
+                this.world.maxVelocityFrictionIterations =
+                    this.parameters.numVelocityIter * 2;
+
+                if (!!this.preTimestepAction) {
+                    this.preTimestepAction(this.graphics);
+                }
+
+                let t0 = new Date().getTime();
+                this.world.step(this.events);
+                this.gui.setTiming(new Date().getTime() - t0);
+                this.stepId += 1;
+
+                if (!!this.parameters.debugInfos) {
+                    let t0 = performance.now();
+                    let snapshot = this.world.takeSnapshot();
+                    let t1 = performance.now();
+                    let snapshotTime = t1 - t0;
+
+                    let debugInfos: DebugInfos = {
+                        token: this.demoToken,
+                        stepId: this.stepId,
+                        worldHash: "",
+                        worldHashTime: 0,
+                        snapshotTime: 0,
+                    };
+                    t0 = performance.now();
+                    debugInfos.worldHash = md5(snapshot);
+                    t1 = performance.now();
+                    let worldHashTime = t1 - t0;
+
+                    debugInfos.worldHashTime = worldHashTime;
+                    debugInfos.snapshotTime = snapshotTime;
+
+                    this.gui.setDebugInfos(debugInfos);
+                }
             }
 
-            let t0 = new Date().getTime();
-            this.world.step(this.events);
-            this.gui.setTiming(new Date().getTime() - t0);
-            this.stepId += 1;
-
-            if (!!this.parameters.debugInfos) {
-                let t0 = performance.now();
-                let snapshot = this.world.takeSnapshot();
-                let t1 = performance.now();
-                let snapshotTime = t1 - t0;
-
-                let debugInfos: DebugInfos = {
-                    token: this.demoToken,
-                    stepId: this.stepId,
-                    worldHash: "",
-                    worldHashTime: 0,
-                    snapshotTime: 0,
-                };
-                t0 = performance.now();
-                debugInfos.worldHash = md5(snapshot);
-                t1 = performance.now();
-                let worldHashTime = t1 - t0;
-
-                debugInfos.worldHashTime = worldHashTime;
-                debugInfos.snapshotTime = snapshotTime;
-
-                this.gui.setDebugInfos(debugInfos);
-            }
+            this.accumulator = this.accumulator % fixedStep;
+            this.alpha = this.accumulator / fixedStep;
         }
 
         if (this.parameters.stepping) {
@@ -186,7 +211,11 @@ export class Testbed {
         }
 
         this.gui.stats.begin();
-        this.graphics.render(this.world, this.parameters.debugRender);
+        this.graphics.render(
+            this.world,
+            this.parameters.debugRender,
+            this.alpha,
+        );
         this.gui.stats.end();
 
         requestAnimationFrame(() => this.run());

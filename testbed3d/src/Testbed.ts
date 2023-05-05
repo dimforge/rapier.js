@@ -57,9 +57,10 @@ export class Testbed {
     prevDemo: string;
     snap: Uint8Array;
     snapStepId: number;
-    time: number;
-    physicsTime: number;
+    frameTime: number;
     accumulator: number;
+    alpha: number;
+    maxSubsteps: number;
 
     constructor(RAPIER: RAPIER_API, builders: Builders) {
         let backends = ["rapier"];
@@ -72,9 +73,10 @@ export class Testbed {
         this.demoToken = 0;
         this.mouse = {x: 0, y: 0};
         this.events = new RAPIER.EventQueue(true);
-        this.time = 0;
-        this.physicsTime = 0;
+        this.frameTime = 0;
         this.accumulator = 0;
+        this.alpha = 0;
+        this.maxSubsteps = 6;
 
         this.switchToDemo(builders.keys().next().value);
 
@@ -144,13 +146,16 @@ export class Testbed {
     run() {
         let time = performance.now();
         let fixedStep = this.world.timestep;
-        let deltaTime = (time - this.time) / 1000;
-        let physicsDeltaTime = (time - this.physicsTime) / 1000;
+        let deltaTime = (time - this.frameTime) / 1000;
+        let substeps = 0;
 
-        this.time = time;
+        this.frameTime = time;
         this.accumulator += deltaTime;
 
-        if (physicsDeltaTime >= fixedStep) {
+        if (this.accumulator >= fixedStep && substeps < this.maxSubsteps) {
+            this.accumulator -= fixedStep;
+            substeps++;
+
             if (this.parameters.running || this.parameters.stepping) {
                 this.world.maxVelocityIterations =
                     this.parameters.numVelocityIter;
@@ -189,14 +194,9 @@ export class Testbed {
                 }
             }
 
-            this.physicsTime = time;
-            this.accumulator -= fixedStep;
+            this.accumulator = this.accumulator % fixedStep;
+            this.alpha = this.accumulator / fixedStep;
         }
-
-        // let alpha = this.accumulator / fixedStep;
-        let alpha = 1;
-
-        console.log(alpha);
 
         if (this.parameters.stepping) {
             this.parameters.running = false;
@@ -204,7 +204,11 @@ export class Testbed {
         }
 
         this.gui.stats.begin();
-        this.graphics.render(this.world, this.parameters.debugRender, alpha);
+        this.graphics.render(
+            this.world,
+            this.parameters.debugRender,
+            this.alpha,
+        );
         this.gui.stats.end();
 
         requestAnimationFrame(() => this.run());
