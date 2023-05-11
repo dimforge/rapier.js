@@ -2,10 +2,12 @@ import {RawMultibodyJointSet} from "../raw";
 import {Coarena} from "../coarena";
 import {RigidBodySet} from "./rigid_body_set";
 import {
-    MultibodyJoint,
-    MultibodyJointHandle,
     RevoluteMultibodyJoint,
     FixedMultibodyJoint,
+    MultibodyJoint,
+    MultibodyJointHandle,
+    // JointData,
+    // JointType,
     PrismaticMultibodyJoint,
     // #if DIM3
     SphericalMultibodyJoint,
@@ -13,8 +15,8 @@ import {
 } from "./multibody_joint";
 import {ImpulseJointHandle, JointData, JointType} from "./impulse_joint";
 import {IslandManager} from "./island_manager";
-import {ColliderHandle} from "../geometry";
 import {RigidBodyHandle} from "./rigid_body";
+import {Collider, ColliderHandle} from "../geometry";
 
 /**
  * A set of joints.
@@ -47,14 +49,20 @@ export class MultibodyJointSet {
         // Initialize the map with the existing elements, if any.
         if (raw) {
             raw.forEachJointHandle((handle: MultibodyJointHandle) => {
-                this.map.set(handle, MultibodyJoint.newTyped(this.raw, handle));
+                this.map.set(handle, MultibodyJoint.newTyped(raw, handle));
             });
         }
+    }
+
+    /** @internal */
+    public finalizeDeserialization(bodies: RigidBodySet) {
+        this.map.forEach((joint) => joint.finalizeDeserialization(bodies));
     }
 
     /**
      * Creates a new joint and return its integer handle.
      *
+     * @param bodies - The set of rigid-bodies containing the bodies the joint is attached to.
      * @param desc - The joint's parameters.
      * @param parent1 - The handle of the first rigid-body this joint is attached to.
      * @param parent2 - The handle of the second rigid-body this joint is attached to.
@@ -83,11 +91,23 @@ export class MultibodyJointSet {
      * Remove a joint from this set.
      *
      * @param handle - The integer handle of the joint.
-     * @param wake_up - If `true`, the rigid-bodies attached by the removed joint will be woken-up automatically.
+     * @param wakeUp - If `true`, the rigid-bodies attached by the removed joint will be woken-up automatically.
      */
-    public remove(handle: MultibodyJointHandle, wake_up: boolean) {
-        this.raw.remove(handle, wake_up);
-        this.map.delete(handle);
+    public remove(handle: MultibodyJointHandle, wakeUp: boolean) {
+        this.raw.remove(handle, wakeUp);
+        this.unmap(handle);
+    }
+
+    /**
+     * Calls the given closure with the integer handle of each multibody joint attached to this rigid-body.
+     *
+     * @param f - The closure called with the integer handle of each multibody joint attached to the rigid-body.
+     */
+    public forEachJointHandleAttachedToRigidBody(
+        handle: RigidBodyHandle,
+        f: (handle: MultibodyJointHandle) => void,
+    ) {
+        this.raw.forEachJointAttachedToRigidBody(handle, f);
     }
 
     /**
@@ -132,18 +152,6 @@ export class MultibodyJointSet {
      */
     public forEach(f: (joint: MultibodyJoint) => void) {
         this.map.forEach(f);
-    }
-
-    /**
-     * Calls the given closure with the integer handle of each multibody joint attached to this rigid-body.
-     *
-     * @param f - The closure called with the integer handle of each multibody joint attached to the rigid-body.
-     */
-    public forEachJointHandleAttachedToRigidBody(
-        handle: RigidBodyHandle,
-        f: (handle: MultibodyJointHandle) => void,
-    ) {
-        this.raw.forEachJointAttachedToRigidBody(handle, f);
     }
 
     /**
