@@ -7,6 +7,7 @@ import {Vector, VectorOps} from "../math";
  * Flags indicating what events are enabled for colliders.
  */
 export enum ActiveEvents {
+    NONE = 0,
     /**
      * Enable collision events.
      */
