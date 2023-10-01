@@ -43,6 +43,7 @@ impl RawKinematicCharacterController {
             result: EffectiveCharacterMovement {
                 translation: Vector::zeros(),
                 grounded: false,
+                is_sliding_down_slope: false,
             },
             events: vec![],
         }
