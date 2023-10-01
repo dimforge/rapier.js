@@ -2,6 +2,7 @@ import {RigidBodyHandle} from "../dynamics";
 import {ColliderHandle} from "../geometry";
 
 export enum ActiveHooks {
+    NONE = 0,
     FILTER_CONTACT_PAIRS = 0b0001,
     FILTER_INTERSECTION_PAIRS = 0b0010,
     // MODIFY_SOLVER_CONTACTS = 0b0100, /* Not supported yet in JS. */

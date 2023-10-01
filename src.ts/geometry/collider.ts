@@ -1097,8 +1097,8 @@ export class ColliderDesc {
         this.frictionCombineRule = CoefficientCombineRule.Average;
         this.restitutionCombineRule = CoefficientCombineRule.Average;
         this.activeCollisionTypes = ActiveCollisionTypes.DEFAULT;
-        this.activeEvents = 0;
-        this.activeHooks = 0;
+        this.activeEvents = ActiveEvents.NONE;
+        this.activeHooks = ActiveHooks.NONE;
         this.mass = 0.0;
         this.centerOfMass = VectorOps.zeros();
         this.contactForceEventThreshold = 0.0;
