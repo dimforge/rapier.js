@@ -64,7 +64,6 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
         newPos.x += movement.x;
         newPos.y += movement.y;
         character.setNextKinematicTranslation(newPos);
-        console.log("here");
     };
 
     testbed.setWorld(world);

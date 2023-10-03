@@ -9,6 +9,10 @@ const BALL_INSTANCE_INDEX = 1;
 
 var kk = 0;
 
+function lerp(a: number, b: number, t: number) {
+    return a + (b - a) * t;
+}
+
 export class Graphics {
     coll2gfx: Map<number, PIXI.Graphics>;
     colorIndex: number;
@@ -89,7 +93,7 @@ export class Graphics {
         );
     }
 
-    render(world: RAPIER.World, debugRender: Boolean) {
+    render(world: RAPIER.World, debugRender: Boolean, alpha: number) {
         kk += 1;
 
         if (!this.lines) {
@@ -118,7 +122,7 @@ export class Graphics {
             this.lines.clear();
         }
 
-        this.updatePositions(world);
+        this.updatePositions(world, alpha);
         this.renderer.render(this.scene);
     }
 
@@ -127,16 +131,16 @@ export class Graphics {
         this.viewport.moveCenter(pos.target.x, pos.target.y);
     }
 
-    updatePositions(world: RAPIER.World) {
+    updatePositions(world: RAPIER.World, alpha: number) {
         world.forEachCollider((elt) => {
             let gfx = this.coll2gfx.get(elt.handle);
             let translation = elt.translation();
             let rotation = elt.rotation();
 
             if (!!gfx) {
-                gfx.position.x = translation.x;
-                gfx.position.y = -translation.y;
-                gfx.rotation = -rotation;
+                gfx.position.x = lerp(gfx.position.x, translation.x, alpha);
+                gfx.position.y = lerp(gfx.position.y, -translation.y, alpha);
+                gfx.rotation = lerp(gfx.rotation, -rotation, alpha);
             }
         });
     }
