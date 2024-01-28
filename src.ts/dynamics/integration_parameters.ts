@@ -47,24 +47,24 @@ export class IntegrationParameters {
     }
 
     /**
-     * Maximum number of iterations performed by the velocity constraints solver (default: `4`).
+     * The number of solver iterations run by the constraints solver for calculating forces (default: `4`).
      */
-    get maxVelocityIterations(): number {
-        return this.raw.maxVelocityIterations;
+    get numSolverIterations(): number {
+        return this.raw.numSolverIterations;
     }
 
     /**
-     * Maximum number of friction iterations performed by the position-based constraints solver (default: `1`).
+     * Number of addition friction resolution iteration run during the last solver sub-step (default: `4`).
      */
-    get maxVelocityFrictionIterations(): number {
-        return this.raw.maxVelocityFrictionIterations;
+    get numAdditionalFrictionIterations(): number {
+        return this.raw.numAdditionalFrictionIterations;
     }
 
     /**
-     * Maximum number of stabilization iterations performed by the position-based constraints solver (default: `1`).
+     * Number of internal Project Gauss Seidel (PGS) iterations run at each solver iteration (default: `1`).
      */
-    get maxStabilizationIterations(): number {
-        return this.raw.maxStabilizationIterations;
+    get numInternalPgsIterations(): number {
+        return this.raw.numInternalPgsIterations;
     }
 
     /**
@@ -97,16 +97,24 @@ export class IntegrationParameters {
         this.raw.predictionDistance = value;
     }
 
-    set maxVelocityIterations(value: number) {
-        this.raw.maxVelocityIterations = value;
+    /**
+     * Sets the number of solver iterations run by the constraints solver for calculating forces (default: `4`).
+     */
+    set numSolverIterations(value: number) {
+        this.raw.numSolverIterations = value;
+    }
+    /**
+     * Sets the number of addition friction resolution iteration run during the last solver sub-step (default: `4`).
+     */
+    set numAdditionalFrictionIterations(value: number) {
+        this.raw.numAdditionalFrictionIterations = value;
     }
 
-    set maxVelocityFrictionIterations(value: number) {
-        this.raw.maxVelocityFrictionIterations = value;
-    }
-
-    set maxStabilizationIterations(value: number) {
-        this.raw.maxStabilizationIterations = value;
+    /**
+     * Sets the number of internal Project Gauss Seidel (PGS) iterations run at each solver iteration (default: `1`).
+     */
+    set numInternalPgsIterations(value: number) {
+        this.raw.numInternalPgsIterations = value;
     }
 
     set minIslandSize(value: number) {
@@ -115,5 +123,13 @@ export class IntegrationParameters {
 
     set maxCcdSubsteps(value: number) {
         this.raw.maxCcdSubsteps = value;
+    }
+
+    public switchToStandardPgsSolver() {
+        this.raw.switchToStandardPgsSolver()
+    }
+
+    public switchToSmallStepsPgsSolver() {
+        this.raw.switchToSmallStepsPgsSolver()
     }
 }

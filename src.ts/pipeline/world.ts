@@ -317,62 +317,92 @@ export class World {
     }
 
     /**
-     * The maximum velocity iterations the velocity-based force constraint solver can make.
+     * The number of solver iterations run by the constraints solver for calculating forces (default: `4`).
      */
-    get maxVelocityIterations(): number {
-        return this.integrationParameters.maxVelocityIterations;
+    get numSolverIterations(): number {
+        return this.integrationParameters.numSolverIterations;
     }
 
     /**
-     * Sets the maximum number of velocity iterations (default: 4).
+     * Sets the number of solver iterations run by the constraints solver for calculating forces (default: `4`).
      *
      * The greater this value is, the most rigid and realistic the physics simulation will be.
      * However a greater number of iterations is more computationally intensive.
      *
-     * @param niter - The new maximum number of velocity iterations.
+     * @param niter - The new number of solver iterations.
      */
-    set maxVelocityIterations(niter: number) {
-        this.integrationParameters.maxVelocityIterations = niter;
+    set numSolverIterations(niter: number) {
+        this.integrationParameters.numSolverIterations = niter;
     }
 
     /**
-     * The maximum velocity iterations the velocity-based friction constraint solver can make.
+     * Number of addition friction resolution iteration run during the last solver sub-step (default: `4`).
      */
-    get maxVelocityFrictionIterations(): number {
-        return this.integrationParameters.maxVelocityFrictionIterations;
+    get numAdditionalFrictionIterations(): number {
+        return this.integrationParameters.numAdditionalFrictionIterations;
     }
 
     /**
-     * Sets the maximum number of velocity iterations for friction (default: 8).
+     * Sets the number of addition friction resolution iteration run during the last solver sub-step (default: `4`).
      *
      * The greater this value is, the most realistic friction will be.
      * However a greater number of iterations is more computationally intensive.
      *
-     * @param niter - The new maximum number of velocity iterations.
+     * @param niter - The new number of additional friction iterations.
      */
-    set maxVelocityFrictionIterations(niter: number) {
-        this.integrationParameters.maxVelocityFrictionIterations = niter;
+    set numAdditionalFrictionIterations(niter: number) {
+        this.integrationParameters.numAdditionalFrictionIterations = niter;
     }
 
     /**
-     * The maximum velocity iterations the velocity-based constraint solver can make to attempt to remove
-     * the energy introduced by constraint stabilization.
+     * Number of internal Project Gauss Seidel (PGS) iterations run at each solver iteration (default: `1`).
      */
-    get maxStabilizationIterations(): number {
-        return this.integrationParameters.maxStabilizationIterations;
+    get numInternalPgsIterations(): number {
+        return this.integrationParameters.numInternalPgsIterations;
     }
 
     /**
-     * Sets the maximum number of velocity iterations for stabilization (default: 1).
+     * Sets the Number of internal Project Gauss Seidel (PGS) iterations run at each solver iteration (default: `1`).
      *
-     * @param niter - The new maximum number of velocity iterations.
+     * Increasing this parameter will improve stability of the simulation. It will have a lesser effect than
+     * increasing `numSolverIterations` but is also less computationally expensive.
+     *
+     * @param niter - The new number of internal PGS iterations.
      */
-    set maxStabilizationIterations(niter: number) {
-        this.integrationParameters.maxStabilizationIterations = niter;
+    set numInternalPgsIterations(niter: number) {
+        this.integrationParameters.numInternalPgsIterations = niter;
+    }
+
+    /// Configures the integration parameters to match the old PGS solver
+    /// from Rapier JS version <= 0.11.
+    ///
+    /// This solver was slightly faster than the new one but resulted
+    /// in less stable joints and worse convergence rates.
+    ///
+    /// This should only be used for comparison purpose or if you are
+    /// experiencing problems with the new solver.
+    ///
+    /// NOTE: this does not affect any `RigidBody.additional_solver_iterations` that will
+    ///       still create solver iterations based on the new "small-steps" PGS solver.
+    public switchToStandardPgsSolver() {
+        this.integrationParameters.switchToStandardPgsSolver();
+    }
+
+    /// Configures the integration parameters to match the new "small-steps" PGS solver
+    /// from Rapier version >= 0.12.
+    ///
+    /// The "small-steps" PGS solver is the default one when creating the physics world. So
+    /// calling this function is generally not needed unless `World.switch_to_standard_pgs_solver`
+    /// was called.
+    ///
+    /// This solver results in more stable joints and significantly better convergence
+    /// rates but is slightly slower in its default settings.
+    public switchToSmallStepsPgsSolver() {
+        this.integrationParameters.switchToSmallStepsPgsSolver();
     }
 
     /**
-     * Creates a new rigid-body from the given rigd-body descriptior.
+     * Creates a new rigid-body from the given rigid-body descriptor.
      *
      * @param body - The description of the rigid-body to create.
      */
@@ -973,8 +1003,8 @@ export class World {
      * @param collider1 - The second collider involved in the contact.
      * @param f - Closure that will be called on each collider that is in contact with `collider1`.
      */
-    public contactsWith(collider1: Collider, f: (collider2: Collider) => void) {
-        this.narrowPhase.contactsWith(
+    public contactPairsWith(collider1: Collider, f: (collider2: Collider) => void) {
+        this.narrowPhase.contactPairsWith(
             collider1.handle,
             this.colliders.castClosure(f),
         );
@@ -984,11 +1014,11 @@ export class World {
      * Enumerates all the colliders intersecting the given colliders, assuming one of them
      * is a sensor.
      */
-    public intersectionsWith(
+    public intersectionPairsWith(
         collider1: Collider,
         f: (collider2: Collider) => void,
     ) {
-        this.narrowPhase.intersectionsWith(
+        this.narrowPhase.intersectionPairsWith(
             collider1.handle,
             this.colliders.castClosure(f),
         );

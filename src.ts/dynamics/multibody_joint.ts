@@ -1,4 +1,4 @@
-import {RawImpulseJointSet, RawJointAxis, RawMultibodyJointSet} from "../raw";
+import {RawImpulseJointSet, RawJointAxis, RawJointType, RawMultibodyJointSet} from "../raw";
 import {
     FixedImpulseJoint,
     ImpulseJointHandle,
@@ -32,14 +32,14 @@ export class MultibodyJoint {
         handle: MultibodyJointHandle,
     ): MultibodyJoint {
         switch (rawSet.jointType(handle)) {
-            case JointType.Revolute:
+            case RawJointType.Revolute:
                 return new RevoluteMultibodyJoint(rawSet, handle);
-            case JointType.Prismatic:
+            case RawJointType.Prismatic:
                 return new PrismaticMultibodyJoint(rawSet, handle);
-            case JointType.Fixed:
+            case RawJointType.Fixed:
                 return new FixedMultibodyJoint(rawSet, handle);
             // #if DIM3
-            case JointType.Spherical:
+            case RawJointType.Spherical:
                 return new SphericalMultibodyJoint(rawSet, handle);
             // #endif
             default:

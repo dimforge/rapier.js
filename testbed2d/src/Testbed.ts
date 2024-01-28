@@ -12,8 +12,7 @@ class SimulationParameters {
     backend: string;
     prevBackend: string;
     demo: string;
-    numVelocityIter: number;
-    numPositionIter: number;
+    numSolverIters: number;
     running: boolean;
     stepping: boolean;
     debugRender: boolean;
@@ -29,8 +28,7 @@ class SimulationParameters {
         this.backend = "rapier";
         this.prevBackend = "rapier";
         this.demo = "collision groups";
-        this.numVelocityIter = 4;
-        this.numPositionIter = 1;
+        this.numSolverIters = 4;
         this.running = true;
         this.stepping = false;
         this.debugRender = false;
@@ -89,8 +87,7 @@ export class Testbed {
         document.onkeydown = null;
         this.preTimestepAction = null;
         this.world = world;
-        this.world.maxVelocityIterations = this.parameters.numVelocityIter;
-        // this.world.maxPositionIterations = this.parameters.numPositionIter;
+        this.world.numSolverIterations = this.parameters.numSolverIters;
         this.demoToken += 1;
         this.stepId = 0;
         this.gui.resetTiming();
@@ -142,9 +139,7 @@ export class Testbed {
 
     run() {
         if (this.parameters.running || this.parameters.stepping) {
-            this.world.maxVelocityIterations = this.parameters.numVelocityIter;
-            this.world.maxVelocityFrictionIterations =
-                this.parameters.numVelocityIter * 2;
+            this.world.numSolverIterations = this.parameters.numSolverIters;
 
             if (!!this.preTimestepAction) {
                 this.preTimestepAction(this.graphics);

@@ -43,11 +43,7 @@ export class Gui {
                 testbed.switchToDemo(demo);
             });
         this.gui
-            .add(simulationParameters, "numVelocityIter", 0, 20)
-            .step(1)
-            .listen();
-        this.gui
-            .add(simulationParameters, "numPositionIter", 0, 20)
+            .add(simulationParameters, "numSolverIters", 0, 20)
             .step(1)
             .listen();
         this.gui
