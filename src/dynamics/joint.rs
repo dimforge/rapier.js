@@ -2,7 +2,7 @@ use crate::math::{RawRotation, RawVector};
 use na::Unit;
 use rapier::dynamics::{
     FixedJointBuilder, GenericJoint, JointAxesMask, JointAxis, MotorModel, PrismaticJointBuilder,
-    RevoluteJointBuilder,
+    RevoluteJointBuilder, RopeJointBuilder, SpringJointBuilder,
 };
 #[cfg(feature = "dim3")]
 use rapier::dynamics::{GenericJointBuilder, SphericalJointBuilder};
@@ -15,6 +15,8 @@ pub enum RawJointType {
     Revolute,
     Fixed,
     Prismatic,
+    Rope,
+    Spring,
     Generic,
 }
 
@@ -24,6 +26,8 @@ pub enum RawJointType {
     Revolute,
     Fixed,
     Prismatic,
+    Rope,
+    Spring,
     Spherical,
     Generic,
 }
@@ -163,7 +167,31 @@ impl RawGenericJoint {
         Some(Self(joint))
     }
 
-    /// Create a new joint descriptor that builds spehrical joints.
+    pub fn spring(
+        rest_length: f32,
+        stiffness: f32,
+        damping: f32,
+        anchor1: &RawVector,
+        anchor2: &RawVector,
+    ) -> Self {
+        Self(
+            SpringJointBuilder::new(rest_length, stiffness, damping)
+                .local_anchor1(anchor1.0.into())
+                .local_anchor2(anchor2.0.into())
+                .into(),
+        )
+    }
+
+    pub fn rope(length: f32, anchor1: &RawVector, anchor2: &RawVector) -> Self {
+        Self(
+            RopeJointBuilder::new(length)
+                .local_anchor1(anchor1.0.into())
+                .local_anchor2(anchor2.0.into())
+                .into(),
+        )
+    }
+
+    /// Create a new joint descriptor that builds spherical joints.
     ///
     /// A spherical joints allows three relative rotational degrees of freedom
     /// by preventing any relative translation between the anchors of the

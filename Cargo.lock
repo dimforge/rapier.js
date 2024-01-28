@@ -307,9 +307,9 @@ dependencies = [
 
 [[package]]
 name = "num-derive"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e6a0fd4f737c707bd9086cc16c925f294943eb62eb71499e9fd4cf71f8b9f4e"
+checksum = "cfb77679af88f8b125209d354a202862602672222e7f2313fdd6dc349bad4712"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -512,8 +512,7 @@ checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 
 [[package]]
 name = "rapier2d"
-version = "0.17.2"
-source = "git+https://github.com/dimforge/rapier?rev=82416e3ca66dcdc34c0f350cec570ef1019a199f#82416e3ca66dcdc34c0f350cec570ef1019a199f"
+version = "0.18.0"
 dependencies = [
  "approx",
  "arrayvec",
@@ -523,7 +522,7 @@ dependencies = [
  "downcast-rs",
  "instant",
  "nalgebra",
- "num-derive 0.4.0",
+ "num-derive 0.4.1",
  "num-traits",
  "parry2d",
  "rustc-hash",
@@ -533,8 +532,7 @@ dependencies = [
 
 [[package]]
 name = "rapier3d"
-version = "0.17.2"
-source = "git+https://github.com/dimforge/rapier?rev=82416e3ca66dcdc34c0f350cec570ef1019a199f#82416e3ca66dcdc34c0f350cec570ef1019a199f"
+version = "0.18.0"
 dependencies = [
  "approx",
  "arrayvec",
@@ -544,7 +542,7 @@ dependencies = [
  "downcast-rs",
  "instant",
  "nalgebra",
- "num-derive 0.4.0",
+ "num-derive 0.4.1",
  "num-traits",
  "parry3d",
  "rustc-hash",

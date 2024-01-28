@@ -1,4 +1,5 @@
 use rapier::dynamics::IntegrationParameters;
+use std::num::NonZeroUsize;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -32,18 +33,18 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn maxVelocityIterations(&self) -> usize {
-        self.0.max_velocity_iterations
+    pub fn numSolverIterations(&self) -> usize {
+        self.0.num_solver_iterations.get()
     }
 
     #[wasm_bindgen(getter)]
-    pub fn maxVelocityFrictionIterations(&self) -> usize {
-        self.0.max_velocity_friction_iterations
+    pub fn numAdditionalFrictionIterations(&self) -> usize {
+        self.0.num_additional_friction_iterations
     }
 
     #[wasm_bindgen(getter)]
-    pub fn maxStabilizationIterations(&self) -> usize {
-        self.0.max_stabilization_iterations
+    pub fn numInternalPgsIterations(&self) -> usize {
+        self.0.num_internal_pgs_iterations
     }
 
     #[wasm_bindgen(getter)]
@@ -77,16 +78,16 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_maxVelocityIterations(&mut self, value: usize) {
-        self.0.max_velocity_iterations = value
+    pub fn set_numSolverIterations(&mut self, value: usize) {
+        self.0.num_solver_iterations = NonZeroUsize::new(value.max(1)).unwrap()
     }
     #[wasm_bindgen(setter)]
-    pub fn set_maxVelocityFrictionIterations(&mut self, value: usize) {
-        self.0.max_velocity_friction_iterations = value
+    pub fn set_numAdditionalFrictionIterations(&mut self, value: usize) {
+        self.0.num_additional_friction_iterations = value
     }
     #[wasm_bindgen(setter)]
-    pub fn set_maxStabilizationIterations(&mut self, value: usize) {
-        self.0.max_stabilization_iterations = value
+    pub fn set_numInternalPgsIterations(&mut self, value: usize) {
+        self.0.num_internal_pgs_iterations = value
     }
     #[wasm_bindgen(setter)]
     pub fn set_minIslandSize(&mut self, value: usize) {
@@ -96,5 +97,13 @@ impl RawIntegrationParameters {
     #[wasm_bindgen(setter)]
     pub fn set_maxCcdSubsteps(&mut self, value: usize) {
         self.0.max_ccd_substeps = value
+    }
+
+    pub fn switchToStandardPgsSolver(&mut self) {
+        self.0.switch_to_standard_pgs_solver()
+    }
+
+    pub fn switchToSmallStepsPgsSolver(&mut self) {
+        self.0.switch_to_small_steps_pgs_solver()
     }
 }

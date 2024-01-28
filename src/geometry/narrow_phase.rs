@@ -14,10 +14,10 @@ impl RawNarrowPhase {
         RawNarrowPhase(NarrowPhase::new())
     }
 
-    pub fn contacts_with(&self, handle1: FlatHandle, f: js_sys::Function) {
+    pub fn contact_pairs_with(&self, handle1: FlatHandle, f: js_sys::Function) {
         let this = JsValue::null();
         let handle1 = utils::collider_handle(handle1);
-        for pair in self.0.contacts_with(handle1) {
+        for pair in self.0.contact_pairs_with(handle1) {
             let handle2 = if pair.collider1 == handle1 {
                 utils::flat_handle(pair.collider2.0)
             } else {
@@ -36,10 +36,10 @@ impl RawNarrowPhase {
             .map(|p| RawContactPair(p as *const ContactPair))
     }
 
-    pub fn intersections_with(&self, handle1: FlatHandle, f: js_sys::Function) {
+    pub fn intersection_pairs_with(&self, handle1: FlatHandle, f: js_sys::Function) {
         let this = JsValue::null();
         let handle1 = utils::collider_handle(handle1);
-        for (h1, h2, inter) in self.0.intersections_with(handle1) {
+        for (h1, h2, inter) in self.0.intersection_pairs_with(handle1) {
             if inter {
                 let handle2 = if h1 == handle1 {
                     utils::flat_handle(h2.0)
