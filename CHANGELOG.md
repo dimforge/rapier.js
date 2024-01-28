@@ -1,4 +1,15 @@
-### Unreleased
+### 0.12.0 (2024-01-28)
+
+The main highlight of this release is the implementation of a new non-linear constraints solver for better stability
+and increased convergence rates. See [#579](https://github.com/dimforge/rapier/pull/579) for additional information.
+
+In order to adjust the number of iterations of the new solver, simply adjust `World.numSolverIterations`.
+If recovering the old solver behavior is useful to you, call `World.switchToStandardPgsSolver()`.
+
+It is now possible to specify some additional solver iteration for specific rigid-bodies (and everything interacting
+with it directly or indirectly through contacts and joints): `RigidBodyDesc.additionalSolverIterations` and
+`RigidBody::setAdditionalSolverIterations`. This allows for higher-accuracy on subsets of the physics scene
+without affecting performance of the other parts of the simulation.
 
 #### Modified
 
@@ -9,6 +20,7 @@
 #### Added
 
 -   Added `DynamicRayCastVehicleController` to simulate vehicles based on ray-casting.
+-   Added `JointData.generic` (3D only) to create a generic 6-dof joint and manually specify the locked axes.
 
 ### 0.11.2
 
@@ -22,9 +34,17 @@
 
 #### Added
 
+-   Add `JointData.spring` and `JointData.rope` joints.
 -   Add access to the mass-properties of a rigid-body: `RigidBody.effectiveInvMass`, `.invMass()`, `.localCom()`,
     `.worldCom()`, `.invPrincipalInertiaSqrt()`, `.principalInertia()`, `.principalInertiaLocalFrame()`,
     `.effectiveWorldInvInertiaSqrt()`, `.effectiveAngularInertia()`.
+-   Add `DynamicRayCastVehicleController.siteFrictionStiffness` to customize the side friction applied to the vehicle
+    controller’s wheel.
+
+#### Modified
+
+-   Rename `World.contactsWith` to `World.contactPairsWith`.
+-   Rename `World.intersectionsWith` to `World.intersectionPairsWith`.
 
 ### 0.11.1 (2023-01-16)
 
