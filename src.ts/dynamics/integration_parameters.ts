@@ -126,10 +126,10 @@ export class IntegrationParameters {
     }
 
     public switchToStandardPgsSolver() {
-        this.raw.switchToStandardPgsSolver()
+        this.raw.switchToStandardPgsSolver();
     }
 
     public switchToSmallStepsPgsSolver() {
-        this.raw.switchToSmallStepsPgsSolver()
+        this.raw.switchToSmallStepsPgsSolver();
     }
 }

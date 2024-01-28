@@ -1003,7 +1003,10 @@ export class World {
      * @param collider1 - The second collider involved in the contact.
      * @param f - Closure that will be called on each collider that is in contact with `collider1`.
      */
-    public contactPairsWith(collider1: Collider, f: (collider2: Collider) => void) {
+    public contactPairsWith(
+        collider1: Collider,
+        f: (collider2: Collider) => void,
+    ) {
         this.narrowPhase.contactPairsWith(
             collider1.handle,
             this.colliders.castClosure(f),

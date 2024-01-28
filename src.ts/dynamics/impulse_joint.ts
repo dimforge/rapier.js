@@ -3,7 +3,9 @@ import {
     RawGenericJoint,
     RawImpulseJointSet,
     RawRigidBodySet,
-    RawJointAxis, RawJointType, RawMotorModel,
+    RawJointAxis,
+    RawJointType,
+    RawMotorModel,
 } from "../raw";
 import {RigidBody, RigidBodyHandle} from "./rigid_body";
 import {RigidBodySet} from "./rigid_body_set";
@@ -403,8 +405,8 @@ export class JointData {
         rest_length: number,
         stiffness: number,
         damping: number,
-           anchor1: Vector,
-           anchor2: Vector
+        anchor1: Vector,
+        anchor2: Vector,
     ): JointData {
         let res = new JointData();
         res.anchor1 = anchor1;
@@ -419,7 +421,7 @@ export class JointData {
     public static rope(
         length: number,
         anchor1: Vector,
-        anchor2: Vector
+        anchor2: Vector,
     ): JointData {
         let res = new JointData();
         res.anchor1 = anchor1;
@@ -598,7 +600,13 @@ export class JointData {
                 rawFra2.free();
                 break;
             case JointType.Spring:
-                result = RawGenericJoint.spring(this.length, this.stiffness, this.damping, rawA1, rawA2);
+                result = RawGenericJoint.spring(
+                    this.length,
+                    this.stiffness,
+                    this.damping,
+                    rawA1,
+                    rawA2,
+                );
                 break;
             case JointType.Rope:
                 result = RawGenericJoint.rope(this.length, rawA1, rawA2);

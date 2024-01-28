@@ -1,4 +1,9 @@
-import {RawImpulseJointSet, RawJointAxis, RawJointType, RawMultibodyJointSet} from "../raw";
+import {
+    RawImpulseJointSet,
+    RawJointAxis,
+    RawJointType,
+    RawMultibodyJointSet,
+} from "../raw";
 import {
     FixedImpulseJoint,
     ImpulseJointHandle,
