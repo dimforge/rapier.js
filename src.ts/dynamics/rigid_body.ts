@@ -237,6 +237,30 @@ export class RigidBody {
     }
 
     /**
+     * The number of additional solver iterations that will be run for this
+     * rigid-body and everything that interacts with it directly or indirectly
+     * through contacts or joints.
+     */
+    public additionalSolverIterations(): number {
+        return this.rawSet.rbAdditionalSolverIterations(this.handle);
+    }
+
+    /**
+     * Sets the number of additional solver iterations that will be run for this
+     * rigid-body and everything that interacts with it directly or indirectly
+     * through contacts or joints.
+     *
+     * Compared to increasing the global `World.numSolverIteration`, setting this
+     * value lets you increase accuracy on only a subset of the scene, resulting in reduced
+     * performance loss.
+     *
+     * @param iters - The new number of additional solver iterations (default: 0).
+     */
+    public setAdditionalSolverIterations(iters: number) {
+        this.rawSet.rbSetAdditionalSolverIterations(this.handle, iters);
+    }
+
+    /**
      * Enable or disable CCD (Continuous Collision Detection) for this rigid-body.
      *
      * @param enabled - If `true`, CCD will be enabled for this rigid-body.
@@ -1045,6 +1069,7 @@ export class RigidBodyDesc {
     sleeping: boolean;
     ccdEnabled: boolean;
     dominanceGroup: number;
+    additionalSolverIterations: number;
     userData?: unknown;
 
     constructor(status: RigidBodyType) {
@@ -1079,6 +1104,7 @@ export class RigidBodyDesc {
         this.sleeping = false;
         this.ccdEnabled = false;
         this.dominanceGroup = 0;
+        this.additionalSolverIterations = 0;
     }
 
     /**
@@ -1147,6 +1173,22 @@ export class RigidBodyDesc {
 
     public setDominanceGroup(group: number): RigidBodyDesc {
         this.dominanceGroup = group;
+        return this;
+    }
+
+    /**
+     * Sets the number of additional solver iterations that will be run for this
+     * rigid-body and everything that interacts with it directly or indirectly
+     * through contacts or joints.
+     *
+     * Compared to increasing the global `World.numSolverIteration`, setting this
+     * value lets you increase accuracy on only a subset of the scene, resulting in reduced
+     * performance loss.
+     *
+     * @param iters - The new number of additional solver iterations (default: 0).
+     */
+    public setAdditionalSolverIterations(iters: number): RigidBodyDesc {
+        this.additionalSolverIterations = iters;
         return this;
     }
 

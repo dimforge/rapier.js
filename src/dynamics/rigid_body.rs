@@ -691,6 +691,16 @@ impl RawRigidBodySet {
         })
     }
 
+    pub fn rbAdditionalSolverIterations(&self, handle: FlatHandle) -> usize {
+        self.map(handle, |rb| rb.additional_solver_iterations())
+    }
+
+    pub fn rbSetAdditionalSolverIterations(&mut self, handle: FlatHandle, iters: usize) {
+        self.map_mut(handle, |rb| {
+            rb.set_additional_solver_iterations(iters as usize);
+        })
+    }
+
     /// An arbitrary user-defined 32-bit integer
     pub fn rbUserData(&self, handle: FlatHandle) -> u32 {
         self.map(handle, |rb| rb.user_data as u32)

@@ -113,6 +113,7 @@ export class RigidBodySet {
             desc.sleeping,
             desc.ccdEnabled,
             desc.dominanceGroup,
+            desc.additionalSolverIterations,
         );
 
         rawTra.free();
