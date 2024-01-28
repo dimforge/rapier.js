@@ -33,22 +33,22 @@ export class NarrowPhase {
      * @param collider1 - The second collider involved in the contact.
      * @param f - Closure that will be called on each collider that is in contact with `collider1`.
      */
-    public contactsWith(
+    public contactPairsWith(
         collider1: ColliderHandle,
         f: (collider2: ColliderHandle) => void,
     ) {
-        this.raw.contacts_with(collider1, f);
+        this.raw.contact_pairs_with(collider1, f);
     }
 
     /**
      * Enumerates all the colliders intersecting the given colliders, assuming one of them
      * is a sensor.
      */
-    public intersectionsWith(
+    public intersectionPairsWith(
         collider1: ColliderHandle,
         f: (collider2: ColliderHandle) => void,
     ) {
-        this.raw.intersections_with(collider1, f);
+        this.raw.intersection_pairs_with(collider1, f);
     }
 
     /**

@@ -6,7 +6,6 @@ pub use self::integration_parameters::*;
 pub use self::island_manager::*;
 pub use self::joint::*;
 pub use self::multibody_joint_set::*;
-pub use self::rigid_body::*;
 pub use self::rigid_body_set::*;
 
 mod ccd_solver;

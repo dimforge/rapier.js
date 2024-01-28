@@ -67,7 +67,7 @@ impl RawMultibodyJointSet {
     /// - `f(handle)`: the function to apply to the integer handle of each joint managed by this set. Called as `f(collider)`.
     pub fn forEachJointHandle(&self, f: &js_sys::Function) {
         let this = JsValue::null();
-        for (handle, _, _) in self.0.iter() {
+        for (handle, _, _, _) in self.0.iter() {
             let _ = f.call1(&this, &JsValue::from(utils::flat_handle(handle.0)));
         }
     }
