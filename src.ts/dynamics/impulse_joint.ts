@@ -25,6 +25,7 @@ export type ImpulseJointHandle = number;
  * - `Prismatic`: A prismatic joint that removes all degrees of freedom between the affected
  *                bodies except for the translation along one axis.
  * - `Spherical`: (3D only) A spherical joint that removes all relative linear degrees of freedom between the affected bodies.
+ * - `Generic`: (3D only) A joint with customizable degrees of freedom, allowing any of the 6 axes to be locked.
  */
 export enum JointType {
     Revolute,
@@ -32,12 +33,37 @@ export enum JointType {
     Prismatic,
     // #if DIM3
     Spherical,
+    Generic,
     // #endif
 }
 
 export enum MotorModel {
     AccelerationBased,
     ForceBased,
+}
+
+/**
+ * An enum representing the possible joint axes of a generic joint.
+ * They can be ORed together, like:
+ * JointAxesMask.X || JointAxesMask.Y
+ * to get a joint that is only free in the X and Y translational (positional) axes.
+ *
+ * Possible free axes are:
+ *
+ * - `X`: X translation axis
+ * - `Y`: Y translation axis
+ * - `Z`: Z translation axis
+ * - `AngX`: X angular rotation axis
+ * - `AngY`: Y angular rotations axis
+ * - `AngZ`: Z angular rotation axis
+ */
+export enum JointAxesMask {
+    X = 1 << 0,
+    Y = 1 << 1,
+    Z = 1 << 2,
+    AngX = 1 << 3,
+    AngY = 1 << 4,
+    AngZ = 1 << 5,
 }
 
 export class ImpulseJoint {
@@ -70,6 +96,8 @@ export class ImpulseJoint {
             // #if DIM3
             case JointType.Spherical:
                 return new SphericalImpulseJoint(rawSet, bodySet, handle);
+            case JointType.Generic:
+                return new GenericImpulseJoint(rawSet, bodySet, handle);
             // #endif
             default:
                 return new ImpulseJoint(rawSet, bodySet, handle);
@@ -291,6 +319,8 @@ export class RevoluteImpulseJoint extends UnitImpulseJoint {
 }
 
 // #if DIM3
+export class GenericImpulseJoint extends ImpulseJoint {}
+
 export class SphericalImpulseJoint extends ImpulseJoint {
     /* Unsupported by this alpha release.
     public configureMotorModel(model: MotorModel) {
@@ -324,6 +354,7 @@ export class JointData {
     jointType: JointType;
     limitsEnabled: boolean;
     limits: Array<number>;
+    axesMask: JointAxesMask;
 
     private constructor() {}
 
@@ -406,6 +437,36 @@ export class JointData {
 
     // #if DIM3
     /**
+     * Create a new joint descriptor that builds generic joints.
+     *
+     * A generic joint allows customizing its degrees of freedom
+     * by supplying a mask of the joint axes that should remain locked.
+     *
+     * @param anchor1 - Point where the joint is attached on the first rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param anchor2 - Point where the joint is attached on the second rigid-body affected by this joint. Expressed in the
+     *                  local-space of the rigid-body.
+     * @param axis - The X axis of the joint, expressed in the local-space of the rigid-bodies it is attached to.
+     * @param axesMask - Mask representing the locked axes of the joint. You can use logical OR to select these from
+     *                   the JointAxesMask enum. For example, passing (JointAxesMask.AngX || JointAxesMask.AngY) will
+     *                   create a joint locked in the X and Y rotational axes.
+     */
+    public static generic(
+        anchor1: Vector,
+        anchor2: Vector,
+        axis: Vector,
+        axesMask: JointAxesMask,
+    ): JointData {
+        let res = new JointData();
+        res.anchor1 = anchor1;
+        res.anchor2 = anchor2;
+        res.axis = axis;
+        res.axesMask = axesMask;
+        res.jointType = JointType.Generic;
+        return res;
+    }
+
+    /**
      * Create a new joint descriptor that builds spherical joints.
      *
      * A spherical joint allows three relative rotational degrees of freedom
@@ -474,7 +535,6 @@ export class JointData {
         res.jointType = JointType.Revolute;
         return res;
     }
-
     // #endif
 
     public intoRaw(): RawGenericJoint {
@@ -533,6 +593,18 @@ export class JointData {
                 break;
             // #endif
             // #if DIM3
+            case JointType.Generic:
+                rawAx = VectorOps.intoRaw(this.axis);
+                // implicit type cast: axesMask is a JointAxesMask bitflag enum,
+                // we're treating it as a u8 on the Rust side
+                let rawAxesMask = this.axesMask;
+                result = RawGenericJoint.generic(
+                    rawA1,
+                    rawA2,
+                    rawAx,
+                    rawAxesMask,
+                );
+                break;
             case JointType.Spherical:
                 result = RawGenericJoint.spherical(rawA1, rawA2);
                 break;

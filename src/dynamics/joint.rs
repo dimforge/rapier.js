@@ -1,11 +1,11 @@
 use crate::math::{RawRotation, RawVector};
 use na::Unit;
-#[cfg(feature = "dim3")]
-use rapier::dynamics::SphericalJointBuilder;
 use rapier::dynamics::{
     FixedJointBuilder, GenericJoint, JointAxesMask, JointAxis, MotorModel, PrismaticJointBuilder,
     RevoluteJointBuilder,
 };
+#[cfg(feature = "dim3")]
+use rapier::dynamics::{GenericJointBuilder, SphericalJointBuilder};
 use rapier::math::Isometry;
 use wasm_bindgen::prelude::*;
 
@@ -141,6 +141,28 @@ pub struct RawGenericJoint(pub(crate) GenericJoint);
 
 #[wasm_bindgen]
 impl RawGenericJoint {
+    /// Creates a new joint descriptor that builds generic joints.
+    ///
+    /// Generic joints allow arbitrary axes of freedom to be selected
+    /// for the joint from the available 6 degrees of freedom.
+    #[cfg(feature = "dim3")]
+    pub fn generic(
+        anchor1: &RawVector,
+        anchor2: &RawVector,
+        axis: &RawVector,
+        lockedAxes: u8,
+    ) -> Option<RawGenericJoint> {
+        let axesMask: JointAxesMask = JointAxesMask::from_bits(lockedAxes)?;
+        let axis = Unit::try_new(axis.0, 0.0)?;
+        let joint: GenericJoint = GenericJointBuilder::new(axesMask)
+            .local_anchor1(anchor1.0.into())
+            .local_anchor2(anchor2.0.into())
+            .local_axis1(axis)
+            .local_axis2(axis)
+            .into();
+        Some(Self(joint))
+    }
+
     /// Create a new joint descriptor that builds spehrical joints.
     ///
     /// A spherical joints allows three relative rotational degrees of freedom
