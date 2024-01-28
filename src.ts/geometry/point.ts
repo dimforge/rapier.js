@@ -1,6 +1,6 @@
 import {Collider, ColliderHandle} from "./collider";
 import {Vector, VectorOps} from "../math";
-import {RawPointColliderProjection, RawPointProjection} from "../raw";
+import {RawFeatureType, RawPointColliderProjection, RawPointProjection} from "../raw";
 import {FeatureType} from "./feature";
 import {ColliderSet} from "./collider_set";
 
@@ -85,7 +85,7 @@ export class PointColliderProjection {
             colliderSet.get(raw.colliderHandle()),
             VectorOps.fromRaw(raw.point()),
             raw.isInside(),
-            raw.featureType(),
+            raw.featureType() as number as FeatureType,
             raw.featureId(),
         );
         raw.free();

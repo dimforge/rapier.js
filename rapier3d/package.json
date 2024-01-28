@@ -13,5 +13,8 @@
     },
     "devDependencies": {
         "rimraf": "^3.0.2"
+    },
+    "dependencies": {
+        "wasm-pack": "^0.12.1"
     }
 }

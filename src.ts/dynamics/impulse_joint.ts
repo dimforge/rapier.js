@@ -3,7 +3,7 @@ import {
     RawGenericJoint,
     RawImpulseJointSet,
     RawRigidBodySet,
-    RawJointAxis,
+    RawJointAxis, RawJointType, RawMotorModel,
 } from "../raw";
 import {RigidBody, RigidBodyHandle} from "./rigid_body";
 import {RigidBodySet} from "./rigid_body_set";
@@ -31,6 +31,8 @@ export enum JointType {
     Revolute,
     Fixed,
     Prismatic,
+    Rope,
+    Spring,
     // #if DIM3
     Spherical,
     Generic,
@@ -87,14 +89,18 @@ export class ImpulseJoint {
         handle: ImpulseJointHandle,
     ): ImpulseJoint {
         switch (rawSet.jointType(handle)) {
-            case JointType.Revolute:
+            case RawJointType.Revolute:
                 return new RevoluteImpulseJoint(rawSet, bodySet, handle);
-            case JointType.Prismatic:
+            case RawJointType.Prismatic:
                 return new PrismaticImpulseJoint(rawSet, bodySet, handle);
-            case JointType.Fixed:
+            case RawJointType.Fixed:
                 return new FixedImpulseJoint(rawSet, bodySet, handle);
+            case RawJointType.Spring:
+                return new SpringImpulseJoint(rawSet, bodySet, handle);
+            case RawJointType.Rope:
+                return new RopeImpulseJoint(rawSet, bodySet, handle);
             // #if DIM3
-            case JointType.Spherical:
+            case RawJointType.Spherical:
                 return new SphericalImpulseJoint(rawSet, bodySet, handle);
             case JointType.Generic:
                 return new GenericImpulseJoint(rawSet, bodySet, handle);
@@ -135,7 +141,7 @@ export class ImpulseJoint {
      * The type of this joint given as a string.
      */
     public type(): JointType {
-        return this.rawSet.jointType(this.handle);
+        return this.rawSet.jointType(this.handle) as number as JointType;
     }
 
     // #if DIM3
@@ -260,7 +266,7 @@ export class UnitImpulseJoint extends ImpulseJoint {
         this.rawSet.jointConfigureMotorModel(
             this.handle,
             this.rawAxis(),
-            model,
+            model as number as RawMotorModel,
         );
     }
 
@@ -305,6 +311,10 @@ export class UnitImpulseJoint extends ImpulseJoint {
 }
 
 export class FixedImpulseJoint extends ImpulseJoint {}
+
+export class RopeImpulseJoint extends ImpulseJoint {}
+
+export class SpringImpulseJoint extends ImpulseJoint {}
 
 export class PrismaticImpulseJoint extends UnitImpulseJoint {
     public rawAxis(): RawJointAxis {
@@ -355,6 +365,9 @@ export class JointData {
     limitsEnabled: boolean;
     limits: Array<number>;
     axesMask: JointAxesMask;
+    stiffness: number;
+    damping: number;
+    length: number;
 
     private constructor() {}
 
@@ -383,6 +396,36 @@ export class JointData {
         res.frame1 = frame1;
         res.frame2 = frame2;
         res.jointType = JointType.Fixed;
+        return res;
+    }
+
+    public static spring(
+        rest_length: number,
+        stiffness: number,
+        damping: number,
+           anchor1: Vector,
+           anchor2: Vector
+    ): JointData {
+        let res = new JointData();
+        res.anchor1 = anchor1;
+        res.anchor2 = anchor2;
+        res.length = rest_length;
+        res.stiffness = stiffness;
+        res.damping = damping;
+        res.jointType = JointType.Spring;
+        return res;
+    }
+
+    public static rope(
+        length: number,
+        anchor1: Vector,
+        anchor2: Vector
+    ): JointData {
+        let res = new JointData();
+        res.anchor1 = anchor1;
+        res.anchor2 = anchor2;
+        res.length = length;
+        res.jointType = JointType.Rope;
         return res;
     }
 
@@ -553,6 +596,12 @@ export class JointData {
                 result = RawGenericJoint.fixed(rawA1, rawFra1, rawA2, rawFra2);
                 rawFra1.free();
                 rawFra2.free();
+                break;
+            case JointType.Spring:
+                result = RawGenericJoint.spring(this.length, this.stiffness, this.damping, rawA1, rawA2);
+                break;
+            case JointType.Rope:
+                result = RawGenericJoint.rope(this.length, rawA1, rawA2);
                 break;
             case JointType.Prismatic:
                 rawAx = VectorOps.intoRaw(this.axis);

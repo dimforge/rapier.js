@@ -1,4 +1,4 @@
-import {RawRigidBodySet} from "../raw";
+import {RawRigidBodySet, RawRigidBodyType} from "../raw";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
 // #if DIM3
 import {SdpMatrix3, SdpMatrix3Ops} from "../math";
@@ -683,14 +683,14 @@ export class RigidBody {
      * The status of this rigid-body: static, dynamic, or kinematic.
      */
     public bodyType(): RigidBodyType {
-        return this.rawSet.rbBodyType(this.handle);
+        return this.rawSet.rbBodyType(this.handle) as number as RigidBodyType;
     }
 
     /**
      * Set a new status for this rigid-body: static, dynamic, or kinematic.
      */
     public setBodyType(type: RigidBodyType, wakeUp: boolean) {
-        return this.rawSet.rbSetBodyType(this.handle, type, wakeUp);
+        return this.rawSet.rbSetBodyType(this.handle, type as number as RawRigidBodyType, wakeUp);
     }
 
     /**

@@ -1,5 +1,6 @@
 import {Vector, VectorOps} from "../math";
 import {
+    RawFeatureType,
     RawRayColliderIntersection,
     RawRayColliderToi,
     RawRayIntersection,
@@ -86,7 +87,7 @@ export class RayIntersection {
         const result = new RayIntersection(
             raw.toi(),
             VectorOps.fromRaw(raw.normal()),
-            raw.featureType(),
+            raw.featureType() as number as FeatureType,
             raw.featureId(),
         );
         raw.free();
@@ -147,7 +148,7 @@ export class RayColliderIntersection {
             colliderSet.get(raw.colliderHandle()),
             raw.toi(),
             VectorOps.fromRaw(raw.normal()),
-            raw.featureType(),
+            raw.featureType() as number as FeatureType,
             raw.featureId(),
         );
         raw.free();

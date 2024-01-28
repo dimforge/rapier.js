@@ -1,7 +1,7 @@
-import {RawRigidBodySet} from "../raw";
+import {RawRigidBodySet, RawRigidBodyType} from "../raw";
 import {Coarena} from "../coarena";
 import {VectorOps, RotationOps} from "../math";
-import {RigidBody, RigidBodyDesc, RigidBodyHandle} from "./rigid_body";
+import {RigidBody, RigidBodyDesc, RigidBodyHandle, RigidBodyType} from "./rigid_body";
 import {ColliderSet} from "../geometry";
 import {ImpulseJointSet} from "./impulse_joint_set";
 import {MultibodyJointSet} from "./multibody_joint_set";
@@ -103,7 +103,7 @@ export class RigidBodySet {
             // #endif
             desc.linearDamping,
             desc.angularDamping,
-            desc.status,
+            desc.status as number as RawRigidBodyType,
             desc.canSleep,
             desc.sleeping,
             desc.ccdEnabled,

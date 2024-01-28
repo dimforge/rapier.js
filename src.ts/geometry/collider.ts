@@ -555,7 +555,7 @@ export class Collider {
      * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
      */
     public shapeType(): ShapeType {
-        return this.colliderSet.raw.coShapeType(this.handle);
+        return this.colliderSet.raw.coShapeType(this.handle) as number as ShapeType;
     }
 
     /**

@@ -377,6 +377,24 @@ export class DynamicRayCastVehicleController {
         this.raw.set_wheel_friction_slip(i, value);
     }
 
+    /**
+     * The multiplier of friction between a tire and the collider it’s on top of.
+     *
+     * The larger the value, the stronger side friction will be.
+     */
+    public wheelSideFrictionStiffness(i: number): number | null {
+        return this.raw.wheel_side_friction_stiffness(i);
+    }
+
+    /**
+     * The multiplier of friction between a tire and the collider it’s on top of.
+     *
+     * The larger the value, the stronger side friction will be.
+     */
+    public setWheelSideFrictionStiffness(i: number, value: number) {
+        this.raw.set_wheel_side_friction_stiffness(i, value);
+    }
+
     /*
      * Getters only.
      */
