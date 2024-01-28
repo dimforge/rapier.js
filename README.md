@@ -14,7 +14,9 @@
 </p>
 <p align = "center">
     <strong>
-        <a href="https://rapier.rs">Website</a> | <a href="https://rapier.rs/docs/">Documentation</a>
+        <a href="https://rapier.rs">Website</a> | <a href="https://rapier.rs/docs/">Documentation</a> |
+        <a href="https://github.com/dimforge/rapier.js/tree/master/testbed2d/src/demos">2D examples (sources)</a> | 
+        <a href="https://github.com/dimforge/rapier.js/tree/master/testbed3d/src/demos">3D examples (sources)</a>
 </p>
 
 ---
