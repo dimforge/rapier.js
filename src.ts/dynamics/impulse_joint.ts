@@ -104,7 +104,7 @@ export class ImpulseJoint {
             // #if DIM3
             case RawJointType.Spherical:
                 return new SphericalImpulseJoint(rawSet, bodySet, handle);
-            case JointType.Generic:
+            case RawJointType.Generic:
                 return new GenericImpulseJoint(rawSet, bodySet, handle);
             // #endif
             default:

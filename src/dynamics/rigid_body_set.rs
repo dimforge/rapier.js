@@ -92,6 +92,7 @@ impl RawRigidBodySet {
         sleeping: bool,
         ccdEnabled: bool,
         dominanceGroup: i8,
+        additional_solver_iterations: usize,
     ) -> FlatHandle {
         let pos = na::Isometry3::from_parts(translation.0.into(), rotation.0);
 
@@ -112,7 +113,8 @@ impl RawRigidBodySet {
             .can_sleep(canSleep)
             .sleeping(sleeping)
             .ccd_enabled(ccdEnabled)
-            .dominance_group(dominanceGroup);
+            .dominance_group(dominanceGroup)
+            .additional_solver_iterations(additional_solver_iterations);
 
         rigid_body = if massOnly {
             rigid_body.additional_mass(mass)
@@ -152,6 +154,7 @@ impl RawRigidBodySet {
         sleeping: bool,
         ccdEnabled: bool,
         dominanceGroup: i8,
+        additional_solver_iterations: usize,
     ) -> FlatHandle {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
@@ -166,7 +169,8 @@ impl RawRigidBodySet {
             .can_sleep(canSleep)
             .sleeping(sleeping)
             .ccd_enabled(ccdEnabled)
-            .dominance_group(dominanceGroup);
+            .dominance_group(dominanceGroup)
+            .additional_solver_iterations(additional_solver_iterations);
 
         rigid_body = if massOnly {
             rigid_body.additional_mass(mass)
