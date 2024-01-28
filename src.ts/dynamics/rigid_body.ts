@@ -690,7 +690,11 @@ export class RigidBody {
      * Set a new status for this rigid-body: static, dynamic, or kinematic.
      */
     public setBodyType(type: RigidBodyType, wakeUp: boolean) {
-        return this.rawSet.rbSetBodyType(this.handle, type as number as RawRigidBodyType, wakeUp);
+        return this.rawSet.rbSetBodyType(
+            this.handle,
+            type as number as RawRigidBodyType,
+            wakeUp,
+        );
     }
 
     /**
