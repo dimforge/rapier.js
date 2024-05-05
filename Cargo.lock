@@ -137,7 +137,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.12.0"
+version = "0.13.0"
 dependencies = [
  "bincode",
  "crossbeam-channel",
@@ -153,7 +153,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.12.0"
+version = "0.13.0"
 dependencies = [
  "bincode",
  "crossbeam-channel",
@@ -296,17 +296,6 @@ dependencies = [
 
 [[package]]
 name = "num-derive"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "876a53fff98e03a936a674b29568b0e605f06b29372c2489ff4de23f1949743d"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "num-derive"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cfb77679af88f8b125209d354a202862602672222e7f2313fdd6dc349bad4712"
@@ -360,6 +349,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "978aa494585d3ca4ad74929863093e87cac9790d81fe7aba2b3dc2890643a0fc"
 
 [[package]]
+name = "ordered-float"
+version = "4.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a76df7075c7d4d01fdcb46c912dd17fba5b60c78ea480b475f2b6ab6f666584e"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "palette"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -385,9 +383,7 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.13.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "104ae65232e20477a98f9f1e75ca9850eae24a2ea846a2b1a0af03ad752136ce"
+version = "0.14.0"
 dependencies = [
  "approx",
  "arrayvec",
@@ -395,8 +391,9 @@ dependencies = [
  "downcast-rs",
  "either",
  "indexmap",
+ "log",
  "nalgebra",
- "num-derive 0.3.3",
+ "num-derive",
  "num-traits",
  "rustc-hash",
  "serde",
@@ -408,9 +405,7 @@ dependencies = [
 
 [[package]]
 name = "parry3d"
-version = "0.13.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b55dc0e6db79bddbc5fd583569f7356cdcc63e1e9b2b93a9ab70dd8e717160e0"
+version = "0.14.0"
 dependencies = [
  "approx",
  "arrayvec",
@@ -418,8 +413,9 @@ dependencies = [
  "downcast-rs",
  "either",
  "indexmap",
+ "log",
  "nalgebra",
- "num-derive 0.3.3",
+ "num-derive",
  "num-traits",
  "rustc-hash",
  "serde",
@@ -521,9 +517,11 @@ dependencies = [
  "crossbeam",
  "downcast-rs",
  "instant",
+ "log",
  "nalgebra",
- "num-derive 0.4.1",
+ "num-derive",
  "num-traits",
+ "ordered-float",
  "parry2d",
  "rustc-hash",
  "serde",
@@ -541,9 +539,11 @@ dependencies = [
  "crossbeam",
  "downcast-rs",
  "instant",
+ "log",
  "nalgebra",
- "num-derive 0.4.1",
+ "num-derive",
  "num-traits",
+ "ordered-float",
  "parry3d",
  "rustc-hash",
  "serde",

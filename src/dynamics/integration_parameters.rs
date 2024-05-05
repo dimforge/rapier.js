@@ -23,13 +23,13 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn allowedLinearError(&self) -> f32 {
-        self.0.allowed_linear_error
+    pub fn normalizedAllowedLinearError(&self) -> f32 {
+        self.0.normalized_allowed_linear_error
     }
 
     #[wasm_bindgen(getter)]
-    pub fn predictionDistance(&self) -> f32 {
-        self.0.prediction_distance
+    pub fn normalizedPredictionDistance(&self) -> f32 {
+        self.0.normalized_prediction_distance
     }
 
     #[wasm_bindgen(getter)]
@@ -57,6 +57,11 @@ impl RawIntegrationParameters {
         self.0.max_ccd_substeps
     }
 
+    #[wasm_bindgen(getter)]
+    pub fn lengthUnit(&self) -> f32 {
+        self.0.length_unit
+    }
+
     #[wasm_bindgen(setter)]
     pub fn set_dt(&mut self, value: f32) {
         self.0.dt = value;
@@ -68,13 +73,13 @@ impl RawIntegrationParameters {
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_allowedLinearError(&mut self, value: f32) {
-        self.0.allowed_linear_error = value
+    pub fn set_normalizedAllowedLinearError(&mut self, value: f32) {
+        self.0.normalized_allowed_linear_error = value
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_predictionDistance(&mut self, value: f32) {
-        self.0.prediction_distance = value
+    pub fn set_normalizedPredictionDistance(&mut self, value: f32) {
+        self.0.normalized_prediction_distance = value
     }
 
     #[wasm_bindgen(setter)]
@@ -99,11 +104,20 @@ impl RawIntegrationParameters {
         self.0.max_ccd_substeps = value
     }
 
+    #[wasm_bindgen(setter)]
+    pub fn set_lengthUnit(&mut self, value: f32) {
+        self.0.length_unit = value
+    }
+
     pub fn switchToStandardPgsSolver(&mut self) {
-        self.0.switch_to_standard_pgs_solver()
+        self.0 = IntegrationParameters::pgs_legacy()
     }
 
     pub fn switchToSmallStepsPgsSolver(&mut self) {
-        self.0.switch_to_small_steps_pgs_solver()
+        self.0 = IntegrationParameters::tgs_soft()
+    }
+
+    pub fn switchToSmallStepsPgsSolverWithoutWarmstart(&mut self) {
+        self.0 = IntegrationParameters::tgs_soft_without_warmstart()
     }
 }

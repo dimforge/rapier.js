@@ -1,7 +1,7 @@
 use crate::geometry::shape::SharedShapeUtility;
 use crate::geometry::{
-    RawColliderSet, RawPointProjection, RawRayIntersection, RawShape, RawShapeColliderTOI,
-    RawShapeContact, RawShapeTOI, RawShapeType,
+    RawColliderSet, RawColliderShapeCastHit, RawPointProjection, RawRayIntersection, RawShape,
+    RawShapeCastHit, RawShapeContact, RawShapeType,
 };
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
@@ -9,6 +9,7 @@ use rapier::dynamics::MassProperties;
 use rapier::geometry::{ActiveCollisionTypes, ShapeType};
 use rapier::math::{Isometry, Point, Real, Vector};
 use rapier::parry::query;
+use rapier::parry::query::ShapeCastOptions;
 use rapier::pipeline::{ActiveEvents, ActiveHooks};
 use wasm_bindgen::prelude::*;
 
@@ -401,6 +402,21 @@ impl RawColliderSet {
         })
     }
 
+    pub fn coTriMeshFlags(&self, handle: FlatHandle) -> Option<u32> {
+        self.map(handle, |co| {
+            co.shape().as_trimesh().map(|tri| tri.flags().bits() as u32)
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn coHeightFieldFlags(&self, handle: FlatHandle) -> Option<u32> {
+        self.map(handle, |co| {
+            co.shape()
+                .as_heightfield()
+                .map(|hf| hf.flags().bits() as u32)
+        })
+    }
+
     /// The height of this heightfield if it is one.
     pub fn coHeightfieldHeights(&self, handle: FlatHandle) -> Option<Vec<f32>> {
         self.map(handle, |co| match co.shape().shape_type() {
@@ -449,6 +465,14 @@ impl RawColliderSet {
 
     pub fn coIsEnabled(&self, handle: FlatHandle) -> bool {
         self.map(handle, |co| co.is_enabled())
+    }
+
+    pub fn coSetContactSkin(&mut self, handle: FlatHandle, contact_skin: f32) {
+        self.map_mut(handle, |co| co.set_contact_skin(contact_skin))
+    }
+
+    pub fn coContactSkin(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.contact_skin())
     }
 
     /// The friction coefficient of this collider.
@@ -524,9 +548,10 @@ impl RawColliderSet {
         shape2Pos: &RawVector,
         shape2Rot: &RawRotation,
         shape2Vel: &RawVector,
+        target_distance: f32,
         maxToi: f32,
         stop_at_penetration: bool,
-    ) -> Option<RawShapeTOI> {
+    ) -> Option<RawShapeCastHit> {
         let pos2 = Isometry::from_parts(shape2Pos.0.into(), shape2Rot.0);
 
         self.map(handle, |co| {
@@ -537,6 +562,7 @@ impl RawColliderSet {
                 &*shape2.0,
                 &pos2,
                 &shape2Vel.0.into(),
+                target_distance,
                 maxToi,
                 stop_at_penetration,
             )
@@ -549,9 +575,10 @@ impl RawColliderSet {
         collider1Vel: &RawVector,
         collider2handle: FlatHandle,
         collider2Vel: &RawVector,
+        target_distance: f32,
         max_toi: f32,
         stop_at_penetration: bool,
-    ) -> Option<RawShapeColliderTOI> {
+    ) -> Option<RawColliderShapeCastHit> {
         let handle2 = utils::collider_handle(collider2handle);
         let co2 = self
             .0
@@ -559,21 +586,25 @@ impl RawColliderSet {
             .expect("Invalid Collider reference. It may have been removed from the physics World.");
 
         self.map(handle, |co| {
-            query::time_of_impact(
+            query::cast_shapes(
                 co.position(),
                 &collider1Vel.0,
                 co.shape(),
                 co2.position(),
                 &collider2Vel.0,
                 co2.shape(),
-                max_toi,
-                stop_at_penetration,
+                ShapeCastOptions {
+                    max_time_of_impact: max_toi,
+                    stop_at_penetration,
+                    target_distance,
+                    compute_impact_geometry_on_penetration: true,
+                },
             )
             .unwrap_or(None)
-            .map_or(None, |toi| {
-                Some(RawShapeColliderTOI {
+            .map_or(None, |hit| {
+                Some(RawColliderShapeCastHit {
                     handle: handle2,
-                    toi,
+                    hit,
                 })
             })
         })

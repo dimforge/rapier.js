@@ -32,18 +32,26 @@ export class IntegrationParameters {
         return this.raw.erp;
     }
 
-    /**
-     * Amount of penetration the engine wont attempt to correct (default: `0.001m`).
-     */
-    get allowedLinearError(): number {
-        return this.raw.allowedLinearError;
+    get lengthUnit(): number {
+        return this.raw.lengthUnit;
     }
 
     /**
-     * The maximal distance separating two objects that will generate predictive contacts (default: `0.002`).
+     * Normalized amount of penetration the engine won’t attempt to correct (default: `0.001m`).
+     *
+     * This threshold considered by the physics engine is this value multiplied by the `lengthUnit`.
      */
-    get predictionDistance(): number {
-        return this.raw.predictionDistance;
+    get normalizedAllowedLinearError(): number {
+        return this.raw.normalizedAllowedLinearError;
+    }
+
+    /**
+     * The maximal normalized distance separating two objects that will generate predictive contacts (default: `0.002`).
+     *
+     * This threshold considered by the physics engine is this value multiplied by the `lengthUnit`.
+     */
+    get normalizedPredictionDistance(): number {
+        return this.raw.normalizedPredictionDistance;
     }
 
     /**
@@ -89,12 +97,16 @@ export class IntegrationParameters {
         this.raw.erp = value;
     }
 
-    set allowedLinearError(value: number) {
-        this.raw.allowedLinearError = value;
+    set lengthUnit(value: number) {
+        this.raw.lengthUnit = value;
     }
 
-    set predictionDistance(value: number) {
-        this.raw.predictionDistance = value;
+    set normalizedAllowedLinearError(value: number) {
+        this.raw.normalizedAllowedLinearError = value;
+    }
+
+    set normalizedPredictionDistance(value: number) {
+        this.raw.normalizedPredictionDistance = value;
     }
 
     /**
@@ -103,6 +115,7 @@ export class IntegrationParameters {
     set numSolverIterations(value: number) {
         this.raw.numSolverIterations = value;
     }
+
     /**
      * Sets the number of addition friction resolution iteration run during the last solver sub-step (default: `4`).
      */
@@ -131,5 +144,9 @@ export class IntegrationParameters {
 
     public switchToSmallStepsPgsSolver() {
         this.raw.switchToSmallStepsPgsSolver();
+    }
+
+    public switchToSmallStepsPgsSolverWithoutWarmstart() {
+        this.raw.switchToSmallStepsPgsSolverWithoutWarmstart();
     }
 }
