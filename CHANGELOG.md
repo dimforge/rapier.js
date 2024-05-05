@@ -1,3 +1,40 @@
+### 0.13.0 (2024-05-05)
+
+Several stability improvements are added as part of this release.
+See [rapier#625](https://github.com/dimforge/rapier/pull/625) for overviews of the most important improvements.
+
+#### Modified
+
+- The `castShape` and `castCollider` functions have been modified to add a `targetDistance` parameter. This parameter
+  indicates the distance below which a hit is detected.
+- Rename `RayIntersection.toi` to `.timeOfImpact` for better clarity.
+- Rename `RayColliderIntersection.toi` to `.timeOfImpact` for better clarity.
+- Rename `RayColliderToi` to `RayColliderHit`.
+- Rename `RayColliderHit.toi` to `.timeOfImpact` for better clarity.
+- Rename `ShapeTOI` to `ShapeCastHit`.
+- Rename `ShapeColliderTOI` to `ColliderShapeCastHit`.
+- Rename `ShapeCastHit.toi` to `.timeOfImpact`.
+
+#### Added
+
+- Fix the kinematic character controller getting stuck against vertical walls.
+- Add `KinematicCharacterController.normalNudgeFactor` and `.setNormalNudgeFactor` so set a coefficient used for
+  avoiding having the character controller get stuck on penetrations.
+- Add `RigidBody.softCcdPrediction`, `.setSoftCcdPrediction`, and `RigidBodyDesc.setSoftCcdPrediction` for configuring
+  soft-ccd on the rigid-body. See [rapier#625](https://github.com/dimforge/rapier/pull/625) for additional details on
+  soft-ccd.
+- 3D version only: add `TriMeshFlags::FIX_INTERNAL_EDGES` and `HeightFieldFlags::FIX_INTERNAL_EDGES` for enabling
+  internal edges correction (which is no longer enabled by default). The flags have been added as an optional parameter
+  when building the shapes.
+- Add `Collider.contactSkin`, `.setContactSkin`, and `ColliderDesc.setContactSkin` for configuring the collider’s
+  contact skin. See [rapier#625](https://github.com/dimforge/rapier/pull/625) for additional details on contact skins.
+- Add `World.lengthUnit` which can be used to indicate the typical size of dynamic objects (e.g. 100 pixels instead of
+  1 meter). This helps the physics engine adjust internal thresholds for better results.
+
+#### Fixed
+
+- Fix an issue where the reported contact force are lower than their actual value.
+
 ### 0.12.0 (2024-01-28)
 
 The main highlight of this release is the implementation of a new non-linear constraints solver for better stability
