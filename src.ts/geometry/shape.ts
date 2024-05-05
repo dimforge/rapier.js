@@ -564,7 +564,6 @@ export enum HeightFieldFlags {
 
 // #endif
 
-
 // NOTE: this **must** match the TriMeshFlags on the rust side.
 /**
  * Flags controlling the behavior of the triangle mesh creation and of some
@@ -628,9 +627,10 @@ export enum TriMeshFlags {
      *
      * /!\ NOT SUPPORTED IN THE 2D VERSION OF RAPIER.
      */
-    FIX_INTERNAL_EDGES = 0b1000_0000 | TriMeshFlags.ORIENTED | TriMeshFlags.MERGE_DUPLICATE_VERTICES,
+    FIX_INTERNAL_EDGES = 0b1000_0000 |
+        TriMeshFlags.ORIENTED |
+        TriMeshFlags.MERGE_DUPLICATE_VERTICES,
 }
-
 
 /**
  * A shape that is a sphere in 3D and a circle in 2D.
@@ -1038,7 +1038,11 @@ export class TriMesh extends Shape {
      * @param vertices - The coordinates of the triangle mesh's vertices.
      * @param indices - The indices of the triangle mesh's triangles.
      */
-    constructor(vertices: Float32Array, indices: Uint32Array, flags?: TriMeshFlags) {
+    constructor(
+        vertices: Float32Array,
+        indices: Uint32Array,
+        flags?: TriMeshFlags,
+    ) {
         super();
         this.vertices = vertices;
         this.indices = indices;
