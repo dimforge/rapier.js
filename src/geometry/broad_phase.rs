@@ -1,13 +1,13 @@
-use rapier::geometry::BroadPhase;
+use rapier::geometry::DefaultBroadPhase;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub struct RawBroadPhase(pub(crate) BroadPhase);
+pub struct RawBroadPhase(pub(crate) DefaultBroadPhase);
 
 #[wasm_bindgen]
 impl RawBroadPhase {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        RawBroadPhase(BroadPhase::new())
+        RawBroadPhase(DefaultBroadPhase::new())
     }
 }

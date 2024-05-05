@@ -121,6 +121,7 @@ export class ColliderSet {
             desc.activeHooks,
             desc.activeEvents,
             desc.contactForceEventThreshold,
+            desc.contactSkin,
             hasParent,
             hasParent ? parentHandle : 0,
             bodies.raw,

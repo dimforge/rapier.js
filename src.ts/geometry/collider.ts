@@ -22,6 +22,7 @@ import {
     RoundTriangle,
     RoundCuboid,
     HalfSpace,
+    TriMeshFlags,
     // #if DIM2
     ConvexPolygon,
     RoundConvexPolygon,
@@ -33,11 +34,12 @@ import {
     RoundCone,
     ConvexPolyhedron,
     RoundConvexPolyhedron,
+    HeightFieldFlags,
     // #endif
 } from "./shape";
 import {Ray, RayIntersection} from "./ray";
 import {PointProjection} from "./point";
-import {ShapeColliderTOI, ShapeTOI} from "./toi";
+import {ColliderShapeCastHit, ShapeCastHit} from "./toi";
 import {ShapeContact} from "./contact";
 import {ColliderSet} from "./collider_set";
 
@@ -296,9 +298,29 @@ export class Collider {
     }
 
     /**
+     * Sets the contact skin for this collider.
+     *
+     * See the documentation of `ColliderDesc.setContactSkin` for additional details.
+     */
+    public contactSkin(): number {
+        return this.colliderSet.raw.coContactSkin(this.handle);
+    }
+
+    /**
+     * Sets the contact skin for this collider.
+     *
+     * See the documentation of `ColliderDesc.setContactSkin` for additional details.
+     *
+     * @param thickness - The contact skin thickness.
+     */
+    public setContactSkin(thickness: number) {
+        return this.colliderSet.raw.coSetContactSkin(this.handle, thickness);
+    }
+
+    /**
      * Get the physics hooks active for this collider.
      */
-    public activeHooks() {
+    public activeHooks(): ActiveHooks {
         return this.colliderSet.raw.coActiveHooks(this.handle);
     }
 
@@ -427,6 +449,7 @@ export class Collider {
         rawPrincipalInertia.free();
         rawInertiaFrame.free();
     }
+
     // #endif
 
     // #if DIM2
@@ -451,6 +474,7 @@ export class Collider {
         );
         rawCom.free();
     }
+
     // #endif
 
     /**
@@ -527,6 +551,7 @@ export class Collider {
             rot.w,
         );
     }
+
     // #endif
     // #if DIM2
     /**
@@ -548,6 +573,7 @@ export class Collider {
     public setRotationWrtParent(angle: number) {
         this.colliderSet.raw.coSetRotationWrtParent(this.handle, angle);
     }
+
     // #endif
 
     /**
@@ -815,6 +841,8 @@ export class Collider {
      * @param shape2Pos - The position of the second shape.
      * @param shape2Rot - The rotation of the second shape.
      * @param shape2Vel - The constant velocity of the second shape.
+     * @param targetDistance − If the shape moves closer to this distance from a collider, a hit
+     *                         will be returned.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `collider1Vel.norm() * maxToi`.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
@@ -827,16 +855,17 @@ export class Collider {
         shape2Pos: Vector,
         shape2Rot: Rotation,
         shape2Vel: Vector,
+        targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
-    ): ShapeTOI | null {
+    ): ShapeCastHit | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawShape2Pos = VectorOps.intoRaw(shape2Pos);
         let rawShape2Rot = RotationOps.intoRaw(shape2Rot);
         let rawShape2Vel = VectorOps.intoRaw(shape2Vel);
         let rawShape2 = shape2.intoRaw();
 
-        let result = ShapeTOI.fromRaw(
+        let result = ShapeCastHit.fromRaw(
             this.colliderSet,
             this.colliderSet.raw.coCastShape(
                 this.handle,
@@ -845,6 +874,7 @@ export class Collider {
                 rawShape2Pos,
                 rawShape2Rot,
                 rawShape2Vel,
+                targetDistance,
                 maxToi,
                 stopAtPenetration,
             ),
@@ -865,6 +895,8 @@ export class Collider {
      * @param collider1Vel - The constant velocity of the current collider to cast (i.e. the cast direction).
      * @param collider2 - The collider to cast against.
      * @param collider2Vel - The constant velocity of the second collider.
+     * @param targetDistance − If the shape moves closer to this distance from a collider, a hit
+     *                         will be returned.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
@@ -875,19 +907,21 @@ export class Collider {
         collider1Vel: Vector,
         collider2: Collider,
         collider2Vel: Vector,
+        targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
-    ): ShapeColliderTOI | null {
+    ): ColliderShapeCastHit | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawCollider2Vel = VectorOps.intoRaw(collider2Vel);
 
-        let result = ShapeColliderTOI.fromRaw(
+        let result = ColliderShapeCastHit.fromRaw(
             this.colliderSet,
             this.colliderSet.raw.coCastCollider(
                 this.handle,
                 rawCollider1Vel,
                 collider2.handle,
                 rawCollider2Vel,
+                targetDistance,
                 maxToi,
                 stopAtPenetration,
             ),
@@ -980,7 +1014,7 @@ export class Collider {
         return result;
     }
 
-    /*
+    /**
      * Find the closest intersection between a ray and this collider.
      *
      * This also computes the normal at the hit point.
@@ -1078,6 +1112,7 @@ export class ColliderDesc {
     activeHooks: ActiveHooks;
     activeCollisionTypes: ActiveCollisionTypes;
     contactForceEventThreshold: number;
+    contactSkin: number;
 
     /**
      * Initializes a collider descriptor from the collision shape.
@@ -1104,6 +1139,7 @@ export class ColliderDesc {
         this.mass = 0.0;
         this.centerOfMass = VectorOps.zeros();
         this.contactForceEventThreshold = 0.0;
+        this.contactSkin = 0.0;
 
         // #if DIM2
         this.principalAngularInertia = 0.0;
@@ -1202,8 +1238,9 @@ export class ColliderDesc {
     public static trimesh(
         vertices: Float32Array,
         indices: Uint32Array,
+        flags?: TriMeshFlags,
     ): ColliderDesc {
-        const shape = new TriMesh(vertices, indices);
+        const shape = new TriMesh(vertices, indices, flags);
         return new ColliderDesc(shape);
     }
 
@@ -1359,8 +1396,9 @@ export class ColliderDesc {
         ncols: number,
         heights: Float32Array,
         scale: Vector,
+        flags?: HeightFieldFlags,
     ): ColliderDesc {
-        const shape = new Heightfield(nrows, ncols, heights, scale);
+        const shape = new Heightfield(nrows, ncols, heights, scale, flags);
         return new ColliderDesc(shape);
     }
 
@@ -1551,6 +1589,22 @@ export class ColliderDesc {
     }
 
     /**
+     * Sets the contact skin of the collider.
+     *
+     * The contact skin acts as if the collider was enlarged with a skin of width `skin_thickness`
+     * around it, keeping objects further apart when colliding.
+     *
+     * A non-zero contact skin can increase performance, and in some cases, stability. However
+     * it creates a small gap between colliding object (equal to the sum of their skin). If the
+     * skin is sufficiently small, this might not be visually significant or can be hidden by the
+     * rendering assets.
+     */
+    public setContactSkin(thickness: number): ColliderDesc {
+        this.contactSkin = thickness;
+        return this;
+    }
+
+    /**
      * Sets the density of the collider being built.
      *
      * The mass and angular inertia tensor will be computed automatically based on this density and the collider’s shape.
@@ -1599,6 +1653,7 @@ export class ColliderDesc {
         this.principalAngularInertia = principalAngularInertia;
         return this;
     }
+
     // #endif
 
     // #if DIM3
@@ -1631,6 +1686,7 @@ export class ColliderDesc {
         );
         return this;
     }
+
     // #endif
 
     /**

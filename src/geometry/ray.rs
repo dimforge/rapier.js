@@ -14,8 +14,8 @@ impl RawRayIntersection {
         self.0.normal.into()
     }
 
-    pub fn toi(&self) -> f32 {
-        self.0.toi
+    pub fn time_of_impact(&self) -> f32 {
+        self.0.time_of_impact
     }
 
     pub fn featureType(&self) -> RawFeatureType {
@@ -43,8 +43,8 @@ impl RawRayColliderIntersection {
         self.inter.normal.into()
     }
 
-    pub fn toi(&self) -> f32 {
-        self.inter.toi
+    pub fn time_of_impact(&self) -> f32 {
+        self.inter.time_of_impact
     }
 
     pub fn featureType(&self) -> RawFeatureType {
@@ -57,18 +57,18 @@ impl RawRayColliderIntersection {
 }
 
 #[wasm_bindgen]
-pub struct RawRayColliderToi {
+pub struct RawRayColliderHit {
     pub(crate) handle: ColliderHandle,
-    pub(crate) toi: f32,
+    pub(crate) timeOfImpact: f32,
 }
 
 #[wasm_bindgen]
-impl RawRayColliderToi {
+impl RawRayColliderHit {
     pub fn colliderHandle(&self) -> FlatHandle {
         utils::flat_handle(self.handle.0)
     }
 
-    pub fn toi(&self) -> f32 {
-        self.toi
+    pub fn timeOfImpact(&self) -> f32 {
+        self.timeOfImpact
     }
 }

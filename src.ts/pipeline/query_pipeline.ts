@@ -6,9 +6,9 @@ import {
     PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi,
+    RayColliderHit,
     Shape,
-    ShapeColliderTOI,
+    ColliderShapeCastHit,
 } from "../geometry";
 import {IslandManager, RigidBodyHandle, RigidBodySet} from "../dynamics";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
@@ -112,10 +112,10 @@ export class QueryPipeline {
         filterExcludeCollider?: ColliderHandle,
         filterExcludeRigidBody?: RigidBodyHandle,
         filterPredicate?: (collider: ColliderHandle) => boolean,
-    ): RayColliderToi | null {
+    ): RayColliderHit | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
-        let result = RayColliderToi.fromRaw(
+        let result = RayColliderHit.fromRaw(
             colliders,
             this.raw.castRay(
                 bodies.raw,
@@ -418,6 +418,8 @@ export class QueryPipeline {
      * @param shapeRot - The initial rotation of the shape to cast.
      * @param shapeVel - The constant velocity of the shape to cast (i.e. the cast direction).
      * @param shape - The shape to cast.
+     * @param targetDistance − If the shape moves closer to this distance from a collider, a hit
+     *                       will be returned.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
@@ -433,6 +435,7 @@ export class QueryPipeline {
         shapeRot: Rotation,
         shapeVel: Vector,
         shape: Shape,
+        targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
         filterFlags?: QueryFilterFlags,
@@ -440,13 +443,13 @@ export class QueryPipeline {
         filterExcludeCollider?: ColliderHandle,
         filterExcludeRigidBody?: RigidBodyHandle,
         filterPredicate?: (collider: ColliderHandle) => boolean,
-    ): ShapeColliderTOI | null {
+    ): ColliderShapeCastHit | null {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawVel = VectorOps.intoRaw(shapeVel);
         let rawShape = shape.intoRaw();
 
-        let result = ShapeColliderTOI.fromRaw(
+        let result = ColliderShapeCastHit.fromRaw(
             colliders,
             this.raw.castShape(
                 bodies.raw,
@@ -455,6 +458,7 @@ export class QueryPipeline {
                 rawRot,
                 rawVel,
                 rawShape,
+                targetDistance,
                 maxToi,
                 stopAtPenetration,
                 filterFlags,

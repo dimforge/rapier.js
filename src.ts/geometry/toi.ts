@@ -1,16 +1,16 @@
 import {Collider} from "./collider";
 import {Vector, VectorOps} from "../math";
-import {RawShapeTOI, RawShapeColliderTOI} from "../raw";
+import {RawShapeCastHit, RawColliderShapeCastHit} from "../raw";
 import {ColliderSet} from "./collider_set";
 
 /**
  * The intersection between a ray and a collider.
  */
-export class ShapeTOI {
+export class ShapeCastHit {
     /**
      * The time of impact of the two shapes.
      */
-    toi: number;
+    time_of_impact: number;
     /**
      * The local-space contact point on the first shape, at
      * the time of impact.
@@ -33,13 +33,13 @@ export class ShapeTOI {
     normal2: Vector;
 
     constructor(
-        toi: number,
+        time_of_impact: number,
         witness1: Vector,
         witness2: Vector,
         normal1: Vector,
         normal2: Vector,
     ) {
-        this.toi = toi;
+        this.time_of_impact = time_of_impact;
         this.witness1 = witness1;
         this.witness2 = witness2;
         this.normal1 = normal1;
@@ -48,12 +48,12 @@ export class ShapeTOI {
 
     public static fromRaw(
         colliderSet: ColliderSet,
-        raw: RawShapeTOI,
-    ): ShapeTOI {
+        raw: RawShapeCastHit,
+    ): ShapeCastHit {
         if (!raw) return null;
 
-        const result = new ShapeTOI(
-            raw.toi(),
+        const result = new ShapeCastHit(
+            raw.time_of_impact(),
             VectorOps.fromRaw(raw.witness1()),
             VectorOps.fromRaw(raw.witness2()),
             VectorOps.fromRaw(raw.normal1()),
@@ -67,7 +67,7 @@ export class ShapeTOI {
 /**
  * The intersection between a ray and a collider.
  */
-export class ShapeColliderTOI extends ShapeTOI {
+export class ColliderShapeCastHit extends ShapeCastHit {
     /**
      * The handle of the collider hit by the ray.
      */
@@ -75,25 +75,25 @@ export class ShapeColliderTOI extends ShapeTOI {
 
     constructor(
         collider: Collider,
-        toi: number,
+        time_of_impact: number,
         witness1: Vector,
         witness2: Vector,
         normal1: Vector,
         normal2: Vector,
     ) {
-        super(toi, witness1, witness2, normal1, normal2);
+        super(time_of_impact, witness1, witness2, normal1, normal2);
         this.collider = collider;
     }
 
     public static fromRaw(
         colliderSet: ColliderSet,
-        raw: RawShapeColliderTOI,
-    ): ShapeColliderTOI {
+        raw: RawColliderShapeCastHit,
+    ): ColliderShapeCastHit {
         if (!raw) return null;
 
-        const result = new ShapeColliderTOI(
+        const result = new ColliderShapeCastHit(
             colliderSet.get(raw.colliderHandle()),
-            raw.toi(),
+            raw.time_of_impact(),
             VectorOps.fromRaw(raw.witness1()),
             VectorOps.fromRaw(raw.witness2()),
             VectorOps.fromRaw(raw.normal1()),
