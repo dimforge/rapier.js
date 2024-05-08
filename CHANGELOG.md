@@ -1,3 +1,9 @@
+### 0.13.1 (2024-05-08)
+
+#### Fixed
+
+-   Fix regression that could cause missed contact between a ball and another shape type.
+
 ### 0.13.0 (2024-05-05)
 
 Several stability improvements are added as part of this release.

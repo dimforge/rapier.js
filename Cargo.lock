@@ -137,7 +137,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "bincode",
  "crossbeam-channel",
@@ -145,6 +145,7 @@ dependencies = [
  "libm",
  "nalgebra",
  "palette",
+ "parry2d",
  "rapier2d",
  "ref-cast",
  "serde",
@@ -153,13 +154,14 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.13.0"
+version = "0.13.1"
 dependencies = [
  "bincode",
  "crossbeam-channel",
  "js-sys",
  "nalgebra",
  "palette",
+ "parry2d",
  "rapier3d",
  "ref-cast",
  "serde",
@@ -383,9 +385,9 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.15.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c8c4e8d99a24597e473b83c1c425d6567132e537c9d160e1fa1cc816fdf7637"
+checksum = "41c56bf3b44b08f18a6ed01e5c6bf1a41a12efc7e8b806ce0cf50831c88f9fc8"
 dependencies = [
  "approx",
  "arrayvec",
