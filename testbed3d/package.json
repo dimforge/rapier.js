@@ -11,12 +11,12 @@
         "test": "cargo test && wasm-pack test --headless"
     },
     "dependencies": {
-        "@dimforge/rapier3d": "file:../rapier3d",
+        "@dimforge/rapier3d": "0.13.1",
         "lil-gui": "^0.17.0",
         "md5": "^2.3.0",
         "seedrandom": "^3.0.5",
         "stats.js": "^0.17.0",
-        "three": "^0.146.0"
+        "three": "0.146.0"
     },
     "devDependencies": {
         "@types/md5": "^2.3.2",
