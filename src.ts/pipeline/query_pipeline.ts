@@ -424,7 +424,7 @@ export class QueryPipeline {
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
-     *   that it’s on a path to exist that penetration state.
+     *   that it’s on a path to exit that penetration state.
      * @param groups - The bit groups and filter associated to the shape to cast, in order to only
      *   test on colliders with collision groups compatible with this group.
      */

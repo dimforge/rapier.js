@@ -847,7 +847,7 @@ export class Collider {
      *   limits the distance traveled by the shape to `collider1Vel.norm() * maxToi`.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
-     *   that it’s on a path to exist that penetration state.
+     *   that it’s on a path to exit that penetration state.
      */
     public castShape(
         collider1Vel: Vector,
@@ -901,7 +901,7 @@ export class Collider {
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
-     *   that it’s on a path to exist that penetration state.
+     *   that it’s on a path to exit that penetration state.
      */
     public castCollider(
         collider1Vel: Vector,
