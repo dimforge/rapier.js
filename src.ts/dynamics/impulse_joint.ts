@@ -1,4 +1,4 @@
-import {Rotation, Vector, VectorOps, RotationOps} from "../math";
+import { Rotation, Vector, VectorOps, RotationOps } from "../math";
 import {
     RawGenericJoint,
     RawImpulseJointSet,
@@ -7,10 +7,10 @@ import {
     RawJointType,
     RawMotorModel,
 } from "../raw";
-import {RigidBody, RigidBodyHandle} from "./rigid_body";
-import {RigidBodySet} from "./rigid_body_set";
+import { RigidBody, RigidBodyHandle } from "./rigid_body";
+import { RigidBodySet } from "./rigid_body_set";
 // #if DIM3
-import {Quaternion} from "../math";
+import { Quaternion } from "../math";
 // #endif
 
 /**
@@ -49,7 +49,7 @@ export enum MotorModel {
 /**
  * An enum representing the possible joint axes of a generic joint.
  * They can be ORed together, like:
- * JointAxesMask.X || JointAxesMask.Y
+ * JointAxesMask.LinX || JointAxesMask.LinY
  * to get a joint that is only free in the X and Y translational (positional) axes.
  *
  * Possible free axes are:
@@ -62,9 +62,9 @@ export enum MotorModel {
  * - `AngZ`: Z angular rotation axis
  */
 export enum JointAxesMask {
-    X = 1 << 0,
-    Y = 1 << 1,
-    Z = 1 << 2,
+    LinX = 1 << 0,
+    LinY = 1 << 1,
+    LinZ = 1 << 2,
     AngX = 1 << 3,
     AngY = 1 << 4,
     AngZ = 1 << 5,
@@ -312,15 +312,15 @@ export class UnitImpulseJoint extends ImpulseJoint {
     }
 }
 
-export class FixedImpulseJoint extends ImpulseJoint {}
+export class FixedImpulseJoint extends ImpulseJoint { }
 
-export class RopeImpulseJoint extends ImpulseJoint {}
+export class RopeImpulseJoint extends ImpulseJoint { }
 
-export class SpringImpulseJoint extends ImpulseJoint {}
+export class SpringImpulseJoint extends ImpulseJoint { }
 
 export class PrismaticImpulseJoint extends UnitImpulseJoint {
     public rawAxis(): RawJointAxis {
-        return RawJointAxis.X;
+        return RawJointAxis.LinX;
     }
 }
 
@@ -331,7 +331,7 @@ export class RevoluteImpulseJoint extends UnitImpulseJoint {
 }
 
 // #if DIM3
-export class GenericImpulseJoint extends ImpulseJoint {}
+export class GenericImpulseJoint extends ImpulseJoint { }
 
 export class SphericalImpulseJoint extends ImpulseJoint {
     /* Unsupported by this alpha release.
@@ -371,7 +371,7 @@ export class JointData {
     damping: number;
     length: number;
 
-    private constructor() {}
+    private constructor() { }
 
     /**
      * Creates a new joint descriptor that builds a Fixed joint.

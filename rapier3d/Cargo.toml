@@ -1,5 +1,5 @@
 [package]
-name = "dimforge_rapier3d" # Can't be named rapier3d which conflicts with the dependency.
+name = "dimforge_rapier3d"                                                   # Can't be named rapier3d which conflicts with the dependency.
 version = "0.13.1"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 description = "3-dimensional physics engine in Rust - official JS bindings."
@@ -23,7 +23,12 @@ required-features = ["dim3"]
 
 
 [dependencies]
-rapier3d = { version = "0.19.0", features = ["wasm-bindgen", "serde-serialize", "enhanced-determinism", "debug-render"] }
+rapier3d = { version = "0.20.0", features = [
+    "wasm-bindgen",
+    "serde-serialize",
+    "enhanced-determinism",
+    "debug-render",
+] }
 ref-cast = "1"
 wasm-bindgen = "^0.2.90"
 js-sys = "0.3"

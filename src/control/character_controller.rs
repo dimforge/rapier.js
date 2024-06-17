@@ -190,18 +190,16 @@ impl RawKinematicCharacterController {
                                 .map(|b| b.mass())
                         })
                         .unwrap_or(0.0);
-                    for collision in &self.events {
-                        self.controller.solve_character_collision_impulses(
-                            dt,
-                            &mut bodies.0,
-                            &colliders.0,
-                            &queries.0,
-                            collider.shape(),
-                            character_mass,
-                            collision,
-                            query_filter,
-                        );
-                    }
+                    self.controller.solve_character_collision_impulses(
+                        dt,
+                        &mut bodies.0,
+                        &colliders.0,
+                        &queries.0,
+                        collider.shape(),
+                        character_mass,
+                        self.events.iter().copied(),
+                        query_filter,
+                    );
                 }
             });
         } else {

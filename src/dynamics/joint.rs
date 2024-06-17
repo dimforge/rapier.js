@@ -36,9 +36,9 @@ pub enum RawJointType {
 #[cfg(feature = "dim2")]
 impl From<JointAxesMask> for RawJointType {
     fn from(ty: JointAxesMask) -> RawJointType {
-        let rev_axes = JointAxesMask::X | JointAxesMask::Y;
-        let pri_axes = JointAxesMask::Y | JointAxesMask::ANG_X;
-        let fix_axes = JointAxesMask::X | JointAxesMask::Y | JointAxesMask::ANG_X;
+        let rev_axes = JointAxesMask::LIN_X | JointAxesMask::LIN_Y;
+        let pri_axes = JointAxesMask::LIN_Y | JointAxesMask::ANG_X;
+        let fix_axes = JointAxesMask::LIN_X | JointAxesMask::LIN_Y | JointAxesMask::ANG_X;
 
         if ty == rev_axes {
             RawJointType::Revolute
@@ -56,20 +56,20 @@ impl From<JointAxesMask> for RawJointType {
 #[cfg(feature = "dim3")]
 impl From<JointAxesMask> for RawJointType {
     fn from(ty: JointAxesMask) -> RawJointType {
-        let rev_axes = JointAxesMask::X
-            | JointAxesMask::Y
-            | JointAxesMask::Z
+        let rev_axes = JointAxesMask::LIN_X
+            | JointAxesMask::LIN_Y
+            | JointAxesMask::LIN_Z
             | JointAxesMask::ANG_Y
             | JointAxesMask::ANG_Z;
-        let pri_axes = JointAxesMask::Y
-            | JointAxesMask::Z
+        let pri_axes = JointAxesMask::LIN_Y
+            | JointAxesMask::LIN_Z
             | JointAxesMask::ANG_X
             | JointAxesMask::ANG_Y
             | JointAxesMask::ANG_Z;
         let sph_axes = JointAxesMask::ANG_X | JointAxesMask::ANG_Y | JointAxesMask::ANG_Z;
-        let fix_axes = JointAxesMask::X
-            | JointAxesMask::Y
-            | JointAxesMask::Z
+        let fix_axes = JointAxesMask::LIN_X
+            | JointAxesMask::LIN_Y
+            | JointAxesMask::LIN_Z
             | JointAxesMask::ANG_X
             | JointAxesMask::ANG_Y
             | JointAxesMask::ANG_Z;
@@ -107,8 +107,8 @@ impl From<RawMotorModel> for MotorModel {
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
 pub enum RawJointAxis {
-    X,
-    Y,
+    LinX,
+    LinY,
     AngX,
 }
 
@@ -116,9 +116,9 @@ pub enum RawJointAxis {
 #[wasm_bindgen]
 #[derive(Copy, Clone)]
 pub enum RawJointAxis {
-    X,
-    Y,
-    Z,
+    LinX,
+    LinY,
+    LinZ,
     AngX,
     AngY,
     AngZ,
@@ -127,10 +127,10 @@ pub enum RawJointAxis {
 impl From<RawJointAxis> for JointAxis {
     fn from(axis: RawJointAxis) -> JointAxis {
         match axis {
-            RawJointAxis::X => JointAxis::X,
-            RawJointAxis::Y => JointAxis::Y,
+            RawJointAxis::LinX => JointAxis::LinX,
+            RawJointAxis::LinY => JointAxis::LinY,
             #[cfg(feature = "dim3")]
-            RawJointAxis::Z => JointAxis::Z,
+            RawJointAxis::LinZ => JointAxis::LinZ,
             RawJointAxis::AngX => JointAxis::AngX,
             #[cfg(feature = "dim3")]
             RawJointAxis::AngY => JointAxis::AngY,

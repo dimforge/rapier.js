@@ -47,18 +47,18 @@ import {
     RigidBodyHandle,
     RigidBodySet,
 } from "../dynamics";
-import {Rotation, Vector, VectorOps} from "../math";
-import {PhysicsPipeline} from "./physics_pipeline";
-import {QueryFilterFlags, QueryPipeline} from "./query_pipeline";
-import {SerializationPipeline} from "./serialization_pipeline";
-import {EventQueue} from "./event_queue";
-import {PhysicsHooks} from "./physics_hooks";
-import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
-import {KinematicCharacterController} from "../control";
-import {Coarena} from "../coarena";
+import { Rotation, Vector, VectorOps } from "../math";
+import { PhysicsPipeline } from "./physics_pipeline";
+import { QueryFilterFlags, QueryPipeline } from "./query_pipeline";
+import { SerializationPipeline } from "./serialization_pipeline";
+import { EventQueue } from "./event_queue";
+import { PhysicsHooks } from "./physics_hooks";
+import { DebugRenderBuffers, DebugRenderPipeline } from "./debug_render_pipeline";
+import { KinematicCharacterController } from "../control";
+import { Coarena } from "../coarena";
 
 // #if DIM3
-import {DynamicRayCastVehicleController} from "../control";
+import { DynamicRayCastVehicleController } from "../control";
 
 // #endif
 
@@ -269,7 +269,7 @@ export class World {
             eventQueue,
             hooks,
         );
-        this.queryPipeline.update(this.bodies, this.colliders);
+        this.queryPipeline.update(this.colliders);
     }
 
     /**
@@ -292,7 +292,7 @@ export class World {
      */
     public updateSceneQueries() {
         this.propagateModifiedBodyPositionsToColliders();
-        this.queryPipeline.update(this.bodies, this.colliders);
+        this.queryPipeline.update(this.colliders);
     }
 
     /**
