@@ -1,4 +1,4 @@
-import { Rotation, Vector, VectorOps, RotationOps } from "../math";
+import {Rotation, Vector, VectorOps, RotationOps} from "../math";
 import {
     RawGenericJoint,
     RawImpulseJointSet,
@@ -7,10 +7,10 @@ import {
     RawJointType,
     RawMotorModel,
 } from "../raw";
-import { RigidBody, RigidBodyHandle } from "./rigid_body";
-import { RigidBodySet } from "./rigid_body_set";
+import {RigidBody, RigidBodyHandle} from "./rigid_body";
+import {RigidBodySet} from "./rigid_body_set";
 // #if DIM3
-import { Quaternion } from "../math";
+import {Quaternion} from "../math";
 // #endif
 
 /**
@@ -312,11 +312,11 @@ export class UnitImpulseJoint extends ImpulseJoint {
     }
 }
 
-export class FixedImpulseJoint extends ImpulseJoint { }
+export class FixedImpulseJoint extends ImpulseJoint {}
 
-export class RopeImpulseJoint extends ImpulseJoint { }
+export class RopeImpulseJoint extends ImpulseJoint {}
 
-export class SpringImpulseJoint extends ImpulseJoint { }
+export class SpringImpulseJoint extends ImpulseJoint {}
 
 export class PrismaticImpulseJoint extends UnitImpulseJoint {
     public rawAxis(): RawJointAxis {
@@ -331,7 +331,7 @@ export class RevoluteImpulseJoint extends UnitImpulseJoint {
 }
 
 // #if DIM3
-export class GenericImpulseJoint extends ImpulseJoint { }
+export class GenericImpulseJoint extends ImpulseJoint {}
 
 export class SphericalImpulseJoint extends ImpulseJoint {
     /* Unsupported by this alpha release.
@@ -371,7 +371,7 @@ export class JointData {
     damping: number;
     length: number;
 
-    private constructor() { }
+    private constructor() {}
 
     /**
      * Creates a new joint descriptor that builds a Fixed joint.

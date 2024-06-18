@@ -1,4 +1,4 @@
-import { RawQueryPipeline, RawRayColliderIntersection } from "../raw";
+import {RawQueryPipeline, RawRayColliderIntersection} from "../raw";
 import {
     ColliderHandle,
     ColliderSet,
@@ -10,8 +10,8 @@ import {
     Shape,
     ColliderShapeCastHit,
 } from "../geometry";
-import { IslandManager, RigidBodyHandle, RigidBodySet } from "../dynamics";
-import { Rotation, RotationOps, Vector, VectorOps } from "../math";
+import {IslandManager, RigidBodyHandle, RigidBodySet} from "../dynamics";
+import {Rotation, RotationOps, Vector, VectorOps} from "../math";
 
 // NOTE: must match the bits in the QueryFilterFlags on the Rust side.
 /**
@@ -42,18 +42,18 @@ export enum QueryFilterFlags {
      * Excludes all colliders not attached to a dynamic rigid-body.
      */
     ONLY_DYNAMIC = QueryFilterFlags.EXCLUDE_FIXED |
-    QueryFilterFlags.EXCLUDE_KINEMATIC,
+        QueryFilterFlags.EXCLUDE_KINEMATIC,
     /**
      * Excludes all colliders not attached to a kinematic rigid-body.
      */
     ONLY_KINEMATIC = QueryFilterFlags.EXCLUDE_DYNAMIC |
-    QueryFilterFlags.EXCLUDE_FIXED,
+        QueryFilterFlags.EXCLUDE_FIXED,
     /**
      * Exclude all colliders attached to a non-fixed rigid-body
      * (this will not exclude colliders not attached to any rigid-body).
      */
     ONLY_FIXED = QueryFilterFlags.EXCLUDE_DYNAMIC |
-    QueryFilterFlags.EXCLUDE_KINEMATIC,
+        QueryFilterFlags.EXCLUDE_KINEMATIC,
 }
 
 /**

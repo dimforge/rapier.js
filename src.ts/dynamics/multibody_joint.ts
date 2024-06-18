@@ -14,8 +14,8 @@ import {
 } from "./impulse_joint";
 
 // #if DIM3
-import { Quaternion } from "../math";
-import { SphericalImpulseJoint } from "./impulse_joint";
+import {Quaternion} from "../math";
+import {SphericalImpulseJoint} from "./impulse_joint";
 // #endif
 
 /**
@@ -182,7 +182,7 @@ export class UnitMultibodyJoint extends MultibodyJoint {
     // }
 }
 
-export class FixedMultibodyJoint extends MultibodyJoint { }
+export class FixedMultibodyJoint extends MultibodyJoint {}
 
 export class PrismaticMultibodyJoint extends UnitMultibodyJoint {
     public rawAxis(): RawJointAxis {
