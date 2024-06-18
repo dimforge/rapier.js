@@ -1,3 +1,5 @@
+#! /bin/sh
+
 mkdir -p ./pkg/src
 cp -r ../src.ts/* pkg/src/.
 rm -f ./pkg/raw.ts
