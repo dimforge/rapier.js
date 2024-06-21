@@ -49,7 +49,7 @@ export enum MotorModel {
 /**
  * An enum representing the possible joint axes of a generic joint.
  * They can be ORed together, like:
- * JointAxesMask.X || JointAxesMask.Y
+ * JointAxesMask.LinX || JointAxesMask.LinY
  * to get a joint that is only free in the X and Y translational (positional) axes.
  *
  * Possible free axes are:
@@ -62,9 +62,9 @@ export enum MotorModel {
  * - `AngZ`: Z angular rotation axis
  */
 export enum JointAxesMask {
-    X = 1 << 0,
-    Y = 1 << 1,
-    Z = 1 << 2,
+    LinX = 1 << 0,
+    LinY = 1 << 1,
+    LinZ = 1 << 2,
     AngX = 1 << 3,
     AngY = 1 << 4,
     AngZ = 1 << 5,
@@ -320,7 +320,7 @@ export class SpringImpulseJoint extends ImpulseJoint {}
 
 export class PrismaticImpulseJoint extends UnitImpulseJoint {
     public rawAxis(): RawJointAxis {
-        return RawJointAxis.X;
+        return RawJointAxis.LinX;
     }
 }
 

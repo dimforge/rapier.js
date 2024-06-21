@@ -269,7 +269,7 @@ export class World {
             eventQueue,
             hooks,
         );
-        this.queryPipeline.update(this.bodies, this.colliders);
+        this.queryPipeline.update(this.colliders);
     }
 
     /**
@@ -292,7 +292,7 @@ export class World {
      */
     public updateSceneQueries() {
         this.propagateModifiedBodyPositionsToColliders();
-        this.queryPipeline.update(this.bodies, this.colliders);
+        this.queryPipeline.update(this.colliders);
     }
 
     /**

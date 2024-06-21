@@ -81,11 +81,10 @@ export class QueryPipeline {
 
     /**
      * Updates the acceleration structure of the query pipeline.
-     * @param bodies - The set of rigid-bodies taking part in this pipeline.
      * @param colliders - The set of colliders taking part in this pipeline.
      */
-    public update(bodies: RigidBodySet, colliders: ColliderSet) {
-        this.raw.update(bodies.raw, colliders.raw);
+    public update(colliders: ColliderSet) {
+        this.raw.update(colliders.raw);
     }
 
     /**

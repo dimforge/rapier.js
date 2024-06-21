@@ -22,8 +22,8 @@ impl RawQueryPipeline {
         RawQueryPipeline(QueryPipeline::new())
     }
 
-    pub fn update(&mut self, bodies: &RawRigidBodySet, colliders: &RawColliderSet) {
-        self.0.update(&bodies.0, &colliders.0);
+    pub fn update(&mut self, colliders: &RawColliderSet) {
+        self.0.update(&colliders.0);
     }
 
     pub fn castRay(

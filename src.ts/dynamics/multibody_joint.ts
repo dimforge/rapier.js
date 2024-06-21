@@ -186,7 +186,7 @@ export class FixedMultibodyJoint extends MultibodyJoint {}
 
 export class PrismaticMultibodyJoint extends UnitMultibodyJoint {
     public rawAxis(): RawJointAxis {
-        return RawJointAxis.X;
+        return RawJointAxis.LinX;
     }
 }
 

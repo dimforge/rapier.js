@@ -1,3 +1,7 @@
+### Unreleased
+
+-   Update to rapier 0.20 ([#281](https://github.com/dimforge/rapier.js/pull/281)), see [rapier's changelog](https://github.com/dimforge/rapier/blob/master/CHANGELOG.md#v0200-9-june-2024) for more context.
+
 ### 0.13.1 (2024-05-08)
 
 #### Fixed

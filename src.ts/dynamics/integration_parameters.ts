@@ -28,8 +28,8 @@ export class IntegrationParameters {
      * The Error Reduction Parameter in `[0, 1]` is the proportion of
      * the positional error to be corrected at each time step (default: `0.2`).
      */
-    get erp(): number {
-        return this.raw.erp;
+    get contact_erp(): number {
+        return this.raw.contact_erp;
     }
 
     get lengthUnit(): number {
@@ -93,8 +93,8 @@ export class IntegrationParameters {
         this.raw.dt = value;
     }
 
-    set erp(value: number) {
-        this.raw.erp = value;
+    set contact_natural_frequency(value: number) {
+        this.raw.contact_natural_frequency = value;
     }
 
     set lengthUnit(value: number) {
