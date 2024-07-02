@@ -197,7 +197,7 @@ impl RawKinematicCharacterController {
                         &queries.0,
                         collider.shape(),
                         character_mass,
-                        self.events.iter().copied(),
+                        self.events.iter(),
                         query_filter,
                     );
                 }
