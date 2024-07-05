@@ -23,7 +23,7 @@ required-features = ["dim2"]
 
 
 [dependencies]
-rapier2d = { version = "0.20.0", features = [
+rapier2d = { version = "0.21.0", features = [
     "wasm-bindgen",
     "serde-serialize",
     "enhanced-determinism",
@@ -32,13 +32,13 @@ rapier2d = { version = "0.20.0", features = [
 ref-cast = "1"
 wasm-bindgen = "0.2.90"
 js-sys = "0.3"
-nalgebra = "0.32"
+nalgebra = "0.33"
 serde = { version = "1", features = ["derive", "rc"] }
 bincode = "1"
 crossbeam-channel = "0.5"
-palette = "0.6"
+palette = "0.7"
 libm = "0.2"
-parry2d = "^0.15.1" # Use at least this version to fix a regression in 0.15.0
+parry2d = "^0.16.1" # Use at least this version to fix a regression in 0.15.0
 
 [package.metadata.wasm-pack.profile.release]
 # add -g to keep debug symbols
