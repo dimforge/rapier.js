@@ -7,6 +7,8 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     let gravity = new RAPIER.Vector3(0.0, -9.81, 0.0);
     let world = new RAPIER.World(gravity);
 
+    testbed.parameters.debugRender = true;
+
     // Create Ground.
     let bodyDesc = RAPIER.RigidBodyDesc.fixed();
     let groundBody = world.createRigidBody(bodyDesc);
@@ -17,8 +19,9 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
     let loader = new GLTFLoader()
 
-    loader.load('./sage.glb', (gltf) => {
+    loader.load('./sword.glb', (gltf) => {
         gltf.scene.position.set(0, 1.2, 0)
+        gltf.scene.scale.set(3, 3, 3)
         testbed.graphics.scene.add(gltf.scene)
         gltf.scene.updateMatrixWorld(true); // ensure world matrix is up to date
         gltf.scene.traverse((child: Object3D) => {

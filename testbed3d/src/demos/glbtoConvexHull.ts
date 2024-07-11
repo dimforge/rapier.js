@@ -1,5 +1,5 @@
 import type { Testbed } from "../Testbed";
-import { Vector3, Object3D, Mesh, BufferGeometry, BufferAttribute } from "three";
+import { Vector3, Object3D, Mesh, BufferGeometry, BufferAttribute, TriangleStripDrawMode } from "three";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 type RAPIER_API = typeof import("@dimforge/rapier3d");
 
@@ -17,9 +17,11 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
     let loader = new GLTFLoader()
 
-    loader.load('./sage.glb', (gltf) => {
+    loader.load('./sword.glb', (gltf) => {
         gltf.scene.position.set(0, 1.2, 0)
+        gltf.scene.scale.set(3, 3, 3)
         testbed.graphics.scene.add(gltf.scene)
+        testbed.parameters.debugRender = true;
         gltf.scene.updateMatrixWorld(true); // ensure world matrix is up to date
 
         const v = new Vector3();
