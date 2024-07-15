@@ -2,7 +2,7 @@ import {Vector, VectorOps} from "../math";
 import {
     RawFeatureType,
     RawRayColliderIntersection,
-    RawRayColliderToi,
+    RawRayColliderHit,
     RawRayIntersection,
 } from "../raw";
 import {Collider} from "./collider";
@@ -51,9 +51,9 @@ export class RayIntersection {
     /**
      * The time-of-impact of the ray with the collider.
      *
-     * The hit point is obtained from the ray's origin and direction: `origin + dir * toi`.
+     * The hit point is obtained from the ray's origin and direction: `origin + dir * timeOfImpact`.
      */
-    toi: number;
+    timeOfImpact: number;
     /**
      * The normal of the collider at the hit point.
      */
@@ -70,12 +70,12 @@ export class RayIntersection {
     featureId: number | undefined = undefined;
 
     constructor(
-        toi: number,
+        timeOfImpact: number,
         normal: Vector,
         featureType?: FeatureType,
         featureId?: number,
     ) {
-        this.toi = toi;
+        this.timeOfImpact = timeOfImpact;
         this.normal = normal;
         if (featureId !== undefined) this.featureId = featureId;
         if (featureType !== undefined) this.featureType = featureType;
@@ -85,7 +85,7 @@ export class RayIntersection {
         if (!raw) return null;
 
         const result = new RayIntersection(
-            raw.toi(),
+            raw.time_of_impact(),
             VectorOps.fromRaw(raw.normal()),
             raw.featureType() as number as FeatureType,
             raw.featureId(),
@@ -106,9 +106,9 @@ export class RayColliderIntersection {
     /**
      * The time-of-impact of the ray with the collider.
      *
-     * The hit point is obtained from the ray's origin and direction: `origin + dir * toi`.
+     * The hit point is obtained from the ray's origin and direction: `origin + dir * timeOfImpact`.
      */
-    toi: number;
+    timeOfImpact: number;
     /**
      * The normal of the collider at the hit point.
      */
@@ -126,13 +126,13 @@ export class RayColliderIntersection {
 
     constructor(
         collider: Collider,
-        toi: number,
+        timeOfImpact: number,
         normal: Vector,
         featureType?: FeatureType,
         featureId?: number,
     ) {
         this.collider = collider;
-        this.toi = toi;
+        this.timeOfImpact = timeOfImpact;
         this.normal = normal;
         if (featureId !== undefined) this.featureId = featureId;
         if (featureType !== undefined) this.featureType = featureType;
@@ -146,7 +146,7 @@ export class RayColliderIntersection {
 
         const result = new RayColliderIntersection(
             colliderSet.get(raw.colliderHandle()),
-            raw.toi(),
+            raw.time_of_impact(),
             VectorOps.fromRaw(raw.normal()),
             raw.featureType() as number as FeatureType,
             raw.featureId(),
@@ -159,7 +159,7 @@ export class RayColliderIntersection {
 /**
  * The time of impact between a ray and a collider.
  */
-export class RayColliderToi {
+export class RayColliderHit {
     /**
      * The handle of the collider hit by the ray.
      */
@@ -167,24 +167,24 @@ export class RayColliderToi {
     /**
      * The time-of-impact of the ray with the collider.
      *
-     * The hit point is obtained from the ray's origin and direction: `origin + dir * toi`.
+     * The hit point is obtained from the ray's origin and direction: `origin + dir * timeOfImpact`.
      */
-    toi: number;
+    timeOfImpact: number;
 
-    constructor(collider: Collider, toi: number) {
+    constructor(collider: Collider, timeOfImpact: number) {
         this.collider = collider;
-        this.toi = toi;
+        this.timeOfImpact = timeOfImpact;
     }
 
     public static fromRaw(
         colliderSet: ColliderSet,
-        raw: RawRayColliderToi,
-    ): RayColliderToi {
+        raw: RawRayColliderHit,
+    ): RayColliderHit {
         if (!raw) return null;
 
-        const result = new RayColliderToi(
+        const result = new RayColliderHit(
             colliderSet.get(raw.colliderHandle()),
-            raw.toi(),
+            raw.timeOfImpact(),
         );
         raw.free();
         return result;

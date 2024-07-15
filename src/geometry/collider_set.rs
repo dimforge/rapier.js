@@ -64,6 +64,7 @@ impl RawColliderSet {
         activeHooks: u32,
         activeEvents: u32,
         contactForceEventThreshold: f32,
+        contactSkin: f32,
         hasParent: bool,
         parent: FlatHandle,
         bodies: &mut RawRigidBodySet,
@@ -85,7 +86,8 @@ impl RawColliderSet {
             .sensor(isSensor)
             .friction_combine_rule(super::combine_rule_from_u32(frictionCombineRule))
             .restitution_combine_rule(super::combine_rule_from_u32(restitutionCombineRule))
-            .contact_force_event_threshold(contactForceEventThreshold);
+            .contact_force_event_threshold(contactForceEventThreshold)
+            .contact_skin(contactSkin);
 
         if massPropsMode == MassPropsMode::MassProps as u32 {
             #[cfg(feature = "dim2")]
@@ -157,6 +159,7 @@ impl RawColliderSet {
         activeHooks: u32,
         activeEvents: u32,
         contactForceEventThreshold: f32,
+        contactSkin: f32,
         hasParent: bool,
         parent: FlatHandle,
         bodies: &mut RawRigidBodySet,
@@ -182,6 +185,7 @@ impl RawColliderSet {
             activeHooks,
             activeEvents,
             contactForceEventThreshold,
+            contactSkin,
             hasParent,
             parent,
             bodies,
@@ -212,6 +216,7 @@ impl RawColliderSet {
         activeHooks: u32,
         activeEvents: u32,
         contactForceEventThreshold: f32,
+        contactSkin: f32,
         hasParent: bool,
         parent: FlatHandle,
         bodies: &mut RawRigidBodySet,
@@ -238,6 +243,7 @@ impl RawColliderSet {
             activeHooks,
             activeEvents,
             contactForceEventThreshold,
+            contactSkin,
             hasParent,
             parent,
             bodies,

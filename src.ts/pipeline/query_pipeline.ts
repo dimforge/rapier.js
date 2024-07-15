@@ -6,9 +6,9 @@ import {
     PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi,
+    RayColliderHit,
     Shape,
-    ShapeColliderTOI,
+    ColliderShapeCastHit,
 } from "../geometry";
 import {IslandManager, RigidBodyHandle, RigidBodySet} from "../dynamics";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
@@ -81,11 +81,10 @@ export class QueryPipeline {
 
     /**
      * Updates the acceleration structure of the query pipeline.
-     * @param bodies - The set of rigid-bodies taking part in this pipeline.
      * @param colliders - The set of colliders taking part in this pipeline.
      */
-    public update(bodies: RigidBodySet, colliders: ColliderSet) {
-        this.raw.update(bodies.raw, colliders.raw);
+    public update(colliders: ColliderSet) {
+        this.raw.update(colliders.raw);
     }
 
     /**
@@ -112,10 +111,10 @@ export class QueryPipeline {
         filterExcludeCollider?: ColliderHandle,
         filterExcludeRigidBody?: RigidBodyHandle,
         filterPredicate?: (collider: ColliderHandle) => boolean,
-    ): RayColliderToi | null {
+    ): RayColliderHit | null {
         let rawOrig = VectorOps.intoRaw(ray.origin);
         let rawDir = VectorOps.intoRaw(ray.dir);
-        let result = RayColliderToi.fromRaw(
+        let result = RayColliderHit.fromRaw(
             colliders,
             this.raw.castRay(
                 bodies.raw,
@@ -418,11 +417,13 @@ export class QueryPipeline {
      * @param shapeRot - The initial rotation of the shape to cast.
      * @param shapeVel - The constant velocity of the shape to cast (i.e. the cast direction).
      * @param shape - The shape to cast.
+     * @param targetDistance − If the shape moves closer to this distance from a collider, a hit
+     *                       will be returned.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
-     *   that it’s on a path to exist that penetration state.
+     *   that it’s on a path to exit that penetration state.
      * @param groups - The bit groups and filter associated to the shape to cast, in order to only
      *   test on colliders with collision groups compatible with this group.
      */
@@ -433,6 +434,7 @@ export class QueryPipeline {
         shapeRot: Rotation,
         shapeVel: Vector,
         shape: Shape,
+        targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
         filterFlags?: QueryFilterFlags,
@@ -440,13 +442,13 @@ export class QueryPipeline {
         filterExcludeCollider?: ColliderHandle,
         filterExcludeRigidBody?: RigidBodyHandle,
         filterPredicate?: (collider: ColliderHandle) => boolean,
-    ): ShapeColliderTOI | null {
+    ): ColliderShapeCastHit | null {
         let rawPos = VectorOps.intoRaw(shapePos);
         let rawRot = RotationOps.intoRaw(shapeRot);
         let rawVel = VectorOps.intoRaw(shapeVel);
         let rawShape = shape.intoRaw();
 
-        let result = ShapeColliderTOI.fromRaw(
+        let result = ColliderShapeCastHit.fromRaw(
             colliders,
             this.raw.castShape(
                 bodies.raw,
@@ -455,6 +457,7 @@ export class QueryPipeline {
                 rawRot,
                 rawVel,
                 rawShape,
+                targetDistance,
                 maxToi,
                 stopAtPenetration,
                 filterFlags,

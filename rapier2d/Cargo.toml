@@ -1,6 +1,6 @@
 [package]
 name = "dimforge_rapier2d" # Can't be named rapier2d which conflicts with the dependency.
-version = "0.12.0"
+version = "0.13.1"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 description = "2-dimensional physics engine in Rust - official JS bindings."
 documentation = "https://rapier.rs/rustdoc/rapier2d/index.html"
@@ -23,16 +23,22 @@ required-features = ["dim2"]
 
 
 [dependencies]
-rapier2d = { version = "0.18.0", features = ["wasm-bindgen", "serde-serialize", "enhanced-determinism", "debug-render"] }
+rapier2d = { version = "0.21.0", features = [
+    "wasm-bindgen",
+    "serde-serialize",
+    "enhanced-determinism",
+    "debug-render",
+] }
 ref-cast = "1"
 wasm-bindgen = "0.2.90"
 js-sys = "0.3"
-nalgebra = "0.32"
+nalgebra = "0.33"
 serde = { version = "1", features = ["derive", "rc"] }
 bincode = "1"
 crossbeam-channel = "0.5"
-palette = "0.6"
+palette = "0.7"
 libm = "0.2"
+parry2d = "^0.16.1" # Use at least this version to fix a regression in 0.15.0
 
 [package.metadata.wasm-pack.profile.release]
 # add -g to keep debug symbols

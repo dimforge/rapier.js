@@ -1,12 +1,13 @@
 use crate::dynamics::RawRigidBodySet;
 use crate::geometry::{
-    RawColliderSet, RawPointColliderProjection, RawRayColliderIntersection, RawRayColliderToi,
-    RawShape, RawShapeColliderTOI,
+    RawColliderSet, RawColliderShapeCastHit, RawPointColliderProjection, RawRayColliderHit,
+    RawRayColliderIntersection, RawShape,
 };
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
 use rapier::geometry::{Aabb, ColliderHandle, Ray};
 use rapier::math::{Isometry, Point};
+use rapier::parry::query::ShapeCastOptions;
 use rapier::pipeline::{QueryFilter, QueryFilterFlags, QueryPipeline};
 use rapier::prelude::FeatureId;
 use wasm_bindgen::prelude::*;
@@ -21,8 +22,8 @@ impl RawQueryPipeline {
         RawQueryPipeline(QueryPipeline::new())
     }
 
-    pub fn update(&mut self, bodies: &RawRigidBodySet, colliders: &RawColliderSet) {
-        self.0.update(&bodies.0, &colliders.0);
+    pub fn update(&mut self, colliders: &RawColliderSet) {
+        self.0.update(&colliders.0);
     }
 
     pub fn castRay(
@@ -38,8 +39,8 @@ impl RawQueryPipeline {
         filter_exclude_collider: Option<FlatHandle>,
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
-    ) -> Option<RawRayColliderToi> {
-        let (handle, toi) = utils::with_filter(filter_predicate, |predicate| {
+    ) -> Option<RawRayColliderHit> {
+        let (handle, timeOfImpact) = utils::with_filter(filter_predicate, |predicate| {
             let query_filter = QueryFilter {
                 flags: QueryFilterFlags::from_bits(filter_flags)
                     .unwrap_or(QueryFilterFlags::empty()),
@@ -54,7 +55,10 @@ impl RawQueryPipeline {
                 .cast_ray(&bodies.0, &colliders.0, &ray, maxToi, solid, query_filter)
         })?;
 
-        Some(RawRayColliderToi { handle, toi })
+        Some(RawRayColliderHit {
+            handle,
+            timeOfImpact,
+        })
     }
 
     pub fn castRayAndGetNormal(
@@ -294,6 +298,7 @@ impl RawQueryPipeline {
         shapeRot: &RawRotation,
         shapeVel: &RawVector,
         shape: &RawShape,
+        target_distance: f32,
         maxToi: f32,
         stop_at_penetration: bool,
         filter_flags: u32,
@@ -301,7 +306,7 @@ impl RawQueryPipeline {
         filter_exclude_collider: Option<FlatHandle>,
         filter_exclude_rigid_body: Option<FlatHandle>,
         filter_predicate: &js_sys::Function,
-    ) -> Option<RawShapeColliderTOI> {
+    ) -> Option<RawColliderShapeCastHit> {
         utils::with_filter(filter_predicate, |predicate| {
             let query_filter = QueryFilter {
                 flags: QueryFilterFlags::from_bits(filter_flags)
@@ -320,11 +325,15 @@ impl RawQueryPipeline {
                     &pos,
                     &shapeVel.0,
                     &*shape.0,
-                    maxToi,
-                    stop_at_penetration,
+                    ShapeCastOptions {
+                        max_time_of_impact: maxToi,
+                        stop_at_penetration,
+                        compute_impact_geometry_on_penetration: true,
+                        target_distance,
+                    },
                     query_filter,
                 )
-                .map(|(handle, toi)| RawShapeColliderTOI { handle, toi })
+                .map(|(handle, hit)| RawColliderShapeCastHit { handle, hit })
         })
     }
 

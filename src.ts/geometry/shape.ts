@@ -3,7 +3,7 @@ import {RawColliderSet, RawShape, RawShapeType} from "../raw";
 import {ShapeContact} from "./contact";
 import {PointProjection} from "./point";
 import {Ray, RayIntersection} from "./ray";
-import {ShapeTOI} from "./toi";
+import {ShapeCastHit} from "./toi";
 import {ColliderHandle} from "./collider";
 
 export abstract class Shape {
@@ -134,7 +134,8 @@ export abstract class Shape {
             case RawShapeType.TriMesh:
                 vs = rawSet.coVertices(handle);
                 indices = rawSet.coIndices(handle);
-                return new TriMesh(vs, indices);
+                const tri_flags = rawSet.coTriMeshFlags(handle);
+                return new TriMesh(vs, indices, tri_flags);
 
             case RawShapeType.HeightField:
                 const scale = rawSet.coHeightfieldScale(handle);
@@ -147,7 +148,8 @@ export abstract class Shape {
                 // #if DIM3
                 const nrows = rawSet.coHeightfieldNRows(handle);
                 const ncols = rawSet.coHeightfieldNCols(handle);
-                return new Heightfield(nrows, ncols, heights, scale);
+                const hf_flags = rawSet.coHeightFieldFlags(handle);
+                return new Heightfield(nrows, ncols, heights, scale, hf_flags);
             // #endif
 
             // #if DIM2
@@ -204,10 +206,12 @@ export abstract class Shape {
      * @param shapePos2 - The initial position of the second shape.
      * @param shapeRot2 - The rotation of the second shape.
      * @param shapeVel2 - The velocity of the second shape.
+     * @param targetDistance − If the shape moves closer to this distance from a collider, a hit
+     *                         will be returned.
      * @param maxToi - The maximum time when the impact can happen.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
-     *   that it’s on a path to exist that penetration state.
+     *   that it’s on a path to exit that penetration state.
      * @returns If the two moving shapes collider at some point along their trajectories, this returns the
      *  time at which the two shape collider as well as the contact information during the impact. Returns
      *  `null`if the two shapes never collide along their paths.
@@ -220,9 +224,10 @@ export abstract class Shape {
         shapePos2: Vector,
         shapeRot2: Rotation,
         shapeVel2: Vector,
+        targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
-    ): ShapeTOI | null {
+    ): ShapeCastHit | null {
         let rawPos1 = VectorOps.intoRaw(shapePos1);
         let rawRot1 = RotationOps.intoRaw(shapeRot1);
         let rawVel1 = VectorOps.intoRaw(shapeVel1);
@@ -233,7 +238,7 @@ export abstract class Shape {
         let rawShape1 = this.intoRaw();
         let rawShape2 = shape2.intoRaw();
 
-        let result = ShapeTOI.fromRaw(
+        let result = ShapeCastHit.fromRaw(
             null,
             rawShape1.castShape(
                 rawPos1,
@@ -243,6 +248,7 @@ export abstract class Shape {
                 rawPos2,
                 rawRot2,
                 rawVel2,
+                targetDistance,
                 maxToi,
                 stopAtPenetration,
             ),
@@ -515,6 +521,7 @@ export enum ShapeType {
 // #endif
 
 // #if DIM3
+
 /**
  * An enumeration representing the type of a shape.
  */
@@ -539,7 +546,91 @@ export enum ShapeType {
     HalfSpace = 17,
 }
 
+// NOTE: this **must** match the bits in the HeightFieldFlags on the rust side.
+/**
+ * Flags controlling the behavior of some operations involving heightfields.
+ */
+export enum HeightFieldFlags {
+    /**
+     * If set, a special treatment will be applied to contact manifold calculation to eliminate
+     * or fix contacts normals that could lead to incorrect bumps in physics simulation (especially
+     * on flat surfaces).
+     *
+     * This is achieved by taking into account adjacent triangle normals when computing contact
+     * points for a given triangle.
+     */
+    FIX_INTERNAL_EDGES = 0b0000_0001,
+}
+
 // #endif
+
+// NOTE: this **must** match the TriMeshFlags on the rust side.
+/**
+ * Flags controlling the behavior of the triangle mesh creation and of some
+ * operations involving triangle meshes.
+ */
+export enum TriMeshFlags {
+    // NOTE: these two flags are not really useful in JS.
+    //
+    // /**
+    //  * If set, the half-edge topology of the trimesh will be computed if possible.
+    //  */
+    // HALF_EDGE_TOPOLOGY = 0b0000_0001,
+    // /** If set, the half-edge topology and connected components of the trimesh will be computed if possible.
+    //  *
+    //  * Because of the way it is currently implemented, connected components can only be computed on
+    //  * a mesh where the half-edge topology computation succeeds. It will no longer be the case in the
+    //  * future once we decouple the computations.
+    //  */
+    // CONNECTED_COMPONENTS = 0b0000_0010,
+    /**
+     * If set, any triangle that results in a failing half-hedge topology computation will be deleted.
+     */
+    DELETE_BAD_TOPOLOGY_TRIANGLES = 0b0000_0100,
+    /**
+     * If set, the trimesh will be assumed to be oriented (with outward normals).
+     *
+     * The pseudo-normals of its vertices and edges will be computed.
+     */
+    ORIENTED = 0b0000_1000,
+    /**
+     * If set, the duplicate vertices of the trimesh will be merged.
+     *
+     * Two vertices with the exact same coordinates will share the same entry on the
+     * vertex buffer and the index buffer is adjusted accordingly.
+     */
+    MERGE_DUPLICATE_VERTICES = 0b0001_0000,
+    /**
+     * If set, the triangles sharing two vertices with identical index values will be removed.
+     *
+     * Because of the way it is currently implemented, this methods implies that duplicate
+     * vertices will be merged. It will no longer be the case in the future once we decouple
+     * the computations.
+     */
+    DELETE_DEGENERATE_TRIANGLES = 0b0010_0000,
+    /**
+     * If set, two triangles sharing three vertices with identical index values (in any order)
+     * will be removed.
+     *
+     * Because of the way it is currently implemented, this methods implies that duplicate
+     * vertices will be merged. It will no longer be the case in the future once we decouple
+     * the computations.
+     */
+    DELETE_DUPLICATE_TRIANGLES = 0b0100_0000,
+    /**
+     * If set, a special treatment will be applied to contact manifold calculation to eliminate
+     * or fix contacts normals that could lead to incorrect bumps in physics simulation
+     * (especially on flat surfaces).
+     *
+     * This is achieved by taking into account adjacent triangle normals when computing contact
+     * points for a given triangle.
+     *
+     * /!\ NOT SUPPORTED IN THE 2D VERSION OF RAPIER.
+     */
+    FIX_INTERNAL_EDGES = 0b1000_0000 |
+        TriMeshFlags.ORIENTED |
+        TriMeshFlags.MERGE_DUPLICATE_VERTICES,
+}
 
 /**
  * A shape that is a sphere in 3D and a circle in 2D.
@@ -937,19 +1028,29 @@ export class TriMesh extends Shape {
     indices: Uint32Array;
 
     /**
+     * The triangle mesh flags.
+     */
+    flags: TriMeshFlags;
+
+    /**
      * Creates a new triangle mesh shape.
      *
      * @param vertices - The coordinates of the triangle mesh's vertices.
      * @param indices - The indices of the triangle mesh's triangles.
      */
-    constructor(vertices: Float32Array, indices: Uint32Array) {
+    constructor(
+        vertices: Float32Array,
+        indices: Uint32Array,
+        flags?: TriMeshFlags,
+    ) {
         super();
         this.vertices = vertices;
         this.indices = indices;
+        this.flags = flags;
     }
 
     public intoRaw(): RawShape {
-        return RawShape.trimesh(this.vertices, this.indices);
+        return RawShape.trimesh(this.vertices, this.indices, this.flags);
     }
 }
 
@@ -1208,6 +1309,11 @@ export class Heightfield extends Shape {
     scale: Vector;
 
     /**
+     * Flags applied to the heightfield.
+     */
+    flags: HeightFieldFlags;
+
+    /**
      * Creates a new heightfield shape.
      *
      * @param nrows − The number of rows in the heights matrix.
@@ -1221,12 +1327,14 @@ export class Heightfield extends Shape {
         ncols: number,
         heights: Float32Array,
         scale: Vector,
+        flags?: HeightFieldFlags,
     ) {
         super();
         this.nrows = nrows;
         this.ncols = ncols;
         this.heights = heights;
         this.scale = scale;
+        this.flags = flags;
     }
 
     public intoRaw(): RawShape {
@@ -1236,6 +1344,7 @@ export class Heightfield extends Shape {
             this.ncols,
             this.heights,
             rawScale,
+            this.flags,
         );
         rawScale.free();
         return rawShape;

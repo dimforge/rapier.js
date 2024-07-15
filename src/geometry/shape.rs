@@ -1,4 +1,4 @@
-use crate::geometry::{RawPointProjection, RawRayIntersection, RawShapeContact, RawShapeTOI};
+use crate::geometry::{RawPointProjection, RawRayIntersection, RawShapeCastHit, RawShapeContact};
 use crate::math::{RawRotation, RawVector};
 #[cfg(feature = "dim3")]
 use na::DMatrix;
@@ -8,7 +8,7 @@ use na::Unit;
 use rapier::geometry::{Shape, SharedShape, TriMeshFlags};
 use rapier::math::{Isometry, Point, Real, Vector, DIM};
 use rapier::parry::query;
-use rapier::parry::query::Ray;
+use rapier::parry::query::{Ray, ShapeCastOptions};
 use wasm_bindgen::prelude::*;
 
 pub trait SharedShapeUtility {
@@ -19,9 +19,10 @@ pub trait SharedShapeUtility {
         shape2: &dyn Shape,
         shapePos2: &Isometry<Real>,
         shapeVel2: &Vector<Real>,
+        target_distance: f32,
         maxToi: f32,
         stop_at_penetration: bool,
-    ) -> Option<RawShapeTOI>;
+    ) -> Option<RawShapeCastHit>;
 
     fn intersectsShape(
         &self,
@@ -83,22 +84,27 @@ impl SharedShapeUtility for SharedShape {
         shape2: &dyn Shape,
         shapePos2: &Isometry<Real>,
         shapeVel2: &Vector<Real>,
+        target_distance: f32,
         maxToi: f32,
         stop_at_penetration: bool,
-    ) -> Option<RawShapeTOI> {
-        query::time_of_impact(
+    ) -> Option<RawShapeCastHit> {
+        query::cast_shapes(
             shapePos1,
             shapeVel1,
             &*self.0,
             shapePos2,
             &shapeVel2,
             shape2,
-            maxToi,
-            stop_at_penetration,
+            ShapeCastOptions {
+                max_time_of_impact: maxToi,
+                target_distance,
+                stop_at_penetration,
+                compute_impact_geometry_on_penetration: true,
+            },
         )
         .ok()
         .flatten()
-        .map(|toi| RawShapeTOI { toi })
+        .map(|hit| RawShapeCastHit { hit })
     }
 
     fn intersectsShape(
@@ -289,19 +295,11 @@ impl RawShape {
         }
     }
 
-    pub fn trimesh(vertices: Vec<f32>, indices: Vec<u32>) -> Self {
+    pub fn trimesh(vertices: Vec<f32>, indices: Vec<u32>, flags: u32) -> Self {
+        let flags = TriMeshFlags::from_bits(flags as u16).unwrap_or_default();
         let vertices = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
         let indices = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
-        // NOTE: for the JS bindings, let’s just assume that the triangle mesh isn’t necessarily
-        // clean. We could provide more flexibility by allowing other flags to be given, but
-        // the API surface of the JS trimesh doesn’t really allow to benefit from other flags.
-        // So, let’s just keep MERGE_DUPLICATE_VERTICES which is useful to avoid internal edge
-        // problems.
-        Self(SharedShape::trimesh_with_flags(
-            vertices,
-            indices,
-            TriMeshFlags::MERGE_DUPLICATE_VERTICES,
-        ))
+        Self(SharedShape::trimesh_with_flags(vertices, indices, flags))
     }
 
     #[cfg(feature = "dim2")]
@@ -311,9 +309,17 @@ impl RawShape {
     }
 
     #[cfg(feature = "dim3")]
-    pub fn heightfield(nrows: u32, ncols: u32, heights: Vec<f32>, scale: &RawVector) -> Self {
+    pub fn heightfield(
+        nrows: u32,
+        ncols: u32,
+        heights: Vec<f32>,
+        scale: &RawVector,
+        flags: u32,
+    ) -> Self {
+        let flags =
+            rapier::parry::shape::HeightFieldFlags::from_bits(flags as u8).unwrap_or_default();
         let heights = DMatrix::from_vec(nrows as usize + 1, ncols as usize + 1, heights);
-        Self(SharedShape::heightfield(heights, scale.0))
+        Self(SharedShape::heightfield_with_flags(heights, scale.0, flags))
     }
 
     pub fn segment(p1: &RawVector, p2: &RawVector) -> Self {
@@ -387,9 +393,10 @@ impl RawShape {
         shapePos2: &RawVector,
         shapeRot2: &RawRotation,
         shapeVel2: &RawVector,
+        target_distance: f32,
         maxToi: f32,
         stop_at_penetration: bool,
-    ) -> Option<RawShapeTOI> {
+    ) -> Option<RawShapeCastHit> {
         let pos1 = Isometry::from_parts(shapePos1.0.into(), shapeRot1.0);
         let pos2 = Isometry::from_parts(shapePos2.0.into(), shapeRot2.0);
 
@@ -399,6 +406,7 @@ impl RawShape {
             &*shape2.0,
             &pos2,
             &shapeVel2.0,
+            target_distance,
             maxToi,
             stop_at_penetration,
         )

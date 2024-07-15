@@ -135,6 +135,7 @@ export class RigidBody {
     ) {
         this.setEnabledTranslations(enableX, enableX, wakeUp);
     }
+
     // #endif
     // #if DIM3
     /**
@@ -218,6 +219,7 @@ export class RigidBody {
     ) {
         this.setEnabledRotations(enableX, enableY, enableZ, wakeUp);
     }
+
     // #endif
 
     /**
@@ -267,6 +269,26 @@ export class RigidBody {
      */
     public enableCcd(enabled: boolean) {
         this.rawSet.rbEnableCcd(this.handle, enabled);
+    }
+
+    /**
+     * Sets the soft-CCD prediction distance for this rigid-body.
+     *
+     * See the documentation of `RigidBodyDesc.setSoftCcdPrediction` for
+     * additional details.
+     */
+    public setSoftCcdPrediction(distance: number) {
+        this.rawSet.rbSetSoftCcdPrediction(this.handle, distance);
+    }
+
+    /**
+     * Gets the soft-CCD prediction distance for this rigid-body.
+     *
+     * See the documentation of `RigidBodyDesc.setSoftCcdPrediction` for
+     * additional details.
+     */
+    public softCcdPrediction(): number {
+        return this.rawSet.rbSoftCcdPrediction(this.handle);
     }
 
     /**
@@ -551,6 +573,7 @@ export class RigidBody {
     public invPrincipalInertiaSqrt(): number {
         return this.rawSet.rbInvPrincipalInertiaSqrt(this.handle);
     }
+
     // #endif
 
     // #if DIM3
@@ -564,6 +587,7 @@ export class RigidBody {
             this.rawSet.rbInvPrincipalInertiaSqrt(this.handle),
         );
     }
+
     // #endif
 
     // #if DIM2
@@ -573,6 +597,7 @@ export class RigidBody {
     public principalInertia(): number {
         return this.rawSet.rbPrincipalInertia(this.handle);
     }
+
     // #endif
 
     // #if DIM3
@@ -582,6 +607,7 @@ export class RigidBody {
     public principalInertia(): Vector {
         return VectorOps.fromRaw(this.rawSet.rbPrincipalInertia(this.handle));
     }
+
     // #endif
 
     // #if DIM3
@@ -593,6 +619,7 @@ export class RigidBody {
             this.rawSet.rbPrincipalInertiaLocalFrame(this.handle),
         );
     }
+
     // #endif
 
     // #if DIM2
@@ -603,6 +630,7 @@ export class RigidBody {
     public effectiveWorldInvInertiaSqrt(): number {
         return this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle);
     }
+
     // #endif
 
     // #if DIM3
@@ -615,6 +643,7 @@ export class RigidBody {
             this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle),
         );
     }
+
     // #endif
 
     // #if DIM2
@@ -625,6 +654,7 @@ export class RigidBody {
     public effectiveAngularInertia(): number {
         return this.rawSet.rbEffectiveAngularInertia(this.handle);
     }
+
     // #endif
 
     // #if DIM3
@@ -637,6 +667,7 @@ export class RigidBody {
             this.rawSet.rbEffectiveAngularInertia(this.handle),
         );
     }
+
     // #endif
 
     /**
@@ -853,6 +884,7 @@ export class RigidBody {
         rawPrincipalInertia.free();
         rawInertiaFrame.free();
     }
+
     // #endif
 
     // #if DIM2
@@ -888,6 +920,7 @@ export class RigidBody {
         );
         rawCom.free();
     }
+
     // #endif
 
     /**
@@ -1096,6 +1129,7 @@ export class RigidBodyDesc {
     canSleep: boolean;
     sleeping: boolean;
     ccdEnabled: boolean;
+    softCcdPrediction: number;
     dominanceGroup: number;
     additionalSolverIterations: number;
     userData?: unknown;
@@ -1131,6 +1165,7 @@ export class RigidBodyDesc {
         this.canSleep = true;
         this.sleeping = false;
         this.ccdEnabled = false;
+        this.softCcdPrediction = 0.0;
         this.dominanceGroup = 0;
         this.additionalSolverIterations = 0;
     }
@@ -1485,6 +1520,7 @@ export class RigidBodyDesc {
         this.translationsEnabledZ = translationsEnabledZ;
         return this;
     }
+
     /**
      * Allow translation of this rigid-body only along specific axes.
      * @param translationsEnabledX - Are translations along the X axis enabled?
@@ -1611,6 +1647,23 @@ export class RigidBodyDesc {
      */
     public setCcdEnabled(enabled: boolean): RigidBodyDesc {
         this.ccdEnabled = enabled;
+        return this;
+    }
+
+    /**
+     * Sets the maximum prediction distance Soft Continuous Collision-Detection.
+     *
+     * When set to 0, soft-CCD is disabled. Soft-CCD helps prevent tunneling especially of
+     * slow-but-thin to moderately fast objects. The soft CCD prediction distance indicates how
+     * far in the object’s path the CCD algorithm is allowed to inspect. Large values can impact
+     * performance badly by increasing the work needed from the broad-phase.
+     *
+     * It is a generally cheaper variant of regular CCD (that can be enabled with
+     * `RigidBodyDesc::setCcdEnabled` since it relies on predictive constraints instead of
+     * shape-cast and substeps.
+     */
+    public setSoftCcdPrediction(distance: number): RigidBodyDesc {
+        this.softCcdPrediction = distance;
         return this;
     }
 

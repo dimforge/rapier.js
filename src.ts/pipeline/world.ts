@@ -26,9 +26,9 @@ import {
     PointColliderProjection,
     Ray,
     RayColliderIntersection,
-    RayColliderToi,
+    RayColliderHit,
     Shape,
-    ShapeColliderTOI,
+    ColliderShapeCastHit,
     TempContactManifold,
 } from "../geometry";
 import {
@@ -59,6 +59,7 @@ import {Coarena} from "../coarena";
 
 // #if DIM3
 import {DynamicRayCastVehicleController} from "../control";
+
 // #endif
 
 /**
@@ -86,6 +87,7 @@ export class World {
 
     // #if DIM3
     vehicleControllers: Set<DynamicRayCastVehicleController>;
+
     // #endif
 
     /**
@@ -267,7 +269,7 @@ export class World {
             eventQueue,
             hooks,
         );
-        this.queryPipeline.update(this.bodies, this.colliders);
+        this.queryPipeline.update(this.colliders);
     }
 
     /**
@@ -290,7 +292,7 @@ export class World {
      */
     public updateSceneQueries() {
         this.propagateModifiedBodyPositionsToColliders();
-        this.queryPipeline.update(this.bodies, this.colliders);
+        this.queryPipeline.update(this.colliders);
     }
 
     /**
@@ -314,6 +316,34 @@ export class World {
      */
     set timestep(dt: number) {
         this.integrationParameters.dt = dt;
+    }
+
+    /**
+     * The approximate size of most dynamic objects in the scene.
+     *
+     * See the documentation of the `World.lengthUnit` setter for further details.
+     */
+    get lengthUnit(): number {
+        return this.integrationParameters.lengthUnit;
+    }
+
+    /**
+     * The approximate size of most dynamic objects in the scene.
+     *
+     * This value is used internally to estimate some length-based tolerance. In particular, the
+     * values `IntegrationParameters.allowedLinearError`,
+     * `IntegrationParameters.maxPenetrationCorrection`,
+     * `IntegrationParameters.predictionDistance`, `RigidBodyActivation.linearThreshold`
+     * are scaled by this value implicitly.
+     *
+     * This value can be understood as the number of units-per-meter in your physical world compared
+     * to a human-sized world in meter. For example, in a 2d game, if your typical object size is 100
+     * pixels, set the `[`Self::length_unit`]` parameter to 100.0. The physics engine will interpret
+     * it as if 100 pixels is equivalent to 1 meter in its various internal threshold.
+     * (default `1.0`).
+     */
+    set lengthUnit(unitsPerMeter: number) {
+        this.integrationParameters.lengthUnit = unitsPerMeter;
     }
 
     /**
@@ -401,6 +431,19 @@ export class World {
         this.integrationParameters.switchToSmallStepsPgsSolver();
     }
 
+    /// Configures the integration parameters to match the new "small-steps" PGS solver
+    /// from Rapier version >= 0.12. Warmstarting is disabled.
+    ///
+    /// The "small-steps" PGS solver is the default one when creating the physics world. So
+    /// calling this function is generally not needed unless `World.switch_to_standard_pgs_solver`
+    /// was called.
+    ///
+    /// This solver results in more stable joints and significantly better convergence
+    /// rates but is slightly slower in its default settings.
+    public switchToSmallStepsPgsSolverWithoutWarmstart() {
+        this.integrationParameters.switchToSmallStepsPgsSolverWithoutWarmstart();
+    }
+
     /**
      * Creates a new rigid-body from the given rigid-body descriptor.
      *
@@ -471,6 +514,7 @@ export class World {
         this.vehicleControllers.delete(controller);
         controller.free();
     }
+
     // #endif
 
     /**
@@ -678,7 +722,7 @@ export class World {
         filterExcludeCollider?: Collider,
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
-    ): RayColliderToi | null {
+    ): RayColliderHit | null {
         return this.queryPipeline.castRay(
             this.bodies,
             this.colliders,
@@ -903,11 +947,13 @@ export class World {
      * @param shapeRot - The initial rotation of the shape to cast.
      * @param shapeVel - The constant velocity of the shape to cast (i.e. the cast direction).
      * @param shape - The shape to cast.
+     * @param targetDistance − If the shape moves closer to this distance from a collider, a hit
+     *                         will be returned.
      * @param maxToi - The maximum time-of-impact that can be reported by this cast. This effectively
      *   limits the distance traveled by the shape to `shapeVel.norm() * maxToi`.
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
-     *   that it’s on a path to exist that penetration state.
+     *   that it’s on a path to exit that penetration state.
      * @param groups - The bit groups and filter associated to the shape to cast, in order to only
      *   test on colliders with collision groups compatible with this group.
      */
@@ -916,6 +962,7 @@ export class World {
         shapeRot: Rotation,
         shapeVel: Vector,
         shape: Shape,
+        targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
         filterFlags?: QueryFilterFlags,
@@ -923,7 +970,7 @@ export class World {
         filterExcludeCollider?: Collider,
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
-    ): ShapeColliderTOI | null {
+    ): ColliderShapeCastHit | null {
         return this.queryPipeline.castShape(
             this.bodies,
             this.colliders,
@@ -931,6 +978,7 @@ export class World {
             shapeRot,
             shapeVel,
             shape,
+            targetDistance,
             maxToi,
             stopAtPenetration,
             filterFlags,

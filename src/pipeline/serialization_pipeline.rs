@@ -8,7 +8,7 @@ use js_sys::Uint8Array;
 use rapier::dynamics::{
     ImpulseJointSet, IntegrationParameters, IslandManager, MultibodyJointSet, RigidBodySet,
 };
-use rapier::geometry::{BroadPhase, ColliderSet, NarrowPhase};
+use rapier::geometry::{ColliderSet, DefaultBroadPhase, NarrowPhase};
 use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
 
@@ -17,7 +17,7 @@ struct SerializableWorld<'a> {
     gravity: &'a Vector<f32>,
     integration_parameters: &'a IntegrationParameters,
     islands: &'a IslandManager,
-    broad_phase: &'a BroadPhase,
+    broad_phase: &'a DefaultBroadPhase,
     narrow_phase: &'a NarrowPhase,
     bodies: &'a RigidBodySet,
     colliders: &'a ColliderSet,
@@ -30,7 +30,7 @@ struct DeserializableWorld {
     gravity: Vector<f32>,
     integration_parameters: IntegrationParameters,
     islands: IslandManager,
-    broad_phase: BroadPhase,
+    broad_phase: DefaultBroadPhase,
     narrow_phase: NarrowPhase,
     bodies: RigidBodySet,
     colliders: ColliderSet,

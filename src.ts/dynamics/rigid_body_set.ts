@@ -111,6 +111,7 @@ export class RigidBodySet {
             desc.status as number as RawRigidBodyType,
             desc.canSleep,
             desc.sleeping,
+            desc.softCcdPrediction,
             desc.ccdEnabled,
             desc.dominanceGroup,
             desc.additionalSolverIterations,

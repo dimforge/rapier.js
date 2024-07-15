@@ -358,6 +358,10 @@ impl RawRigidBodySet {
         self.map_mut(handle, |rb| rb.enable_ccd(enabled))
     }
 
+    pub fn rbSetSoftCcdPrediction(&mut self, handle: FlatHandle, prediction: f32) {
+        self.map_mut(handle, |rb| rb.set_soft_ccd_prediction(prediction))
+    }
+
     /// The mass of this rigid-body.
     pub fn rbMass(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |rb| rb.mass())
@@ -482,7 +486,7 @@ impl RawRigidBodySet {
     /// A dynamic rigid-body that does not move during several consecutive frames will
     /// be put to sleep by the physics engine, i.e., it will stop being simulated in order
     /// to avoid useless computations.
-    /// This methods forces a sleeping rigid-body to wake-up. This is useful, e.g., before modifying
+    /// This method forces a sleeping rigid-body to wake-up. This is useful, e.g., before modifying
     /// the position of a dynamic body so that it is properly simulated afterwards.
     pub fn rbWakeUp(&mut self, handle: FlatHandle) {
         self.map_mut(handle, |rb| rb.wake_up(true))
@@ -491,6 +495,9 @@ impl RawRigidBodySet {
     /// Is Continuous Collision Detection enabled for this rigid-body?
     pub fn rbIsCcdEnabled(&self, handle: FlatHandle) -> bool {
         self.map(handle, |rb| rb.is_ccd_enabled())
+    }
+    pub fn rbSoftCcdPrediction(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.soft_ccd_prediction())
     }
 
     /// The number of colliders attached to this rigid-body.

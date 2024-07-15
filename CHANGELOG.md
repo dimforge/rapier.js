@@ -1,3 +1,50 @@
+### Unreleased
+
+-   Update from rapier 0.19 to 0.21 ([#281](https://github.com/dimforge/rapier.js/pull/281)), see [rapier's changelog](https://github.com/dimforge/rapier/blob/master/CHANGELOG.md#v0210-23-june-2024) for more context.
+
+### 0.13.1 (2024-05-08)
+
+#### Fixed
+
+-   Fix regression that could cause missed contact between a ball and another shape type.
+
+### 0.13.0 (2024-05-05)
+
+Several stability improvements are added as part of this release.
+See [rapier#625](https://github.com/dimforge/rapier/pull/625) for overviews of the most important improvements.
+
+#### Modified
+
+-   The `castShape` and `castCollider` functions have been modified to add a `targetDistance` parameter. This parameter
+    indicates the distance below which a hit is detected.
+-   Rename `RayIntersection.toi` to `.timeOfImpact` for better clarity.
+-   Rename `RayColliderIntersection.toi` to `.timeOfImpact` for better clarity.
+-   Rename `RayColliderToi` to `RayColliderHit`.
+-   Rename `RayColliderHit.toi` to `.timeOfImpact` for better clarity.
+-   Rename `ShapeTOI` to `ShapeCastHit`.
+-   Rename `ShapeColliderTOI` to `ColliderShapeCastHit`.
+-   Rename `ShapeCastHit.toi` to `.timeOfImpact`.
+
+#### Added
+
+-   Fix the kinematic character controller getting stuck against vertical walls.
+-   Add `KinematicCharacterController.normalNudgeFactor` and `.setNormalNudgeFactor` so set a coefficient used for
+    avoiding having the character controller get stuck on penetrations.
+-   Add `RigidBody.softCcdPrediction`, `.setSoftCcdPrediction`, and `RigidBodyDesc.setSoftCcdPrediction` for configuring
+    soft-ccd on the rigid-body. See [rapier#625](https://github.com/dimforge/rapier/pull/625) for additional details on
+    soft-ccd.
+-   3D version only: add `TriMeshFlags::FIX_INTERNAL_EDGES` and `HeightFieldFlags::FIX_INTERNAL_EDGES` for enabling
+    internal edges correction (which is no longer enabled by default). The flags have been added as an optional parameter
+    when building the shapes.
+-   Add `Collider.contactSkin`, `.setContactSkin`, and `ColliderDesc.setContactSkin` for configuring the collider’s
+    contact skin. See [rapier#625](https://github.com/dimforge/rapier/pull/625) for additional details on contact skins.
+-   Add `World.lengthUnit` which can be used to indicate the typical size of dynamic objects (e.g. 100 pixels instead of
+    1 meter). This helps the physics engine adjust internal thresholds for better results.
+
+#### Fixed
+
+-   Fix an issue where the reported contact force are lower than their actual value.
+
 ### 0.12.0 (2024-01-28)
 
 The main highlight of this release is the implementation of a new non-linear constraints solver for better stability
@@ -63,7 +110,8 @@ without affecting performance of the other parts of the simulation.
     attached colliders) without removing it from the physics world.
 -   Add `Collider.isEnabled, Collider.setEnabled, ColliderDesc.setEnabled` to disable a collider without removing it
     from the physics world.
--   Add shape-specific methods to modify a collider’s size: `Collider.setRadius, setHalfExtents, setRoundRadius, setHalfHeight`.
+-   Add shape-specific methods to modify a collider’s
+    size: `Collider.setRadius, setHalfExtents, setRoundRadius, setHalfHeight`.
 
 #### Modified
 
@@ -188,7 +236,8 @@ to the `master` branch.
     automatically wake-up the rigid-bodies attached to the inserted joint.
 -   Add a `filter` callback to all the scene queries. Use this for filtering more fine-grained than collision groups.
 -   Add `collider.shape` that represents the shape of a collider. This is a more convenient way of reading the collider’s
-    shape properties. Modifying this shape will have no effect unless `collider.setShape` is called with the modified shape.
+    shape properties. Modifying this shape will have no effect unless `collider.setShape` is called with the modified
+    shape.
 -   Add `Collider.containsPoint`, `.projectPoint`, `.intersectsRay`, `.castShape`, `.castCollider`, `.intersectsShape`,
     `.contactShape`, `.contactCollider`, `.castRay`, `.castRayAndGetNormal`.
 -   Add `Shape.containsPoint`, `.projectPoint`, `.intersectsRay`, `.castShape`, `.intersectsShape`,
@@ -287,7 +336,8 @@ This release was broken and has been unpublished.
 
 ### v0.7.0
 
-The typescripts bindings for Rapier have a [brand new user-guide](https://rapier.rs/docs/user_guides/javascript/getting_started_js)
+The typescripts bindings for Rapier have
+a [brand new user-guide](https://rapier.rs/docs/user_guides/javascript/getting_started_js)
 covering all the features of the physics engine!
 
 ### Breaking change
@@ -306,8 +356,10 @@ covering all the features of the physics engine!
 
 -   Add `Ray.pointAt(t)` that conveniently computes `ray.origin + ray.dir * t`.
 -   Add access to joint motors by defining each joint with its own class deriving from `Joint`. Each joint now
-    have its relevant motor configuration methods: `configurMotorModel, configureMotorVelocity, configureMotorPosition, configureMotor`.
--   Add `World.collidersWithAabbIntersectingAabb` for retrieving the handles of all the colliders intersecting the given AABB.
+    have its relevant motor configuration
+    methods: `configurMotorModel, configureMotorVelocity, configureMotorPosition, configureMotor`.
+-   Add `World.collidersWithAabbIntersectingAabb` for retrieving the handles of all the colliders intersecting the given
+    AABB.
 -   Add many missing methods for reading/modifying a rigid-body state after its creation:
     -   `RigidBody.lockTranslations`
     -   `RigidBody.lockRotations`
@@ -336,11 +388,13 @@ covering all the features of the physics engine!
     -   `Collider.setTranslationWrtParent`
     -   `Collider.setRotation`
     -   `Collider.setRotationWrtParent`
--   Add `ColliderDesc.setMassProperties` for setting explicitly the mass properties of the collider being built (instead of relying on density).
+-   Add `ColliderDesc.setMassProperties` for setting explicitly the mass properties of the collider being built (instead
+    of relying on density).
 
 #### Modified
 
--   Colliders are no longer required to be attached to a rigid-body. Therefore, the second argument of `World.createCollider`
+-   Colliders are no longer required to be attached to a rigid-body. Therefore, the second argument
+    of `World.createCollider`
     is now optional.
 
 ### v0.6.0
@@ -348,13 +402,15 @@ covering all the features of the physics engine!
 #### Breaking changes
 
 -   The `BodyStatus::Kinematic` variant has been replaced by `BodyStatus::KinematicPositionBased` and
-    `BodyStatus::KinematicVelocityBased`. Position-based kinematic bodies are controlled by setting (at each frame) the next
+    `BodyStatus::KinematicVelocityBased`. Position-based kinematic bodies are controlled by setting (at each frame) the
+    next
     kinematic position of the rigid-body (just like before), and the velocity-based kinematic bodies are controlled
     by setting (at each frame) the velocity of the rigid-body.
 -   The `RigidBodyDesc.newKinematic` has been replaced by `RigidBodyDesc.newKinematicPositionBased` and
     `RigidBodyDesc.newKinematicVelocityBased` in order to build a position-based or velocity-based kinematic body.
 -   All contact and intersection events are now disabled by default. The can be enabled for each collider individually
-    by setting its `ActiveEvents`: `ColliderDesc.setActiveEvents(ActiveEvents.PROXIMITY_EVENTS | ActiveEvents.ContactEvents)`.
+    by setting
+    its `ActiveEvents`: `ColliderDesc.setActiveEvents(ActiveEvents.PROXIMITY_EVENTS | ActiveEvents.ContactEvents)`.
 
 #### Added
 
@@ -491,7 +547,7 @@ Breaking changes related to scene queries:
 -   The `QueryPipeline.castRay` method now takes two additional parameters: a boolean indicating if the ray should not
     propagate if it starts inside of a shape, and a bit mask indicating the group the ray is part of and these it
     interacts with.
--   The `World.castRay` and `QueryPipeline.castRay` now return a struct of type `RayColliderToi`
+-   The `World.castRay` and `QueryPipeline.castRay` now return a struct of type `RayColliderHit`
     which no longer contains the normal at the hit point. Use the new methods `World.castRayAndGetNormal`
     or `QueryPipeline.castRayAndGetNormal` in order to retrieve the normal too.
 

@@ -8,9 +8,9 @@ use rapier::control::{
     CharacterAutostep, CharacterCollision, CharacterLength, EffectiveCharacterMovement,
     KinematicCharacterController,
 };
-use rapier::geometry::{ColliderHandle, TOI};
+use rapier::geometry::{ColliderHandle, ShapeCastHit};
 use rapier::math::{Point, Real, Vector};
-use rapier::parry::query::TOIStatus;
+use rapier::parry::query::ShapeCastStatus;
 use rapier::pipeline::{QueryFilter, QueryFilterFlags};
 use wasm_bindgen::prelude::*;
 
@@ -55,6 +55,14 @@ impl RawKinematicCharacterController {
 
     pub fn setUp(&mut self, vector: &RawVector) {
         self.controller.up = Unit::new_normalize(vector.0);
+    }
+
+    pub fn normalNudgeFactor(&self) -> Real {
+        self.controller.normal_nudge_factor
+    }
+
+    pub fn setNormalNudgeFactor(&mut self, value: Real) {
+        self.controller.normal_nudge_factor = value;
     }
 
     pub fn offset(&self) -> Real {
@@ -182,18 +190,16 @@ impl RawKinematicCharacterController {
                                 .map(|b| b.mass())
                         })
                         .unwrap_or(0.0);
-                    for collision in &self.events {
-                        self.controller.solve_character_collision_impulses(
-                            dt,
-                            &mut bodies.0,
-                            &colliders.0,
-                            &queries.0,
-                            collider.shape(),
-                            character_mass,
-                            collision,
-                            query_filter,
-                        );
-                    }
+                    self.controller.solve_character_collision_impulses(
+                        dt,
+                        &mut bodies.0,
+                        &colliders.0,
+                        &queries.0,
+                        collider.shape(),
+                        character_mass,
+                        self.events.iter(),
+                        query_filter,
+                    );
                 }
             });
         } else {
@@ -234,13 +240,13 @@ impl RawCharacterCollision {
             character_pos: Isometry::identity(),
             translation_applied: Vector::zeros(),
             translation_remaining: Vector::zeros(),
-            toi: TOI {
-                toi: 0.0,
+            hit: ShapeCastHit {
+                time_of_impact: 0.0,
                 witness1: Point::origin(),
                 witness2: Point::origin(),
                 normal1: Vector::y_axis(),
                 normal2: Vector::y_axis(),
-                status: TOIStatus::Failed,
+                status: ShapeCastStatus::Failed,
             },
         })
     }
@@ -258,22 +264,22 @@ impl RawCharacterCollision {
     }
 
     pub fn toi(&self) -> Real {
-        self.0.toi.toi
+        self.0.hit.time_of_impact
     }
 
     pub fn worldWitness1(&self) -> RawVector {
-        self.0.toi.witness1.coords.into() // Already in world-space.
+        self.0.hit.witness1.coords.into() // Already in world-space.
     }
 
     pub fn worldWitness2(&self) -> RawVector {
-        (self.0.character_pos * self.0.toi.witness2).coords.into()
+        (self.0.character_pos * self.0.hit.witness2).coords.into()
     }
 
     pub fn worldNormal1(&self) -> RawVector {
-        self.0.toi.normal1.into_inner().into() // Already in world-space.
+        self.0.hit.normal1.into_inner().into() // Already in world-space.
     }
 
     pub fn worldNormal2(&self) -> RawVector {
-        (self.0.character_pos * self.0.toi.normal2.into_inner()).into()
+        (self.0.character_pos * self.0.hit.normal2.into_inner()).into()
     }
 }
