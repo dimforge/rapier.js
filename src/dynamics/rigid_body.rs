@@ -722,4 +722,24 @@ impl RawRigidBodySet {
             rb.user_data = data as u128;
         })
     }
+
+    /// Retrieves the constant force(s) the user added to this rigid-body.
+    /// Returns zero if the rigid-body is not dynamic.
+    pub fn rbUserForce(&self, handle: FlatHandle) -> RawVector {
+        self.map(handle, |rb| rb.user_force().into())
+    }
+
+    /// Retrieves the constant torque(s) the user added to this rigid-body.
+    /// Returns zero if the rigid-body is not dynamic.
+    #[cfg(feature = "dim2")]
+    pub fn rbUserTorque(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.user_torque())
+    }
+
+    /// Retrieves the constant torque(s) the user added to this rigid-body.
+    /// Returns zero if the rigid-body is not dynamic.
+    #[cfg(feature = "dim3")]
+    pub fn rbUserTorque(&self, handle: FlatHandle) -> RawVector {
+        self.map(handle, |rb| rb.user_torque().into())
+    }
 }

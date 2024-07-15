@@ -1068,6 +1068,34 @@ export class RigidBody {
         rawImpulse.free();
         rawPoint.free();
     }
+
+    /**
+     * Retrieves the constant force(s) the user added to this rigid-body
+     * Returns zero if the rigid-body is not dynamic.
+     */
+    public userForce(): Vector {
+        return VectorOps.fromRaw(this.rawSet.rbUserForce(this.handle));
+    }
+
+    // #if DIM2
+    /**
+     * Retrieves the constant torque(s) the user added to this rigid-body
+     * Returns zero if the rigid-body is not dynamic.
+     */
+    public userTorque(): number {
+        return this.rawSet.rbUserTorque(this.handle);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * Retrieves the constant torque(s) the user added to this rigid-body
+     * Returns zero if the rigid-body is not dynamic.
+     */
+    public userTorque(): Vector {
+        return VectorOps.fromRaw(this.rawSet.rbUserTorque(this.handle));
+    }
+    // #endif
 }
 
 export class RigidBodyDesc {
