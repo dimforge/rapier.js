@@ -23,7 +23,7 @@ required-features = ["dim3"]
 
 
 [dependencies]
-rapier3d = { version = "0.21.0", features = [
+rapier3d = { version = "0.22.0", features = [
     "wasm-bindgen",
     "serde-serialize",
     "enhanced-determinism",

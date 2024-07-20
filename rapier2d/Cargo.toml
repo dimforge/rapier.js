@@ -23,7 +23,7 @@ required-features = ["dim2"]
 
 
 [dependencies]
-rapier2d = { version = "0.21.0", features = [
+rapier2d = { version = "0.22", features = [
     "wasm-bindgen",
     "serde-serialize",
     "enhanced-determinism",
