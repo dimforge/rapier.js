@@ -1,6 +1,6 @@
-import type {Testbed} from "../Testbed";
-import {Vector3, Object3D, Mesh, BufferGeometry, BufferAttribute} from "three";
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import type { Testbed } from "../Testbed";
+import { Vector3, Object3D, Mesh, BufferGeometry, BufferAttribute } from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 type RAPIER_API = typeof import("@dimforge/rapier3d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
@@ -19,7 +19,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
     let loader = new GLTFLoader();
 
-    loader.load("./sword.glb", (gltf) => {
+    loader.load("./suzanne_blender_monkey.glb", (gltf) => {
         gltf.scene.position.set(0, 1.2, 0);
         gltf.scene.scale.set(3, 3, 3);
         testbed.graphics.scene.add(gltf.scene);
@@ -61,8 +61,8 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
     testbed.setWorld(world);
     let cameraPosition = {
-        eye: {x: 10.0, y: 5.0, z: 10.0},
-        target: {x: 0.0, y: 0.0, z: 0.0},
+        eye: { x: 10.0, y: 5.0, z: 10.0 },
+        target: { x: 0.0, y: 0.0, z: 0.0 },
     };
     testbed.lookAt(cameraPosition);
 }
