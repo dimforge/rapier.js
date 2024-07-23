@@ -12,8 +12,8 @@ import * as ConvexPolyhedron from "./demos/convexPolyhedron";
 import * as CCD from "./demos/ccd";
 import * as Platform from "./demos/platform";
 import * as CharacterController from "./demos/characterController";
-import * as glbToTrimesh from './demos/glbToTrimesh'
-import * as glbToConvexHull from './demos/glbtoConvexHull'
+import * as glbToTrimesh from "./demos/glbToTrimesh";
+import * as glbToConvexHull from "./demos/glbtoConvexHull";
 
 import("@dimforge/rapier3d").then((RAPIER) => {
     let builders = new Map([

@@ -1,4 +1,4 @@
-import type { Testbed } from "../Testbed";
+import type {Testbed} from "../Testbed";
 import {
     Vector3,
     Object3D,
@@ -7,7 +7,7 @@ import {
     BufferAttribute,
     TriangleStripDrawMode,
 } from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 type RAPIER_API = typeof import("@dimforge/rapier3d");
 
 export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
@@ -61,8 +61,8 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
     testbed.setWorld(world);
     let cameraPosition = {
-        eye: { x: 10.0, y: 5.0, z: 10.0 },
-        target: { x: 0.0, y: 0.0, z: 0.0 },
+        eye: {x: 10.0, y: 5.0, z: 10.0},
+        target: {x: 0.0, y: 0.0, z: 0.0},
     };
     testbed.lookAt(cameraPosition);
 }
