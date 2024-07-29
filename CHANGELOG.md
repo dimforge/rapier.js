@@ -1,3 +1,9 @@
+### Unreleased
+
+### Modified
+
+-   Package tree shaking has been disabled to avoid a crash on certain build configuration (#289).
+
 ### 0.14.0 (20 July 2024)
 
 #### Modified
