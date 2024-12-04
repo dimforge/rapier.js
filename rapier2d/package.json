@@ -16,6 +16,7 @@
         "typedoc": "^0.25.13"
     },
     "dependencies": {
+        "typescript": "^5.7.2",
         "wasm-pack": "^0.12.1"
     }
 }
