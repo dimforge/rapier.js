@@ -88,8 +88,12 @@ export class Gui {
         text += "<br/>[Step " + infos.stepId + "]";
 
         if (infos.worldHash) {
-            text += "<br/>World hash (xxHash128): " + infos.worldHash.toString();
-            text += "<br/>World hash time (xxHash128): " + infos.worldHashTime + "ms";
+            text +=
+                "<br/>World hash (xxHash128): " + infos.worldHash.toString();
+            text +=
+                "<br/>World hash time (xxHash128): " +
+                infos.worldHashTime +
+                "ms";
             text += "<br/>Snapshot time: " + infos.snapshotTime + "ms";
         }
         this.debugText.innerHTML = text;

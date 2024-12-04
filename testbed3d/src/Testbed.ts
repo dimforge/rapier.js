@@ -1,7 +1,7 @@
 import {Graphics} from "./Graphics";
 import {Gui} from "./Gui";
 import type {DebugInfos} from "./Gui";
-import { xxhash128 } from "hash-wasm";
+import {xxhash128} from "hash-wasm";
 import type * as RAPIER from "@dimforge/rapier3d";
 
 type RAPIER_API = typeof import("@dimforge/rapier3d");
@@ -166,7 +166,7 @@ export class Testbed {
                 };
                 t0 = performance.now();
                 xxhash128(snapshot).then((hash) => {
-                    debugInfos.worldHash= hash 
+                    debugInfos.worldHash = hash;
                     t1 = performance.now();
                     let worldHashTime = t1 - t0;
                     debugInfos.worldHashTime = worldHashTime;
