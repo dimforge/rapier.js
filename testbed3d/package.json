@@ -12,14 +12,13 @@
     },
     "dependencies": {
         "@dimforge/rapier3d": "file:../rapier3d",
+        "hash-wasm": "^4.12.0",
         "lil-gui": "^0.17.0",
-        "md5": "^2.3.0",
         "seedrandom": "^3.0.5",
         "stats.js": "^0.17.0",
         "three": "^0.146.0"
     },
     "devDependencies": {
-        "@types/md5": "^2.3.2",
         "@types/seedrandom": "^3.0.2",
         "@types/stats.js": "^0.17.0",
         "@types/three": "^0.144.0",

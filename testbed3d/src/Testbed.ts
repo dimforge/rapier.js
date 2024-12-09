@@ -1,7 +1,7 @@
 import {Graphics} from "./Graphics";
 import {Gui} from "./Gui";
 import type {DebugInfos} from "./Gui";
-import * as md5 from "md5";
+import {xxhash128} from "hash-wasm";
 import type * as RAPIER from "@dimforge/rapier3d";
 
 type RAPIER_API = typeof import("@dimforge/rapier3d");
@@ -165,14 +165,14 @@ export class Testbed {
                     snapshotTime: 0,
                 };
                 t0 = performance.now();
-                debugInfos.worldHash = md5(snapshot);
-                t1 = performance.now();
-                let worldHashTime = t1 - t0;
-
-                debugInfos.worldHashTime = worldHashTime;
-                debugInfos.snapshotTime = snapshotTime;
-
-                this.gui.setDebugInfos(debugInfos);
+                xxhash128(snapshot).then((hash) => {
+                    debugInfos.worldHash = hash;
+                    t1 = performance.now();
+                    let worldHashTime = t1 - t0;
+                    debugInfos.worldHashTime = worldHashTime;
+                    debugInfos.snapshotTime = snapshotTime;
+                    this.gui.setDebugInfos(debugInfos);
+                });
             }
         }
 
