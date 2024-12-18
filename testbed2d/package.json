@@ -7,8 +7,7 @@
     "main": "dist/rapier-testbed2d.js",
     "scripts": {
         "build": "rimraf dist pkg && webpack",
-        "start": "rimraf dist pkg && webpack serve --open --node-env development",
-        "test": "cargo test && wasm-pack test --headless"
+        "start": "rimraf dist pkg && webpack serve --open --node-env development"
     },
     "dependencies": {
         "@dimforge/rapier2d": "file:../rapier2d",
