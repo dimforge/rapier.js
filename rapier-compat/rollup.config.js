@@ -3,9 +3,36 @@ import {nodeResolve} from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import terser from "@rollup/plugin-terser";
 import path from "path";
-import {base64} from "rollup-plugin-base64";
 import copy from "rollup-plugin-copy";
 import filesize from "rollup-plugin-filesize";
+
+import {createFilter} from "@rollup/pluginutils";
+import {dynamicEncode} from "simple-yenc";
+import {readFileSync} from "fs";
+
+function yEncode(opts = {}) {
+    if (!opts.include) {
+        throw Error("include option must be specified");
+    }
+
+    const filter = createFilter(opts.include, opts.exclude);
+    const strQuote = "`";
+    return {
+        name: "yEncode",
+        load(id) {
+            if (filter(id)) {
+                const fileData = readFileSync(id);
+                const decode = dynamicEncode(fileData, strQuote);
+                return [
+                    "export default String.raw",
+                    strQuote,
+                    decode,
+                    strQuote,
+                ].join("");
+            }
+        },
+    };
+}
 
 const config = (dim) => ({
     input: `./gen${dim}/rapier.ts`,
@@ -52,8 +79,8 @@ const config = (dim) => ({
                 },
             ],
         }),
-        base64({include: "**/*.wasm"}),
-        terser(),
+        yEncode({include: "**/*.wasm"}),
+        terser({compress: {passes: 2}}),
         nodeResolve(),
         commonjs(),
         typescript({
