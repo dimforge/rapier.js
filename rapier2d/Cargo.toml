@@ -21,6 +21,10 @@ path = "../src/lib.rs"
 crate-type = ["cdylib", "rlib"]
 required-features = ["dim2"]
 
+[lints]
+rust.unexpected_cfgs = { level = "warn", check-cfg = [
+    'cfg(feature, values("dim3"))',
+] }
 
 [dependencies]
 rapier2d = { version = "0.22", features = [
