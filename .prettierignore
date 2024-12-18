@@ -5,3 +5,5 @@ gen2d
 gen3d
 docs
 target
+**/CHANGELOG.md
+**/README.md
