@@ -1,4 +1,5 @@
 import {Testbed} from "./Testbed";
+import * as elasticBall from "./demos/elasticBall";
 import * as Trimesh from "./demos/trimesh";
 import * as CollisionGroups from "./demos/collisionGroups";
 import * as Pyramid from "./demos/pyramid";
@@ -17,6 +18,7 @@ import * as glbToConvexHull from "./demos/glbtoConvexHull";
 
 import("@dimforge/rapier3d").then((RAPIER) => {
     let builders = new Map([
+        ["elastic ball", elasticBall.initWorld],
         ["collision groups", CollisionGroups.initWorld],
         ["character controller", CharacterController.initWorld],
         ["convex polyhedron", ConvexPolyhedron.initWorld],
