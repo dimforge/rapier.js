@@ -229,7 +229,7 @@ export class Graphics {
     }
 
     rayAtMousePosition(pos: {x: number; y: number}) {
-        this.raycaster.setFromCamera(pos, this.camera);
+        this.raycaster.setFromCamera(pos as any, this.camera);
         return this.raycaster.ray;
     }
 
