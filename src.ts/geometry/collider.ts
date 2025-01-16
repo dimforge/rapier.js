@@ -1,4 +1,4 @@
-import {RawColliderSet} from "../raw";
+import {RawColliderSet, RawCompoundShapePart} from "../raw";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
 import {
     CoefficientCombineRule,
@@ -36,6 +36,7 @@ import {
     RoundConvexPolyhedron,
     HeightFieldFlags,
     // #endif
+    Compound,
 } from "./shape";
 import {Ray, RayIntersection} from "./ray";
 import {PointProjection} from "./point";
@@ -1297,6 +1298,19 @@ export class ColliderDesc {
     }
 
     /**
+     * Creates a new collider descriptor with a heightfield shape.
+     *
+     * @param heights - The heights of the heightfield, along its local `y` axis.
+     * @param scale - The scale factor applied to the heightfield.
+     */
+        public static compound(
+            shapes: RawCompoundShapePart[],
+        ): ColliderDesc {
+            const shape = new Compound(shapes);
+            return new ColliderDesc(shape);
+        }
+
+    /**
      * Computes the convex-hull of the given points and use the resulting
      * convex polygon as the shape for this new collider descriptor.
      *
@@ -1741,7 +1755,7 @@ export class ColliderDesc {
      * Sets the collision groups used by this collider.
      *
      * Two colliders will interact iff. their collision groups are compatible.
-     * See the documentation of `InteractionGroups` for details on teh used bit pattern.
+     * See the documentation of `InteractionGroups` for details on the used bit pattern.
      *
      * @param groups - The collision groups used for the collider being built.
      */
