@@ -1,5 +1,5 @@
 import {Vector, VectorOps, Rotation, RotationOps} from "../math";
-import {RawColliderSet, RawShape, RawShapeType} from "../raw";
+import {RawColliderSet, RawCompoundShapePart, RawShape, RawShapeType} from "../raw";
 import {ShapeContact} from "./contact";
 import {PointProjection} from "./point";
 import {Ray, RayIntersection} from "./ray";
@@ -510,7 +510,7 @@ export enum ShapeType {
     Triangle = 5,
     TriMesh = 6,
     HeightField = 7,
-    // Compound = 8,
+    Compound = 8,
     ConvexPolygon = 9,
     RoundCuboid = 10,
     RoundTriangle = 11,
@@ -534,7 +534,7 @@ export enum ShapeType {
     Triangle = 5,
     TriMesh = 6,
     HeightField = 7,
-    // Compound = 8,
+    Compound = 8,
     ConvexPolyhedron = 9,
     Cylinder = 10,
     Cone = 11,
@@ -1184,6 +1184,33 @@ export class Heightfield extends Shape {
 }
 
 // #endif
+
+/**
+ * A shape that is a compound.
+ */
+export class Compound extends Shape {
+    readonly type = ShapeType.Compound;
+
+    /**
+     * The shapes constituting this compound shape.
+     */
+    shapes: RawCompoundShapePart[];
+
+    /**
+     * Creates a new heightfield shape.
+     *
+     * @param shapes - The shapes constituting this compound shape.
+     */
+    constructor(shapes: RawCompoundShapePart[]) {
+        super();
+        this.shapes = shapes;
+    }
+
+    public intoRaw(): RawShape {
+        let rawShape = RawShape.compound(this.shapes);
+        return rawShape;
+    }
+}
 
 // #if DIM3
 /**

@@ -4,6 +4,7 @@
 use js_sys::Float32Array;
 #[cfg(feature = "dim3")]
 use na::{Quaternion, Unit};
+use rapier::math::Isometry;
 #[cfg(feature = "dim3")]
 use rapier::math::Real;
 use rapier::math::{Point, Rotation, Vector};
@@ -262,5 +263,46 @@ impl RawSdpMatrix3 {
         let output = Float32Array::new_with_length(6);
         output.copy_from(&[m.m11, m.m12, m.m13, m.m22, m.m23, m.m33]);
         output
+    }
+}
+
+#[wasm_bindgen]
+#[repr(transparent)]
+#[cfg(feature = "dim3")]
+#[derive(Copy, Clone)]
+/// A rotation quaternion.
+pub struct RawIsometry(pub(crate) Isometry<Real>);
+
+#[wasm_bindgen]
+#[repr(transparent)]
+#[cfg(feature = "dim2")]
+#[derive(Copy, Clone)]
+/// A rotation quaternion.
+pub struct RawIsometry(pub(crate) Isometry<f32>);
+
+impl From<Isometry<f32>> for RawIsometry {
+    fn from(v: Isometry<f32>) -> Self {
+        RawIsometry(v)
+    }
+}
+
+#[wasm_bindgen]
+/// A unit complex number describing the orientation of a Rapier entity.
+impl RawIsometry {
+    #[wasm_bindgen(constructor)]
+    pub fn new(rotation: RawRotation, translation: RawVector) -> Self {
+        Self(Isometry::from_parts(translation.0.into(), rotation.0))
+    }
+    /// The identity rotation.
+    pub fn translation(&self) -> RawVector {
+        RawVector(self.0.translation.vector)
+    }
+
+    /// The rotation with the given angle.
+    pub fn rotation(&self) -> RawRotation {
+        #[cfg(feature = "dim2")]
+        return RawRotation(Rotation::new(self.0.rotation.angle()));
+        #[cfg(feature = "dim3")]
+        return RawRotation(Rotation::new(self.0.rotation.scaled_axis()));
     }
 }
