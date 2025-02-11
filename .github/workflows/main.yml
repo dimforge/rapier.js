@@ -13,10 +13,10 @@ jobs:
     check-fmt:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions/setup-node@v3
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
               with:
-                  node-version: "16.x"
+                  node-version: "22.x"
             - run: npm ci
             - name: Check formatting
               run: npm run fmt -- --check
@@ -30,7 +30,7 @@ jobs:
         env:
             RUSTFLAGS: -D warnings
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - uses: actions/cache@v3
               with:
                   path: |
@@ -71,13 +71,13 @@ jobs:
         needs: build
         if: github.ref == 'refs/heads/master'
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - uses: actions/download-artifact@v4
               with:
                   name: pkg ubuntu-latest
-            - uses: actions/setup-node@v3
+            - uses: actions/setup-node@v4
               with:
-                  node-version: "16.x"
+                  node-version: "22.x"
                   registry-url: "https://registry.npmjs.org"
             - name: Publish rapier3d
               run: |
