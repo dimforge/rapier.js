@@ -1,5 +1,6 @@
+{%- set aggregated_features = additional_features | join(sep="_") -%}
 [package]
-name = "dimforge_rapier{{ dimension }}d" # Can't be named rapier{{ dimension }}d which conflicts with the dependency.
+name = "dimforge_rapier{{ dimension }}d{%- if additional_features | length > 0 -%}{{- "_" ~ aggregated_features }}{% endif %}" # Can't be named rapier{{ dimension }}d which conflicts with the dependency.
 version = "0.14.0"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 description = "{{ dimension }}-dimensional physics engine in Rust - official JS bindings."

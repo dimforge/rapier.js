@@ -1,6 +1,5 @@
 [workspace]
-members = ["prepare_builds", "rapier2d"]
-exclude = ["builds/rapier2d-simd", "builds/rapier2d", "builds/rapier2d-deterministic"]
+members = ["prepare_builds", "rapier2d", "rapier3d", "builds/*"]
 resolver = "2"
 
 [profile.release]

@@ -6,7 +6,9 @@ It uses clap so you can pass `-h` to get more info about its parameters.
 
 ## usage
 
-At workspace root: `cargo run -p prepare_builds -- -d dim2 -f simd`
+At workspace root: `cargo run -p prepare_builds -- -d dim2 -f simd`.
+
+Or use provided scripts: `./prepare_builds/prepare_all_projects.sh && ./prepare_builds/build_all_projects.sh`
 
 ## Technical considerations
 
