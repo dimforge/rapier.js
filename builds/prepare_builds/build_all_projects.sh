@@ -2,6 +2,11 @@
 
 for entry in builds/*
 do
+echo $entry;
+    if [[ "$(basename "$entry")" == $(basename $(dirname "${BASH_SOURCE[0]}")) ]]; then
+        echo "skipping directory: $entry"
+        continue;
+    fi
     (
         cd $entry
         # FIXME: ideally we'd use `npm ci`

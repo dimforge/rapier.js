@@ -1,5 +1,5 @@
 [workspace]
-members = ["prepare_builds", "rapier2d", "rapier3d", "builds/*"]
+members = ["rapier2d", "rapier3d", "builds/*"]
 resolver = "2"
 
 [profile.release]

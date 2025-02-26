@@ -16,4 +16,5 @@ docs
 *.d.ts
 
 # Made by the prepare_builds crate
-builds
+builds/*
+!builds/prepare_builds

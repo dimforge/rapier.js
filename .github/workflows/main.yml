@@ -44,10 +44,10 @@ jobs:
             - run: npm ci;
             - name: Prepare builds
               run: |
-                  ./prepare_builds/prepare_all_projects.sh
+                  ./builds/prepare_builds/prepare_all_projects.sh
             - name: Build all projects
               run: |
-                  ./prepare_builds/build_all_projects.sh
+                  ./builds/prepare_builds/build_all_projects.sh
             # - name: Build rapier-compat
             #   run: |
             #       cd rapier-compat;

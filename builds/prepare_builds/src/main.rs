@@ -70,7 +70,7 @@ impl BuildValues {
                 .parent()
                 .unwrap()
                 .join(format!(
-                    "builds/rapier{}d{}",
+                    "rapier{}d{}",
                     dim,
                     match args.feature_set {
                         FeatureSet::NonDeterministic => "",

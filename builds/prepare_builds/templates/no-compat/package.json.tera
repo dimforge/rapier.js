@@ -12,6 +12,7 @@
         "clean": "rimraf pkg"
     },
     "devDependencies": {
+        # Better keep this version in sync with wasm-pack, see https://github.com/rustwasm/wasm-pack/issues/1444
         "rimraf": "^3.0.2",
         "typedoc": "^0.25.13"
     },
