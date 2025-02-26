@@ -1,5 +1,6 @@
+{%- set aggregated_features = additional_features | join(sep="_") -%}
 {
-    "name": "@dimforge/rapier{{ dimension }}d",
+    "name": "@dimforge/rapier{{ dimension }}d{%- if additional_features | length > 0 -%}{{- "_" ~ aggregated_features }}{% endif %}",
     "description": "",
     "private": true,
     "exports": "./pkg",

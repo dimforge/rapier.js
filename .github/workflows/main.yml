@@ -39,28 +39,25 @@ jobs:
                       target/
                   key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
             - run: npm ci;
-            - name: Prepare builds
+            - name: Prepare no-compat builds
               run: |
                   ./builds/prepare_builds/prepare_all_projects.sh
-            - name: Build all projects
+            - name: Build all no-compat projects
               run: |
                   ./builds/prepare_builds/build_all_projects.sh
-            # - name: Build rapier-compat
-            #   run: |
-            #       cd rapier-compat;
-            #       npm ci;
-            #       npm run build;
-            #       npm run test;
+            - name: Build rapier-compat
+              run: |
+                  cd rapier-compat;
+                  npm ci;
+                  npm run build;
+                  npm run test;
             - uses: actions/upload-artifact@v4
               with:
                   name: pkg ubuntu-latest
                   path: |
-                      builds/rapier2d/pkg
-                      builds/rapier2d-deterministic/pkg
-                      builds/rapier2d-simd/pkg
-                      builds/rapier3d/pkg
-                      builds/rapier3d-deterministic/pkg
-                      builds/rapier3d-simd/pkg
+                      builds/*/pkg
+                      rapier-compat/pkg2d
+                      rapier-compat/pkg3d
                   overwrite: true
     publish:
         runs-on: ubuntu-latest
@@ -75,17 +72,9 @@ jobs:
               with:
                   node-version: "22.x"
                   registry-url: "https://registry.npmjs.org"
-            - name: Publish rapier3d
+            - name: Publish no compat projects
               run: |
-                  cd rapier3d/pkg; npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false; 
-                  npm publish --tag canary --access public;
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-            - name: Publish rapier2d
-              run: |
-                  cd rapier2d/pkg;
-                  npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
-                  npm publish --tag canary --access public;
+                  ./publish_all_no-compat.sh
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
             - name: Publish rapier3d-compat
