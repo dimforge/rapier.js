@@ -24,10 +24,7 @@ jobs:
             - name: Check Rust formatting
               run: cargo fmt -- --check
     build:
-        strategy:
-            matrix:
-                os: [ubuntu-latest, macos-latest]
-        runs-on: ${{ matrix.os }}
+        runs-on: ubuntu-latest
         env:
             RUSTFLAGS: -D warnings
         steps:
@@ -56,7 +53,7 @@ jobs:
             #       npm run test;
             - uses: actions/upload-artifact@v4
               with:
-                  name: pkg ${{ matrix.os }}
+                  name: pkg ubuntu-latest
                   path: |
                       builds/rapier2d/pkg
                       builds/rapier2d-deterministic/pkg
