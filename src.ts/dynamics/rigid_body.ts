@@ -507,6 +507,16 @@ export class RigidBody {
         return VectorOps.fromRaw(this.rawSet.rbLinvel(this.handle));
     }
 
+    /**
+     * The velocity of the given world-space point on this rigid-body.
+     */
+    public velocityAtPoint(point: Vector): Vector {
+        const rawPoint = VectorOps.intoRaw(point);
+        return VectorOps.fromRaw(
+            this.rawSet.rbVelocityAtPoint(this.handle, rawPoint),
+        );
+    }
+
     // #if DIM3
     /**
      * The angular velocity of this rigid-body.
