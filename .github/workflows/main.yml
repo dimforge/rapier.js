@@ -41,30 +41,28 @@ jobs:
                       target/
                   key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
             - run: npm ci;
-            - name: Build rapier-compat
+            - name: Prepare builds
               run: |
-                  cd rapier-compat;
-                  npm ci;
-                  npm run build;
-                  npm run test;
-            - name: Build rapier2d
+                  ./prepare_builds/prepare_all_projects.sh
+            - name: Build all projects
               run: |
-                  cd rapier2d;
-                  npm ci;
-                  npm run build;
-            - name: Build rapier3d
-              run: |
-                  cd rapier3d;
-                  npm ci;
-                  npm run build;
+                  ./prepare_builds/build_all_projects.sh
+            # - name: Build rapier-compat
+            #   run: |
+            #       cd rapier-compat;
+            #       npm ci;
+            #       npm run build;
+            #       npm run test;
             - uses: actions/upload-artifact@v4
               with:
                   name: pkg ${{ matrix.os }}
                   path: |
-                      rapier2d/pkg
-                      rapier3d/pkg
-                      rapier-compat/pkg2d
-                      rapier-compat/pkg3d
+                      builds/rapier2d/pkg
+                      builds/rapier2d-deterministic/pkg
+                      builds/rapier2d-simd/pkg
+                      builds/rapier3d/pkg
+                      builds/rapier3d-deterministic/pkg
+                      builds/rapier3d-simd/pkg
                   overwrite: true
     publish:
         runs-on: ubuntu-latest

@@ -10,7 +10,7 @@ gen_js() {
   mkdir -p ${GENOUT} ${PKGOUT}
 
   # Copy common sources
-  cp -r ../src.ts/* $GENOUT
+  cp -r ../../src.ts/* $GENOUT
 
   # Copy compat mode override sources
   rm -f "${GENOUT}/raw.ts" "${GENOUT}/init.ts"

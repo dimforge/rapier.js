@@ -1,5 +1,5 @@
 {
-    "name": "@dimforge/rapier2d",
+    "name": "@dimforge/rapier{{ dimension }}d",
     "description": "",
     "private": true,
     "exports": "./pkg",

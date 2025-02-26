@@ -14,3 +14,6 @@ gen3d/
 docs
 *.swp
 *.d.ts
+
+# Made by the prepare_builds crate
+builds
