@@ -1,5 +1,5 @@
 [package]
-name = "dimforge_rapier3d" # Can't be named rapier3d which conflicts with the dependency.
+name = "dimforge_rapier3d_old" # Can't be named rapier3d which conflicts with the dependency.
 version = "0.14.0"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 description = "3-dimensional physics engine in Rust - official JS bindings."

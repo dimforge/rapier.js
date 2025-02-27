@@ -1,4 +1,4 @@
-import {init, Vector3, World} from "../pkg3d";
+import {init, Vector3, World} from "../builds/3d-deterministic/pkg";
 
 describe("3d/World", () => {
     let world: World;

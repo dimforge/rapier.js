@@ -4,10 +4,9 @@ set -e
 gen_js() {
   DIM=$1
   GENOUT="./gen${DIM}"
-  PKGOUT="./pkg${DIM}"
 
   # Make output directories
-  mkdir -p ${GENOUT} ${PKGOUT}
+  mkdir -p ${GENOUT}
 
   # Copy common sources
   cp -r ../src.ts/* $GENOUT
@@ -16,8 +15,6 @@ gen_js() {
   rm -f "${GENOUT}/raw.ts" "${GENOUT}/init.ts"
   cp -r ./src${DIM}/* $GENOUT
 }
-
-# mkdir -p ./gen2d ./gen3d ./pkg2d ./pkg3d
 
 gen_js "2d"
 gen_js "3d"
@@ -30,13 +27,32 @@ find gen3d/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if DIM2:,\:#endif
 find gen2d/ -type f -name '*.bak' | xargs rm
 find gen3d/ -type f -name '*.bak' | xargs rm
 
-cp ./wasm-build2d/rapier_wasm* pkg2d/
-cp ./wasm-build3d/rapier_wasm* pkg3d/
+for features_set in \
+"2" "2 deterministic" "2 simd" \
+"3" "3 deterministic" "3 simd"
+do
 
-# "import.meta" causes Babel to choke, but the code path is never taken so just remove it.
-sed -i.bak 's/import.meta.url/"<deleted>"/g' pkg2d/rapier_wasm2d.js
-sed -i.bak 's/import.meta.url/"<deleted>"/g' pkg3d/rapier_wasm3d.js
+  set -- $features_set # Convert the "tuple" into the param args $1 $2...
+  dimension=$1
+  if [ -z "$2" ]; then
+    feature="${1}d";
+  else
+    feature="${1}d-${2}";
+  fi
 
-# Clean up backup files.
-find pkg2d/ -type f -name '*.bak' | xargs rm
-find pkg3d/ -type f -name '*.bak' | xargs rm
+  mkdir -p ./builds/${feature}/pkg/
+
+  cp ./builds/${feature}/wasm-build/rapier_wasm* ./builds/${feature}/pkg/
+  cp -r ./gen${dimension}d ./builds/${feature}/
+
+  # copy tsconfig, as they contain paths
+  cp ./tsconfig.common.json ./tsconfig.json ./builds/${feature}/
+  cp ./tsconfig.pkg${dimension}d.json ./builds/${feature}/tsconfig.pkg.json
+
+  # "import.meta" causes Babel to choke, but the code path is never taken so just remove it.
+  sed -i.bak 's/import.meta.url/"<deleted>"/g' ./builds/${feature}/pkg/rapier_wasm${dimension}d.js
+
+  # Clean up backup files.
+  find ./builds/${feature}/pkg/ -type f -name '*.bak' | xargs rm
+
+done
