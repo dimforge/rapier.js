@@ -3,6 +3,26 @@
 ### Modified
 
 - Package tree shaking has been disabled to avoid a crash on certain build configuration (#289).
+- Multiple packages with different feature sets are now released, and their build process has been automated (#309)
+  - Released packages are:
+    - rapier2d
+    - rapier2d-compat
+    - rapier2d-simd
+    - rapier2d-simd-compat
+    - rapier2d-deterministic
+    - rapier2d-deterministic-compat
+    - rapier3d
+    - rapier3d-compat
+    - rapier2d
+    - rapier2d-compat
+    - rapier3d-simd
+    - rapier3d-simd-compat
+    - rapier3d-deterministic
+    - rapier3d-deterministic-compat
+  - :warning: To this occasion, existing packages `rapier2d` and `rapier3d` are now built without `enhanced-determinism` feature enabled,
+    so if you rely on that feature, you should migrate to the new `-deterministic` flavor.
+
+
 
 ### 0.14.0 (20 July 2024)
 
