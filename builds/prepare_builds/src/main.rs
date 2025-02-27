@@ -20,9 +20,6 @@ pub struct Args {
     /// Features to enable
     #[arg(short, long)]
     feature_set: FeatureSet,
-
-    #[arg(short = 'c', long)]
-    is_compat: bool,
 }
 
 #[derive(ValueEnum, Debug, Clone, Copy)]
