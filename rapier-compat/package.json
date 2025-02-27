@@ -45,11 +45,11 @@
         ],
         "preset": "ts-jest",
         "collectCoverageFrom": [
-            "**/pkg/**/*.js"
+            "builds/**/pkg/**/*.js"
         ],
         "transformIgnorePatterns": [
             "[/\\\\]node_modules[/\\\\].+\\.(js|ts)$",
-            "**/[/\\\\]pkg[/\\\\].+\\.(js|ts)$"
+            "builds/.*/[/\\\\]pkg[/\\\\].+\\.(js|ts)$"
         ],
         "moduleFileExtensions": [
             "ts",
