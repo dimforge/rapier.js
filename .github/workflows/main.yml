@@ -56,8 +56,7 @@ jobs:
                   name: pkg ubuntu-latest
                   path: |
                       builds/*/pkg
-                      rapier-compat/pkg2d
-                      rapier-compat/pkg3d
+                      rapier-compat/builds/*/pkg
                   overwrite: true
     publish:
         runs-on: ubuntu-latest
@@ -72,22 +71,8 @@ jobs:
               with:
                   node-version: "22.x"
                   registry-url: "https://registry.npmjs.org"
-            - name: Publish no compat projects
+            - name: Publish projects
               run: |
-                  ./publish_all_no-compat.sh
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-            - name: Publish rapier3d-compat
-              run: |
-                  cd rapier-compat/pkg3d;
-                  npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
-                  npm publish --tag canary --access public;
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-            - name: Publish rapier2d-compat
-              run: |
-                  cd rapier-compat/pkg2d;
-                  npm version 0.0.0-$(git rev-parse --short HEAD)-$(date '+%Y%m%d') --git-tag-version false;
-                  npm publish --tag canary --access public;
+                  ./publish_all.sh
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

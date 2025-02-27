@@ -15,7 +15,5 @@ do
         # They should proably be similar to all packages, but I'm not sure.
         npm i;
         npm run build;
-        # Tests are only for compat version.
-        # npm run test;
     )
 done

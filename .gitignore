@@ -7,8 +7,6 @@ target
 .DS_Store
 dist
 pkg
-pkg2d
-pkg3d
 gen2d/
 gen3d/
 docs
@@ -18,3 +16,6 @@ docs
 # Made by the prepare_builds crate
 builds/*
 !builds/prepare_builds
+
+# compat generated builds
+rapier-compat/builds/
