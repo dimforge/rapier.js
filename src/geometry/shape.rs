@@ -322,6 +322,14 @@ impl RawShape {
         Self(SharedShape::heightfield_with_flags(heights, scale.0, flags))
     }
 
+    pub fn compound(shapes: Vec<RawCompoundShapePart>) -> Self {
+        let shapes = shapes
+            .into_iter()
+            .map(|part| (part.pose, part.shape))
+            .collect::<Vec<_>>();
+        Self(SharedShape::compound(shapes))
+    }
+
     pub fn segment(p1: &RawVector, p2: &RawVector) -> Self {
         Self(SharedShape::segment(p1.0.into(), p2.0.into()))
     }
@@ -507,4 +515,11 @@ impl RawShape {
         self.0
             .castRayAndGetNormal(&pos, rayOrig.0.into(), rayDir.0.into(), maxToi, solid)
     }
+}
+
+#[wasm_bindgen]
+#[derive(Clone)]
+pub struct RawCompoundShapePart {
+    pub(crate) pose: Isometry<Real>,
+    pub(crate) shape: SharedShape,
 }
