@@ -62,7 +62,7 @@ impl BuildValues {
         Self {
             dim: dim.to_string(),
             feature_set: feature_set.iter().map(|f| f.to_string()).collect(),
-            template_dir: root.join("templates/no-compat").clone(),
+            template_dir: root.join("templates/").clone(),
             target_dir: root
                 .parent()
                 .unwrap()
