@@ -2,7 +2,7 @@ use crate::dynamics::RawRigidBodySet;
 use crate::math::RawVector;
 use crate::utils::{self, FlatHandle};
 use rapier::control::PidController;
-use rapier::dynamics::AxisMask;
+use rapier::dynamics::AxesMask;
 use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
 
@@ -20,31 +20,31 @@ pub struct RawPidController {
 impl RawPidController {
     #[wasm_bindgen(constructor)]
     pub fn new(kp: f32, ki: f32, kd: f32, axes_mask: u8) -> Self {
-        let controller = PidController::new(kp, ki, kd, AxisMask::from_bits(axes_mask).unwrap_or(AxisMask::all()));
+        let controller = PidController::new(kp, ki, kd, AxesMask::from_bits(axes_mask).unwrap_or(AxesMask::all()));
         Self { controller }
     }
 
     pub fn set_kp(&mut self, kp: f32, axes: u8) {
-        let axes = AxisMask::from_bits(axes).unwrap_or(AxisMask::all());
-        if axes.contains(AxisMask::LIN_X) {
+        let axes = AxesMask::from_bits(axes).unwrap_or(AxesMask::all());
+        if axes.contains(AxesMask::LIN_X) {
             self.controller.pd.lin_kp.x = kp;
         }
-        if axes.contains(AxisMask::LIN_Y) {
+        if axes.contains(AxesMask::LIN_Y) {
             self.controller.pd.lin_kp.y = kp;
         }
         #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::LIN_Z) {
+        if axes.contains(AxesMask::LIN_Z) {
             self.controller.pd.lin_kp.z = kp;
         }
         #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::ANG_X) {
+        if axes.contains(AxesMask::ANG_X) {
             self.controller.pd.ang_kp.x = kp;
         }
         #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::ANG_Y) {
+        if axes.contains(AxesMask::ANG_Y) {
             self.controller.pd.ang_kp.y = kp;
         }
-        if axes.contains(AxisMask::ANG_Z) {
+        if axes.contains(AxesMask::ANG_Z) {
             #[cfg(feature = "dim2")]
             { self.controller.pd.ang_kp = kp; }
             #[cfg(feature = "dim3")]
@@ -53,26 +53,26 @@ impl RawPidController {
     }
 
     pub fn set_ki(&mut self, ki: f32, axes: u8) {
-        let axes = AxisMask::from_bits(axes).unwrap_or(AxisMask::all());
-        if axes.contains(AxisMask::LIN_X) {
+        let axes = AxesMask::from_bits(axes).unwrap_or(AxesMask::all());
+        if axes.contains(AxesMask::LIN_X) {
             self.controller.lin_ki.x = ki;
         }
-        if axes.contains(AxisMask::LIN_Y) {
+        if axes.contains(AxesMask::LIN_Y) {
             self.controller.lin_ki.y = ki;
         }
         #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::LIN_Z) {
+        if axes.contains(AxesMask::LIN_Z) {
             self.controller.lin_ki.z = ki;
         }
         #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::ANG_X) {
+        if axes.contains(AxesMask::ANG_X) {
             self.controller.ang_ki.x = ki;
         }
         #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::ANG_Y) {
+        if axes.contains(AxesMask::ANG_Y) {
             self.controller.ang_ki.y = ki;
         }
-        if axes.contains(AxisMask::ANG_Z) {
+        if axes.contains(AxesMask::ANG_Z) {
             #[cfg(feature = "dim2")]
             { self.controller.ang_ki = ki; }
             #[cfg(feature = "dim3")]
@@ -81,26 +81,26 @@ impl RawPidController {
     }
 
     pub fn set_kd(&mut self, kd: f32, axes: u8) {
-        let axes = AxisMask::from_bits(axes).unwrap_or(AxisMask::all());
-        if axes.contains(AxisMask::LIN_X) {
+        let axes = AxesMask::from_bits(axes).unwrap_or(AxesMask::all());
+        if axes.contains(AxesMask::LIN_X) {
             self.controller.pd.lin_kd.x = kd;
         }
-        if axes.contains(AxisMask::LIN_Y) {
-            self.controller.pd.lin_kd.x = kd;
-        }
-        #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::LIN_Z) {
+        if axes.contains(AxesMask::LIN_Y) {
             self.controller.pd.lin_kd.x = kd;
         }
         #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::ANG_X) {
+        if axes.contains(AxesMask::LIN_Z) {
+            self.controller.pd.lin_kd.x = kd;
+        }
+        #[cfg(feature = "dim3")]
+        if axes.contains(AxesMask::ANG_X) {
             self.controller.pd.ang_kd.x = kd;
         }
         #[cfg(feature = "dim3")]
-        if axes.contains(AxisMask::ANG_Y) {
+        if axes.contains(AxesMask::ANG_Y) {
             self.controller.pd.ang_kd.y = kd;
         }
-        if axes.contains(AxisMask::ANG_Z) {
+        if axes.contains(AxesMask::ANG_Z) {
             #[cfg(feature = "dim2")]
             { self.controller.pd.ang_kd = kd; }
             #[cfg(feature = "dim3")]
@@ -109,7 +109,7 @@ impl RawPidController {
     }
 
     pub fn set_axes_mask(&mut self, axes_mask: u8) {
-        if let Some(mask) = AxisMask::from_bits(axes_mask) {
+        if let Some(mask) = AxesMask::from_bits(axes_mask) {
             self.controller.pd.axes = mask;
         }
     }

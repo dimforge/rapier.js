@@ -27,7 +27,7 @@ rust.unexpected_cfgs = { level = "warn", check-cfg = [
 ] }
 
 [dependencies]
-rapier2d = { version = "0.23", features = [
+rapier2d = { version = "0.23.1", features = [
     "serde-serialize",
     "enhanced-determinism",
     "debug-render",

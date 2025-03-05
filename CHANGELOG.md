@@ -1,16 +1,20 @@
 ### Unreleased
 
-### Modified
+#### Added
 
+- Added `PidController`, `World.createPidController`, `World.removePidController` to create a Position-Integral-Derivative
+  controller; a building block for building velocity-based dynamic character controllers.
+
+#### Modified
+
+- Update to Rapier 0.24.
 - Package tree shaking has been disabled to avoid a crash on certain build configuration (#289).
 
 ### 0.14.0 (20 July 2024)
 
 #### Modified
 
-- Update from the rust library of rapier 0.19 to 0.22,
-  see [rapier's changelog](https://github.com/dimforge/rapier/blob/master/CHANGELOG.md#v0210-23-june-2024) for more
-  context.
+- Update from the rust library of rapier 0.19 to 0.22, see [rapier's changelog](https://github.com/dimforge/rapier/blob/master/CHANGELOG.md#v0210-23-june-2024) for more context.
 
 #### Added
 

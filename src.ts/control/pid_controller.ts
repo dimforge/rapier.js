@@ -4,7 +4,7 @@ import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry";
 import {QueryFilterFlags, QueryPipeline, World} from "../pipeline";
 import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics";
 
-// TODO: unify with the JointAxisMask
+// TODO: unify with the JointAxesMask
 /**
  * An enum representing the possible joint axes controlled by a PidController.
  * They can be ORed together, like:
