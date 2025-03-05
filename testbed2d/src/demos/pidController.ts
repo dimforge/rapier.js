@@ -34,37 +34,48 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     }
 
     // Character.
-    let characterDesc =
-        RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(
-            -10.0,
-            4.0,
-        );
+    let characterDesc = RAPIER.RigidBodyDesc.dynamic()
+        .setTranslation(-10.0, 4.0)
+        .setGravityScale(10.0)
+        .setSoftCcdPrediction(10.0);
     let character = world.createRigidBody(characterDesc);
     let characterColliderDesc = RAPIER.ColliderDesc.cuboid(0.6, 1.2);
-    let characterCollider = world.createCollider(
-        characterColliderDesc,
-        character,
+    world.createCollider(characterColliderDesc, character);
+
+    let pidController = world.createPidController(
+        60.0,
+        0.0,
+        1.0,
+        RAPIER.PidAxesMask.AllAng,
     );
-
-    let characterController = world.createCharacterController(0.1);
-    characterController.enableAutostep(0.7, 0.3, true);
-    characterController.enableSnapToGround(0.7);
-
     let speed = 0.2;
-    let movementDirection = {x: 0.0, y: -speed};
+    let movementDirection = {x: 0.0, y: 0.0};
+    let targetVelocity = {x: 0.0, y: 0.0};
+    let targetRotation = 0.0;
 
     let updateCharacter = () => {
-        characterController.computeColliderMovement(
-            characterCollider,
-            movementDirection,
-        );
+        if (movementDirection.x == 0.0 && movementDirection.y == 0.0) {
+            // Only adjust the rotation, but let translation.
+            pidController.setAxes(RAPIER.PidAxesMask.AllAng);
+        } else if (movementDirection.y == 0.0) {
+            // Don’t control the linear Y axis so the player can fall down due to gravity.
+            pidController.setAxes(
+                RAPIER.PidAxesMask.AllAng | RAPIER.PidAxesMask.LinX,
+            );
+        } else {
+            pidController.setAxes(RAPIER.PidAxesMask.All);
+        }
 
-        let movement = characterController.computedMovement();
-        let newPos = character.translation();
-        newPos.x += movement.x;
-        newPos.y += movement.y;
-        character.setNextKinematicTranslation(newPos);
-        console.log("here");
+        let targetPoint = character.translation();
+        targetPoint.x += movementDirection.x;
+        targetPoint.y += movementDirection.y;
+
+        pidController.applyLinearCorrection(
+            character,
+            targetPoint,
+            targetVelocity,
+        );
+        pidController.applyAngularCorrection(character, 0.0, 0.0);
     };
 
     testbed.setWorld(world);
@@ -79,7 +90,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
     document.onkeyup = function (event: KeyboardEvent) {
         if (event.key == "ArrowLeft") movementDirection.x = 0.0;
         if (event.key == "ArrowRight") movementDirection.x = 0.0;
-        if (event.key == " ") movementDirection.y = -speed; // Gravity
+        if (event.key == " ") movementDirection.y = 0.0;
     };
 
     testbed.lookAt({

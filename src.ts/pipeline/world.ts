@@ -54,7 +54,11 @@ import {SerializationPipeline} from "./serialization_pipeline";
 import {EventQueue} from "./event_queue";
 import {PhysicsHooks} from "./physics_hooks";
 import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
-import {KinematicCharacterController} from "../control";
+import {
+    KinematicCharacterController,
+    PidAxesMask,
+    PidController,
+} from "../control";
 import {Coarena} from "../coarena";
 
 // #if DIM3
@@ -84,6 +88,7 @@ export class World {
     serializationPipeline: SerializationPipeline;
     debugRenderPipeline: DebugRenderPipeline;
     characterControllers: Set<KinematicCharacterController>;
+    pidControllers: Set<PidController>;
 
     // #if DIM3
     vehicleControllers: Set<DynamicRayCastVehicleController>;
@@ -111,6 +116,7 @@ export class World {
         this.serializationPipeline.free();
         this.debugRenderPipeline.free();
         this.characterControllers.forEach((controller) => controller.free());
+        this.pidControllers.forEach((controller) => controller.free());
 
         // #if DIM3
         this.vehicleControllers.forEach((controller) => controller.free());
@@ -130,6 +136,7 @@ export class World {
         this.serializationPipeline = undefined;
         this.debugRenderPipeline = undefined;
         this.characterControllers = undefined;
+        this.pidControllers = undefined;
 
         // #if DIM3
         this.vehicleControllers = undefined;
@@ -173,6 +180,7 @@ export class World {
             rawDebugRenderPipeline,
         );
         this.characterControllers = new Set<KinematicCharacterController>();
+        this.pidControllers = new Set<PidController>();
 
         // #if DIM3
         this.vehicleControllers = new Set<DynamicRayCastVehicleController>();
@@ -479,6 +487,49 @@ export class World {
      */
     public removeCharacterController(controller: KinematicCharacterController) {
         this.characterControllers.delete(controller);
+        controller.free();
+    }
+
+    /**
+     * Creates a new PID (Proportional-Integral-Derivative) controller.
+     *
+     * @param kp - The Proportional gain applied to the instantaneous linear position errors.
+     *             This is usually set to a multiple of the inverse of simulation step time
+     *             (e.g. `60` if the delta-time is `1.0 / 60.0`).
+     * @param ki - The linear gain applied to the Integral part of the PID controller.
+     * @param kd - The Derivative gain applied to the instantaneous linear velocity errors.
+     *             This is usually set to a value in `[0.0, 1.0]` where `0.0` implies no damping
+     *             (no correction of velocity errors) and `1.0` implies complete damping (velocity errors
+     *             are corrected in a single simulation step).
+     * @param axes - The axes affected by this controller.
+     *               Only coordinate axes with a bit flags set to `true` will be taken into
+     *               account when calculating the errors and corrections.
+     */
+    public createPidController(
+        kp: number,
+        ki: number,
+        kd: number,
+        axes: PidAxesMask,
+    ): PidController {
+        let controller = new PidController(
+            this.integrationParameters,
+            this.bodies,
+            kp,
+            ki,
+            kd,
+            axes,
+        );
+        this.pidControllers.add(controller);
+        return controller;
+    }
+
+    /**
+     * Removes a PID controller from this world.
+     *
+     * @param controller - The PID controller to remove.
+     */
+    public removePidController(controller: PidController) {
+        this.pidControllers.delete(controller);
         controller.free();
     }
 
