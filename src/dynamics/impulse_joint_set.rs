@@ -19,9 +19,12 @@ impl RawImpulseJointSet {
         handle: FlatHandle,
         f: impl FnOnce(&mut ImpulseJoint) -> T,
     ) -> T {
-        let body = self.0.get_mut(utils::impulse_joint_handle(handle), true).expect(
-            "Invalid ImpulseJoint reference. It may have been removed from the physics World.",
-        );
+        let body = self
+            .0
+            .get_mut(utils::impulse_joint_handle(handle), true)
+            .expect(
+                "Invalid ImpulseJoint reference. It may have been removed from the physics World.",
+            );
         f(body)
     }
 }

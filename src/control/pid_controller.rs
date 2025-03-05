@@ -6,10 +6,10 @@ use rapier::dynamics::AxesMask;
 use rapier::math::Vector;
 use wasm_bindgen::prelude::*;
 
-#[cfg(feature= "dim2")]
-use rapier::math::Rotation;
 #[cfg(feature = "dim3")]
 use crate::math::RawRotation;
+#[cfg(feature = "dim2")]
+use rapier::math::Rotation;
 
 #[wasm_bindgen]
 pub struct RawPidController {
@@ -20,7 +20,12 @@ pub struct RawPidController {
 impl RawPidController {
     #[wasm_bindgen(constructor)]
     pub fn new(kp: f32, ki: f32, kd: f32, axes_mask: u8) -> Self {
-        let controller = PidController::new(kp, ki, kd, AxesMask::from_bits(axes_mask).unwrap_or(AxesMask::all()));
+        let controller = PidController::new(
+            kp,
+            ki,
+            kd,
+            AxesMask::from_bits(axes_mask).unwrap_or(AxesMask::all()),
+        );
         Self { controller }
     }
 
@@ -46,9 +51,13 @@ impl RawPidController {
         }
         if axes.contains(AxesMask::ANG_Z) {
             #[cfg(feature = "dim2")]
-            { self.controller.pd.ang_kp = kp; }
+            {
+                self.controller.pd.ang_kp = kp;
+            }
             #[cfg(feature = "dim3")]
-            { self.controller.pd.ang_kp.z = kp; }
+            {
+                self.controller.pd.ang_kp.z = kp;
+            }
         }
     }
 
@@ -74,9 +83,13 @@ impl RawPidController {
         }
         if axes.contains(AxesMask::ANG_Z) {
             #[cfg(feature = "dim2")]
-            { self.controller.ang_ki = ki; }
+            {
+                self.controller.ang_ki = ki;
+            }
             #[cfg(feature = "dim3")]
-            { self.controller.ang_ki.z = ki; }
+            {
+                self.controller.ang_ki.z = ki;
+            }
         }
     }
 
@@ -102,9 +115,13 @@ impl RawPidController {
         }
         if axes.contains(AxesMask::ANG_Z) {
             #[cfg(feature = "dim2")]
-            { self.controller.pd.ang_kd = kd; }
+            {
+                self.controller.pd.ang_kd = kd;
+            }
             #[cfg(feature = "dim3")]
-            { self.controller.pd.ang_kd.z = kd; }
+            {
+                self.controller.pd.ang_kd.z = kd;
+            }
         }
     }
 
@@ -199,12 +216,9 @@ impl RawPidController {
             return RawVector(Vector::zeros());
         };
 
-        self.controller.linear_rigid_body_correction(
-            dt,
-            rb,
-            target_translation.0.into(),
-            target_linvel.0,
-        ).into()
+        self.controller
+            .linear_rigid_body_correction(dt, rb, target_translation.0.into(), target_linvel.0)
+            .into()
     }
 
     #[cfg(feature = "dim2")]
@@ -243,11 +257,8 @@ impl RawPidController {
             return RawVector(Vector::zeros());
         };
 
-        self.controller.angular_rigid_body_correction(
-            dt,
-            rb,
-            target_rotation.0,
-            target_angvel.0,
-        ).into()
+        self.controller
+            .angular_rigid_body_correction(dt, rb, target_rotation.0, target_angvel.0)
+            .into()
     }
 }
