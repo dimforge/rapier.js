@@ -45,6 +45,7 @@ pub struct BuildValues {
     pub target_dir: PathBuf,
     pub template_dir: PathBuf,
     pub additional_rust_flags: String,
+    pub additional_wasm_opt_flags: Vec<String>,
     pub js_package_name: String,
 }
 
@@ -75,6 +76,10 @@ impl BuildValues {
             additional_rust_flags: match args.feature_set {
                 FeatureSet::Simd => "RUSTFLAGS='-C target-feature=+simd128'".to_string(),
                 _ => "".to_string(),
+            },
+            additional_wasm_opt_flags: match args.feature_set {
+                FeatureSet::Simd => vec!["--enable-simd".to_string()],
+                _ => vec![],
             },
             js_package_name,
         }
@@ -125,6 +130,7 @@ fn process_templates(build_values: &BuildValues) -> std::io::Result<()> {
     context.insert("dimension", &build_values.dim);
     context.insert("additional_features", &build_values.feature_set);
     context.insert("additional_rust_flags", &build_values.additional_rust_flags);
+    context.insert("additional_wasm_opt_flags", &build_values.additional_wasm_opt_flags);
     context.insert("js_package_name", &build_values.js_package_name);
 
     let tera = match Tera::new(target_dir.join("**/*.tera").to_str().unwrap()) {
