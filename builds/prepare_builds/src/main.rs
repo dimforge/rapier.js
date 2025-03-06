@@ -130,7 +130,10 @@ fn process_templates(build_values: &BuildValues) -> std::io::Result<()> {
     context.insert("dimension", &build_values.dim);
     context.insert("additional_features", &build_values.feature_set);
     context.insert("additional_rust_flags", &build_values.additional_rust_flags);
-    context.insert("additional_wasm_opt_flags", &build_values.additional_wasm_opt_flags);
+    context.insert(
+        "additional_wasm_opt_flags",
+        &build_values.additional_wasm_opt_flags,
+    );
     context.insert("js_package_name", &build_values.js_package_name);
 
     let tera = match Tera::new(target_dir.join("**/*.tera").to_str().unwrap()) {
