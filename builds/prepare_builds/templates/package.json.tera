@@ -1,5 +1,5 @@
 {
-    "name": "@dimforge/rapier2d",
+    "name": "@dimforge/{{ js_package_name }}",
     "description": "",
     "private": true,
     "exports": "./pkg",
@@ -11,11 +11,15 @@
         "build:ts": "sh ./build_typescript.sh",
         "clean": "rimraf pkg"
     },
+    "//": "Better keep rimraf version in sync with wasm-pack, see https://github.com/rustwasm/wasm-pack/issues/1444",
     "devDependencies": {
         "rimraf": "^3.0.2",
         "typedoc": "^0.25.13"
     },
     "dependencies": {
         "wasm-pack": "^0.12.1"
-    }
+    },
+    "sideEffects": [
+        "./*.js"
+    ]
 }

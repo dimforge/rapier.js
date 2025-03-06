@@ -1,5 +1,6 @@
 [workspace]
-members = ["rapier2d", "rapier3d"]
+members = ["builds/*"]
+resolver = "2"
 
 [profile.release]
 debug = false
