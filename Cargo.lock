@@ -372,7 +372,6 @@ name = "dimforge_rapier2d"
 version = "0.14.0"
 dependencies = [
  "bincode",
- "crossbeam-channel",
  "js-sys",
  "nalgebra",
  "palette",
@@ -387,7 +386,6 @@ name = "dimforge_rapier2d-deterministic"
 version = "0.14.0"
 dependencies = [
  "bincode",
- "crossbeam-channel",
  "js-sys",
  "nalgebra",
  "palette",
@@ -402,7 +400,6 @@ name = "dimforge_rapier2d-simd"
 version = "0.14.0"
 dependencies = [
  "bincode",
- "crossbeam-channel",
  "js-sys",
  "nalgebra",
  "palette",
@@ -417,7 +414,6 @@ name = "dimforge_rapier3d"
 version = "0.14.0"
 dependencies = [
  "bincode",
- "crossbeam-channel",
  "js-sys",
  "nalgebra",
  "palette",
@@ -432,7 +428,6 @@ name = "dimforge_rapier3d-deterministic"
 version = "0.14.0"
 dependencies = [
  "bincode",
- "crossbeam-channel",
  "js-sys",
  "nalgebra",
  "palette",
@@ -447,7 +442,6 @@ name = "dimforge_rapier3d-simd"
 version = "0.14.0"
 dependencies = [
  "bincode",
- "crossbeam-channel",
  "js-sys",
  "nalgebra",
  "palette",
@@ -634,18 +628,6 @@ dependencies = [
  "equivalent",
  "hashbrown",
  "serde",
-]
-
-[[package]]
-name = "instant"
-version = "0.1.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0242819d153cba4b4b05a5a8f2a7e9bbf97b6055b2a002b395c96b5ff3c0222"
-dependencies = [
- "cfg-if",
- "js-sys",
- "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]
@@ -840,9 +822,9 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.17.5"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02da9fbab5b42b6f5cc5550bfc14bfe4564f36d40beef3fa43752ed53fd3c6f1"
+checksum = "efd0ac62e76d6143e008a4988d795550d47aba40a50929d6b7b85e4230784403"
 dependencies = [
  "approx",
  "arrayvec",
@@ -867,9 +849,9 @@ dependencies = [
 
 [[package]]
 name = "parry3d"
-version = "0.17.5"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5d6c81f7d291d5ba572951242779a672f73ed605fe5520045c0bccdb381e913"
+checksum = "ecb572cea5c76b06bc744aaefdbb9e6ea9e5695f50f79c0227bddecd6ec925a4"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1039,6 +1021,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "profiling"
+version = "1.0.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "afbdc74edc00b6f6a218ca6a5364d6226a259d4b8ea1af4a0ea063f27e179f4d"
+dependencies = [
+ "profiling-procmacros",
+]
+
+[[package]]
+name = "profiling-procmacros"
+version = "1.0.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a65f2e60fbf1063868558d69c6beacf412dc755f9fc020f514b7955fc914fe30"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1079,9 +1080,9 @@ dependencies = [
 
 [[package]]
 name = "rapier2d"
-version = "0.22.0"
+version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "643116992c25c96a07e1aae7d59fba207f01979dc9a107c42bcd4c4b83ef78b2"
+checksum = "dd9ef3dbd7ab80f038f37a6952b00146a771ddde72244b0745ac43c2a4ad30c1"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1089,13 +1090,13 @@ dependencies = [
  "bitflags",
  "crossbeam",
  "downcast-rs",
- "instant",
  "log",
  "nalgebra",
  "num-derive",
  "num-traits",
  "ordered-float",
  "parry2d",
+ "profiling",
  "rustc-hash",
  "serde",
  "simba",
@@ -1105,9 +1106,9 @@ dependencies = [
 
 [[package]]
 name = "rapier3d"
-version = "0.22.0"
+version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87360935d1a54802efe0ddf908489436bb49c84865c36c930131843c7b1dc97d"
+checksum = "37d84644f385b81f065576058bc8f7e3d64e56a66f2f5fc40bfd917774659e12"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1115,13 +1116,13 @@ dependencies = [
  "bitflags",
  "crossbeam",
  "downcast-rs",
- "instant",
  "log",
  "nalgebra",
  "num-derive",
  "num-traits",
  "ordered-float",
  "parry3d",
+ "profiling",
  "rustc-hash",
  "serde",
  "simba",
@@ -1586,16 +1587,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a05d73b933a847d6cccdda8f838a22ff101ad9bf93e33684f39c1f5f0eece3d"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "web-sys"
-version = "0.3.77"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33b6dd2ef9186f1f2072e409e99cd22a975331a6b3591b12c764e0e55c60d5d2"
-dependencies = [
- "js-sys",
- "wasm-bindgen",
 ]
 
 [[package]]
