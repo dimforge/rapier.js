@@ -71,11 +71,7 @@ impl BuildValues {
             dim: dim.to_string(),
             feature_set: feature_set.iter().map(|f| f.to_string()).collect(),
             template_dir: root.join("templates/").clone(),
-            target_dir: root
-                .parent()
-                .unwrap()
-                .join(&js_package_name)
-                .into(),
+            target_dir: root.parent().unwrap().join(&js_package_name).into(),
             additional_rust_flags: match args.feature_set {
                 FeatureSet::Simd => "RUSTFLAGS='-C target-feature=+simd128'".to_string(),
                 _ => "".to_string(),
