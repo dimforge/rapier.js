@@ -12,6 +12,7 @@ import * as ConvexPolyhedron from "./demos/convexPolyhedron";
 import * as CCD from "./demos/ccd";
 import * as Platform from "./demos/platform";
 import * as CharacterController from "./demos/characterController";
+import * as PidController from "./demos/pidController";
 import * as glbToTrimesh from "./demos/glbToTrimesh";
 import * as glbToConvexHull from "./demos/glbtoConvexHull";
 
@@ -27,6 +28,7 @@ import("@dimforge/rapier3d").then((RAPIER) => {
         ["joints", Joints.initWorld],
         ["keva tower", Keva.initWorld],
         ["locked rotations", LockedRotations.initWorld],
+        ["pid controller", PidController.initWorld],
         ["platform", Platform.initWorld],
         ["pyramid", Pyramid.initWorld],
         ["triangle mesh", Trimesh.initWorld],
