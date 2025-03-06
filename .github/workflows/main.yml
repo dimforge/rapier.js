@@ -76,6 +76,6 @@ jobs:
                   registry-url: "https://registry.npmjs.org"
             - name: Publish projects
               run: |
-                  ./publish_all.sh
+                  ./publish_all_canary.sh
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
