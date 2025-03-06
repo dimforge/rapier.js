@@ -8,6 +8,7 @@ import * as RevoluteJoints from "./demos/revoluteJoints";
 import * as LockedRotations from "./demos/lockedRotations";
 import * as ConvexPolygons from "./demos/convexPolygons";
 import * as CharacterController from "./demos/characterController";
+import * as PidController from "./demos/pidController";
 
 import("@dimforge/rapier2d").then((RAPIER) => {
     let builders = new Map([
@@ -19,6 +20,7 @@ import("@dimforge/rapier2d").then((RAPIER) => {
         ["joints: revolute", RevoluteJoints.initWorld],
         ["keva tower", Keva.initWorld],
         ["locked rotations", LockedRotations.initWorld],
+        ["pid controller", PidController.initWorld],
         ["polyline", Polyline.initWorld],
     ]);
     let testbed = new Testbed(RAPIER, builders);
