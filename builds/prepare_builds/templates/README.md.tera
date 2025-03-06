@@ -40,7 +40,7 @@ Multiple NPM packages exist for Rapier, depending on your needs:
   [`@dimforge/rapier3d`](https://www.npmjs.com/package/@dimforge/rapier3d):
   The main build of the Rapier physics engine for 2D or 3D physics simulation. This should have wide browser
   support while offering great performances. This does **not** guarantee cross-platform determinism of the physics
-  simulation.
+  simulation (but it is still locally deterministic, on the same machine).
 - [`@dimforge/rapier2d-simd`](https://www.npmjs.com/package/@dimforge/rapier2d-simd) or
   [`@dimforge/rapier3d-simd`](https://www.npmjs.com/package/@dimforge/rapier3d-simd):
   A build with internal SIMD optimizations enabled. More limited browser support (requires support for [simd128](https://caniuse.com/?search=simd)).
