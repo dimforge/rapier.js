@@ -10,7 +10,7 @@
         "start": "rimraf dist pkg && webpack serve --open --node-env development"
     },
     "dependencies": {
-        "@dimforge/rapier3d": "file:../rapier3d",
+        "@dimforge/rapier3d": "file:../builds/rapier3d",
         "hash-wasm": "^4.12.0",
         "lil-gui": "^0.17.0",
         "seedrandom": "^3.0.5",

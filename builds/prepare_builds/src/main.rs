@@ -45,6 +45,7 @@ pub struct BuildValues {
     pub target_dir: PathBuf,
     pub template_dir: PathBuf,
     pub additional_rust_flags: String,
+    pub js_package_name: String,
 }
 
 impl BuildValues {
@@ -58,7 +59,14 @@ impl BuildValues {
             FeatureSet::Deterministic => vec!["enhanced-determinism"],
             FeatureSet::Simd => vec!["simd-stable"],
         };
+        let js_package_name = match args.feature_set {
+            FeatureSet::NonDeterministic => format!("rapier{dim}d"),
+            FeatureSet::Deterministic => format!("rapier{dim}d-deterministic"),
+            FeatureSet::Simd => format!("rapier{dim}d-simd"),
+        };
+
         let root: PathBuf = env!("CARGO_MANIFEST_DIR").into();
+
         Self {
             dim: dim.to_string(),
             feature_set: feature_set.iter().map(|f| f.to_string()).collect(),
@@ -66,20 +74,13 @@ impl BuildValues {
             target_dir: root
                 .parent()
                 .unwrap()
-                .join(format!(
-                    "rapier{}d{}",
-                    dim,
-                    match args.feature_set {
-                        FeatureSet::NonDeterministic => "",
-                        FeatureSet::Deterministic => "-deterministic",
-                        FeatureSet::Simd => "-simd",
-                    }
-                ))
+                .join(&js_package_name)
                 .into(),
             additional_rust_flags: match args.feature_set {
                 FeatureSet::Simd => "RUSTFLAGS='-C target-feature=+simd128'".to_string(),
                 _ => "".to_string(),
             },
+            js_package_name,
         }
     }
 }
@@ -128,6 +129,7 @@ fn process_templates(build_values: &BuildValues) -> std::io::Result<()> {
     context.insert("dimension", &build_values.dim);
     context.insert("additional_features", &build_values.feature_set);
     context.insert("additional_rust_flags", &build_values.additional_rust_flags);
+    context.insert("js_package_name", &build_values.js_package_name);
 
     let tera = match Tera::new(target_dir.join("**/*.tera").to_str().unwrap()) {
         Ok(t) => t,
