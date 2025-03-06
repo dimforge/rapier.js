@@ -48,6 +48,34 @@ jobs:
             - name: Build all no-compat projects
               run: |
                   ./builds/prepare_builds/build_all_projects.sh
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: pkg ${{ matrix.os }}
+                  path: |
+                      builds/*/pkg
+                  overwrite: true
+    build-compat:
+        strategy:
+            matrix:
+                os: [ubuntu-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
+        env:
+            RUSTFLAGS: -D warnings
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/cache@v3
+              with:
+                  path: |
+                      ~/.cargo/bin/
+                      ~/.cargo/registry/index/
+                      ~/.cargo/registry/cache/
+                      ~/.cargo/git/db/
+                      target/
+                  key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+            - run: npm ci;
+            - name: Prepare compat builds
+              run: |
+                  ./builds/prepare_builds/prepare_all_projects.sh
             - name: Build rapier-compat
               run: |
                   cd rapier-compat;
@@ -58,7 +86,6 @@ jobs:
               with:
                   name: pkg ${{ matrix.os }}
                   path: |
-                      builds/*/pkg
                       rapier-compat/builds/*/pkg
                   overwrite: true
     publish:
