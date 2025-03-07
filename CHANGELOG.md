@@ -30,6 +30,10 @@
 
 
 
+#### Added
+
+- Added `RigidBody.velocityAtPoint` function to retrieve the velocity of a given world-space point on a rigid-body.
+
 ### 0.14.0 (20 July 2024)
 
 #### Modified

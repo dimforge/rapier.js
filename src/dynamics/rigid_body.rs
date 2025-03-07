@@ -4,6 +4,7 @@ use crate::geometry::RawColliderSet;
 use crate::math::RawSdpMatrix3;
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
+use na::Point;
 use rapier::dynamics::MassProperties;
 use wasm_bindgen::prelude::*;
 
@@ -295,6 +296,13 @@ impl RawRigidBodySet {
     #[cfg(feature = "dim3")]
     pub fn rbAngvel(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |rb| RawVector(*rb.angvel()))
+    }
+
+    /// The velocity of the given world-space point on this rigid-body.
+    pub fn rbVelocityAtPoint(&self, handle: FlatHandle, point: &RawVector) -> RawVector {
+        self.map(handle, |rb| {
+            rb.velocity_at_point(&Point::from(point.0)).into()
+        })
     }
 
     pub fn rbLockTranslations(&mut self, handle: FlatHandle, locked: bool, wake_up: bool) {
