@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Cleaning rust because changing rust flags may lead to different build results.
+cargo clean
+
 {{ additional_rust_flags }} npx wasm-pack build
 sed -i.bak 's#dimforge_rapier#@dimforge/rapier#g' pkg/package.json
 sed -i.bak 's/"rapier_wasm{{ dimension }}d_bg.wasm"/"*"/g' pkg/package.json
