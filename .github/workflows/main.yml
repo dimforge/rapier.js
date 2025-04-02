@@ -48,6 +48,26 @@ jobs:
             - name: Build all no-compat projects
               run: |
                   ./builds/prepare_builds/build_all_projects.sh
+            # Install dependencies to check simd for builds
+            - name: Install wabt
+              run: |
+                  sudo apt install wabt;
+              if: matrix.os == 'ubuntu-latest'
+            - name: Install wabt
+              run: |
+                  brew install wabt;
+              if: matrix.os == 'macos-latest'
+            # Check simd for rust builds
+            - name: Check 2d simd rust build
+              run: |
+                  if ! wasm-objdump -d builds/rapier2d-simd/pkg/rapier_wasm2d_bg.wasm | grep :\\sfd ; then
+                    >&2 echo "ERROR: 2d simd compat build does not include simd opcode prefix." && exit 1
+                  fi
+            - name: Check 3d simd compat build
+              run: |
+                  if ! wasm-objdump -d builds/rapier3d-simd/pkg/rapier_wasm3d_bg.wasm | grep :\\sfd ; then
+                    >&2 echo "ERROR: 3d simd compat build does not include simd opcode prefix." && exit 1
+                  fi
             - uses: actions/upload-artifact@v4
               with:
                   name: pkg ${{ matrix.os }}
@@ -86,24 +106,22 @@ jobs:
             - name: Install wabt
               run: |
                   sudo apt install wabt;
-            # Check simd for rust builds
-            - name: Check 2d simd rust build
+              if: matrix.os == 'ubuntu-latest'
+            - name: Install wabt
               run: |
-                  wasm-objdump -d builds/rapier2d/pkg/rapier_wasm2d_bg.wasm | grep :\\sfd
-                  || >&2 echo "ERROR: 2d simd compat build does not include simd opcode prefix." && exit 1
-            - name: Check 3d simd compat build
-              run: |
-                  wasm-objdump -d builds/rapier3d/pkg/rapier_wasm3d_bg.wasm | grep :\\sfd
-                  || >&2 echo "ERROR: 3d simd compat build does not include simd opcode prefix." && exit 1
+                  brew install wabt;
+              if: matrix.os == 'macos-latest'
             # Check simd for compat builds
             - name: Check 2d simd compat build
               run: |
-                  wasm-objdump -d rapier-compat/builds/2d-simd/wasm-build/rapier_wasm2d_bg.wasm | grep :\\sfd
-                  || >&2 echo "ERROR: 2d simd compat build does not include simd opcode prefix." && exit 1
+                  if ! wasm-objdump -d rapier-compat/builds/2d-simd/pkg/rapier_wasm2d_bg.wasm | grep :\\sfd ; then
+                    >&2 echo "ERROR: 2d simd compat build does not include simd opcode prefix." && exit 1;
+                  fi
             - name: Check 3d simd compat build
               run: |
-                  wasm-objdump -d rapier-compat/builds/3d-simd/wasm-build/rapier_wasm3d_bg.wasm | grep :\\sfd
-                  || >&2 echo "ERROR: 3d simd compat build does not include simd opcode prefix." && exit 1
+                  if ! wasm-objdump -d rapier-compat/builds/3d-simd/pkg/rapier_wasm3d_bg.wasm | grep :\\sfd ; then
+                    >&2 echo "ERROR: 3d simd compat build does not include simd opcode prefix." && exit 1;
+                  fi
             # Upload
             - uses: actions/upload-artifact@v4
               with:
