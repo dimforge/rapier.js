@@ -41,4 +41,10 @@ fi
 
 # Working dir in wasm-pack is the project root so we need that "../../"
 
-wasm-pack build --target web --out-dir "../../rapier-compat/builds/${dimension}d${feature_postfix}/wasm-build" "$rust_source_directory"
+if [[ $feature == "simd" ]]; then
+    export additional_rustflags='-C target-feature=+simd128'
+else
+    export additional_rustflags=''
+fi
+
+RUSTFLAGS="${additional_rustflags}" wasm-pack --verbose build --target web --out-dir "../../rapier-compat/builds/${dimension}d${feature_postfix}/wasm-build" "$rust_source_directory"
