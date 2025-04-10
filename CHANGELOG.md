@@ -1,4 +1,20 @@
-### Unreleased
+### 0.15.1 (10 April 2025)
+
+#### Added
+
+- Added `RigidBody.velocityAtPoint` function to retrieve the velocity of a given world-space point on a rigid-body.
+
+#### Modified
+
+- Update to Rapier 0.25. The main notable change is that the `TriMeshFlags.FIX_INTERNAL_EDGES` flag will no longer
+  imply that the `TriMeshFlags.ORIENTED` flag is set, avoiding edge-cases where enabling `FIX_INTERNAL_EDGES`
+  results in unexpected collisions between open meshes and balls.
+
+#### Fixed
+
+- Fixed `*-simd-compat` builds not actually emitting SIMD instructions.
+
+### 0.15.0 (06 March 2025)
 
 #### Added
 
@@ -28,11 +44,6 @@
   - :warning: To this occasion, existing packages `rapier2d` and `rapier3d` are now built without `enhanced-determinism` feature enabled,
     so if you rely on that feature, you should migrate to the new `-deterministic` flavor.
 
-
-
-#### Added
-
-- Added `RigidBody.velocityAtPoint` function to retrieve the velocity of a given world-space point on a rigid-body.
 
 ### 0.14.0 (20 July 2024)
 

@@ -627,9 +627,7 @@ export enum TriMeshFlags {
      *
      * /!\ NOT SUPPORTED IN THE 2D VERSION OF RAPIER.
      */
-    FIX_INTERNAL_EDGES = 0b1000_0000 |
-        TriMeshFlags.ORIENTED |
-        TriMeshFlags.MERGE_DUPLICATE_VERTICES,
+    FIX_INTERNAL_EDGES = 0b1000_0000 | TriMeshFlags.MERGE_DUPLICATE_VERTICES,
 }
 
 /**
