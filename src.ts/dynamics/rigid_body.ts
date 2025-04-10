@@ -512,9 +512,11 @@ export class RigidBody {
      */
     public velocityAtPoint(point: Vector): Vector {
         const rawPoint = VectorOps.intoRaw(point);
-        return VectorOps.fromRaw(
+        let result = VectorOps.fromRaw(
             this.rawSet.rbVelocityAtPoint(this.handle, rawPoint),
         );
+        rawPoint.free();
+        return result;
     }
 
     // #if DIM3
