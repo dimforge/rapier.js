@@ -31,6 +31,8 @@
 
 ## Building packages manually
 
+### Rust
+
 From the root of the repository, run:
 
 ```shell
@@ -41,9 +43,27 @@ From the root of the repository, run:
 Note that `prepare_all_projects.sh` only needs to be run once. It needs to be re-run if any file from the
 `builds/prepare_builds` directory (and subdirectories) are modified.
 
-The built packages will be in `builds/rapier2d/pkg`, `builds/rapier3d/pkg`, etc. To build the `-compat` variant of the
+The built packages will be in `builds/rapier2d/pkg`, `builds/rapier3d/pkg`, etc.
+
+### Compat version
+
+To build the `-compat` variant of the
 packages, run `npm run build` in the `rapier-compat` directory. Note that this will only work if you already ran
 `prepare_all_projects.sh`. The compat packages are then generated in, e.g., `rapier-compat/builds/3d/pkg`.
+
+```shell
+git clean -fxd # Delete all untracked files.
+./builds/prepare_builds/prepare_all_projects.sh
+cd rapier-compat;
+npm ci;
+npm run build;
+```
+
+### Building packages in CI
+
+Pushing a tag `v*.*.*` will trigger a CI for production release.
+
+This can fail due to artifacts not available, restart the job manually if needed.
 
 ## Feature selection
 

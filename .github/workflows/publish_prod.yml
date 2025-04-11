@@ -1,0 +1,36 @@
+name: publish_prod
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  # In case an automated release failed, we can retrigger them manually.
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  publish:
+    # To avoid releasing a wrong version: check this commit is tagged
+    if: startsWith(github.event.workflow_run.head_branch, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: pkg no-compat ubuntu-latest
+          path: builds
+      - uses: actions/download-artifact@v4
+        with:
+          name: pkg compat ubuntu-latest
+          path: rapier-compat/builds
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          registry-url: "https://registry.npmjs.org"
+      - name: Publish projects
+        run: |
+          ./publish_all_prod.sh
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
