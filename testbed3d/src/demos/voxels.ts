@@ -9,13 +9,20 @@ function generateVoxels(n: number) {
     let i, j;
     for (i = 0; i <= n; ++i) {
         for (j = 0; j <= n; ++j) {
-            let y = Math.max(-0.8, Math.min(Math.sin(i / n * 10.0) * Math.cos(j / n * 10.0), 0.8)) * 8.0;
+            let y =
+                Math.max(
+                    -0.8,
+                    Math.min(
+                        Math.sin((i / n) * 10.0) * Math.cos((j / n) * 10.0),
+                        0.8,
+                    ),
+                ) * 8.0;
             points.push(i - n / 2.0, y, j - n / 2.0);
         }
     }
     return {
         points: new Float32Array(points),
-        voxelSize: { x: 1.0, y: 1.2, z: 1.5 }
+        voxelSize: {x: 1.0, y: 1.2, z: 1.5},
     };
 }
 

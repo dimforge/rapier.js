@@ -1,5 +1,10 @@
 import {Vector, VectorOps, Rotation, RotationOps} from "../math";
-import {RawColliderSet, RawShape, RawShapeType, RawVoxelPrimitiveGeometry} from "../raw";
+import {
+    RawColliderSet,
+    RawShape,
+    RawShapeType,
+    RawVoxelPrimitiveGeometry,
+} from "../raw";
 import {ShapeContact} from "./contact";
 import {PointProjection} from "./point";
 import {Ray, RayIntersection} from "./ray";
@@ -1064,15 +1069,14 @@ export class Voxels extends Shape {
     constructor(
         data: Float32Array | Int32Array,
         voxelSize: Vector,
-        primitiveGeometry?: RawVoxelPrimitiveGeometry
+        primitiveGeometry?: RawVoxelPrimitiveGeometry,
     ) {
         super();
         this.data = data;
         this.voxelSize = voxelSize;
         if (primitiveGeometry !== undefined)
             this.primitiveGeometry = primitiveGeometry;
-        else
-            this.primitiveGeometry = RawVoxelPrimitiveGeometry.PseudoCube;
+        else this.primitiveGeometry = RawVoxelPrimitiveGeometry.PseudoCube;
     }
 
     public intoRaw(): RawShape {
@@ -1080,9 +1084,17 @@ export class Voxels extends Shape {
 
         let result;
         if (this.data instanceof Int32Array) {
-            result = RawShape.voxels(this.primitiveGeometry, voxelSize, this.data);
+            result = RawShape.voxels(
+                this.primitiveGeometry,
+                voxelSize,
+                this.data,
+            );
         } else {
-            result = RawShape.voxelsFromPoints(this.primitiveGeometry, voxelSize, this.data);
+            result = RawShape.voxelsFromPoints(
+                this.primitiveGeometry,
+                voxelSize,
+                this.data,
+            );
         }
 
         voxelSize.free();

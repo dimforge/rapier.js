@@ -7,12 +7,12 @@ function generateVoxels(n: number) {
 
     let i;
     for (i = 0; i <= n; ++i) {
-        let y = Math.max(-0.8, Math.min(Math.sin(i / n * 10.0), 0.8)) * 8.0;
+        let y = Math.max(-0.8, Math.min(Math.sin((i / n) * 10.0), 0.8)) * 8.0;
         points.push(i - n / 2.0, y);
     }
     return {
         points: new Float32Array(points),
-        voxelSize: { x: 1.0, y: 1.2 }
+        voxelSize: {x: 1.0, y: 1.2},
     };
 }
 
@@ -47,19 +47,13 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
             let y = j * shift + centery + 10.0;
 
             // Create dynamic cube.
-            let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(
-                x,
-                y,
-            );
+            let bodyDesc = RAPIER.RigidBodyDesc.dynamic().setTranslation(x, y);
             let body = world.createRigidBody(bodyDesc);
             let colliderDesc;
 
             switch (j % 3) {
                 case 0:
-                    colliderDesc = RAPIER.ColliderDesc.cuboid(
-                        rad,
-                        rad,
-                    );
+                    colliderDesc = RAPIER.ColliderDesc.cuboid(rad, rad);
                     break;
                 case 1:
                     colliderDesc = RAPIER.ColliderDesc.ball(rad);

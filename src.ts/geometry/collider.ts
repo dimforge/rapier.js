@@ -672,19 +672,19 @@ export class Collider {
     public setVoxel(
         ix: number,
         iy: number,
-// #if DIM3
+        // #if DIM3
         iz: number,
-// #endif
+        // #endif
         filled: boolean,
     ) {
         this.colliderSet.raw.coSetVoxel(
             this.handle,
             ix,
             iy,
-// #if DIM3
+            // #if DIM3
             iz,
-// #endif
-            filled
+            // #endif
+            filled,
         );
         // We modified the shape, invalidate it to keep our cache
         // up-to-date the next time the user requests the shape data.
@@ -1286,7 +1286,7 @@ export class ColliderDesc {
     public static voxels(
         voxels: Float32Array | Int32Array,
         voxelSize: Vector,
-        primitiveGeometry?: RawVoxelPrimitiveGeometry
+        primitiveGeometry?: RawVoxelPrimitiveGeometry,
     ): ColliderDesc {
         const shape = new Voxels(voxels, voxelSize, primitiveGeometry);
         return new ColliderDesc(shape);
