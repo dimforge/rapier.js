@@ -1,5 +1,6 @@
 import {Testbed} from "./Testbed";
 import * as Trimesh from "./demos/trimesh";
+import * as Voxels from "./demos/voxels";
 import * as CollisionGroups from "./demos/collisionGroups";
 import * as Pyramid from "./demos/pyramid";
 import * as Keva from "./demos/keva";
@@ -32,6 +33,7 @@ import("@dimforge/rapier3d").then((RAPIER) => {
         ["platform", Platform.initWorld],
         ["pyramid", Pyramid.initWorld],
         ["triangle mesh", Trimesh.initWorld],
+        ["voxels", Voxels.initWorld],
         ["GLTF to convexHull", glbToConvexHull.initWorld],
         ["GLTF to trimesh", glbToTrimesh.initWorld],
     ]);

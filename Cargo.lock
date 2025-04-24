@@ -300,9 +300,9 @@ dependencies = [
 
 [[package]]
 name = "crossbeam-channel"
-version = "0.5.14"
+version = "0.5.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06ba6d68e24814cb8de6bb986db8222d3a027d15872cabc0d18817bc3c0e4471"
+checksum = "82b8f8f868b36967f9606790d1903570de9ceaf870a7bf9fbbd3016d636a2cb2"
 dependencies = [
  "crossbeam-utils",
 ]
@@ -369,7 +369,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "bincode",
  "js-sys",
@@ -383,7 +383,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-deterministic"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "bincode",
  "js-sys",
@@ -397,7 +397,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-simd"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "bincode",
  "js-sys",
@@ -411,7 +411,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "bincode",
  "js-sys",
@@ -425,7 +425,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-deterministic"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "bincode",
  "js-sys",
@@ -439,7 +439,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-simd"
-version = "0.15.0"
+version = "0.15.1"
 dependencies = [
  "bincode",
  "js-sys",
@@ -486,9 +486,9 @@ checksum = "dd2e7510819d6fbf51a5545c8f922716ecfb14df168a3242f7d33e0239efe6a1"
 
 [[package]]
 name = "foldhash"
-version = "0.1.4"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0d2fde1f7b3d48b8395d5f2de76c18a528bd6a9cdde438df747bfcba3e05d6f"
+checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
 
 [[package]]
 name = "generic-array"
@@ -622,9 +622,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.7.1"
+version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c9c992b02b5b4c94ea26e32fe5bccb7aa7d9f390ab5c1221ff895bc7ea8b652"
+checksum = "cea70ddb795996207ad57735b50c5982d8844f38ba9ee5f1aedcfb708a2aa11e"
 dependencies = [
  "equivalent",
  "hashbrown",
@@ -823,9 +823,9 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.19.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9ce92fd1b7aaf2d7eb1631c566d751e56104152bf6ea95a1f3a7e8daf923d5c"
+checksum = "8bcca0d91ccd7a49aec62565bcfc8dae9fd449e7fda420d51a2da84f8d86bda0"
 dependencies = [
  "approx",
  "arrayvec",
@@ -849,9 +849,9 @@ dependencies = [
 
 [[package]]
 name = "parry3d"
-version = "0.19.0"
+version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a50f0d5730859f8326b26c8057aae09b790804f3e6c9dec38f4b2a1b91664529"
+checksum = "69a8e71e0a9e6d648dce948bdd95568c7f5ccf2ce2d19908ef5a68c9bf550972"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1079,9 +1079,9 @@ dependencies = [
 
 [[package]]
 name = "rapier2d"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0caf6613d797c5564c304b7579c78addd922fbfe3fd6a22a01130892546d3794"
+checksum = "8bfd38bab4c05990316884af854aa7b79e38386c8aa9a19c3bafb3718395aa8c"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1105,9 +1105,9 @@ dependencies = [
 
 [[package]]
 name = "rapier3d"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "106edf55a415c64d2dccbb79faa2085e2bd02ded26b41b399b04b90219484c7e"
+checksum = "e5880578346b99f4d0f449f1daca5cd66f5ac72ad22606b021a6b8507d75782a"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1327,9 +1327,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.14.0"
+version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fcf8323ef1faaee30a44a340193b1ac6814fd9b7b4e88e9d4519a3e4abe1cfd"
+checksum = "8917285742e9f3e1683f0a9c4e6b57960b7314d0b08d30d1ecd426713ee2eee9"
 
 [[package]]
 name = "spade"

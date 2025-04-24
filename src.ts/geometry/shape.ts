@@ -1,5 +1,5 @@
 import {Vector, VectorOps, Rotation, RotationOps} from "../math";
-import {RawColliderSet, RawShape, RawShapeType} from "../raw";
+import {RawColliderSet, RawShape, RawShapeType, RawVoxelPrimitiveGeometry} from "../raw";
 import {ShapeContact} from "./contact";
 import {PointProjection} from "./point";
 import {Ray, RayIntersection} from "./ray";
@@ -130,6 +130,12 @@ export abstract class Shape {
             case RawShapeType.HalfSpace:
                 normal = VectorOps.fromRaw(rawSet.coHalfspaceNormal(handle));
                 return new HalfSpace(normal);
+
+            case RawShapeType.Voxels:
+                const vox_data = rawSet.coVoxelData(handle);
+                const vox_geom = rawSet.coVoxelPrimitiveGeometry(handle);
+                const vox_size = rawSet.coVoxelSize(handle);
+                return new Voxels(vox_data, vox_size, vox_geom);
 
             case RawShapeType.TriMesh:
                 vs = rawSet.coVertices(handle);
@@ -516,6 +522,7 @@ export enum ShapeType {
     RoundTriangle = 11,
     RoundConvexPolygon = 12,
     HalfSpace = 13,
+    Voxels = 14,
 }
 
 // #endif
@@ -544,6 +551,7 @@ export enum ShapeType {
     RoundCone = 15,
     RoundConvexPolyhedron = 16,
     HalfSpace = 17,
+    Voxels = 18,
 }
 
 // NOTE: this **must** match the bits in the HeightFieldFlags on the rust side.
@@ -1006,6 +1014,79 @@ export class Polyline extends Shape {
 
     public intoRaw(): RawShape {
         return RawShape.polyline(this.vertices, this.indices);
+    }
+}
+
+/**
+ * A shape made of voxels.
+ */
+export class Voxels extends Shape {
+    readonly type = ShapeType.Voxels;
+
+    /**
+     * The points or grid coordinates used to initialize the voxels.
+     */
+    data: Float32Array | Int32Array;
+
+    /**
+     * The geometric shape of each voxel.
+     */
+    primitiveGeometry: number;
+
+    /**
+     * The dimensions of each voxel.
+     *
+     * If the `primitiveGeometry` is `PseudoBall`, then only the first component
+     * will be taken into account. If it is `PseudoCube` then every component of
+     * the size vector are taken into account, defining the size along each
+     * local coordinate axis.
+     */
+    voxelSize: Vector;
+
+    /**
+     * Creates a new shape made of voxels.
+     *
+     * @param data - Defines the set of voxels. If this is a `Int32Array` then
+     *               each voxel is defined from its (signed) grid coordinates,
+     *               with 3 (resp 2) contiguous integers per voxel in 3D (resp 2D).
+     *               If this is a `Float32Array`, each voxel will be such that
+     *               they contain at least one point from this array (where each
+     *               point is defined from 3 (resp 2) contiguous numbers per point
+     *               in 3D (resp 2D).
+     * @param voxelSize - The size of each voxel.
+     *                    If the `primitiveGeometry` is `PseudoBall`, then only the first component
+     *                    will be taken into account. If it is `PseudoCube` then every component of
+     *                    the size vector are taken into account, defining the size along each
+     *                    local coordinate axis.
+     * @param primitiveGeometry - (optional) Indicates the geometric shape of
+     *                            each voxel. Defaults to cuboid shapes.
+     */
+    constructor(
+        data: Float32Array | Int32Array,
+        voxelSize: Vector,
+        primitiveGeometry?: RawVoxelPrimitiveGeometry
+    ) {
+        super();
+        this.data = data;
+        this.voxelSize = voxelSize;
+        if (primitiveGeometry !== undefined)
+            this.primitiveGeometry = primitiveGeometry;
+        else
+            this.primitiveGeometry = RawVoxelPrimitiveGeometry.PseudoCube;
+    }
+
+    public intoRaw(): RawShape {
+        let voxelSize = VectorOps.intoRaw(this.voxelSize);
+
+        let result;
+        if (this.data instanceof Int32Array) {
+            result = RawShape.voxels(this.primitiveGeometry, voxelSize, this.data);
+        } else {
+            result = RawShape.voxelsFromPoints(this.primitiveGeometry, voxelSize, this.data);
+        }
+
+        voxelSize.free();
+        return result;
     }
 }
 

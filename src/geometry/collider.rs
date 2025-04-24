@@ -1,7 +1,7 @@
 use crate::geometry::shape::SharedShapeUtility;
 use crate::geometry::{
     RawColliderSet, RawColliderShapeCastHit, RawPointProjection, RawRayIntersection, RawShape,
-    RawShapeCastHit, RawShapeContact, RawShapeType,
+    RawShapeCastHit, RawShapeContact, RawShapeType, RawVoxelPrimitiveGeometry,
 };
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
@@ -127,6 +127,7 @@ impl RawColliderSet {
             ShapeType::HeightField => RawShapeType::HeightField,
             ShapeType::Compound => RawShapeType::Compound,
             ShapeType::HalfSpace => RawShapeType::HalfSpace,
+            ShapeType::Voxels => RawShapeType::Voxels,
             #[cfg(feature = "dim3")]
             ShapeType::ConvexPolyhedron => RawShapeType::ConvexPolyhedron,
             #[cfg(feature = "dim2")]
@@ -329,6 +330,66 @@ impl RawColliderSet {
                 .map(|b| b.border_radius = newBorderRadius),
             _ => None,
         });
+    }
+
+    pub fn coVoxelData(&self, handle: FlatHandle) -> Option<Vec<i32>> {
+        self.map(handle, |co| {
+            let vox = co.shape().as_voxels()?;
+            let coords = vox
+                .centers()
+                .filter_map(|(id, _, state)| (!state.is_empty()).then_some(vox.voxel_key_at(id)))
+                .flat_map(|ids| ids.coords.data.0[0])
+                .collect();
+            Some(coords)
+        })
+    }
+
+    pub fn coVoxelPrimitiveGeometry(
+        &self,
+        handle: FlatHandle,
+    ) -> Option<RawVoxelPrimitiveGeometry> {
+        self.map(handle, |co| {
+            let vox = co.shape().as_voxels()?;
+            Some(vox.primitive_geometry().into())
+        })
+    }
+
+    pub fn coVoxelSize(&self, handle: FlatHandle) -> Option<RawVector> {
+        self.map(handle, |co| {
+            let vox = co.shape().as_voxels()?;
+            Some(RawVector(vox.voxel_size()))
+        })
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn coSetVoxel(
+        &mut self,
+        handle: FlatHandle,
+        ix: i32,
+        iy: i32,
+        filled: bool,
+    ) {
+        self.map_mut(handle, |co| {
+            if let Some(vox) = co.shape_mut().as_voxels_mut() {
+                vox.insert_voxel_at_key(Point::new(ix, iy), filled);
+            }
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn coSetVoxel(
+        &mut self,
+        handle: FlatHandle,
+        ix: i32,
+        iy: i32,
+        iz: i32,
+        filled: bool,
+    ) {
+        self.map_mut(handle, |co| {
+            if let Some(vox) = co.shape_mut().as_voxels_mut() {
+                vox.insert_voxel_at_key(Point::new(ix, iy, iz), filled);
+            }
+        })
     }
 
     /// The vertices of this triangle mesh, polyline, convex polyhedron, segment, triangle or convex polyhedron, if it is one.

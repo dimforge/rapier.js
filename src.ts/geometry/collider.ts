@@ -1,4 +1,4 @@
-import {RawColliderSet} from "../raw";
+import {RawColliderSet, RawVoxelPrimitiveGeometry} from "../raw";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
 import {
     CoefficientCombineRule,
@@ -14,6 +14,7 @@ import {
     Ball,
     ShapeType,
     Capsule,
+    Voxels,
     TriMesh,
     Polyline,
     Heightfield,
@@ -180,7 +181,7 @@ export class Collider {
     }
 
     /**
-     * Sets whether or not this collider is a sensor.
+     * Sets whether this collider is a sensor.
      * @param isSensor - If `true`, the collider will be a sensor.
      */
     public setSensor(isSensor: boolean) {
@@ -655,6 +656,41 @@ export class Collider {
      */
     public setHalfHeight(newHalfheight: number) {
         this.colliderSet.raw.coSetHalfHeight(this.handle, newHalfheight);
+    }
+
+    /**
+     * If this collider has a Voxels shape, this will mark the voxel at the
+     * given grid coordinates as filled or empty (depending on the `filled`
+     * argument).
+     *
+     * Each input value is assumed to be an integer.
+     *
+     * The operation is O(1), unless the provided coordinates are out of the
+     * bounds of the currently allocated internal grid in which case the grid
+     * will be grown automatically.
+     */
+    public setVoxel(
+        ix: number,
+        iy: number,
+// #if DIM3
+        iz: number,
+// #endif
+        filled: boolean,
+    ) {
+        this.colliderSet.raw.coSetVoxel(
+            this.handle,
+            ix,
+            iy,
+// #if DIM3
+            iz,
+// #endif
+            filled
+        );
+        // We modified the shape, invalidate it to keep our cache
+        // up-to-date the next time the user requests the shape data.
+        // PERF: this isn’t ideal for performances as this adds a
+        //       hidden, non-constant, cost.
+        this._shape = null;
     }
 
     /**
@@ -1226,6 +1262,33 @@ export class ColliderDesc {
         indices?: Uint32Array | null,
     ): ColliderDesc {
         const shape = new Polyline(vertices, indices);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor with a shape made of voxels.
+     *
+     * @param data - Defines the set of voxels. If this is a `Int32Array` then
+     *               each voxel is defined from its (signed) grid coordinates,
+     *               with 3 (resp 2) contiguous integers per voxel in 3D (resp 2D).
+     *               If this is a `Float32Array`, each voxel will be such that
+     *               they contain at least one point from this array (where each
+     *               point is defined from 3 (resp 2) contiguous numbers per point
+     *               in 3D (resp 2D).
+     * @param voxelSize - The size of each voxel.
+     *                    If the `primitiveGeometry` is `PseudoBall`, then only the first component
+     *                    will be taken into account. If it is `PseudoCube` then every component of
+     *                    the size vector are taken into account, defining the size along each
+     *                    local coordinate axis.
+     * @param primitiveGeometry - (optional) Indicates the geometric shape of
+     *                            each voxel. Defaults to cuboid shapes.
+     */
+    public static voxels(
+        voxels: Float32Array | Int32Array,
+        voxelSize: Vector,
+        primitiveGeometry?: RawVoxelPrimitiveGeometry
+    ): ColliderDesc {
+        const shape = new Voxels(voxels, voxelSize, primitiveGeometry);
         return new ColliderDesc(shape);
     }
 
