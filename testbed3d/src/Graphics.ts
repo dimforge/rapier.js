@@ -486,7 +486,7 @@ export class Graphics {
                 return;
             default:
                 console.log("Unknown shape to render.");
-                break;
+                return;
         }
 
         if (!!instance) {

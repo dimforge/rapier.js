@@ -224,8 +224,8 @@ export class Graphics {
                 this.viewport.addChild(graphics);
                 break;
             default:
-                console.log("Unknown shape to render.");
-                break;
+                console.log("Unknown shape to render: ", collider.shapeType());
+                return;
         }
 
         let t = collider.translation();

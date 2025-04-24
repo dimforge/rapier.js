@@ -5,11 +5,36 @@ use na::DMatrix;
 #[cfg(feature = "dim2")]
 use na::DVector;
 use na::Unit;
-use rapier::geometry::{Shape, SharedShape, TriMeshFlags};
+use rapier::geometry::{Shape, SharedShape, TriMeshFlags, VoxelPrimitiveGeometry};
 use rapier::math::{Isometry, Point, Real, Vector, DIM};
 use rapier::parry::query;
 use rapier::parry::query::{Ray, ShapeCastOptions};
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+#[derive(Copy, Clone)]
+pub enum RawVoxelPrimitiveGeometry {
+    PseudoBall,
+    PseudoCube,
+}
+
+impl Into<VoxelPrimitiveGeometry> for RawVoxelPrimitiveGeometry {
+    fn into(self) -> VoxelPrimitiveGeometry {
+        match self {
+            RawVoxelPrimitiveGeometry::PseudoBall => VoxelPrimitiveGeometry::PseudoBall,
+            RawVoxelPrimitiveGeometry::PseudoCube => VoxelPrimitiveGeometry::PseudoCube,
+        }
+    }
+}
+
+impl Into<RawVoxelPrimitiveGeometry> for VoxelPrimitiveGeometry {
+    fn into(self) -> RawVoxelPrimitiveGeometry {
+        match self {
+            VoxelPrimitiveGeometry::PseudoBall => RawVoxelPrimitiveGeometry::PseudoBall,
+            VoxelPrimitiveGeometry::PseudoCube => RawVoxelPrimitiveGeometry::PseudoCube,
+        }
+    }
+}
 
 pub trait SharedShapeUtility {
     fn castShape(
@@ -197,6 +222,7 @@ pub enum RawShapeType {
     RoundTriangle = 11,
     RoundConvexPolygon = 12,
     HalfSpace = 13,
+    Voxels = 14,
 }
 
 #[wasm_bindgen]
@@ -220,6 +246,7 @@ pub enum RawShapeType {
     RoundCone = 15,
     RoundConvexPolyhedron = 16,
     HalfSpace = 17,
+    Voxels = 18,
 }
 
 #[wasm_bindgen]
@@ -283,6 +310,35 @@ impl RawShape {
     #[cfg(feature = "dim3")]
     pub fn roundCone(halfHeight: f32, radius: f32, borderRadius: f32) -> Self {
         Self(SharedShape::round_cone(halfHeight, radius, borderRadius))
+    }
+
+    pub fn voxels(
+        primitive_geometry: RawVoxelPrimitiveGeometry,
+        voxel_size: &RawVector,
+        grid_coords: Vec<i32>,
+    ) -> Self {
+        let grid_coords: Vec<_> = grid_coords
+            .chunks_exact(DIM)
+            .map(Point::from_slice)
+            .collect();
+        Self(SharedShape::voxels(
+            primitive_geometry.into(),
+            voxel_size.0,
+            &grid_coords,
+        ))
+    }
+
+    pub fn voxelsFromPoints(
+        primitive_geometry: RawVoxelPrimitiveGeometry,
+        voxel_size: &RawVector,
+        points: Vec<f32>,
+    ) -> Self {
+        let points: Vec<_> = points.chunks_exact(DIM).map(Point::from_slice).collect();
+        Self(SharedShape::voxels_from_points(
+            primitive_geometry.into(),
+            voxel_size.0,
+            &points,
+        ))
     }
 
     pub fn polyline(vertices: Vec<f32>, indices: Vec<u32>) -> Self {
