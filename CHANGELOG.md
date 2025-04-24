@@ -1,3 +1,20 @@
+### 0.16.0 (24 April 2025)
+
+### Added
+
+- Added `ColliderDesc.voxels` to create a collider with a shape optimized for voxels.
+- Added `Collider.setVoxel` for adding or removing a voxel from a collider with a voxel shape.
+- Added the `Voxels` shape class.
+
+The support or voxels is still experimental. In particular the following features will currently **not** work on
+colliders with voxel shapes:
+
+- Voxels colliders attached to dynamic rigid-bodies will not run the automatic mass/angular inertia calculation.
+- Shape-casting on voxel shapes/colliders.
+- Collision-detection between two-voxels colliders, or a voxels collider and a mesh, polyline, or heightfield.
+
+See [parry#336](https://github.com/dimforge/parry/pull/336) for additional information.
+
 ### 0.15.1 (10 April 2025)
 
 #### Added
