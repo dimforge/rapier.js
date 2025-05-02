@@ -20,6 +20,58 @@ interface InstanceDesc {
 
 type RAPIER_API = typeof import("@dimforge/rapier3d");
 
+// NOTE: this is a very naive voxels -> mesh conversion. Proper
+//       conversions should use something like greedy meshing instead.
+function genVoxelsGeometry(collider: RAPIER.Collider) {
+    // Clear the cached shape so it gets recomputed from the source of truth,
+    // and so we’ll be sure that the data contain grid coordinates even if the
+    // voxels were initialized with floating points.
+    collider.clearShapeCache();
+    let shape = collider.shape as RAPIER.Voxels;
+    let gridCoords = shape.data;
+    let sz = shape.voxelSize;
+    let vertices = [];
+    let indices = [];
+
+    let i: number;
+    for (i = 0; i < gridCoords.length; i += 3) {
+        let minx = gridCoords[i] * sz.x;
+        let miny = gridCoords[i + 1] * sz.y;
+        let minz = gridCoords[i + 2] * sz.z;
+        let maxx = minx + sz.x;
+        let maxy = miny + sz.y;
+        let maxz = minz + sz.z;
+
+        let k: number = vertices.length / 3;
+        vertices.push(minx, miny, maxz);
+        vertices.push(minx, miny, minz);
+        vertices.push(maxx, miny, minz);
+        vertices.push(maxx, miny, maxz);
+        vertices.push(minx, maxy, maxz);
+        vertices.push(minx, maxy, minz);
+        vertices.push(maxx, maxy, minz);
+        vertices.push(maxx, maxy, maxz);
+
+        indices.push(k + 4, k + 5, k + 0);
+        indices.push(k + 5, k + 1, k + 0);
+        indices.push(k + 5, k + 6, k + 1);
+        indices.push(k + 6, k + 2, k + 1);
+        indices.push(k + 6, k + 7, k + 3);
+        indices.push(k + 2, k + 6, k + 3);
+        indices.push(k + 7, k + 4, k + 0);
+        indices.push(k + 3, k + 7, k + 0);
+        indices.push(k + 0, k + 1, k + 2);
+        indices.push(k + 3, k + 0, k + 2);
+        indices.push(k + 7, k + 6, k + 5);
+        indices.push(k + 4, k + 7, k + 5);
+    }
+
+    return {
+        vertices: new Float32Array(vertices),
+        indices: new Uint32Array(indices)
+    }
+}
+
 function genHeightfieldGeometry(collider: RAPIER.Collider) {
     let heights = collider.heightfieldHeights();
     let nrows = collider.heightfieldNRows();
@@ -454,17 +506,22 @@ export class Graphics {
             case RAPIER.ShapeType.HeightField:
             case RAPIER.ShapeType.ConvexPolyhedron:
             case RAPIER.ShapeType.RoundConvexPolyhedron:
+            case RAPIER.ShapeType.Voxels:
                 let geometry = new THREE.BufferGeometry();
                 let vertices;
                 let indices;
 
-                if (collider.shapeType() != RAPIER.ShapeType.HeightField) {
-                    vertices = collider.vertices();
-                    indices = collider.indices();
-                } else {
+                if (collider.shapeType() == RAPIER.ShapeType.HeightField) {
                     let g = genHeightfieldGeometry(collider);
                     vertices = g.vertices;
                     indices = g.indices;
+                } else if (collider.shapeType() == RAPIER.ShapeType.Voxels) {
+                    let g = genVoxelsGeometry(collider);
+                    vertices = g.vertices;
+                    indices = g.indices;
+                } else {
+                    vertices = collider.vertices();
+                    indices = collider.indices();
                 }
 
                 geometry.setIndex(Array.from(indices));
