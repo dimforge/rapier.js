@@ -68,8 +68,8 @@ function genVoxelsGeometry(collider: RAPIER.Collider) {
 
     return {
         vertices: new Float32Array(vertices),
-        indices: new Uint32Array(indices)
-    }
+        indices: new Uint32Array(indices),
+    };
 }
 
 function genHeightfieldGeometry(collider: RAPIER.Collider) {
