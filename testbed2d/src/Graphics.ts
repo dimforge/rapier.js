@@ -223,6 +223,28 @@ export class Graphics {
 
                 this.viewport.addChild(graphics);
                 break;
+            case RAPIER.ShapeType.Voxels:
+                graphics = new PIXI.Graphics();
+                graphics.beginFill(this.colorPalette[instanceId], 1.0);
+                collider.clearShapeCache();
+                let shape = collider.shape as RAPIER.Voxels;
+                let gridCoords = shape.data;
+                let sz = shape.voxelSize;
+
+                for (i = 0; i < gridCoords.length; i += 2) {
+                    let minx = gridCoords[i] * sz.x;
+                    let miny = gridCoords[i + 1] * sz.y;
+                    let maxx = minx + sz.x;
+                    let maxy = miny + sz.y;
+
+                    graphics.moveTo(minx, -miny);
+                    graphics.lineTo(maxx, -miny);
+                    graphics.lineTo(maxx, -maxy);
+                    graphics.lineTo(minx, -maxy);
+                }
+
+                this.viewport.addChild(graphics);
+                break;
             default:
                 console.log("Unknown shape to render: ", collider.shapeType());
                 return;
