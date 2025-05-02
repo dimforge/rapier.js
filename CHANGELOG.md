@@ -1,3 +1,12 @@
+### 0.16.1 (2 May 2025)
+
+### Added
+
+- Added `Collider.clearShapeCache` to release the reference to the JS shape stored in the collider, oor too force its
+  recomputation the next time the collider shape is accessed.
+- Added support for shape-casting involving Voxels colliders.
+- Added support for CCD involving Voxels colliders.
+
 ### 0.16.0 (24 April 2025)
 
 ### Added
