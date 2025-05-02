@@ -148,6 +148,18 @@ export class Collider {
     }
 
     /**
+     * Set the internal cached JS shape to null.
+     *
+     * This can be useful if you want to free some memory (assuming you are not
+     * holding any other references to the shape object), or in order to force
+     * the recalculation of the JS shape (the next time the `shape` getter is
+     * accessed) from the WASM source of truth.
+     */
+    public clearShapeCache() {
+        this._shape = null;
+    }
+
+    /**
      * Checks if this collider is still valid (i.e. that it has
      * not been deleted from the collider set yet).
      */
