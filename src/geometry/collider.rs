@@ -362,13 +362,7 @@ impl RawColliderSet {
     }
 
     #[cfg(feature = "dim2")]
-    pub fn coSetVoxel(
-        &mut self,
-        handle: FlatHandle,
-        ix: i32,
-        iy: i32,
-        filled: bool,
-    ) {
+    pub fn coSetVoxel(&mut self, handle: FlatHandle, ix: i32, iy: i32, filled: bool) {
         self.map_mut(handle, |co| {
             if let Some(vox) = co.shape_mut().as_voxels_mut() {
                 vox.set_voxel(Point::new(ix, iy), filled);
@@ -377,14 +371,7 @@ impl RawColliderSet {
     }
 
     #[cfg(feature = "dim3")]
-    pub fn coSetVoxel(
-        &mut self,
-        handle: FlatHandle,
-        ix: i32,
-        iy: i32,
-        iz: i32,
-        filled: bool,
-    ) {
+    pub fn coSetVoxel(&mut self, handle: FlatHandle, ix: i32, iy: i32, iz: i32, filled: bool) {
         self.map_mut(handle, |co| {
             if let Some(vox) = co.shape_mut().as_voxels_mut() {
                 vox.set_voxel(Point::new(ix, iy, iz), filled);
