@@ -336,8 +336,8 @@ impl RawColliderSet {
         self.map(handle, |co| {
             let vox = co.shape().as_voxels()?;
             let coords = vox
-                .centers()
-                .filter_map(|(id, _, state)| (!state.is_empty()).then_some(vox.voxel_key_at(id)))
+                .voxels()
+                .filter_map(|vox| (!vox.state.is_empty()).then_some(vox.grid_coords))
                 .flat_map(|ids| ids.coords.data.0[0])
                 .collect();
             Some(coords)
@@ -371,7 +371,7 @@ impl RawColliderSet {
     ) {
         self.map_mut(handle, |co| {
             if let Some(vox) = co.shape_mut().as_voxels_mut() {
-                vox.insert_voxel_at_key(Point::new(ix, iy), filled);
+                vox.set_voxel(Point::new(ix, iy), filled);
             }
         })
     }
@@ -387,7 +387,7 @@ impl RawColliderSet {
     ) {
         self.map_mut(handle, |co| {
             if let Some(vox) = co.shape_mut().as_voxels_mut() {
-                vox.insert_voxel_at_key(Point::new(ix, iy, iz), filled);
+                vox.set_voxel(Point::new(ix, iy, iz), filled);
             }
         })
     }
