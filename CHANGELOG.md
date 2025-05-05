@@ -1,3 +1,9 @@
+### 0.16.2 (5 May 2025)
+
+### Fixed
+
+- Fixed infinite loop in `collider.setVoxel`.
+
 ### 0.16.1 (2 May 2025)
 
 ### Added
