@@ -3,6 +3,8 @@ name: main
 on:
     push:
         branches: [master]
+        tags:
+            - "v*.*.*"
     pull_request:
         branches: [master]
     workflow_dispatch:
@@ -115,7 +117,7 @@ jobs:
                   path: |
                       rapier-compat/builds/*/pkg
                   overwrite: true
-    publish:
+    publish-canary:
         runs-on: ubuntu-latest
         needs: [build, build-compat]
         if: github.ref == 'refs/heads/master'
@@ -136,5 +138,29 @@ jobs:
             - name: Publish projects
               run: |
                   ./publish_all_canary.sh
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    publish-prod:
+        runs-on: ubuntu-latest
+        needs: [build, build-compat]
+        # To avoid releasing a wrong version: check this commit is tagged
+        if: startsWith(github.event.workflow_run.head_branch, 'refs/tags/v') }}
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/download-artifact@v4
+              with:
+                  name: pkg no-compat ubuntu-latest
+                  path: builds
+            - uses: actions/download-artifact@v4
+              with:
+                  name: pkg compat ubuntu-latest
+                  path: rapier-compat/builds
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "22.x"
+                  registry-url: "https://registry.npmjs.org"
+            - name: Publish projects
+              run: |
+                  ./publish_all_prod.sh
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
