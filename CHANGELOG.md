@@ -1,12 +1,23 @@
+### 0.17.0 (16 May 2025)
+
+#### Fixed
+
+- Fix sensor events not triggering when hitting a voxels collider.
+
+#### Added
+
+- Added support for voxels colliders attached to dynamic rigid-bodies.
+- Added force calculation between colliding voxels/voxels and voxels/compound shapes.
+
 ### 0.16.2 (5 May 2025)
 
-### Fixed
+#### Fixed
 
 - Fixed infinite loop in `collider.setVoxel`.
 
 ### 0.16.1 (2 May 2025)
 
-### Added
+#### Added
 
 - Added `Collider.clearShapeCache` to release the reference to the JS shape stored in the collider, oor too force its
   recomputation the next time the collider shape is accessed.
@@ -15,7 +26,7 @@
 
 ### 0.16.0 (24 April 2025)
 
-### Added
+#### Added
 
 - Added `ColliderDesc.voxels` to create a collider with a shape optimized for voxels.
 - Added `Collider.setVoxel` for adding or removing a voxel from a collider with a voxel shape.
