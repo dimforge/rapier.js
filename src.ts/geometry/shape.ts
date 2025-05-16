@@ -1,10 +1,5 @@
 import {Vector, VectorOps, Rotation, RotationOps} from "../math";
-import {
-    RawColliderSet,
-    RawShape,
-    RawShapeType,
-    RawVoxelPrimitiveGeometry,
-} from "../raw";
+import {RawColliderSet, RawShape, RawShapeType} from "../raw";
 import {ShapeContact} from "./contact";
 import {PointProjection} from "./point";
 import {Ray, RayIntersection} from "./ray";
@@ -138,9 +133,8 @@ export abstract class Shape {
 
             case RawShapeType.Voxels:
                 const vox_data = rawSet.coVoxelData(handle);
-                const vox_geom = rawSet.coVoxelPrimitiveGeometry(handle);
                 const vox_size = rawSet.coVoxelSize(handle);
-                return new Voxels(vox_data, vox_size, vox_geom);
+                return new Voxels(vox_data, vox_size);
 
             case RawShapeType.TriMesh:
                 vs = rawSet.coVertices(handle);
@@ -1034,17 +1028,7 @@ export class Voxels extends Shape {
     data: Float32Array | Int32Array;
 
     /**
-     * The geometric shape of each voxel.
-     */
-    primitiveGeometry: number;
-
-    /**
      * The dimensions of each voxel.
-     *
-     * If the `primitiveGeometry` is `PseudoBall`, then only the first component
-     * will be taken into account. If it is `PseudoCube` then every component of
-     * the size vector are taken into account, defining the size along each
-     * local coordinate axis.
      */
     voxelSize: Vector;
 
@@ -1059,24 +1043,11 @@ export class Voxels extends Shape {
      *               point is defined from 3 (resp 2) contiguous numbers per point
      *               in 3D (resp 2D).
      * @param voxelSize - The size of each voxel.
-     *                    If the `primitiveGeometry` is `PseudoBall`, then only the first component
-     *                    will be taken into account. If it is `PseudoCube` then every component of
-     *                    the size vector are taken into account, defining the size along each
-     *                    local coordinate axis.
-     * @param primitiveGeometry - (optional) Indicates the geometric shape of
-     *                            each voxel. Defaults to cuboid shapes.
      */
-    constructor(
-        data: Float32Array | Int32Array,
-        voxelSize: Vector,
-        primitiveGeometry?: RawVoxelPrimitiveGeometry,
-    ) {
+    constructor(data: Float32Array | Int32Array, voxelSize: Vector) {
         super();
         this.data = data;
         this.voxelSize = voxelSize;
-        if (primitiveGeometry !== undefined)
-            this.primitiveGeometry = primitiveGeometry;
-        else this.primitiveGeometry = RawVoxelPrimitiveGeometry.PseudoCube;
     }
 
     public intoRaw(): RawShape {
@@ -1084,17 +1055,9 @@ export class Voxels extends Shape {
 
         let result;
         if (this.data instanceof Int32Array) {
-            result = RawShape.voxels(
-                this.primitiveGeometry,
-                voxelSize,
-                this.data,
-            );
+            result = RawShape.voxels(voxelSize, this.data);
         } else {
-            result = RawShape.voxelsFromPoints(
-                this.primitiveGeometry,
-                voxelSize,
-                this.data,
-            );
+            result = RawShape.voxelsFromPoints(voxelSize, this.data);
         }
 
         voxelSize.free();

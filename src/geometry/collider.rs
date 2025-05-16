@@ -1,7 +1,7 @@
 use crate::geometry::shape::SharedShapeUtility;
 use crate::geometry::{
     RawColliderSet, RawColliderShapeCastHit, RawPointProjection, RawRayIntersection, RawShape,
-    RawShapeCastHit, RawShapeContact, RawShapeType, RawVoxelPrimitiveGeometry,
+    RawShapeCastHit, RawShapeContact, RawShapeType,
 };
 use crate::math::{RawRotation, RawVector};
 use crate::utils::{self, FlatHandle};
@@ -341,16 +341,6 @@ impl RawColliderSet {
                 .flat_map(|ids| ids.coords.data.0[0])
                 .collect();
             Some(coords)
-        })
-    }
-
-    pub fn coVoxelPrimitiveGeometry(
-        &self,
-        handle: FlatHandle,
-    ) -> Option<RawVoxelPrimitiveGeometry> {
-        self.map(handle, |co| {
-            let vox = co.shape().as_voxels()?;
-            Some(vox.primitive_geometry().into())
         })
     }
 

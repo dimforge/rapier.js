@@ -1,4 +1,4 @@
-import {RawColliderSet, RawVoxelPrimitiveGeometry} from "../raw";
+import {RawColliderSet} from "../raw";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
 import {
     CoefficientCombineRule,
@@ -1288,19 +1288,12 @@ export class ColliderDesc {
      *               point is defined from 3 (resp 2) contiguous numbers per point
      *               in 3D (resp 2D).
      * @param voxelSize - The size of each voxel.
-     *                    If the `primitiveGeometry` is `PseudoBall`, then only the first component
-     *                    will be taken into account. If it is `PseudoCube` then every component of
-     *                    the size vector are taken into account, defining the size along each
-     *                    local coordinate axis.
-     * @param primitiveGeometry - (optional) Indicates the geometric shape of
-     *                            each voxel. Defaults to cuboid shapes.
      */
     public static voxels(
         voxels: Float32Array | Int32Array,
         voxelSize: Vector,
-        primitiveGeometry?: RawVoxelPrimitiveGeometry,
     ): ColliderDesc {
-        const shape = new Voxels(voxels, voxelSize, primitiveGeometry);
+        const shape = new Voxels(voxels, voxelSize);
         return new ColliderDesc(shape);
     }
 
