@@ -239,14 +239,23 @@ export class World {
 
     /**
      * Computes all the lines (and their colors) needed to render the scene.
+     *
+     * @param filterFlags - Flags for excluding whole subsets of colliders from rendering.
+     * @param filterPredicate - Any collider for which this closure returns `false` will be excluded from the
+     *                          debug rendering.
      */
-    public debugRender(): DebugRenderBuffers {
+    public debugRender(
+        filterFlags?: QueryFilterFlags,
+        filterPredicate?: (collider: Collider) => boolean,
+    ): DebugRenderBuffers {
         this.debugRenderPipeline.render(
             this.bodies,
             this.colliders,
             this.impulseJoints,
             this.multibodyJoints,
             this.narrowPhase,
+            filterFlags,
+            filterPredicate,
         );
         return new DebugRenderBuffers(
             this.debugRenderPipeline.vertices,

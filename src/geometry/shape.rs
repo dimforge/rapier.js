@@ -287,29 +287,17 @@ impl RawShape {
         Self(SharedShape::round_cone(halfHeight, radius, borderRadius))
     }
 
-    pub fn voxels(
-        voxel_size: &RawVector,
-        grid_coords: Vec<i32>,
-    ) -> Self {
+    pub fn voxels(voxel_size: &RawVector, grid_coords: Vec<i32>) -> Self {
         let grid_coords: Vec<_> = grid_coords
             .chunks_exact(DIM)
             .map(Point::from_slice)
             .collect();
-        Self(SharedShape::voxels(
-            voxel_size.0,
-            &grid_coords,
-        ))
+        Self(SharedShape::voxels(voxel_size.0, &grid_coords))
     }
 
-    pub fn voxelsFromPoints(
-        voxel_size: &RawVector,
-        points: Vec<f32>,
-    ) -> Self {
+    pub fn voxelsFromPoints(voxel_size: &RawVector, points: Vec<f32>) -> Self {
         let points: Vec<_> = points.chunks_exact(DIM).map(Point::from_slice).collect();
-        Self(SharedShape::voxels_from_points(
-            voxel_size.0,
-            &points,
-        ))
+        Self(SharedShape::voxels_from_points(voxel_size.0, &points))
     }
 
     pub fn polyline(vertices: Vec<f32>, indices: Vec<u32>) -> Self {
