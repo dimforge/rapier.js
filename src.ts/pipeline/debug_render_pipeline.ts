@@ -7,7 +7,8 @@ import {
     MultibodyJointSet,
     RigidBodySet,
 } from "../dynamics";
-import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
+import {BroadPhase, Collider, ColliderSet, NarrowPhase} from "../geometry";
+import {QueryFilterFlags} from "./query_pipeline";
 
 /**
  * The vertex and color buffers for debug-redering the physics scene.
@@ -66,6 +67,8 @@ export class DebugRenderPipeline {
         impulse_joints: ImpulseJointSet,
         multibody_joints: MultibodyJointSet,
         narrow_phase: NarrowPhase,
+        filterFlags?: QueryFilterFlags,
+        filterPredicate?: (collider: Collider) => boolean,
     ) {
         this.raw.render(
             bodies.raw,
@@ -73,6 +76,8 @@ export class DebugRenderPipeline {
             impulse_joints.raw,
             multibody_joints.raw,
             narrow_phase.raw,
+            filterFlags,
+            colliders.castClosure(filterPredicate),
         );
         this.vertices = this.raw.vertices();
         this.colors = this.raw.colors();
