@@ -369,6 +369,101 @@ impl RawColliderSet {
         })
     }
 
+    #[cfg(feature = "dim2")]
+    pub fn coPropagateVoxelChange(
+        &mut self,
+        handle1: FlatHandle,
+        handle2: FlatHandle,
+        ix: i32,
+        iy: i32,
+        shift_x: i32,
+        shift_y: i32,
+    ) {
+        self.map_pair_mut(handle1, handle2, |co1, co2| {
+            if let (Some(co1), Some(co2)) = (co1, co2) {
+                if let (Some(vox1), Some(vox2)) = (
+                    co1.shape_mut().as_voxels_mut(),
+                    co2.shape_mut().as_voxels_mut(),
+                ) {
+                    vox1.propagate_voxel_change(
+                        vox2,
+                        Point::new(ix, iy),
+                        Vector::new(shift_x, shift_y),
+                    );
+                }
+            }
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn coPropagateVoxelChange(
+        &mut self,
+        handle1: FlatHandle,
+        handle2: FlatHandle,
+        ix: i32,
+        iy: i32,
+        iz: i32,
+        shift_x: i32,
+        shift_y: i32,
+        shift_z: i32,
+    ) {
+        self.map_pair_mut(handle1, handle2, |co1, co2| {
+            if let (Some(co1), Some(co2)) = (co1, co2) {
+                if let (Some(vox1), Some(vox2)) = (
+                    co1.shape_mut().as_voxels_mut(),
+                    co2.shape_mut().as_voxels_mut(),
+                ) {
+                    vox1.propagate_voxel_change(
+                        vox2,
+                        Point::new(ix, iy, iz),
+                        Vector::new(shift_x, shift_y, shift_z),
+                    );
+                }
+            }
+        })
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn coCombineVoxelStates(
+        &mut self,
+        handle1: FlatHandle,
+        handle2: FlatHandle,
+        shift_x: i32,
+        shift_y: i32,
+    ) {
+        self.map_pair_mut(handle1, handle2, |co1, co2| {
+            if let (Some(co1), Some(co2)) = (co1, co2) {
+                if let (Some(vox1), Some(vox2)) = (
+                    co1.shape_mut().as_voxels_mut(),
+                    co2.shape_mut().as_voxels_mut(),
+                ) {
+                    vox1.combine_voxel_states(vox2, Vector::new(shift_x, shift_y));
+                }
+            }
+        })
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn coCombineVoxelStates(
+        &mut self,
+        handle1: FlatHandle,
+        handle2: FlatHandle,
+        shift_x: i32,
+        shift_y: i32,
+        shift_z: i32,
+    ) {
+        self.map_pair_mut(handle1, handle2, |co1, co2| {
+            if let (Some(co1), Some(co2)) = (co1, co2) {
+                if let (Some(vox1), Some(vox2)) = (
+                    co1.shape_mut().as_voxels_mut(),
+                    co2.shape_mut().as_voxels_mut(),
+                ) {
+                    vox1.combine_voxel_states(vox2, Vector::new(shift_x, shift_y, shift_z));
+                }
+            }
+        })
+    }
+
     /// The vertices of this triangle mesh, polyline, convex polyhedron, segment, triangle or convex polyhedron, if it is one.
     pub fn coVertices(&self, handle: FlatHandle) -> Option<Vec<f32>> {
         let flatten =

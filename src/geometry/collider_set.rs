@@ -35,6 +35,19 @@ impl RawColliderSet {
             .expect("Invalid Collider reference. It may have been removed from the physics World.");
         f(collider)
     }
+
+    pub(crate) fn map_pair_mut<T>(
+        &mut self,
+        handle1: FlatHandle,
+        handle2: FlatHandle,
+        f: impl FnOnce(Option<&mut Collider>, Option<&mut Collider>) -> T,
+    ) -> T {
+        let (collider1, collider2) = self.0.get_pair_mut(
+            utils::collider_handle(handle1),
+            utils::collider_handle(handle2),
+        );
+        f(collider1, collider2)
+    }
 }
 
 impl RawColliderSet {
