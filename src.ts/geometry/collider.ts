@@ -706,6 +706,98 @@ export class Collider {
     }
 
     /**
+     * If this and `voxels2` are voxel colliders, and a voxel from `this` was
+     * modified with `setVoxel`, this will ensure that a
+     * moving object transitioning across the boundaries of these colliders
+     * won’t suffer from the "internal edges" artifact.
+     *
+     * The indices `ix, iy, iz` indicate the integer coordinates of the voxel in
+     * the local coordinate frame of `this`.
+     *
+     * If the voxels in `voxels2` live in a different coordinate space from `this`,
+     * then the `shift_*` argument indicate the distance, in voxel units, between
+     * the origin of `this` to the origin of `voxels2`.
+     *
+     * This method is intended to be called between `this` and all the other
+     * voxels colliders with a domain intersecting `this` or sharing a domain
+     * boundary. This is an incremental maintenance of the effect of
+     * `combineVoxelStates`.
+     */
+    public propagateVoxelChange(
+        voxels2: Collider,
+        ix: number,
+        iy: number,
+        // #if DIM3
+        iz: number,
+        // #endif
+        shift_x: number,
+        shift_y: number,
+        // #if DIM3
+        shift_z: number,
+        // #endif
+    ) {
+        this.colliderSet.raw.coPropagateVoxelChange(
+            this.handle,
+            voxels2.handle,
+            ix,
+            iy,
+            // #if DIM3
+            iz,
+            // #endif
+            shift_x,
+            shift_y,
+            // #if DIM3
+            shift_z,
+            // #endif
+        );
+        // We modified the shape, invalidate it to keep our cache
+        // up-to-date the next time the user requests the shape data.
+        // PERF: this isn’t ideal for performances as this adds a
+        //       hidden, non-constant, cost.
+        this._shape = null;
+    }
+
+    /**
+     * If this and `voxels2` are voxel colliders, this will ensure that a
+     * moving object transitioning across the boundaries of these colliders
+     * won’t suffer from the "internal edges" artifact.
+     *
+     * If the voxels in `voxels2` live in a different coordinate space from `this`,
+     * then the `shift_*` argument indicate the distance, in voxel units, between
+     * the origin of `this` to the origin of `voxels2`.
+     *
+     * This method is intended to be called once between all pairs of voxels
+     * colliders with intersecting domains or shared boundaries.
+     *
+     * If either voxels collider is then modified with `setVoxel`, the
+     * `propagateVoxelChange` method must be called to maintain the coupling
+     * between the voxels shapes after the modification.
+     */
+    public combineVoxelStates(
+        voxels2: Collider,
+        shift_x: number,
+        shift_y: number,
+        // #if DIM3
+        shift_z: number,
+        // #endif
+    ) {
+        this.colliderSet.raw.coCombineVoxelStates(
+            this.handle,
+            voxels2.handle,
+            shift_x,
+            shift_y,
+            // #if DIM3
+            shift_z,
+            // #endif
+        );
+        // We modified the shape, invalidate it to keep our cache
+        // up-to-date the next time the user requests the shape data.
+        // PERF: this isn’t ideal for performances as this adds a
+        //       hidden, non-constant, cost.
+        this._shape = null;
+    }
+
+    /**
      * If this collider has a triangle mesh, polyline, convex polygon, or convex polyhedron shape,
      * this returns the vertex buffer of said shape.
      * @deprecated this field will be removed in the future, please access this field on `shape` member instead.
