@@ -1,3 +1,12 @@
+### 0.17.1 (23 May 2025)
+
+#### Added
+
+- Added optional arguments to `World.debugRender(filterFlags, filterPredicate)` to prevent some colliders from being
+  rendered.
+- Added `Collider.combineVoxelStates` to ensure two adjacent voxels colliders don’t suffer from the internal edges
+  problem, and `Collider.propagateVoxelChange` to maintain that coupling after modifications with `.setVoxel`.
+
 ### 0.17.0 (16 May 2025)
 
 #### Fixed
