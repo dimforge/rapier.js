@@ -17,6 +17,13 @@ pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
+#[wasm_bindgen::prelude::wasm_bindgen]
+pub fn reserve_memory(extra_bytes_count: u32) {
+    let mut unused: Vec<u8> = vec![];
+    unused.reserve(extra_bytes_count as usize);
+    std::hint::black_box(&unused);
+}
+
 pub mod control;
 pub mod dynamics;
 pub mod geometry;
