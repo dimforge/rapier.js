@@ -1,3 +1,9 @@
+### 0.17.3 (30 May 2025)
+
+#### Fix
+
+- The published package for 0.17.2 had a broken package.json. It is fixed on this release.
+
 ### 0.17.2 (30 May 2025)
 
 #### Added
