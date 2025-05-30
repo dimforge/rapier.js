@@ -47,6 +47,7 @@ palette = "0.7"
 wasm-opt = [
     '-O4',
     '--dce',
+    '--enable-bulk-memory',
     {%- for flag in additional_wasm_opt_flags %}
     '{{ flag }}',
     {%- endfor %}
