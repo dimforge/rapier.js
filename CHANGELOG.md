@@ -1,3 +1,10 @@
+### 0.17.2 (30 May 2025)
+
+#### Added
+
+- Added the function `RAPIER.reserveMemory` to instruct the internal allocator to pre-allocate more memory in preparation
+  for future operations. This typically called only once after initializing the WASM module.
+
 ### 0.17.1 (23 May 2025)
 
 #### Added
