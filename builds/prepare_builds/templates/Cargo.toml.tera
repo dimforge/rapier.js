@@ -47,7 +47,9 @@ palette = "0.7"
 wasm-opt = [
     '-O4',
     '--dce',
+    # The two options below are needed because of: https://github.com/rustwasm/wasm-pack/issues/1501
     '--enable-bulk-memory',
+    '--enable-nontrapping-float-to-int',
     {%- for flag in additional_wasm_opt_flags %}
     '{{ flag }}',
     {%- endfor %}
