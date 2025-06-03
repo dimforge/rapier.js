@@ -6,6 +6,7 @@ gen_js() {
   GENOUT="./gen${DIM}"
 
   # Make output directories
+  rm -rf ${GENOUT}
   mkdir -p ${GENOUT}
 
   # Copy common sources
@@ -29,7 +30,7 @@ find gen3d/ -type f -name '*.bak' | xargs rm
 
 for features_set in \
 "2" "2 deterministic" "2 simd" \
-"3" "3 deterministic" "3 simd"
+"3" "3 deterministic" "3 simd" "3"
 do
 
   set -- $features_set # Convert the "tuple" into the param args $1 $2...
@@ -39,7 +40,8 @@ do
   else
     feature="${1}d-${2}";
   fi
-
+  
+  rm -rf ./builds/${feature}/pkg/
   mkdir -p ./builds/${feature}/pkg/
 
   cp ./builds/${feature}/wasm-build/rapier_wasm* ./builds/${feature}/pkg/

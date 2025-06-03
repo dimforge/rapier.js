@@ -14,6 +14,8 @@ edition = "2018"
 [features]
 default = ["dim{{ dimension }}"]
 dim{{ dimension }} = []
+debug-render = ["rapier{{ dimension }}d/debug-render", "dep:palette"]
+serde-serialize = ["rapier{{ dimension }}d/serde-serialize", "dep:serde", "dep:bincode"]
 
 [lib]
 name = "rapier_wasm{{ dimension }}d"
@@ -28,8 +30,6 @@ rust.unexpected_cfgs = { level = "warn", check-cfg = [
 
 [dependencies]
 rapier{{ dimension }}d = { version = "0.26.1", features = [
-    "serde-serialize",
-    "debug-render",
     {%- for feature in additional_features %}
     "{{ feature }}",
     {%- endfor %}
@@ -38,9 +38,9 @@ ref-cast = "1"
 wasm-bindgen = "0.2.100"
 js-sys = "0.3"
 nalgebra = "0.33"
-serde = { version = "1", features = ["derive", "rc"] }
-bincode = "1"
-palette = "0.7"
+serde = { version = "1", features = ["derive", "rc"], optional = true }
+bincode = { version = "1", optional = true }
+palette = { version = "0.7", optional = true }
 
 [package.metadata.wasm-pack.profile.release]
 # add -g to keep debug symbols

@@ -2,7 +2,9 @@ import {
     RawBroadPhase,
     RawCCDSolver,
     RawColliderSet,
+    // #if SERDE_SERIALIZE
     RawDeserializedWorld,
+    // #endif
     RawIntegrationParameters,
     RawIslandManager,
     RawImpulseJointSet,
@@ -11,8 +13,12 @@ import {
     RawPhysicsPipeline,
     RawQueryPipeline,
     RawRigidBodySet,
+    // #if SERDE_SERIALIZE
     RawSerializationPipeline,
+    // #endif
+    // #if DEBUG_RENDER
     RawDebugRenderPipeline,
+    // #endif
 } from "../raw";
 
 import {
@@ -50,10 +56,14 @@ import {
 import {Rotation, Vector, VectorOps} from "../math";
 import {PhysicsPipeline} from "./physics_pipeline";
 import {QueryFilterFlags, QueryPipeline} from "./query_pipeline";
+// #if SERDE_SERIALIZE
 import {SerializationPipeline} from "./serialization_pipeline";
+// #endif
 import {EventQueue} from "./event_queue";
 import {PhysicsHooks} from "./physics_hooks";
+// #if DEBUG_RENDER
 import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
+// #endif
 import {
     KinematicCharacterController,
     PidAxesMask,
@@ -63,7 +73,6 @@ import {Coarena} from "../coarena";
 
 // #if DIM3
 import {DynamicRayCastVehicleController} from "../control";
-
 // #endif
 
 /**
@@ -85,8 +94,12 @@ export class World {
     ccdSolver: CCDSolver;
     queryPipeline: QueryPipeline;
     physicsPipeline: PhysicsPipeline;
+    // #if SERDE_SERIALIZE
     serializationPipeline: SerializationPipeline;
+    // #endif
+    // #if DEBUG_RENDER
     debugRenderPipeline: DebugRenderPipeline;
+    // #endif
     characterControllers: Set<KinematicCharacterController>;
     pidControllers: Set<PidController>;
 
@@ -113,8 +126,12 @@ export class World {
         this.ccdSolver.free();
         this.queryPipeline.free();
         this.physicsPipeline.free();
+        // #if SERDE_SERIALIZE
         this.serializationPipeline.free();
+        // #endif
+        // #if DEBUG_RENDER
         this.debugRenderPipeline.free();
+        // #endif
         this.characterControllers.forEach((controller) => controller.free());
         this.pidControllers.forEach((controller) => controller.free());
 
@@ -133,8 +150,12 @@ export class World {
         this.multibodyJoints = undefined;
         this.queryPipeline = undefined;
         this.physicsPipeline = undefined;
+        // #if SERDE_SERIALIZE
         this.serializationPipeline = undefined;
+        // #endif
+        // #if DEBUG_RENDER
         this.debugRenderPipeline = undefined;
+        // #endif
         this.characterControllers = undefined;
         this.pidControllers = undefined;
 
@@ -156,8 +177,12 @@ export class World {
         rawCCDSolver?: RawCCDSolver,
         rawQueryPipeline?: RawQueryPipeline,
         rawPhysicsPipeline?: RawPhysicsPipeline,
+        // #if SERDE_SERIALIZE
         rawSerializationPipeline?: RawSerializationPipeline,
+        // #endif
+        // #if DEBUG_RENDER
         rawDebugRenderPipeline?: RawDebugRenderPipeline,
+        // #endif
     ) {
         this.gravity = gravity;
         this.integrationParameters = new IntegrationParameters(
@@ -173,12 +198,16 @@ export class World {
         this.ccdSolver = new CCDSolver(rawCCDSolver);
         this.queryPipeline = new QueryPipeline(rawQueryPipeline);
         this.physicsPipeline = new PhysicsPipeline(rawPhysicsPipeline);
+        // #if SERDE_SERIALIZE
         this.serializationPipeline = new SerializationPipeline(
             rawSerializationPipeline,
         );
+        // #endif
+        // #if DEBUG_RENDER
         this.debugRenderPipeline = new DebugRenderPipeline(
             rawDebugRenderPipeline,
         );
+        // #endif
         this.characterControllers = new Set<KinematicCharacterController>();
         this.pidControllers = new Set<PidController>();
 
@@ -186,11 +215,14 @@ export class World {
         this.vehicleControllers = new Set<DynamicRayCastVehicleController>();
         // #endif
 
+        // #if SERDE_SERIALIZE
         this.impulseJoints.finalizeDeserialization(this.bodies);
         this.bodies.finalizeDeserialization(this.colliders);
         this.colliders.finalizeDeserialization(this.bodies);
+        // #endif
     }
 
+    // #if SERDE_SERIALIZE
     public static fromRaw(raw: RawDeserializedWorld): World {
         if (!raw) return null;
 
@@ -227,7 +259,7 @@ export class World {
         );
     }
 
-    /**
+   /**
      * Creates a new physics world from a snapshot.
      *
      * This new physics world will be an identical copy of the snapshoted physics world.
@@ -236,7 +268,10 @@ export class World {
         let deser = new SerializationPipeline();
         return deser.deserializeAll(data);
     }
+    // End serialization block
+    // #endif
 
+    // #if DEBUG_RENDER
     /**
      * Computes all the lines (and their colors) needed to render the scene.
      *
@@ -262,6 +297,7 @@ export class World {
             this.debugRenderPipeline.colors,
         );
     }
+    // #endif
 
     /**
      * Advance the simulation by one time step.

@@ -3,6 +3,7 @@
     "description": "Build scripts for compatibility package with inlined webassembly as base64.",
     "private": true,
     "scripts": {
+        "prepare-all-projects": "../builds/prepare_builds/prepare_all_projects.sh",
         "build-rust-2d-non-deterministic": "./build-rust.sh -f non-deterministic -d 2",
         "build-rust-2d-deterministic": "./build-rust.sh -f deterministic -d 2",
         "build-rust-2d-simd": "./build-rust.sh -f simd -d 2",
