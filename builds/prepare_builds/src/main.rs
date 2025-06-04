@@ -6,7 +6,7 @@ use std::{
 };
 
 use clap::Parser;
-use clap_derive::{Parser, Subcommand, ValueEnum};
+use clap_derive::Parser;
 use serde::{Deserialize, Serialize};
 use tera::{Context, Tera};
 
@@ -14,45 +14,14 @@ use tera::{Context, Tera};
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
-    #[command(subcommand)]
-    command: Commands,
-}
-
-#[derive(Debug, Subcommand)]
-enum Commands {
-    Preset {
-        /// Dimension to use
-        #[arg(short, long, requires = "feature_set")]
-        dim: Dimension,
-
-        /// Features to enable
-        #[arg(short, long, requires = "dim")]
-        feature_set: FeatureSet,
-    },
-    Load {
-        #[arg(short, long, value_name = "FILE")]
-        path: PathBuf,
-    },
-}
-
-#[derive(ValueEnum, Debug, Clone, Copy)]
-pub enum Dimension {
-    Dim2,
-    Dim3,
-}
-
-#[derive(ValueEnum, Default, Debug, Clone, Copy)]
-pub enum FeatureSet {
-    #[default]
-    NonDeterministic,
-    Deterministic,
-    Simd,
+    #[arg(short, long, value_name = "FILE")]
+    config_path: PathBuf,
 }
 
 #[derive(Deserialize, Serialize)]
 /// Values to use when creating the new build folder.
 pub struct BuildValues {
-    /// Only the number of dimensions, as sometimes it will be prefixed by "dim" and sometimes post-fixed by "d".
+    /// Only the number of dimensions (1 or 2), as sometimes it will be prefixed by "dim" and sometimes post-fixed by "d".
     pub dim: String,
     /// real name of the additional features to enable in the project
     pub feature_set: Vec<String>,
@@ -65,54 +34,16 @@ pub struct BuildValues {
 
 impl BuildValues {
     pub fn new(args: Args) -> Self {
-        match args.command {
-            Commands::Preset { dim, feature_set } => {
-                let dim = match dim {
-                    Dimension::Dim2 => "2",
-                    Dimension::Dim3 => "3",
-                };
-                let feature_set_strings = match feature_set {
-                    FeatureSet::NonDeterministic => vec![],
-                    FeatureSet::Deterministic => vec!["enhanced-determinism"],
-                    FeatureSet::Simd => vec!["simd-stable"],
-                };
-                let js_package_name = match feature_set {
-                    FeatureSet::NonDeterministic => format!("rapier{dim}d"),
-                    FeatureSet::Deterministic => format!("rapier{dim}d-deterministic"),
-                    FeatureSet::Simd => format!("rapier{dim}d-simd"),
-                };
+        let f = File::open(args.config_path).expect("Failed opening file");
+        let config: Self = match serde_json::from_reader(f) {
+            Ok(x) => x,
+            Err(e) => {
+                println!("Failed to load config: {}", e);
 
-                let root: PathBuf = env!("CARGO_MANIFEST_DIR").into();
-
-                Self {
-                    dim: dim.to_string(),
-                    feature_set: feature_set_strings.iter().map(|f| f.to_string()).collect(),
-                    template_dir: root.join("templates/").clone(),
-                    target_dir: root.parent().unwrap().join(&js_package_name).into(),
-                    additional_rust_flags: match feature_set {
-                        FeatureSet::Simd => "RUSTFLAGS='-C target-feature=+simd128'".to_string(),
-                        _ => "".to_string(),
-                    },
-                    additional_wasm_opt_flags: match feature_set {
-                        FeatureSet::Simd => vec!["--enable-simd".to_string()],
-                        _ => vec![],
-                    },
-                    js_package_name,
-                }
+                std::process::exit(1);
             }
-            Commands::Load { path } => {
-                let f = File::open(path).expect("Failed opening file");
-                let config: Self = match ron::de::from_reader(f) {
-                    Ok(x) => x,
-                    Err(e) => {
-                        println!("Failed to load config: {}", e);
-
-                        std::process::exit(1);
-                    }
-                };
-                config
-            }
-        }
+        };
+        config
     }
 }
 
@@ -123,7 +54,7 @@ fn main() {
     let build_values = BuildValues::new(args);
     println!(
         "RON:\n{}\n",
-        ron::ser::to_string_pretty(&build_values, ron::ser::PrettyConfig::default()).unwrap()
+        serde_json::to_string_pretty(&build_values).unwrap()
     );
     copy_top_level_files_in_directory(&build_values.template_dir, &build_values.target_dir)
         .unwrap_or_else(|_| {

@@ -1,11 +1,10 @@
 #!/bin/bash
 
-features=(non-deterministic deterministic simd)
-dims=(dim2 dim3)
+cd "$(dirname "$0")"
 
-for feature in ${features[@]}; do
-    for dim in ${dims[@]}; do
-        echo "preparing dimension $dim with feature $feature"
-        cargo run -p prepare_builds -- preset -d ${dim} -f ${feature}
-    done
+config_files=(dim2_deterministic dim2_simd dim2 dim3_deterministic dim3_simd dim3)
+
+for config_path in ${config_files[@]}; do
+    echo "preparing dimension $dim with feature $feature"
+    cargo run -- -c assets/${config_path}.json
 done

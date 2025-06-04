@@ -1,0 +1,12 @@
+{
+    "dim": "3",
+    "feature_set": [
+        "serde-serialize",
+        "debug-render"
+    ],
+    "target_dir": "../rapier3d/",
+    "template_dir": "./templates/",
+    "additional_rust_flags": "",
+    "additional_wasm_opt_flags": [],
+    "js_package_name": "rapier3d"
+}

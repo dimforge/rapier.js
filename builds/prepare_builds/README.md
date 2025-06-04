@@ -6,7 +6,8 @@ It uses clap so you can pass `-h` to get more info about its parameters.
 
 ## usage
 
-At workspace root: `cargo run -p prepare_builds -- -d dim2 -f simd`.
+In this directory: `cargo run -- -c assets/dim2.ron`.
+The configuration file contains relative links which are not made canonical so the call location is important.
 
 Or use provided scripts: `./builds/prepare_builds/prepare_all_projects.sh && ./builds/prepare_builds/build_all_projects.sh`
 

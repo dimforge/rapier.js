@@ -1,0 +1,13 @@
+{
+    "dim": "3",
+    "feature_set": [
+        "serde-serialize",
+        "debug-render",
+        "enhanced-determinism"
+    ],
+    "target_dir": "../rapier3d-deterministic",
+    "template_dir": "./templates/",
+    "additional_rust_flags": "",
+    "additional_wasm_opt_flags": [],
+    "js_package_name": "rapier3d-deterministic"
+}

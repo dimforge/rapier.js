@@ -6,6 +6,7 @@ import path from "path";
 import {base64} from "rollup-plugin-base64";
 import copy from "rollup-plugin-copy";
 import filesize from "rollup-plugin-filesize";
+import * as fs from 'fs';
 
 const config = (dim, features_postfix) => ({
     input: `builds/${features_postfix}/gen${dim}/rapier.ts`,
@@ -68,6 +69,11 @@ const config = (dim, features_postfix) => ({
     ],
 });
 
+const conf = JSON.parse(fs.readFileSync('../builds/prepare_builds/assets/dim2.json'));
+
+console.log(conf);
+
+/*
 export default [
     config("2d", "2d"),
     config("2d", "2d-deterministic"),
@@ -76,3 +82,4 @@ export default [
     config("3d", "3d-deterministic"),
     config("3d", "3d-simd"),
 ];
+*/
