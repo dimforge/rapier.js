@@ -12,16 +12,25 @@ license = "Apache-2.0"
 edition = "2018"
 
 [features]
-default = ["dim{{ dimension }}"]
+default = ["dim{{ dimension }}",
+    {%- for feature in additional_features %}
+    "{{ feature }}",
+    {%- endfor %}]
 dim{{ dimension }} = []
 debug-render = ["rapier{{ dimension }}d/debug-render", "dep:palette"]
 serde-serialize = ["rapier{{ dimension }}d/serde-serialize", "dep:serde", "dep:bincode"]
+enhanced-determinism = ["rapier{{ dimension }}d/enhanced-determinism"]
+simd-stable = ["rapier{{ dimension }}d/simd-stable"]
 
 [lib]
 name = "rapier_wasm{{ dimension }}d"
 path = "../../src/lib.rs"
 crate-type = ["cdylib", "rlib"]
-required-features = ["dim{{ dimension }}"]
+required-features = ["dim{{ dimension }}",
+    {%- for feature in additional_features %}
+    "{{ feature }}",
+    {%- endfor %}
+]
 
 [lints]
 rust.unexpected_cfgs = { level = "warn", check-cfg = [
@@ -29,11 +38,7 @@ rust.unexpected_cfgs = { level = "warn", check-cfg = [
 ] }
 
 [dependencies]
-rapier{{ dimension }}d = { version = "0.26.1", features = [
-    {%- for feature in additional_features %}
-    "{{ feature }}",
-    {%- endfor %}
-] }
+rapier{{ dimension }}d = { version = "0.26.1" }
 ref-cast = "1"
 wasm-bindgen = "0.2.100"
 js-sys = "0.3"

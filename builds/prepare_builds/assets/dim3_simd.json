@@ -11,5 +11,8 @@
     "additional_wasm_opt_flags": [
         "--enable-simd"
     ],
-    "js_package_name": "rapier3d-simd"
+    "js_package_name": "rapier3d-simd",
+    "conditions_to_remove": [
+        "DIM2"
+    ]
 }

@@ -8,5 +8,8 @@
     "template_dir": "./templates/",
     "additional_rust_flags": "",
     "additional_wasm_opt_flags": [],
-    "js_package_name": "rapier2d"
+    "js_package_name": "rapier2d",
+    "conditions_to_remove": [
+        "DIM3"
+    ]
 }

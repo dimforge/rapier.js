@@ -2,18 +2,10 @@
 
 help()
 {
-    printf "Usage: %s: [-c CONFIG_NAME]\n" $0
+    printf "Usage: %s: CONFIG_NAME\n" $0
 }
 
-while getopts :c: conf_name
-do
-    case $conf_name in
-    c)  
-        config_file_name="$OPTARG"
-        ;;
-    ?)  help ; exit 1;;
-    esac
-done
+config_file_name="$1"
 
 if [[ -z "$config_file_name" ]]; then
     help; exit 2;

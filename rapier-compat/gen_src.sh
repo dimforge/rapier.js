@@ -1,60 +1,58 @@
+#!/bin/sh
+
 # Copy source and remove #if sections - similar to script in ../rapierXd
 set -e
 
-gen_js() {
-  DIM=$1
-  GENOUT="./gen${DIM}"
-
-  # Make output directories
-  rm -rf ${GENOUT}
-  mkdir -p ${GENOUT}
-
-  # Copy common sources
-  cp -r ../src.ts/* $GENOUT
-
-  # Copy compat mode override sources
-  rm -f "${GENOUT}/raw.ts" "${GENOUT}/init.ts"
-  cp -r ./src${DIM}/* $GENOUT
+help()
+{
+    printf "Usage: %s: CONFIG_FILE_NAME\n" $0
 }
 
-gen_js "2d"
-gen_js "3d"
+config_file_name=$1
 
-# See https://serverfault.com/a/137848
-find gen2d/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if DIM3:,\:#endif:d'
-find gen3d/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if DIM2:,\:#endif:d'
+if [ -z "$config_file_name" ]; then
+    help; exit 2;
+fi
 
-# Clean up backup files.
-find gen2d/ -type f -name '*.bak' | xargs rm
-find gen3d/ -type f -name '*.bak' | xargs rm
+config_file_path="../builds/prepare_builds/assets/$config_file_name.json"
 
-for features_set in \
-"2" "2 deterministic" "2 simd" \
-"3" "3 deterministic" "3 simd" "3"
-do
+js_package_name=`node -pe 'JSON.parse(process.argv[1]).js_package_name' "$(cat ${config_file_path})"`
+dimension=`node -pe 'JSON.parse(process.argv[1]).dim' "$(cat ${config_file_path})"`
+conditions_to_remove=`node -pe 'JSON.parse(process.argv[1]).conditions_to_remove.join(" ")' "$(cat ${config_file_path})"`
 
-  set -- $features_set # Convert the "tuple" into the param args $1 $2...
-  dimension=$1
-  if [ -z "$2" ]; then
-    feature="${1}d";
-  else
-    feature="${1}d-${2}";
-  fi
-  
-  rm -rf ./builds/${feature}/pkg/
-  mkdir -p ./builds/${feature}/pkg/
+DIM="${dimension}d"
+GENOUT="./builds/${js_package_name}/gen${DIM}"
 
-  cp ./builds/${feature}/wasm-build/rapier_wasm* ./builds/${feature}/pkg/
-  cp -r ./gen${dimension}d ./builds/${feature}/
+# Make output directories
+rm -rf ${GENOUT}
+mkdir -p ${GENOUT}
 
-  # copy tsconfig, as they contain paths
-  cp ./tsconfig.common.json ./tsconfig.json ./builds/${feature}/
-  cp ./tsconfig.pkg${dimension}d.json ./builds/${feature}/tsconfig.pkg.json
+# Copy common sources
+cp -r ../src.ts/* $GENOUT
 
-  # "import.meta" causes Babel to choke, but the code path is never taken so just remove it.
-  sed -i.bak 's/import.meta.url/"<deleted>"/g' ./builds/${feature}/pkg/rapier_wasm${dimension}d.js
+# Copy compat mode override sources
+rm -f "${GENOUT}/raw.ts" "${GENOUT}/init.ts"
+cp -r ./src${DIM}/* $GENOUT
 
-  # Clean up backup files.
-  find ./builds/${feature}/pkg/ -type f -name '*.bak' | xargs rm
+echo ${conditions_to_remove}
 
+for condition_to_remove in "${conditions_to_remove}" ; do
+  # See https://serverfault.com/a/137848
+  echo "find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i \"\\:#if ${condition_to_remove}:,\\:#endif:d\""
+  find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i "\\:#if ${condition_to_remove}:,\\:#endif:d"
 done
+
+rm -rf ./builds/${js_package_name}/pkg/
+mkdir -p ./builds/${js_package_name}/pkg/
+
+cp ./builds/${js_package_name}/wasm-build/rapier_wasm* ./builds/${js_package_name}/pkg/
+
+# fix raw file
+echo 'export * from "'"./rapier_wasm$DIM"'"' > builds/${js_package_name}/pkg/raw.d.ts
+
+# copy tsconfig, as they contain paths
+cp ./tsconfig.common.json ./tsconfig.json ./builds/${js_package_name}/
+cp ./tsconfig.pkg${dimension}d.json ./builds/${js_package_name}/tsconfig.pkg.json
+
+# "import.meta" causes Babel to choke, but the code path is never taken so just remove it.
+sed -i 's/import.meta.url/"<deleted>"/g' ./builds/${js_package_name}/pkg/rapier_wasm${dimension}d.js

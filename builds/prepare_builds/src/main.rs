@@ -30,6 +30,8 @@ pub struct BuildValues {
     pub additional_rust_flags: String,
     pub additional_wasm_opt_flags: Vec<String>,
     pub js_package_name: String,
+    /// To remove text blocks present in non-rust files bounded by `#if CONDITION ... #endif`
+    pub conditions_to_remove: Vec<String>,
 }
 
 impl BuildValues {
@@ -105,6 +107,7 @@ fn process_templates(build_values: &BuildValues) -> std::io::Result<()> {
         &build_values.additional_wasm_opt_flags,
     );
     context.insert("js_package_name", &build_values.js_package_name);
+    context.insert("conditions_to_remove", &build_values.conditions_to_remove);
 
     let tera = match Tera::new(target_dir.join("**/*.tera").to_str().unwrap()) {
         Ok(t) => t,

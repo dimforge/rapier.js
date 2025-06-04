@@ -5,15 +5,10 @@ cp -r ../../src.ts/* pkg/src/.
 rm -f ./pkg/raw.ts
 echo 'export * from "./rapier_wasm{{ dimension }}d"' > pkg/src/raw.ts
 # See https://serverfault.com/a/137848
-find pkg/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if DIM{% if dimension == "2" %}3{% else %}2{% endif %}:,\:#endif:d'
-{% if "serde-serialize" not in additional_features -%}
-find pkg/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if SERDE_SERIALIZE:,\:#endif:d'
-{% endif -%}
-{% if "debug-render" not in additional_features -%}
-find pkg/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if DEBUG_RENDER:,\:#endif:d'
-{% endif -%}
+{% for condition_to_remove in conditions_to_remove %}
+find pkg/ -type f -print0 | LC_ALL=C xargs -0 sed -i '\:#if {{condition_to_remove}}:,\:#endif:d'
+{% endfor %}
 npx tsc
 # NOTE: we keep the typescripts files into the NPM package for source mapping: see #3
-sed -i.bak 's/"module": "rapier_wasm{{ dimension }}d.js"/"module": "rapier.js"/g' pkg/package.json
-sed -i.bak 's/"types": "rapier_wasm{{ dimension }}d.d.ts"/"types": "rapier.d.ts"/g' pkg/package.json
-find pkg/ -type f -name '*.bak' | xargs rm
+sed -i 's/"module": "rapier_wasm{{ dimension }}d.js"/"module": "rapier.js"/g' pkg/package.json
+sed -i 's/"types": "rapier_wasm{{ dimension }}d.d.ts"/"types": "rapier.d.ts"/g' pkg/package.json
