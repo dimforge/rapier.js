@@ -396,6 +396,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "dimforge_rapier2d-minimal"
+version = "0.17.3"
+dependencies = [
+ "bincode",
+ "js-sys",
+ "nalgebra",
+ "palette",
+ "rapier2d",
+ "ref-cast",
+ "serde",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "dimforge_rapier2d-simd"
 version = "0.17.3"
 dependencies = [

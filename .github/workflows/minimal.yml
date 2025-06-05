@@ -1,0 +1,44 @@
+name: minimal
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - run: npm ci;
+      - name: Prepare minimal 2d build
+        working-directory: ./builds/prepare_builds/
+        run: |
+          cargo run -- -c assets/example_dim2_minimal.json
+      - name: Build minimal 2d project
+        working-directory: ./builds/rapier2d-minimal
+        run: |
+          npm run build
+      - name: Build minimal 2d project compat
+        working-directory: ./rapier-compat
+        run: |
+          ./build_conf.sh example_dim2_minimal

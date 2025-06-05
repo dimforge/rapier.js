@@ -1,7 +1,7 @@
 {
     "dim": "3",
     "feature_set": [],
-    "target_dir": "../rapier3d/",
+    "target_dir": "../rapier3d-minimal/",
     "template_dir": "./templates/",
     "additional_rust_flags": "",
     "additional_wasm_opt_flags": [],

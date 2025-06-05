@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 help()
 {
     printf "Usage: %s: CONFIG_NAME\n" $0
@@ -21,7 +23,9 @@ rust_source_directory="../builds/${rust_source_directory_name}"
 
 if [ ! -d "$rust_source_directory" ]; then
     echo "Directory $rust_source_directory does not exist";
-    echo "You may want to generate rust projects first.";
+    echo "You may want to generate rust projects first (see builds/prepare_builds folder).";
+    echo "For example:";
+    echo "> cd ../builds/prepare_builds && cargo run -- -c assets/$config_file_name.json && cd -"
     help
     exit 4;
 fi

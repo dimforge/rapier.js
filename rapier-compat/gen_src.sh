@@ -34,7 +34,7 @@ cp -r ../src.ts/* $GENOUT
 rm -f "${GENOUT}/raw.ts" "${GENOUT}/init.ts"
 cp -r ./src${DIM}/* $GENOUT
 
-for condition_to_remove in "${conditions_to_remove}" ; do
+for condition_to_remove in ${conditions_to_remove} ; do
   # See https://serverfault.com/a/137848
   echo "find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i.bak \"\\:#if ${condition_to_remove}:,\\:#endif:d\""
   find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i.bak "\\:#if ${condition_to_remove}:,\\:#endif:d"
