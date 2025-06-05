@@ -1,15 +1,10 @@
 {
     "dim": "2",
-    "feature_set": [
-        "serde-serialize",
-        "debug-render"
-    ],
+    "feature_set": ["serde-serialize", "debug-render"],
     "target_dir": "../rapier2d/",
     "template_dir": "./templates/",
     "additional_rust_flags": "",
     "additional_wasm_opt_flags": [],
     "js_package_name": "rapier2d",
-    "conditions_to_remove": [
-        "DIM3"
-    ]
+    "conditions_to_remove": ["DIM3"]
 }

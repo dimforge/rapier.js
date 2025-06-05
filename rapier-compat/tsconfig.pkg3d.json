@@ -4,7 +4,5 @@
         "rootDir": "./gen3d",
         "outDir": "./3d"
     },
-    "files": [
-        "./gen3d/rapier.ts"
-    ]
+    "files": ["./gen3d/rapier.ts"]
 }

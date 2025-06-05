@@ -259,7 +259,7 @@ export class World {
         );
     }
 
-   /**
+    /**
      * Creates a new physics world from a snapshot.
      *
      * This new physics world will be an identical copy of the snapshoted physics world.

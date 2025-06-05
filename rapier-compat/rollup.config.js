@@ -6,7 +6,7 @@ import path from "path";
 import {base64} from "rollup-plugin-base64";
 import copy from "rollup-plugin-copy";
 import filesize from "rollup-plugin-filesize";
-import * as fs from 'fs';
+import * as fs from "fs";
 
 const config = (dim, js_package_name) => ({
     input: `builds/${js_package_name}/gen${dim}/rapier.ts`,
@@ -69,9 +69,12 @@ const config = (dim, js_package_name) => ({
     ],
 });
 
-const conf = JSON.parse(fs.readFileSync('../builds/prepare_builds/assets/' + process.env.BUILD_CONFIG_NAME + '.json'));
+const conf = JSON.parse(
+    fs.readFileSync(
+        "../builds/prepare_builds/assets/" +
+            process.env.BUILD_CONFIG_NAME +
+            ".json",
+    ),
+);
 
-
-export default [
-    config("" + conf.dim + "d", conf.js_package_name),
-];
+export default [config("" + conf.dim + "d", conf.js_package_name)];
