@@ -36,8 +36,8 @@ cp -r ./src${DIM}/* $GENOUT
 
 for condition_to_remove in "${conditions_to_remove}" ; do
   # See https://serverfault.com/a/137848
-  echo "find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i \"\\:#if ${condition_to_remove}:,\\:#endif:d\""
-  find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i "\\:#if ${condition_to_remove}:,\\:#endif:d"
+  echo "find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i.bak \"\\:#if ${condition_to_remove}:,\\:#endif:d\""
+  find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i.bak "\\:#if ${condition_to_remove}:,\\:#endif:d"
 done
 
 rm -rf ./builds/${js_package_name}/pkg/
@@ -53,4 +53,7 @@ cp ./tsconfig.common.json ./tsconfig.json ./builds/${js_package_name}/
 cp ./tsconfig.pkg${dimension}d.json ./builds/${js_package_name}/tsconfig.pkg.json
 
 # "import.meta" causes Babel to choke, but the code path is never taken so just remove it.
-sed -i 's/import.meta.url/"<deleted>"/g' ./builds/${js_package_name}/pkg/rapier_wasm${dimension}d.js
+sed -i.bak 's/import.meta.url/"<deleted>"/g' ./builds/${js_package_name}/pkg/rapier_wasm${dimension}d.js
+
+# Clean up backup files.
+find ./builds/${js_package_name}/ -type f -name '*.bak' | xargs rm
