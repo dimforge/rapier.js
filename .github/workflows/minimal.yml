@@ -29,11 +29,14 @@ jobs:
                       ~/.cargo/git/db/
                       target/
                   key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-            - run: npm ci;
+            - run: npm ci --development;
             - name: Prepare minimal 2d build
               working-directory: ./builds/prepare_builds/
               run: |
                   cargo run -- -c assets/example_dim2_minimal.json
+            - name: install rapier-compat dependencies
+              working-directory: ./rapier-compat
+              run: npm ci;
             - name: Build minimal 2d project
               working-directory: ./builds/rapier2d-minimal
               run: |
