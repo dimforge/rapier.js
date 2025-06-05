@@ -23,7 +23,7 @@ pub struct Args {
 pub struct BuildValues {
     /// Only the number of dimensions (1 or 2), as sometimes it will be prefixed by "dim" and sometimes post-fixed by "d".
     pub dim: String,
-    /// real name of the additional features to enable in the project
+    /// Rust name of the additional features to enable in the project, they should correspond to features from Cargo.toml(.tera).
     pub feature_set: Vec<String>,
     pub target_dir: PathBuf,
     pub template_dir: PathBuf,

@@ -4,20 +4,14 @@
     "private": true,
     "scripts": {
         "prepare-all-projects": "../builds/prepare_builds/prepare_all_projects.sh",
-        "build2d-non-deterministic": "./build_conf.sh dim2",
-        "build-2d-deterministic": "./build_conf.sh dim2_deterministic",
-        "build-2d-simd": "./build_conf.sh dim2_simd",
-        "build-2d-all": "npm run build-2d-non-deterministic && npm run build-2d-deterministic && npm run build-2d-simd",
-        "build-3d-non-deterministic": "./build_conf.sh dim3 && ./gen_src.sh dim3",
-        "build-3d-deterministic": "./build_conf.sh dim3_deterministic && ./gen_src.sh dim3_deterministic",
-        "build-3d-simd": "./build_conf.sh dim3_simd",
-        "build-3d-all": "npm run build-3d-non-deterministic && npm run build-3d-deterministic && npm run build-3d-simd",
-        "build-all": "npm run build-2d-all && npm run build-3d-all",
+        "build-2d-all": "./build_conf.sh dim2 dim2_deterministic dim2_simd",
+        "build-3d-all": "./build_conf.sh dim3 dim3_deterministic dim3_simd",
+        "build-all": "./build_conf.sh dim2 dim3 dim2_deterministic dim3_deterministic dim2_simd dim3_simd",
         "fix-raw-file": "sh ./fix_raw_file.sh",
-        "build": "npm run clean && npm run build-rust-all && npm run build-genjs && npm run fix-raw-file",
-        "clean": "cargo clean && rimraf gen2d gen3d builds",
+        "build": "npm run clean && npm run build-all",
+        "clean": "cargo clean && rimraf builds",
         "test": "jest --detectOpenHandles",
-        "my_rollup": "rollup --config rollup.config.js --bundleConfigAsCjs --environment BUILD_CONFIG_NAME:dim2"
+        "rollup": "rollup"
     },
     "dependencies": {
         "base64-js": "^1.5.1"

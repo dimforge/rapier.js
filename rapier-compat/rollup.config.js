@@ -71,8 +71,6 @@ const config = (dim, js_package_name) => ({
 
 const conf = JSON.parse(fs.readFileSync('../builds/prepare_builds/assets/' + process.env.BUILD_CONFIG_NAME + '.json'));
 
-//console.log(conf);
-
 
 export default [
     config("" + conf.dim + "d", conf.js_package_name),
