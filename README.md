@@ -43,7 +43,7 @@ Note that `prepare_all_projects.sh` only needs to be run once. It needs to be re
 
 The built packages will be in `builds/rapier2d/pkg`, `builds/rapier3d/pkg`, etc. To build the `-compat` variant of the
 packages, run `npm run build` in the `rapier-compat` directory. Note that this will only work if you already ran
-`prepare_all_projects.sh`. The compat packages are then generated in, e.g., `rapier-compat/builds/3d/pkg`.
+`prepare_all_projects.sh`. The compat packages are then generated in, e.g., `rapier-compat/builds/rapier3d/pkg`.
 
 ## Feature selection
 

@@ -369,7 +369,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.17.0"
+version = "0.17.3"
 dependencies = [
  "bincode",
  "js-sys",
@@ -383,7 +383,21 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-deterministic"
-version = "0.17.0"
+version = "0.17.3"
+dependencies = [
+ "bincode",
+ "js-sys",
+ "nalgebra",
+ "palette",
+ "rapier2d",
+ "ref-cast",
+ "serde",
+ "wasm-bindgen",
+]
+
+[[package]]
+name = "dimforge_rapier2d-minimal"
+version = "0.17.3"
 dependencies = [
  "bincode",
  "js-sys",
@@ -397,7 +411,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-simd"
-version = "0.17.0"
+version = "0.17.3"
 dependencies = [
  "bincode",
  "js-sys",
@@ -411,7 +425,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.17.0"
+version = "0.17.3"
 dependencies = [
  "bincode",
  "js-sys",
@@ -425,7 +439,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-deterministic"
-version = "0.17.0"
+version = "0.17.3"
 dependencies = [
  "bincode",
  "js-sys",
@@ -439,7 +453,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-simd"
-version = "0.17.0"
+version = "0.17.3"
 dependencies = [
  "bincode",
  "js-sys",
@@ -680,9 +694,9 @@ checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 
 [[package]]
 name = "matrixmultiply"
-version = "0.3.9"
+version = "0.3.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9380b911e3e96d10c1f415da0876389aaf1b56759054eeb0de7df940c456ba1a"
+checksum = "a06de3016e9fae57a36fd14dba131fccf49f74b40b7fbdb472f96e361ec71a08"
 dependencies = [
  "autocfg",
  "rawpointer",
@@ -1008,6 +1022,8 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "clap_derive",
+ "serde",
+ "serde_json",
  "tera",
 ]
 
@@ -1187,9 +1203,9 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "robust"
-version = "1.1.0"
+version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cbf4a6aa5f6d6888f39e980649f3ad6b666acdce1d78e95b8a2cb076e687ae30"
+checksum = "4e27ee8bb91ca0adcf0ecb116293afa12d393f9c2b9b9cd54d33e8078fe19839"
 
 [[package]]
 name = "rstar"
