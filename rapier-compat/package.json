@@ -7,6 +7,7 @@
         "build-2d-all": "./build_conf.sh dim2 dim2_deterministic dim2_simd",
         "build-3d-all": "./build_conf.sh dim3 dim3_deterministic dim3_simd",
         "build-all": "./build_conf.sh dim2 dim3 dim2_deterministic dim3_deterministic dim2_simd dim3_simd",
+        "build-conf": "./build_conf.sh",
         "fix-raw-file": "sh ./fix_raw_file.sh",
         "build": "npm run clean && npm run build-all",
         "clean": "cargo clean && rimraf builds",

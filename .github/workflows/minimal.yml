@@ -29,7 +29,7 @@ jobs:
                       ~/.cargo/git/db/
                       target/
                   key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-            - run: npm ci --development;
+            - run: npm ci
             - name: Prepare minimal 2d build
               working-directory: ./builds/prepare_builds/
               run: |
@@ -44,4 +44,4 @@ jobs:
             - name: Build minimal 2d project compat
               working-directory: ./rapier-compat
               run: |
-                  ./build_conf.sh example_dim2_minimal
+                  npm run build-conf -- example_dim2_minimal
