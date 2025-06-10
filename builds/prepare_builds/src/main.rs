@@ -6,93 +6,65 @@ use std::{
 };
 
 use clap::Parser;
-use clap_derive::{Parser, ValueEnum};
+use clap_derive::Parser;
+use serde::{Deserialize, Serialize};
 use tera::{Context, Tera};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
-    /// Dimension to use
-    #[arg(short, long)]
-    dim: Dimension,
-
-    /// Features to enable
-    #[arg(short, long)]
-    feature_set: FeatureSet,
+    #[arg(short, long, value_name = "FILE")]
+    config_path: PathBuf,
 }
 
-#[derive(ValueEnum, Debug, Clone, Copy)]
-pub enum Dimension {
-    Dim2,
-    Dim3,
-}
-
-#[derive(ValueEnum, Default, Debug, Clone, Copy)]
-pub enum FeatureSet {
-    #[default]
-    NonDeterministic,
-    Deterministic,
-    Simd,
-}
-
+#[derive(Deserialize, Serialize)]
 /// Values to use when creating the new build folder.
 pub struct BuildValues {
-    /// Only the number of dimensions, as sometimes it will be prefixed by "dim" and sometimes post-fixed by "d".
+    /// Only the number of dimensions (1 or 2), as sometimes it will be prefixed by "dim" and sometimes post-fixed by "d".
     pub dim: String,
-    /// real name of the additional features to enable in the project
-    pub feature_set: Vec<String>,
+    /// Rust name of the additional features to enable in the project, they should correspond to features from Cargo.toml(.tera).
+    pub additional_features: Vec<String>,
     pub target_dir: PathBuf,
     pub template_dir: PathBuf,
     pub additional_rust_flags: String,
     pub additional_wasm_opt_flags: Vec<String>,
     pub js_package_name: String,
+    /// To remove text blocks present in non-rust files bounded by `#if CONDITION ... #endif`
+    pub conditional_compilation_to_remove: Vec<String>,
 }
 
 impl BuildValues {
     pub fn new(args: Args) -> Self {
-        let dim = match args.dim {
-            Dimension::Dim2 => "2",
-            Dimension::Dim3 => "3",
-        };
-        let feature_set = match args.feature_set {
-            FeatureSet::NonDeterministic => vec![],
-            FeatureSet::Deterministic => vec!["enhanced-determinism"],
-            FeatureSet::Simd => vec!["simd-stable"],
-        };
-        let js_package_name = match args.feature_set {
-            FeatureSet::NonDeterministic => format!("rapier{dim}d"),
-            FeatureSet::Deterministic => format!("rapier{dim}d-deterministic"),
-            FeatureSet::Simd => format!("rapier{dim}d-simd"),
-        };
+        let f = File::open(args.config_path).expect("Failed opening file");
+        let config: Self = match serde_json::from_reader(f) {
+            Ok(x) => x,
+            Err(e) => {
+                println!("Failed to load config: {}", e);
 
-        let root: PathBuf = env!("CARGO_MANIFEST_DIR").into();
-
-        Self {
-            dim: dim.to_string(),
-            feature_set: feature_set.iter().map(|f| f.to_string()).collect(),
-            template_dir: root.join("templates/").clone(),
-            target_dir: root.parent().unwrap().join(&js_package_name).into(),
-            additional_rust_flags: match args.feature_set {
-                FeatureSet::Simd => "RUSTFLAGS='-C target-feature=+simd128'".to_string(),
-                _ => "".to_string(),
-            },
-            additional_wasm_opt_flags: match args.feature_set {
-                FeatureSet::Simd => vec!["--enable-simd".to_string()],
-                _ => vec![],
-            },
-            js_package_name,
-        }
+                std::process::exit(1);
+            }
+        };
+        config
     }
 }
 
 fn main() {
     let args = Args::parse();
-    dbg!(&args);
+    //dbg!(&args);
 
     let build_values = BuildValues::new(args);
+    println!(
+        "RON:\n{}\n",
+        serde_json::to_string_pretty(&build_values).unwrap()
+    );
     copy_top_level_files_in_directory(&build_values.template_dir, &build_values.target_dir)
-        .expect("Failed to copy directory");
+        .unwrap_or_else(|_| {
+            eprintln!(
+                "Failed to copy {:?} into {:?}",
+                &build_values.template_dir, &build_values.target_dir
+            );
+        });
     process_templates(&build_values).expect("Failed to process templates");
 }
 
@@ -128,13 +100,17 @@ fn process_templates(build_values: &BuildValues) -> std::io::Result<()> {
 
     let mut context = Context::new();
     context.insert("dimension", &build_values.dim);
-    context.insert("additional_features", &build_values.feature_set);
+    context.insert("additional_features", &build_values.additional_features);
     context.insert("additional_rust_flags", &build_values.additional_rust_flags);
     context.insert(
         "additional_wasm_opt_flags",
         &build_values.additional_wasm_opt_flags,
     );
     context.insert("js_package_name", &build_values.js_package_name);
+    context.insert(
+        "conditional_compilation_to_remove",
+        &build_values.conditional_compilation_to_remove,
+    );
 
     let tera = match Tera::new(target_dir.join("**/*.tera").to_str().unwrap()) {
         Ok(t) => t,
@@ -144,8 +120,7 @@ fn process_templates(build_values: &BuildValues) -> std::io::Result<()> {
         }
     };
     dbg!(tera.templates.keys(), &context);
-
-    for entry in fs::read_dir(target_dir)? {
+    for entry in fs::read_dir(dbg!(target_dir))? {
         let entry = entry?;
         let path = entry.path();
         // For tera templates, remove extension.
@@ -162,7 +137,7 @@ fn process_templates(build_values: &BuildValues) -> std::io::Result<()> {
                 Ok(s) => {
                     let old_path = path.clone();
                     let new_path = path.with_extension("");
-                    let mut file = File::create(path.join(new_path))?;
+                    let mut file = File::create(path.parent().unwrap().join(new_path))?;
                     file.write_all(s.as_bytes())?;
                     std::fs::remove_file(old_path)?;
                 }
