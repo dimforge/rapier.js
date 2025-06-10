@@ -1,10 +1,10 @@
 {
     "dim": "3",
-    "feature_set": ["serde-serialize", "debug-render", "simd-stable"],
+    "additional_features": ["serde-serialize", "debug-render", "simd-stable"],
     "target_dir": "../rapier3d-simd",
     "template_dir": "./templates/",
     "additional_rust_flags": "-C target-feature=+simd128",
     "additional_wasm_opt_flags": ["--enable-simd"],
     "js_package_name": "rapier3d-simd",
-    "conditions_to_remove": ["DIM2"]
+    "conditional_compilation_to_remove": ["DIM2"]
 }

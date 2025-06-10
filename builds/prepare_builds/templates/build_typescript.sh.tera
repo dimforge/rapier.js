@@ -5,7 +5,7 @@ cp -r ../../src.ts/* pkg/src/.
 rm -f ./pkg/raw.ts
 echo 'export * from "./rapier_wasm{{ dimension }}d"' > pkg/src/raw.ts
 # See https://serverfault.com/a/137848
-{% for condition_to_remove in conditions_to_remove %}
+{% for condition_to_remove in conditional_compilation_to_remove %}
 find pkg/ -type f -print0 | LC_ALL=C xargs -0 sed -i.bak '\:#if {{condition_to_remove}}:,\:#endif:d'
 {% endfor %}
 npx tsc

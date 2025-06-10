@@ -24,14 +24,14 @@ pub struct BuildValues {
     /// Only the number of dimensions (1 or 2), as sometimes it will be prefixed by "dim" and sometimes post-fixed by "d".
     pub dim: String,
     /// Rust name of the additional features to enable in the project, they should correspond to features from Cargo.toml(.tera).
-    pub feature_set: Vec<String>,
+    pub additional_features: Vec<String>,
     pub target_dir: PathBuf,
     pub template_dir: PathBuf,
     pub additional_rust_flags: String,
     pub additional_wasm_opt_flags: Vec<String>,
     pub js_package_name: String,
     /// To remove text blocks present in non-rust files bounded by `#if CONDITION ... #endif`
-    pub conditions_to_remove: Vec<String>,
+    pub conditional_compilation_to_remove: Vec<String>,
 }
 
 impl BuildValues {
@@ -100,14 +100,17 @@ fn process_templates(build_values: &BuildValues) -> std::io::Result<()> {
 
     let mut context = Context::new();
     context.insert("dimension", &build_values.dim);
-    context.insert("additional_features", &build_values.feature_set);
+    context.insert("additional_features", &build_values.additional_features);
     context.insert("additional_rust_flags", &build_values.additional_rust_flags);
     context.insert(
         "additional_wasm_opt_flags",
         &build_values.additional_wasm_opt_flags,
     );
     context.insert("js_package_name", &build_values.js_package_name);
-    context.insert("conditions_to_remove", &build_values.conditions_to_remove);
+    context.insert(
+        "conditional_compilation_to_remove",
+        &build_values.conditional_compilation_to_remove,
+    );
 
     let tera = match Tera::new(target_dir.join("**/*.tera").to_str().unwrap()) {
         Ok(t) => t,

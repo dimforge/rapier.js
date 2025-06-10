@@ -18,7 +18,7 @@ config_file_path="../builds/prepare_builds/assets/$config_file_name.json"
 
 js_package_name=`node -pe 'JSON.parse(process.argv[1]).js_package_name' "$(cat ${config_file_path})"`
 dimension=`node -pe 'JSON.parse(process.argv[1]).dim' "$(cat ${config_file_path})"`
-conditions_to_remove=`node -pe 'JSON.parse(process.argv[1]).conditions_to_remove.join(" ")' "$(cat ${config_file_path})"`
+conditional_compilation_to_remove=`node -pe 'JSON.parse(process.argv[1]).conditional_compilation_to_remove.join(" ")' "$(cat ${config_file_path})"`
 
 DIM="${dimension}d"
 GENOUT="./builds/${js_package_name}/gen${DIM}"
@@ -34,7 +34,7 @@ cp -r ../src.ts/* $GENOUT
 rm -f "${GENOUT}/raw.ts" "${GENOUT}/init.ts"
 cp -r ./src${DIM}/* $GENOUT
 
-for condition_to_remove in ${conditions_to_remove} ; do
+for condition_to_remove in ${conditional_compilation_to_remove} ; do
   # See https://serverfault.com/a/137848
   echo "find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i.bak \"\\:#if ${condition_to_remove}:,\\:#endif:d\""
   find ${GENOUT} -type f -print0 | LC_ALL=C xargs -0 sed -i.bak "\\:#if ${condition_to_remove}:,\\:#endif:d"
