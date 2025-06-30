@@ -1,4 +1,4 @@
-import {RawKinematicCharacterController, RawCharacterCollision} from "../raw";
+import {RawKinematicCharacterController, RawCharacterCollision, RawVector} from "../raw";
 import {Rotation, Vector, VectorOps} from "../math";
 import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry";
 import {QueryFilterFlags, QueryPipeline, World} from "../pipeline";
@@ -80,7 +80,7 @@ export class KinematicCharacterController {
      * Sets the direction that goes "up". Used to determine where the floor is, and the floor’s angle.
      */
     public setUp(vector: Vector) {
-        let rawVect: RawKinematicCharacterController;
+        let rawVect: RawVector;
         try {
             rawVect = VectorOps.intoRaw(vector);
             return this.raw.setUp(rawVect);
