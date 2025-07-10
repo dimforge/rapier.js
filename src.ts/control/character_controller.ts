@@ -1,4 +1,8 @@
-import {RawKinematicCharacterController, RawCharacterCollision, RawVector} from "../raw";
+import {
+    RawKinematicCharacterController,
+    RawCharacterCollision,
+    RawVector,
+} from "../raw";
 import {Rotation, Vector, VectorOps} from "../math";
 import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry";
 import {QueryFilterFlags, QueryPipeline, World} from "../pipeline";
