@@ -40,8 +40,7 @@ impl RawColliderSet {
     /// Returns the `None` if it doesn’t have a parent.
     pub fn coRotationWrtParent(&self, handle: FlatHandle) -> Option<RawRotation> {
         self.map(handle, |co| {
-            co.position_wrt_parent()
-                .map(|pose| pose.rotation.into())
+            co.position_wrt_parent().map(|pose| pose.rotation.into())
         })
     }
 

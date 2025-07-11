@@ -183,7 +183,7 @@ export class Collider {
      */
     public translationWrtParent(): Vector | null {
         return VectorOps.fromRaw(
-            this.colliderSet.raw.coTranslation(this.handle),
+            this.colliderSet.raw.coTranslationWrtParent(this.handle),
         );
     }
 
@@ -203,7 +203,7 @@ export class Collider {
      */
     public rotationWrtParent(): Rotation | null {
         return RotationOps.fromRaw(
-            this.colliderSet.raw.coRotation(this.handle),
+            this.colliderSet.raw.coRotationWrtParent(this.handle),
         );
     }
 

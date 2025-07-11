@@ -1,8 +1,19 @@
 ### Unreleased
 
+#### Modified
+
+- Update to Rapier 0.22.0-beta.1 which includes a fully reworked narrow-phase tha supports scene queries.
+  This implies a performance gain on large scenes by avoiding the need to re-build the underlying acceleration
+  structure at each frame.
+- Un-deprecate methods for reading shape properties (for example `collider.radius()`). It turned out that these
+  methods are more convenient as they are guaranteed to always be in sync with rapier’s state on wasm.
+- Add `collider.translationWrtParent()` and `collider.rotationWrtParent()` to get the collider’s transaltion/rotation
+  relative to its parent rigid-body.
+
 #### Fix
 
-- rapier-compat top level javascript files extensions have been changed from `.cjs.js` and `.es.js` to `.cjs` and `mjs` respectively. This results in better compatibility with NPM.
+- rapier-compat top level javascript files extensions have been changed from `.cjs.js` and `.es.js` to `.cjs` and `mjs`
+  respectively. This results in better compatibility with NPM.
 
 ### 0.17.3 (30 May 2025)
 

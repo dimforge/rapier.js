@@ -9,7 +9,6 @@ import {
     RawMultibodyJointSet,
     RawNarrowPhase,
     RawPhysicsPipeline,
-    RawQueryPipeline,
     RawRigidBodySet,
     RawSerializationPipeline,
     RawDebugRenderPipeline,
@@ -49,7 +48,7 @@ import {
 } from "../dynamics";
 import {Rotation, Vector, VectorOps} from "../math";
 import {PhysicsPipeline} from "./physics_pipeline";
-import {QueryFilterFlags, QueryPipeline} from "./query_pipeline";
+import {QueryFilterFlags} from "./query_pipeline";
 import {SerializationPipeline} from "./serialization_pipeline";
 import {EventQueue} from "./event_queue";
 import {PhysicsHooks} from "./physics_hooks";
@@ -83,7 +82,6 @@ export class World {
     impulseJoints: ImpulseJointSet;
     multibodyJoints: MultibodyJointSet;
     ccdSolver: CCDSolver;
-    queryPipeline: QueryPipeline;
     physicsPipeline: PhysicsPipeline;
     serializationPipeline: SerializationPipeline;
     debugRenderPipeline: DebugRenderPipeline;
@@ -111,7 +109,6 @@ export class World {
         this.impulseJoints.free();
         this.multibodyJoints.free();
         this.ccdSolver.free();
-        this.queryPipeline.free();
         this.physicsPipeline.free();
         this.serializationPipeline.free();
         this.debugRenderPipeline.free();
@@ -131,7 +128,6 @@ export class World {
         this.ccdSolver = undefined;
         this.impulseJoints = undefined;
         this.multibodyJoints = undefined;
-        this.queryPipeline = undefined;
         this.physicsPipeline = undefined;
         this.serializationPipeline = undefined;
         this.debugRenderPipeline = undefined;
@@ -154,7 +150,6 @@ export class World {
         rawImpulseJoints?: RawImpulseJointSet,
         rawMultibodyJoints?: RawMultibodyJointSet,
         rawCCDSolver?: RawCCDSolver,
-        rawQueryPipeline?: RawQueryPipeline,
         rawPhysicsPipeline?: RawPhysicsPipeline,
         rawSerializationPipeline?: RawSerializationPipeline,
         rawDebugRenderPipeline?: RawDebugRenderPipeline,
@@ -171,7 +166,6 @@ export class World {
         this.impulseJoints = new ImpulseJointSet(rawImpulseJoints);
         this.multibodyJoints = new MultibodyJointSet(rawMultibodyJoints);
         this.ccdSolver = new CCDSolver(rawCCDSolver);
-        this.queryPipeline = new QueryPipeline(rawQueryPipeline);
         this.physicsPipeline = new PhysicsPipeline(rawPhysicsPipeline);
         this.serializationPipeline = new SerializationPipeline(
             rawSerializationPipeline,
@@ -286,7 +280,6 @@ export class World {
             eventQueue,
             hooks,
         );
-        this.queryPipeline.update(this.colliders);
     }
 
     /**
@@ -302,15 +295,16 @@ export class World {
         );
     }
 
-    /**
-     * Ensure subsequent scene queries take into account the collider positions set before this method is called.
-     *
-     * This does not step the physics simulation forward.
-     */
-    public updateSceneQueries() {
-        this.propagateModifiedBodyPositionsToColliders();
-        this.queryPipeline.update(this.colliders);
-    }
+    // TODO: This needs to trigger a broad-phase update but without emitting collision events?
+    // /**
+    //  * Ensure subsequent scene queries take into account the collider positions set before this method is called.
+    //  *
+    //  * This does not step the physics simulation forward.
+    //  */
+    // public updateSceneQueries() {
+    //     this.propagateModifiedBodyPositionsToColliders();
+    //     this.queryPipeline.update(this.colliders);
+    // }
 
     /**
      * The current simulation timestep.
@@ -481,9 +475,10 @@ export class World {
         let controller = new KinematicCharacterController(
             offset,
             this.integrationParameters,
+            this.broadPhase,
+            this.narrowPhase,
             this.bodies,
             this.colliders,
-            this.queryPipeline,
         );
         this.characterControllers.add(controller);
         return controller;
@@ -555,9 +550,10 @@ export class World {
     ): DynamicRayCastVehicleController {
         let controller = new DynamicRayCastVehicleController(
             chassis,
+            this.broadPhase,
+            this.narrowPhase,
             this.bodies,
             this.colliders,
-            this.queryPipeline,
         );
         this.vehicleControllers.add(controller);
         return controller;
@@ -783,7 +779,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ): RayColliderHit | null {
-        return this.queryPipeline.castRay(
+        return this.broadPhase.castRay(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             ray,
@@ -819,7 +816,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ): RayColliderIntersection | null {
-        return this.queryPipeline.castRayAndGetNormal(
+        return this.broadPhase.castRayAndGetNormal(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             ray,
@@ -857,7 +855,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ) {
-        this.queryPipeline.intersectionsWithRay(
+        this.broadPhase.intersectionsWithRay(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             ray,
@@ -891,7 +890,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ): Collider | null {
-        let handle = this.queryPipeline.intersectionWithShape(
+        let handle = this.broadPhase.intersectionWithShape(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             shapePos,
@@ -927,7 +927,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ): PointColliderProjection | null {
-        return this.queryPipeline.projectPoint(
+        return this.broadPhase.projectPoint(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             point,
@@ -955,7 +956,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ): PointColliderProjection | null {
-        return this.queryPipeline.projectPointAndGetFeature(
+        return this.broadPhase.projectPointAndGetFeature(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             point,
@@ -985,7 +987,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ) {
-        this.queryPipeline.intersectionsWithPoint(
+        this.broadPhase.intersectionsWithPoint(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             point,
@@ -1031,7 +1034,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ): ColliderShapeCastHit | null {
-        return this.queryPipeline.castShape(
+        return this.broadPhase.castShape(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             shapePos,
@@ -1070,7 +1074,8 @@ export class World {
         filterExcludeRigidBody?: RigidBody,
         filterPredicate?: (collider: Collider) => boolean,
     ) {
-        this.queryPipeline.intersectionsWithShape(
+        this.broadPhase.intersectionsWithShape(
+            this.narrowPhase,
             this.bodies,
             this.colliders,
             shapePos,
@@ -1098,7 +1103,10 @@ export class World {
         aabbHalfExtents: Vector,
         callback: (handle: Collider) => boolean,
     ) {
-        this.queryPipeline.collidersWithAabbIntersectingAabb(
+        this.broadPhase.collidersWithAabbIntersectingAabb(
+            this.narrowPhase,
+            this.bodies,
+            this.colliders,
             aabbCenter,
             aabbHalfExtents,
             this.colliders.castClosure(callback),

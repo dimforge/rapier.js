@@ -1,7 +1,6 @@
 use crate::dynamics::RawRigidBodySet;
-use crate::geometry::RawColliderSet;
+use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
 use crate::math::RawVector;
-use crate::pipeline::RawQueryPipeline;
 use crate::utils::{self, FlatHandle};
 use rapier::control::{DynamicRayCastVehicleController, WheelTuning};
 use rapier::math::Real;
@@ -69,9 +68,10 @@ impl RawDynamicRayCastVehicleController {
     pub fn update_vehicle(
         &mut self,
         dt: Real,
+        broad_phase: &RawBroadPhase,
+        narrow_phase: &RawNarrowPhase,
         bodies: &mut RawRigidBodySet,
-        colliders: &RawColliderSet,
-        queries: &RawQueryPipeline,
+        colliders: &mut RawColliderSet,
         filter_flags: u32,
         filter_groups: Option<u32>,
         filter_predicate: &js_sys::Function,
@@ -86,13 +86,14 @@ impl RawDynamicRayCastVehicleController {
                 exclude_collider: None,
             };
 
-            self.controller.update_vehicle(
-                dt,
+            let query_pipeline = broad_phase.0.as_query_pipeline_mut(
+                narrow_phase.0.query_dispatcher(),
                 &mut bodies.0,
-                &colliders.0,
-                &queries.0,
+                &mut colliders.0,
                 query_filter,
             );
+
+            self.controller.update_vehicle(dt, query_pipeline);
         });
     }
 
