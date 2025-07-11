@@ -1,3 +1,9 @@
+### Unreleased
+
+#### Fix
+
+- rapier-compat top level javascript files extensions have been changed from `.cjs.js` and `.es.js` to `.cjs` and `mjs` respectively. This results in better compatibility with NPM.
+
 ### 0.17.3 (30 May 2025)
 
 #### Fix

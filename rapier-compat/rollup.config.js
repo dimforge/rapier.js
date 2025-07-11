@@ -11,13 +11,13 @@ const config = (dim, features_postfix) => ({
     input: `builds/${features_postfix}/gen${dim}/rapier.ts`,
     output: [
         {
-            file: `builds/${features_postfix}/pkg/rapier.es.js`,
+            file: `builds/${features_postfix}/pkg/rapier.mjs`,
             format: "es",
             sourcemap: true,
             exports: "named",
         },
         {
-            file: `builds/${features_postfix}/pkg/rapier.cjs.js`,
+            file: `builds/${features_postfix}/pkg/rapier.cjs`,
             format: "cjs",
             sourcemap: true,
             exports: "named",
@@ -35,8 +35,8 @@ const config = (dim, features_postfix) => ({
                         config.description +=
                             " Compatibility package with inlined webassembly as base64.";
                         config.types = "rapier.d.ts";
-                        config.main = "rapier.cjs.js";
-                        config.module = "rapier.es.js";
+                        config.main = "rapier.cjs";
+                        config.module = "rapier.mjs";
                         // delete config.module;
                         config.files = ["*"];
                         return JSON.stringify(config, undefined, 2);
