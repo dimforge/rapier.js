@@ -168,7 +168,7 @@ export class Collider {
     }
 
     /**
-     * The world-space translation of this rigid-body.
+     * The world-space translation of this collider.
      */
     public translation(): Vector {
         return VectorOps.fromRaw(
@@ -177,9 +177,31 @@ export class Collider {
     }
 
     /**
-     * The world-space orientation of this rigid-body.
+     * The translation of this collider relative to its parent rigid-body.
+     *
+     * Returns `null` if the collider doesn’t have a parent rigid-body.
+     */
+    public translationWrtParent(): Vector | null {
+        return VectorOps.fromRaw(
+            this.colliderSet.raw.coTranslation(this.handle),
+        );
+    }
+
+    /**
+     * The world-space orientation of this collider.
      */
     public rotation(): Rotation {
+        return RotationOps.fromRaw(
+            this.colliderSet.raw.coRotation(this.handle),
+        );
+    }
+
+    /**
+     * The orientation of this collider relative to its parent rigid-body.
+     *
+     * Returns `null` if the collider doesn’t have a parent rigid-body.
+     */
+    public rotationWrtParent(): Rotation | null {
         return RotationOps.fromRaw(
             this.colliderSet.raw.coRotation(this.handle),
         );
