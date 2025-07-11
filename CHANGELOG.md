@@ -1,4 +1,4 @@
-### Unreleased
+### 0.18.0-beta.0 (12 July 2025)
 
 #### Modified
 
