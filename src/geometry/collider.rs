@@ -25,6 +25,25 @@ impl RawColliderSet {
         self.map(handle, |co| co.position().rotation.into())
     }
 
+    /// The translation of this collider relative to its parent rigid-body.
+    ///
+    /// Returns the `None` if it doesn’t have a parent.
+    pub fn coTranslationWrtParent(&self, handle: FlatHandle) -> Option<RawVector> {
+        self.map(handle, |co| {
+            co.position_wrt_parent()
+                .map(|pose| pose.translation.vector.into())
+        })
+    }
+
+    /// The orientation of this collider relative to its parent rigid-body.
+    ///
+    /// Returns the `None` if it doesn’t have a parent.
+    pub fn coRotationWrtParent(&self, handle: FlatHandle) -> Option<RawRotation> {
+        self.map(handle, |co| {
+            co.position_wrt_parent().map(|pose| pose.rotation.into())
+        })
+    }
+
     /// Sets the translation of this collider.
     ///
     /// # Parameters

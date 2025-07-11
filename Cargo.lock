@@ -369,7 +369,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.17.0"
+version = "0.18.0-beta.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -383,7 +383,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-deterministic"
-version = "0.17.0"
+version = "0.18.0-beta.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -397,7 +397,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-simd"
-version = "0.17.0"
+version = "0.18.0-beta.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -411,7 +411,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.17.0"
+version = "0.18.0-beta.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -425,7 +425,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-deterministic"
-version = "0.17.0"
+version = "0.18.0-beta.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -439,7 +439,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-simd"
-version = "0.17.0"
+version = "0.18.0-beta.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -485,6 +485,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd2e7510819d6fbf51a5545c8f922716ecfb14df168a3242f7d33e0239efe6a1"
 
 [[package]]
+name = "fixedbitset"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d674e81391d1e1ab681a28d99df07927c6d4aa5b027d7da16ba32d1d21ecd99"
+
+[[package]]
 name = "foldhash"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -510,6 +516,12 @@ dependencies = [
  "libc",
  "wasi",
 ]
+
+[[package]]
+name = "glam"
+version = "0.30.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50a99dbe56b72736564cfa4b85bf9a33079f16ae8b74983ab06af3b1a3696b11"
 
 [[package]]
 name = "globset"
@@ -824,9 +836,9 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.21.1"
+version = "0.22.0-beta.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcc75102c1fac2294401262c78e5a42abe7168244c9436df2fec8fe0c27395c7"
+checksum = "6826172689f7365694e8c3123b57065709869c13f1b686e8294a2a0f9a8e4bec"
 dependencies = [
  "approx",
  "arrayvec",
@@ -844,15 +856,16 @@ dependencies = [
  "serde",
  "simba",
  "slab",
+ "smallvec",
  "spade",
  "thiserror",
 ]
 
 [[package]]
 name = "parry3d"
-version = "0.21.1"
+version = "0.22.0-beta.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7f8d0a3b2f4c0e250d4599b69e490535521c3497e2b88b0b5d2ada251bc83a8"
+checksum = "f1d866b7e9e63a05780111b13f275e1a398a60f34b6749392b53369fe4eb5520"
 dependencies = [
  "approx",
  "arrayvec",
@@ -860,6 +873,7 @@ dependencies = [
  "downcast-rs",
  "either",
  "ena",
+ "glam",
  "hashbrown",
  "indexmap",
  "log",
@@ -871,7 +885,9 @@ dependencies = [
  "serde",
  "simba",
  "slab",
+ "smallvec",
  "spade",
+ "static_assertions",
  "thiserror",
 ]
 
@@ -939,6 +955,18 @@ dependencies = [
  "once_cell",
  "pest",
  "sha2",
+]
+
+[[package]]
+name = "petgraph"
+version = "0.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54acf3a685220b533e437e264e4d932cfbdc4cc7ec0cd232ed73c08d03b8a7ca"
+dependencies = [
+ "fixedbitset",
+ "hashbrown",
+ "indexmap",
+ "serde",
 ]
 
 [[package]]
@@ -1080,9 +1108,9 @@ dependencies = [
 
 [[package]]
 name = "rapier2d"
-version = "0.26.1"
+version = "0.27.0-beta.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b70793351467e663d06f52ffdf6138a1d7920b305ee4b7751e1adb90d56a797f"
+checksum = "e89e01890c583fe4258cd12f03664ad5dbc0cf4cda37aac790681e2b4f627778"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1106,9 +1134,9 @@ dependencies = [
 
 [[package]]
 name = "rapier3d"
-version = "0.26.1"
+version = "0.27.0-beta.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f1015500058823ba9c479c908d7069adcf3f0f51a3e49dca7efc5575df7e574"
+checksum = "1ab3ba62d1788a880b297e5c56612c68cfa18db3ad0413e80704729820378577"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1122,12 +1150,15 @@ dependencies = [
  "num-traits",
  "ordered-float",
  "parry3d",
+ "petgraph",
  "profiling",
  "rustc-hash",
  "serde",
  "simba",
+ "smallvec",
  "thiserror",
  "vec_map",
+ "wide",
 ]
 
 [[package]]
@@ -1350,6 +1381,12 @@ name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
+
+[[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "strsim"

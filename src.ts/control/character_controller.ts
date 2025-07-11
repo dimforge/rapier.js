@@ -1,7 +1,14 @@
 import {RawKinematicCharacterController, RawCharacterCollision} from "../raw";
 import {Rotation, Vector, VectorOps} from "../math";
-import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry";
-import {QueryFilterFlags, QueryPipeline, World} from "../pipeline";
+import {
+    BroadPhase,
+    Collider,
+    ColliderSet,
+    InteractionGroups,
+    NarrowPhase,
+    Shape,
+} from "../geometry";
+import {QueryFilterFlags, World} from "../pipeline";
 import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics";
 
 /**
@@ -35,23 +42,26 @@ export class KinematicCharacterController {
     private rawCharacterCollision: RawCharacterCollision;
 
     private params: IntegrationParameters;
+    private broadPhase: BroadPhase;
+    private narrowPhase: NarrowPhase;
     private bodies: RigidBodySet;
     private colliders: ColliderSet;
-    private queries: QueryPipeline;
     private _applyImpulsesToDynamicBodies: boolean;
     private _characterMass: number | null;
 
     constructor(
         offset: number,
         params: IntegrationParameters,
+        broadPhase: BroadPhase,
+        narrowPhase: NarrowPhase,
         bodies: RigidBodySet,
         colliders: ColliderSet,
-        queries: QueryPipeline,
     ) {
         this.params = params;
         this.bodies = bodies;
         this.colliders = colliders;
-        this.queries = queries;
+        this.broadPhase = broadPhase;
+        this.narrowPhase = narrowPhase;
         this.raw = new RawKinematicCharacterController(offset);
         this.rawCharacterCollision = new RawCharacterCollision();
         this._applyImpulsesToDynamicBodies = false;
@@ -305,9 +315,10 @@ export class KinematicCharacterController {
         let rawTranslationDelta = VectorOps.intoRaw(desiredTranslationDelta);
         this.raw.computeColliderMovement(
             this.params.dt,
+            this.broadPhase.raw,
+            this.narrowPhase.raw,
             this.bodies.raw,
             this.colliders.raw,
-            this.queries.raw,
             collider.handle,
             rawTranslationDelta,
             this._applyImpulsesToDynamicBodies,

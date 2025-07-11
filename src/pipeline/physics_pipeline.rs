@@ -42,7 +42,6 @@ impl RawPhysicsPipeline {
             &mut joints.0,
             &mut articulations.0,
             &mut ccd_solver.0,
-            None,
             &(),
             &(),
         );
@@ -86,7 +85,6 @@ impl RawPhysicsPipeline {
             &mut joints.0,
             &mut articulations.0,
             &mut ccd_solver.0,
-            None,
             &hooks,
             &eventQueue.collector,
         );

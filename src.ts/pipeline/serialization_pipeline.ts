@@ -13,7 +13,7 @@ import {World} from "./world";
 /**
  * A pipeline for serializing the physics scene.
  *
- * To avoid leaking WASM resources, this MUST be freed manually with `queryPipeline.free()`
+ * To avoid leaking WASM resources, this MUST be freed manually with `serializationPipeline.free()`
  * once you are done using it (and all the rigid-bodies it created).
  */
 export class SerializationPipeline {

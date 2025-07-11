@@ -1,7 +1,13 @@
 import {RawDynamicRayCastVehicleController} from "../raw";
 import {Vector, VectorOps} from "../math";
-import {Collider, ColliderSet, InteractionGroups} from "../geometry";
-import {QueryFilterFlags, QueryPipeline} from "../pipeline";
+import {
+    BroadPhase,
+    Collider,
+    ColliderSet,
+    InteractionGroups,
+    NarrowPhase,
+} from "../geometry";
+import {QueryFilterFlags} from "../pipeline";
 import {RigidBody, RigidBodyHandle, RigidBodySet} from "../dynamics";
 
 /**
@@ -9,21 +15,24 @@ import {RigidBody, RigidBodyHandle, RigidBodySet} from "../dynamics";
  */
 export class DynamicRayCastVehicleController {
     private raw: RawDynamicRayCastVehicleController;
+    private broadPhase: BroadPhase;
+    private narrowPhase: NarrowPhase;
     private bodies: RigidBodySet;
     private colliders: ColliderSet;
-    private queries: QueryPipeline;
     private _chassis: RigidBody;
 
     constructor(
         chassis: RigidBody,
+        broadPhase: BroadPhase,
+        narrowPhase: NarrowPhase,
         bodies: RigidBodySet,
         colliders: ColliderSet,
-        queries: QueryPipeline,
     ) {
         this.raw = new RawDynamicRayCastVehicleController(chassis.handle);
+        this.broadPhase = broadPhase;
+        this.narrowPhase = narrowPhase;
         this.bodies = bodies;
         this.colliders = colliders;
-        this.queries = queries;
         this._chassis = chassis;
     }
 
@@ -54,9 +63,10 @@ export class DynamicRayCastVehicleController {
     ) {
         this.raw.update_vehicle(
             dt,
+            this.broadPhase.raw,
+            this.narrowPhase.raw,
             this.bodies.raw,
             this.colliders.raw,
-            this.queries.raw,
             filterFlags,
             filterGroups,
             this.colliders.castClosure(filterPredicate),

@@ -1,7 +1,6 @@
 use crate::dynamics::RawRigidBodySet;
-use crate::geometry::RawColliderSet;
+use crate::geometry::{RawBroadPhase, RawColliderSet, RawNarrowPhase};
 use crate::math::RawVector;
-use crate::pipeline::RawQueryPipeline;
 use crate::utils::{self, FlatHandle};
 use na::{Isometry, Unit};
 use rapier::control::{
@@ -144,9 +143,10 @@ impl RawKinematicCharacterController {
     pub fn computeColliderMovement(
         &mut self,
         dt: Real,
+        broad_phase: &RawBroadPhase,
+        narrow_phase: &RawNarrowPhase,
         bodies: &mut RawRigidBodySet,
-        colliders: &RawColliderSet,
-        queries: &RawQueryPipeline,
+        colliders: &mut RawColliderSet,
         collider_handle: FlatHandle,
         desired_translation_delta: &RawVector,
         apply_impulses_to_dynamic_bodies: bool,
@@ -157,48 +157,53 @@ impl RawKinematicCharacterController {
     ) {
         let handle = crate::utils::collider_handle(collider_handle);
         if let Some(collider) = colliders.0.get(handle) {
+            let collider_pose = *collider.position();
+            let collider_shape = collider.shared_shape().clone();
+            let collider_parent = collider.parent();
+
             crate::utils::with_filter(filter_predicate, |predicate| {
                 let query_filter = QueryFilter {
                     flags: QueryFilterFlags::from_bits(filter_flags)
                         .unwrap_or(QueryFilterFlags::empty()),
                     groups: filter_groups.map(crate::geometry::unpack_interaction_groups),
                     exclude_collider: Some(handle),
-                    exclude_rigid_body: collider.parent(),
+                    exclude_rigid_body: collider_parent,
                     predicate,
                 };
+
+                let character_mass = character_mass
+                    .or_else(|| {
+                        collider_parent
+                            .and_then(|h| bodies.0.get(h))
+                            .map(|b| b.mass())
+                    })
+                    .unwrap_or(0.0);
+
+                let query_pipeline = broad_phase.0.as_query_pipeline_mut(
+                    narrow_phase.0.query_dispatcher(),
+                    &mut bodies.0,
+                    &mut colliders.0,
+                    query_filter,
+                );
 
                 self.events.clear();
                 let events = &mut self.events;
                 self.result = self.controller.move_shape(
                     dt,
-                    &bodies.0,
-                    &colliders.0,
-                    &queries.0,
-                    collider.shape(),
-                    collider.position(),
+                    &query_pipeline.as_ref(),
+                    &*collider_shape,
+                    &collider_pose,
                     desired_translation_delta.0,
-                    query_filter,
                     |event| events.push(event),
                 );
 
                 if apply_impulses_to_dynamic_bodies {
-                    let character_mass = character_mass
-                        .or_else(|| {
-                            collider
-                                .parent()
-                                .and_then(|h| bodies.0.get(h))
-                                .map(|b| b.mass())
-                        })
-                        .unwrap_or(0.0);
                     self.controller.solve_character_collision_impulses(
                         dt,
-                        &mut bodies.0,
-                        &colliders.0,
-                        &queries.0,
-                        collider.shape(),
+                        query_pipeline,
+                        &*collider_shape,
                         character_mass,
                         self.events.iter(),
-                        query_filter,
                     );
                 }
             });

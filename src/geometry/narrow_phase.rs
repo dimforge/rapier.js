@@ -84,8 +84,7 @@ impl RawContactPair {
     }
     pub fn contactManifold(&self, i: usize) -> Option<RawContactManifold> {
         unsafe {
-            (*self.0)
-                .manifolds
+            (&(*self.0).manifolds)
                 .get(i)
                 .map(|m| RawContactManifold(m as *const ContactManifold))
         }
@@ -123,29 +122,28 @@ impl RawContactManifold {
     }
 
     pub fn contact_local_p1(&self, i: usize) -> Option<RawVector> {
-        unsafe { (*self.0).points.get(i).map(|c| c.local_p1.coords.into()) }
+        unsafe { (&(*self.0).points).get(i).map(|c| c.local_p1.coords.into()) }
     }
 
     pub fn contact_local_p2(&self, i: usize) -> Option<RawVector> {
-        unsafe { (*self.0).points.get(i).map(|c| c.local_p2.coords.into()) }
+        unsafe { (&(*self.0).points).get(i).map(|c| c.local_p2.coords.into()) }
     }
 
     pub fn contact_dist(&self, i: usize) -> Real {
-        unsafe { (*self.0).points.get(i).map(|c| c.dist).unwrap_or(0.0) }
+        unsafe { (&(*self.0).points).get(i).map(|c| c.dist).unwrap_or(0.0) }
     }
 
     pub fn contact_fid1(&self, i: usize) -> u32 {
-        unsafe { (*self.0).points.get(i).map(|c| c.fid1.0).unwrap_or(0) }
+        unsafe { (&(*self.0).points).get(i).map(|c| c.fid1.0).unwrap_or(0) }
     }
 
     pub fn contact_fid2(&self, i: usize) -> u32 {
-        unsafe { (*self.0).points.get(i).map(|c| c.fid2.0).unwrap_or(0) }
+        unsafe { (&(*self.0).points).get(i).map(|c| c.fid2.0).unwrap_or(0) }
     }
 
     pub fn contact_impulse(&self, i: usize) -> Real {
         unsafe {
-            (*self.0)
-                .points
+            (&(*self.0).points)
                 .get(i)
                 .map(|c| c.data.impulse)
                 .unwrap_or(0.0)
@@ -155,8 +153,7 @@ impl RawContactManifold {
     #[cfg(feature = "dim2")]
     pub fn contact_tangent_impulse(&self, i: usize) -> Real {
         unsafe {
-            (*self.0)
-                .points
+            (&(*self.0).points)
                 .get(i)
                 .map(|c| c.data.tangent_impulse.x)
                 .unwrap_or(0.0)
@@ -166,8 +163,7 @@ impl RawContactManifold {
     #[cfg(feature = "dim3")]
     pub fn contact_tangent_impulse_x(&self, i: usize) -> Real {
         unsafe {
-            (*self.0)
-                .points
+            (&(*self.0).points)
                 .get(i)
                 .map(|c| c.data.tangent_impulse.x)
                 .unwrap_or(0.0)
@@ -177,8 +173,7 @@ impl RawContactManifold {
     #[cfg(feature = "dim3")]
     pub fn contact_tangent_impulse_y(&self, i: usize) -> Real {
         unsafe {
-            (*self.0)
-                .points
+            (&(*self.0).points)
                 .get(i)
                 .map(|c| c.data.tangent_impulse.y)
                 .unwrap_or(0.0)
@@ -191,8 +186,7 @@ impl RawContactManifold {
 
     pub fn solver_contact_point(&self, i: usize) -> Option<RawVector> {
         unsafe {
-            (*self.0)
-                .data
+            (&(*self.0).data)
                 .solver_contacts
                 .get(i)
                 .map(|c| c.point.coords.into())
@@ -201,8 +195,7 @@ impl RawContactManifold {
 
     pub fn solver_contact_dist(&self, i: usize) -> Real {
         unsafe {
-            (*self.0)
-                .data
+            (&(*self.0).data)
                 .solver_contacts
                 .get(i)
                 .map(|c| c.dist)
@@ -211,14 +204,14 @@ impl RawContactManifold {
     }
 
     pub fn solver_contact_friction(&self, i: usize) -> Real {
-        unsafe { (*self.0).data.solver_contacts[i].friction }
+        unsafe { (&(*self.0).data).solver_contacts[i].friction }
     }
 
     pub fn solver_contact_restitution(&self, i: usize) -> Real {
-        unsafe { (*self.0).data.solver_contacts[i].restitution }
+        unsafe { (&(*self.0).data).solver_contacts[i].restitution }
     }
 
     pub fn solver_contact_tangent_velocity(&self, i: usize) -> RawVector {
-        unsafe { (*self.0).data.solver_contacts[i].tangent_velocity.into() }
+        unsafe { (&(*self.0).data).solver_contacts[i].tangent_velocity.into() }
     }
 }
