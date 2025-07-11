@@ -1,6 +1,12 @@
 import {RawDynamicRayCastVehicleController} from "../raw";
 import {Vector, VectorOps} from "../math";
-import {BroadPhase, Collider, ColliderSet, InteractionGroups, NarrowPhase} from "../geometry";
+import {
+    BroadPhase,
+    Collider,
+    ColliderSet,
+    InteractionGroups,
+    NarrowPhase,
+} from "../geometry";
 import {QueryFilterFlags} from "../pipeline";
 import {RigidBody, RigidBodyHandle, RigidBodySet} from "../dynamics";
 

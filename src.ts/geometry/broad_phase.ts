@@ -34,7 +34,6 @@ export class BroadPhase {
         this.raw = raw || new RawBroadPhase();
     }
 
-
     /**
      * Find the closest intersection between a ray and a set of collider.
      *

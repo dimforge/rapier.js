@@ -153,8 +153,7 @@ impl RawContactManifold {
     #[cfg(feature = "dim2")]
     pub fn contact_tangent_impulse(&self, i: usize) -> Real {
         unsafe {
-            (&(*self.0)
-                .points)
+            (&(*self.0).points)
                 .get(i)
                 .map(|c| c.data.tangent_impulse.x)
                 .unwrap_or(0.0)
