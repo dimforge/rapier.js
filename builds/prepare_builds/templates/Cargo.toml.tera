@@ -30,6 +30,7 @@ rust.unexpected_cfgs = { level = "warn", check-cfg = [
 rapier{{ dimension }}d = { version = "0.27.0", features = [
     "serde-serialize",
     "debug-render",
+    "profiler",
     {%- for feature in additional_features %}
     "{{ feature }}",
     {%- endfor %}
