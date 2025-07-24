@@ -414,6 +414,27 @@ export class World {
         this.integrationParameters.numInternalPgsIterations = niter;
     }
 
+    /**
+     * The number of substeps continuous collision-detection can run (default: `1`).
+     */
+    get maxCcdSubsteps(): number {
+        return this.integrationParameters.maxCcdSubsteps;
+    }
+
+    /**
+     * Sets the number of substeps continuous collision-detection can run (default: `1`).
+     *
+     * CCD operates using a "motion clamping" mechanism where all fast-moving object trajectories will
+     * be truncated to their first impact on their path. The number of CCD substeps beyond 1 indicate how
+     * many times that trajectory will be updated and continued after a hit. This can results in smoother
+     * paths, but at a significant computational cost.
+     *
+     * @param niter - The new maximum number of CCD substeps. Setting to `0` disables CCD entirely.
+     */
+    set maxCcdSubsteps(substeps: number) {
+        this.integrationParameters.maxCcdSubsteps = substeps;
+    }
+
     /// Configures the integration parameters to match the old PGS solver
     /// from Rapier JS version <= 0.11.
     ///
@@ -1170,5 +1191,182 @@ export class World {
             collider1.handle,
             collider2.handle,
         );
+    }
+
+    /**
+     * Sets whether internal performance profiling is enabled (default: false).
+     *
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    set profilerEnabled(enabled: boolean) {
+        this.physicsPipeline.raw.set_profiler_enabled(enabled);
+    }
+
+    /**
+     * Indicates if the internal performance profiling is enabled.
+     *
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    get profilerEnabled(): boolean {
+        return this.physicsPipeline.raw.is_profiler_enabled();
+    }
+
+    /**
+     * The time spent in milliseconds by the last step to run the entire simulation step.
+     *
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingStep(): number {
+        return this.physicsPipeline.raw.timing_step();
+    }
+
+    /**
+     * The time spent in milliseconds by the last step to run the collision-detection
+     * (broad-phase + narrow-phase).
+     *
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingCollisionDetection(): number {
+        return this.physicsPipeline.raw.timing_collision_detection();
+    }
+
+    /**
+     * The time spent in milliseconds by the last step to run the broad-phase.
+     *
+     * This timing is included in `timingCollisionDetection`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingBroadPhase(): number {
+        return this.physicsPipeline.raw.timing_broad_phase();
+    }
+
+    /**
+     * The time spent in milliseconds by the last step to run the narrow-phase.
+     *
+     * This timing is included in `timingCollisionDetection`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingNarrowPhase(): number {
+        return this.physicsPipeline.raw.timing_narrow_phase();
+    }
+
+    /**
+     * The time spent in milliseconds by the last step to run the constraint solver.
+     *
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingSolver(): number {
+        return this.physicsPipeline.raw.timing_solver();
+    }
+
+    /**
+     * The time spent in milliseconds by the last step to run the constraint
+     * initialization.
+     *
+     * This timing is included in `timingSolver`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingVelocityAssembly(): number {
+        return this.physicsPipeline.raw.timing_velocity_assembly();
+    }
+
+    /**
+     * The time spent in milliseconds by the last step to run the constraint
+     * resolution.
+     *
+     * This timing is included in `timingSolver`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingVelocityResolution(): number {
+        return this.physicsPipeline.raw.timing_velocity_resolution();
+    }
+
+    /**
+     * The time spent in milliseconds by the last step to run the rigid-body
+     * velocity update.
+     *
+     * This timing is included in `timingSolver`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingVelocityUpdate(): number {
+        return this.physicsPipeline.raw.timing_velocity_update();
+    }
+
+    /**
+     * The time spent in milliseconds by writing rigid-body velocities
+     * calculated by the solver back into the rigid-bodies.
+     *
+     * This timing is included in `timingSolver`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingVelocityWriteback(): number {
+        return this.physicsPipeline.raw.timing_velocity_writeback();
+    }
+
+    /**
+     * The total time spent in CCD detection and resolution.
+     *
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingCcd(): number {
+        return this.physicsPipeline.raw.timing_ccd();
+    }
+
+    /**
+     * The total time spent searching for the continuous hits during CCD.
+     *
+     * This timing is included in `timingCcd`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingCcdToiComputation(): number {
+        return this.physicsPipeline.raw.timing_ccd_toi_computation();
+    }
+
+    /**
+     * The total time spent in the broad-phase during CCD.
+     *
+     * This timing is included in `timingCcd`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingCcdBroadPhase(): number {
+        return this.physicsPipeline.raw.timing_ccd_broad_phase();
+    }
+
+    /**
+     * The total time spent in the narrow-phase during CCD.
+     *
+     * This timing is included in `timingCcd`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingCcdNarrowPhase(): number {
+        return this.physicsPipeline.raw.timing_ccd_narrow_phase();
+    }
+
+    /**
+     * The total time spent in the constraints resolution during CCD.
+     *
+     * This timing is included in `timingCcd`.
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingCcdSolver(): number {
+        return this.physicsPipeline.raw.timing_ccd_solver();
+    }
+
+    /**
+     * The total time spent in the islands calculation during CCD.
+     *
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingIslandConstruction(): number {
+        return this.physicsPipeline.raw.timing_island_construction();
+    }
+
+    /**
+     * The total time spent propagating detected user changes.
+     *
+     * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
+     */
+    public timingUserChanges(): number {
+        return this.physicsPipeline.raw.timing_user_changes();
     }
 }

@@ -179,7 +179,7 @@ impl RawKinematicCharacterController {
                     })
                     .unwrap_or(0.0);
 
-                let query_pipeline = broad_phase.0.as_query_pipeline_mut(
+                let mut query_pipeline = broad_phase.0.as_query_pipeline_mut(
                     narrow_phase.0.query_dispatcher(),
                     &mut bodies.0,
                     &mut colliders.0,
@@ -200,7 +200,7 @@ impl RawKinematicCharacterController {
                 if apply_impulses_to_dynamic_bodies {
                     self.controller.solve_character_collision_impulses(
                         dt,
-                        query_pipeline,
+                        &mut query_pipeline,
                         &*collider_shape,
                         character_mass,
                         self.events.iter(),

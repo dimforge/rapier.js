@@ -1,9 +1,9 @@
 use crate::math::RawVector;
 use crate::utils;
 use crate::utils::FlatHandle;
-use rapier::crossbeam::channel::Receiver;
 use rapier::geometry::{CollisionEvent, ContactForceEvent};
 use rapier::pipeline::ChannelEventCollector;
+use std::sync::mpsc::Receiver;
 use wasm_bindgen::prelude::*;
 
 /// A structure responsible for collecting events generated
@@ -78,8 +78,8 @@ impl RawEventQueue {
     /// RAM if no drain is performed.
     #[wasm_bindgen(constructor)]
     pub fn new(autoDrain: bool) -> Self {
-        let collision_channel = rapier::crossbeam::channel::unbounded();
-        let contact_force_channel = rapier::crossbeam::channel::unbounded();
+        let collision_channel = std::sync::mpsc::channel();
+        let contact_force_channel = std::sync::mpsc::channel();
         let collector = ChannelEventCollector::new(collision_channel.0, contact_force_channel.0);
 
         Self {

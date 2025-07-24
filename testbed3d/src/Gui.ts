@@ -8,6 +8,23 @@ export interface DebugInfos {
     worldHash: string;
     worldHashTime: number;
     snapshotTime: number;
+
+    timingStep: number;
+    timingCollisionDetection: number;
+    timingBroadPhase: number;
+    timingNarrowPhase: number;
+    timingSolver: number;
+    timingVelocityAssembly: number;
+    timingVelocityResolution: number;
+    timingVelocityUpdate: number;
+    timingVelocityWriteback: number;
+    timingCcd: number;
+    timingCcdToiComputation: number;
+    timingCcdBroadPhase: number;
+    timingCcdNarrowPhase: number;
+    timingCcdSolver: number;
+    timingIslandConstruction: number;
+    timingUserChanges: number;
 }
 
 export class Gui {
@@ -96,6 +113,43 @@ export class Gui {
                 "ms";
             text += "<br/>Snapshot time: " + infos.snapshotTime + "ms";
         }
+
+        text += "<br/>timingStep: " + infos.timingStep + "ms";
+        text +=
+            "<br/>timingCollisionDetection: " +
+            infos.timingCollisionDetection +
+            "ms";
+        text += "<br/>timingBroadPhase: " + infos.timingBroadPhase + "ms";
+        text += "<br/>timingNarrowPhase: " + infos.timingNarrowPhase + "ms";
+        text += "<br/>timingSolver: " + infos.timingSolver + "ms";
+        text +=
+            "<br/>timingVelocityAssembly: " +
+            infos.timingVelocityAssembly +
+            "ms";
+        text +=
+            "<br/>timingVelocityResolution: " +
+            infos.timingVelocityResolution +
+            "ms";
+        text +=
+            "<br/>timingVelocityUpdate: " + infos.timingVelocityUpdate + "ms";
+        text +=
+            "<br/>timingVelocityWriteback: " +
+            infos.timingVelocityWriteback +
+            "ms";
+        text += "<br/>timingCcd: " + infos.timingCcd + "ms";
+        text +=
+            "<br/>timingCcdToiComputation: " +
+            infos.timingCcdToiComputation +
+            "ms";
+        text += "<br/>timingCcdBroadPhase: " + infos.timingCcdBroadPhase + "ms";
+        text +=
+            "<br/>timingCcdNarrowPhase: " + infos.timingCcdNarrowPhase + "ms";
+        text += "<br/>timingCcdSolver: " + infos.timingCcdSolver + "ms";
+        text +=
+            "<br/>timingIslandConstruction: " +
+            infos.timingIslandConstruction +
+            "ms";
+        text += "<br/>timingUserChanges: " + infos.timingUserChanges + "ms";
         this.debugText.innerHTML = text;
     }
 

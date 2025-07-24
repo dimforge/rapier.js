@@ -163,6 +163,27 @@ export class Testbed {
                     worldHash: "",
                     worldHashTime: 0,
                     snapshotTime: 0,
+                    timingStep: this.world.timingStep(),
+                    timingCollisionDetection:
+                        this.world.timingCollisionDetection(),
+                    timingBroadPhase: this.world.timingBroadPhase(),
+                    timingNarrowPhase: this.world.timingNarrowPhase(),
+                    timingSolver: this.world.timingSolver(),
+                    timingVelocityAssembly: this.world.timingVelocityAssembly(),
+                    timingVelocityResolution:
+                        this.world.timingVelocityResolution(),
+                    timingVelocityUpdate: this.world.timingVelocityUpdate(),
+                    timingVelocityWriteback:
+                        this.world.timingVelocityWriteback(),
+                    timingCcd: this.world.timingCcd(),
+                    timingCcdToiComputation:
+                        this.world.timingCcdToiComputation(),
+                    timingCcdBroadPhase: this.world.timingCcdBroadPhase(),
+                    timingCcdNarrowPhase: this.world.timingCcdNarrowPhase(),
+                    timingCcdSolver: this.world.timingCcdSolver(),
+                    timingIslandConstruction:
+                        this.world.timingIslandConstruction(),
+                    timingUserChanges: this.world.timingUserChanges(),
                 };
                 t0 = performance.now();
                 xxhash128(snapshot).then((hash) => {
