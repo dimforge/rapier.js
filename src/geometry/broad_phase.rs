@@ -147,7 +147,7 @@ impl RawBroadPhase {
                 query_filter,
             );
 
-            for (handle, _, inter) in query_pipeline.intersect_ray(&ray, maxToi, solid) {
+            for (handle, _, inter) in query_pipeline.intersect_ray(ray, maxToi, solid) {
                 if !rcallback(handle, inter) {
                     break;
                 }
@@ -189,7 +189,7 @@ impl RawBroadPhase {
             let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
 
             // TODO: take a callback as argument so we can yield all the intersecting shapes?
-            for (handle, _) in query_pipeline.intersect_shape(&pos, &*shape.0) {
+            for (handle, _) in query_pipeline.intersect_shape(pos, &*shape.0) {
                 // Return the first intersection we find.
                 return Some(utils::flat_handle(handle.0));
             }
@@ -316,7 +316,7 @@ impl RawBroadPhase {
                 Ok(val) => val.as_bool().unwrap_or(true),
             };
 
-            for (handle, _) in query_pipeline.intersect_point(&point.0.into()) {
+            for (handle, _) in query_pipeline.intersect_point(point.0.into()) {
                 if !rcallback(handle) {
                     break;
                 }
@@ -418,7 +418,7 @@ impl RawBroadPhase {
             };
 
             let pos = Isometry::from_parts(shapePos.0.into(), shapeRot.0);
-            for (handle, _) in query_pipeline.intersect_shape(&pos, &*shape.0) {
+            for (handle, _) in query_pipeline.intersect_shape(pos, &*shape.0) {
                 if !rcallback(handle) {
                     break;
                 }
@@ -453,7 +453,7 @@ impl RawBroadPhase {
         let center = Point::from(aabbCenter.0);
         let aabb = Aabb::new(center - aabbHalfExtents.0, center + aabbHalfExtents.0);
 
-        for (handle, _) in query_pipeline.intersect_aabb_conservative(&aabb) {
+        for (handle, _) in query_pipeline.intersect_aabb_conservative(aabb) {
             if !rcallback(&handle) {
                 break;
             }
