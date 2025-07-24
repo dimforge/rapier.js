@@ -1,3 +1,16 @@
+### 0.18.0
+
+### Added
+
+- Add `World.timing*` functions to access the internal performances measurements if the internal
+  profiler is enabled with `World.profilerEnabled = true`.
+- Add `World.maxCcdSubsteps` to get/set the max number of CCD substeps run by the engine.
+
+### Fix
+
+- Fixed crash that would happen when removing colliders in a particular order (e.g. in the same order
+  as their insertion).
+
 ### 0.18.0-beta.0 (12 July 2025)
 
 #### Modified
