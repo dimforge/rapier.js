@@ -1,9 +1,9 @@
 use crate::math::RawVector;
 use crate::utils;
 use crate::utils::FlatHandle;
-use std::sync::mpsc::Receiver;
 use rapier::geometry::{CollisionEvent, ContactForceEvent};
 use rapier::pipeline::ChannelEventCollector;
+use std::sync::mpsc::Receiver;
 use wasm_bindgen::prelude::*;
 
 /// A structure responsible for collecting events generated

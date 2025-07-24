@@ -414,6 +414,27 @@ export class World {
         this.integrationParameters.numInternalPgsIterations = niter;
     }
 
+    /**
+     * The number of substeps continuous collision-detection can run (default: `1`).
+     */
+    get maxCcdSubsteps(): number {
+        return this.integrationParameters.maxCcdSubsteps;
+    }
+
+    /**
+     * Sets the number of substeps continuous collision-detection can run (default: `1`).
+     *
+     * CCD operates using a "motion clamping" mechanism where all fast-moving object trajectories will
+     * be truncated to their first impact on their path. The number of CCD substeps beyond 1 indicate how
+     * many times that trajectory will be updated and continued after a hit. This can results in smoother
+     * paths, but at a significant computational cost.
+     *
+     * @param niter - The new maximum number of CCD substeps. Setting to `0` disables CCD entirely.
+     */
+    set maxCcdSubsteps(substeps: number) {
+        this.integrationParameters.maxCcdSubsteps = substeps;
+    }
+
     /// Configures the integration parameters to match the old PGS solver
     /// from Rapier JS version <= 0.11.
     ///
@@ -1177,7 +1198,7 @@ export class World {
      *
      * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
      */
-    public set profilerEnabled(enabled: boolean) {
+    set profilerEnabled(enabled: boolean) {
         this.physicsPipeline.raw.set_profiler_enabled(enabled);
     }
 
@@ -1186,7 +1207,7 @@ export class World {
      *
      * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
      */
-    public get profilerEnabled(): boolean {
+    get profilerEnabled(): boolean {
         return this.physicsPipeline.raw.is_profiler_enabled();
     }
 
@@ -1288,7 +1309,7 @@ export class World {
      * Only works if the internal profiler is enabled with `World.profilerEnabled = true`.
      */
     public timingCcd(): number {
-        return this.physicsPipeline.raw.timing_ccd()
+        return this.physicsPipeline.raw.timing_ccd();
     }
 
     /**
