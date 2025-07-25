@@ -50,6 +50,7 @@ export class RigidBody {
     private rawSet: RawRigidBodySet; // The RigidBody won't need to free this.
     private colliderSet: ColliderSet;
     readonly handle: RigidBodyHandle;
+    private readonly scratchBuffer: Float32Array = new Float32Array(6);
 
     /**
      * An arbitrary user-defined object associated with this rigid-body.
@@ -293,10 +294,14 @@ export class RigidBody {
 
     /**
      * The world-space translation of this rigid-body.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public translation(): Vector {
-        let res = this.rawSet.rbTranslation(this.handle);
-        return VectorOps.fromRaw(res);
+    public translation(target?: Vector): Vector {
+        this.rawSet.rbTranslation(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        return VectorOps.fromRaw(this.scratchBuffer, target);
     }
 
     /**

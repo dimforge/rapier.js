@@ -31,6 +31,17 @@ export class VectorOps {
         return VectorOps.new(0.0, 0.0);
     }
 
+    public static fromBuffer(buffer: Float32Array, target?: Vector): Vector {
+        if (!buffer) return null;
+
+        if (target != null){
+            target.x = buffer[0];
+            target.y = buffer[1];
+            return target;
+        }
+        return VectorOps.new(buffer[0], buffer[1]);
+    }
+
     // FIXME: type ram: RawVector?
     public static fromRaw(raw: RawVector): Vector {
         if (!raw) return null;
@@ -110,6 +121,18 @@ export class VectorOps {
         return VectorOps.new(0.0, 0.0, 0.0);
     }
 
+    public static fromBuffer(buffer: Float32Array, target?: Vector): Vector {
+        if (!buffer) return null;
+
+        if (target != null){
+            target.x = buffer[0];
+            target.y = buffer[1];
+            target.z = buffer[2];
+            return target;
+        }
+        return VectorOps.new(buffer[0], buffer[1], buffer[2]);
+    }
+
     // FIXME: type ram: RawVector?
     public static fromRaw(raw: RawVector): Vector {
         if (!raw) return null;
@@ -153,6 +176,19 @@ export class Quaternion implements Rotation {
 export class RotationOps {
     public static identity(): Rotation {
         return new Quaternion(0.0, 0.0, 0.0, 1.0);
+    }
+
+    public static fromBuffer(buffer: Float32Array, target?: Rotation): Rotation {
+        if (!buffer) return null;
+
+        if (target != null){
+            target.x = buffer[0];
+            target.y = buffer[1];
+            target.z = buffer[2];
+            target.w = buffer[3];
+            return;
+        }
+        return VectorOps.new(buffer[0], buffer[1], buffer[2], buffer[3]);
     }
 
     public static fromRaw(raw: RawRotation): Rotation {
@@ -253,6 +289,18 @@ export class SdpMatrix3 {
 }
 
 export class SdpMatrix3Ops {
+
+    public static fromBuffer(buffer: Float32Array, target?: RawSdpMatrix3): RawSdpMatrix3 {
+        if (!buffer) return null;
+
+        if (target != null){
+            target.x = buffer[0];
+            target.y = buffer[1];
+            return target;
+        }
+        return new SdpMatrix3(buffer);
+    }
+
     public static fromRaw(raw: RawSdpMatrix3): SdpMatrix3 {
         const sdpMatrix3 = new SdpMatrix3(raw.elements());
         raw.free();
