@@ -186,9 +186,9 @@ export class RotationOps {
             target.y = buffer[1];
             target.z = buffer[2];
             target.w = buffer[3];
-            return;
+            return target;
         }
-        return VectorOps.new(buffer[0], buffer[1], buffer[2], buffer[3]);
+        return new Quaternion(buffer[0], buffer[1], buffer[2], buffer[3]);
     }
 
     public static fromRaw(raw: RawRotation): Rotation {
@@ -290,12 +290,16 @@ export class SdpMatrix3 {
 
 export class SdpMatrix3Ops {
 
-    public static fromBuffer(buffer: Float32Array, target?: RawSdpMatrix3): RawSdpMatrix3 {
+    public static fromBuffer(buffer: Float32Array, target?: SdpMatrix3): SdpMatrix3 {
         if (!buffer) return null;
 
         if (target != null){
-            target.x = buffer[0];
-            target.y = buffer[1];
+            target.elements[0] = buffer[0];
+            target.elements[1] = buffer[1];
+            target.elements[2] = buffer[2];
+            target.elements[3] = buffer[3];
+            target.elements[4] = buffer[4];
+            target.elements[5] = buffer[5];
             return target;
         }
         return new SdpMatrix3(buffer);

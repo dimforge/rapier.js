@@ -301,16 +301,29 @@ export class RigidBody {
     public translation(target?: Vector): Vector {
         this.rawSet.rbTranslation(this.handle, this.scratchBuffer);
         return VectorOps.fromBuffer(this.scratchBuffer, target);
-        return VectorOps.fromRaw(this.scratchBuffer, target);
     }
 
+    // #if DIM2
     /**
      * The world-space orientation of this rigid-body.
      */
-    public rotation(): Rotation {
-        let res = this.rawSet.rbRotation(this.handle);
-        return RotationOps.fromRaw(res);
+    public rotation(): number {
+        return this.rawSet.rbRotation(this.handle);
     }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The world-space orientation of this rigid-body.
+     *
+     * @param {Rotation?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public rotation(target?: Rotation): Rotation {
+        this.rawSet.rbRotation(this.handle, this.scratchBuffer);
+        return RotationOps.fromBuffer(this.scratchBuffer, target);
+    }
+    // #endif
 
     /**
      * The world-space next translation of this rigid-body.
@@ -318,12 +331,16 @@ export class RigidBody {
      * If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
      * method and is used for estimating the kinematic body velocity at the next timestep.
      * For non-kinematic bodies, this value is currently unspecified.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public nextTranslation(): Vector {
-        let res = this.rawSet.rbNextTranslation(this.handle);
-        return VectorOps.fromRaw(res);
+    public nextTranslation(target?: Vector): Vector {
+        this.rawSet.rbNextTranslation(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
 
+    // #if DIM2
     /**
      * The world-space next orientation of this rigid-body.
      *
@@ -331,10 +348,27 @@ export class RigidBody {
      * method and is used for estimating the kinematic body velocity at the next timestep.
      * For non-kinematic bodies, this value is currently unspecified.
      */
-    public nextRotation(): Rotation {
-        let res = this.rawSet.rbNextRotation(this.handle);
-        return RotationOps.fromRaw(res);
+    public nextRotation(): number {
+        return this.rawSet.rbNextRotation(this.handle);
     }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The world-space next orientation of this rigid-body.
+     *
+     * If this rigid-body is kinematic this value is set by the `setNextKinematicRotation`
+     * method and is used for estimating the kinematic body velocity at the next timestep.
+     * For non-kinematic bodies, this value is currently unspecified.
+     *
+     * @param {Rotation?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public nextRotation(target?: Rotation): Rotation {
+        this.rawSet.rbNextRotation(this.handle, this.scratchBuffer);
+        return RotationOps.fromBuffer(this.scratchBuffer, target);
+    }
+    // #endif
 
     /**
      * Sets the translation of this rigid-body.
@@ -507,31 +541,39 @@ export class RigidBody {
 
     /**
      * The linear velocity of this rigid-body.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public linvel(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbLinvel(this.handle));
+    public linvel(target?: Vector): Vector {
+        this.rawSet.rbLinvel(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
 
     /**
      * The velocity of the given world-space point on this rigid-body.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public velocityAtPoint(point: Vector): Vector {
+    public velocityAtPoint(point: Vector, target?: Vector): Vector {
         const rawPoint = VectorOps.intoRaw(point);
-        let result = VectorOps.fromRaw(
-            this.rawSet.rbVelocityAtPoint(this.handle, rawPoint),
-        );
+        this.rawSet.rbVelocityAtPoint(this.handle, rawPoint, this.scratchBuffer);
         rawPoint.free();
-        return result;
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
 
     // #if DIM3
     /**
      * The angular velocity of this rigid-body.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public angvel(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbAngvel(this.handle));
+    public angvel(target?: Vector): Vector {
+        this.rawSet.rbAngvel(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
-
     // #endif
 
     // #if DIM2
@@ -541,7 +583,6 @@ export class RigidBody {
     public angvel(): number {
         return this.rawSet.rbAngvel(this.handle);
     }
-
     // #endif
 
     /**
@@ -553,9 +594,13 @@ export class RigidBody {
 
     /**
      * The inverse mass taking into account translation locking.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public effectiveInvMass(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbEffectiveInvMass(this.handle));
+    public effectiveInvMass(target?: Vector): Vector {
+        this.rawSet.rbEffectiveInvMass(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
 
     /**
@@ -569,16 +614,24 @@ export class RigidBody {
 
     /**
      * The center of mass of a rigid-body expressed in its local-space.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public localCom(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbLocalCom(this.handle));
+    public localCom(target?: Vector): Vector {
+        this.rawSet.rbLocalCom(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
 
     /**
      * The world-space center of mass of the rigid-body.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public worldCom(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbWorldCom(this.handle));
+    public worldCom(target?: Vector): Vector {
+        this.rawSet.rbWorldCom(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
 
     // #if DIM2
@@ -598,13 +651,14 @@ export class RigidBody {
      * The inverse of the principal angular inertia of the rigid-body.
      *
      * Components set to zero are assumed to be infinite along the corresponding principal axis.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public invPrincipalInertiaSqrt(): Vector {
-        return VectorOps.fromRaw(
-            this.rawSet.rbInvPrincipalInertiaSqrt(this.handle),
-        );
+    public invPrincipalInertiaSqrt(target?: Vector): Vector {
+        this.rawSet.rbInvPrincipalInertiaSqrt(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
-
     // #endif
 
     // #if DIM2
@@ -614,29 +668,32 @@ export class RigidBody {
     public principalInertia(): number {
         return this.rawSet.rbPrincipalInertia(this.handle);
     }
-
     // #endif
 
     // #if DIM3
     /**
      * The angular inertia along the principal inertia axes of the rigid-body.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public principalInertia(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbPrincipalInertia(this.handle));
+    public principalInertia(target?: Vector): Vector {
+        this.rawSet.rbPrincipalInertia(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
-
     // #endif
 
     // #if DIM3
     /**
      * The principal vectors of the local angular inertia tensor of the rigid-body.
+     *
+     * @param {Rotation?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public principalInertiaLocalFrame(): Rotation {
-        return RotationOps.fromRaw(
-            this.rawSet.rbPrincipalInertiaLocalFrame(this.handle),
-        );
+    public principalInertiaLocalFrame(target?: Rotation): Rotation {
+        this.rawSet.rbPrincipalInertiaLocalFrame(this.handle, this.scratchBuffer);
+        return RotationOps.fromBuffer(this.scratchBuffer, target);
     }
-
     // #endif
 
     // #if DIM2
@@ -654,11 +711,13 @@ export class RigidBody {
     /**
      * The square-root of the world-space inverse angular inertia tensor of the rigid-body,
      * taking into account rotation locking.
+     *
+     * @param {SdpMatrix3?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public effectiveWorldInvInertiaSqrt(): SdpMatrix3 {
-        return SdpMatrix3Ops.fromRaw(
-            this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle),
-        );
+    public effectiveWorldInvInertiaSqrt(target?: SdpMatrix3): SdpMatrix3 {
+        this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle, this.scratchBuffer);
+        return SdpMatrix3Ops.fromBuffer(this.scratchBuffer, target);
     }
 
     // #endif
@@ -678,11 +737,13 @@ export class RigidBody {
     /**
      * The effective world-space angular inertia (that takes the potential rotation locking into account) of
      * this rigid-body.
+     *
+     * @param {SdpMatrix3?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public effectiveAngularInertia(): SdpMatrix3 {
-        return SdpMatrix3Ops.fromRaw(
-            this.rawSet.rbEffectiveAngularInertia(this.handle),
-        );
+    public effectiveAngularInertia(target?: SdpMatrix3): SdpMatrix3 {
+        this.rawSet.rbEffectiveAngularInertia(this.handle, this.scratchBuffer);
+        return SdpMatrix3Ops.fromBuffer(this.scratchBuffer, target);
     }
 
     // #endif
@@ -1089,9 +1150,13 @@ export class RigidBody {
     /**
      * Retrieves the constant force(s) the user added to this rigid-body
      * Returns zero if the rigid-body is not dynamic.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public userForce(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbUserForce(this.handle));
+    public userForce(target?: Vector): Vector {
+        this.rawSet.rbUserForce(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
 
     // #if DIM2
@@ -1108,9 +1173,13 @@ export class RigidBody {
     /**
      * Retrieves the constant torque(s) the user added to this rigid-body
      * Returns zero if the rigid-body is not dynamic.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public userTorque(): Vector {
-        return VectorOps.fromRaw(this.rawSet.rbUserTorque(this.handle));
+    public userTorque(target?: Vector): Vector {
+        this.rawSet.rbUserTorque(this.handle, this.scratchBuffer);
+        return VectorOps.fromBuffer(this.scratchBuffer, target);
     }
     // #endif
 }
