@@ -3,6 +3,8 @@ import {RawVector, RawRotation} from "./raw";
 import {RawSdpMatrix3} from "./raw";
 // #endif
 
+export const scratchBuffer = new Float32Array(6);
+
 // #if DIM2
 export interface Vector {
     x: number;

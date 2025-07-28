@@ -1,5 +1,11 @@
 import {RawRigidBodySet, RawRigidBodyType} from "../raw";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
+import {
+    Rotation,
+    RotationOps,
+    Vector,
+    VectorOps,
+    scratchBuffer
+} from "../math";
 // #if DIM3
 import {SdpMatrix3, SdpMatrix3Ops} from "../math";
 // #endif
@@ -50,7 +56,6 @@ export class RigidBody {
     private rawSet: RawRigidBodySet; // The RigidBody won't need to free this.
     private colliderSet: ColliderSet;
     readonly handle: RigidBodyHandle;
-    private readonly scratchBuffer: Float32Array = new Float32Array(6);
 
     /**
      * An arbitrary user-defined object associated with this rigid-body.
@@ -294,13 +299,29 @@ export class RigidBody {
 
     /**
      * The world-space translation of this rigid-body.
+     */
+    public translationOriginal(): Vector {
+        let res = this.rawSet.rbTranslationOriginal(this.handle);
+        return VectorOps.fromRaw(res);
+    }
+
+    /**
+     * The world-space orientation of this rigid-body.
+     */
+    public rotationOriginal(): Rotation {
+        let res = this.rawSet.rbRotationOriginal(this.handle);
+        return RotationOps.fromRaw(res);
+    }
+
+    /**
+     * The world-space translation of this rigid-body.
      *
      * @param {Vector?} target - The object to be populated. If provided,
      * the function returns this object instead of creating a new one.
      */
     public translation(target?: Vector): Vector {
-        this.rawSet.rbTranslation(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbTranslation(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     // #if DIM2
@@ -320,8 +341,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public rotation(target?: Rotation): Rotation {
-        this.rawSet.rbRotation(this.handle, this.scratchBuffer);
-        return RotationOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbRotation(this.handle, scratchBuffer);
+        return RotationOps.fromBuffer(scratchBuffer, target);
     }
     // #endif
 
@@ -336,8 +357,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public nextTranslation(target?: Vector): Vector {
-        this.rawSet.rbNextTranslation(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbNextTranslation(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     // #if DIM2
@@ -365,8 +386,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public nextRotation(target?: Rotation): Rotation {
-        this.rawSet.rbNextRotation(this.handle, this.scratchBuffer);
-        return RotationOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbNextRotation(this.handle, scratchBuffer);
+        return RotationOps.fromBuffer(scratchBuffer, target);
     }
     // #endif
 
@@ -546,8 +567,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public linvel(target?: Vector): Vector {
-        this.rawSet.rbLinvel(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbLinvel(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     /**
@@ -558,9 +579,9 @@ export class RigidBody {
      */
     public velocityAtPoint(point: Vector, target?: Vector): Vector {
         const rawPoint = VectorOps.intoRaw(point);
-        this.rawSet.rbVelocityAtPoint(this.handle, rawPoint, this.scratchBuffer);
+        this.rawSet.rbVelocityAtPoint(this.handle, rawPoint, scratchBuffer);
         rawPoint.free();
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     // #if DIM3
@@ -571,8 +592,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public angvel(target?: Vector): Vector {
-        this.rawSet.rbAngvel(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbAngvel(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
     // #endif
 
@@ -599,8 +620,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public effectiveInvMass(target?: Vector): Vector {
-        this.rawSet.rbEffectiveInvMass(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbEffectiveInvMass(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     /**
@@ -619,8 +640,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public localCom(target?: Vector): Vector {
-        this.rawSet.rbLocalCom(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbLocalCom(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     /**
@@ -630,8 +651,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public worldCom(target?: Vector): Vector {
-        this.rawSet.rbWorldCom(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbWorldCom(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     // #if DIM2
@@ -656,8 +677,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public invPrincipalInertiaSqrt(target?: Vector): Vector {
-        this.rawSet.rbInvPrincipalInertiaSqrt(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbInvPrincipalInertiaSqrt(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
     // #endif
 
@@ -678,8 +699,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public principalInertia(target?: Vector): Vector {
-        this.rawSet.rbPrincipalInertia(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbPrincipalInertia(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
     // #endif
 
@@ -691,8 +712,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public principalInertiaLocalFrame(target?: Rotation): Rotation {
-        this.rawSet.rbPrincipalInertiaLocalFrame(this.handle, this.scratchBuffer);
-        return RotationOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbPrincipalInertiaLocalFrame(this.handle, scratchBuffer);
+        return RotationOps.fromBuffer(scratchBuffer, target);
     }
     // #endif
 
@@ -716,8 +737,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public effectiveWorldInvInertiaSqrt(target?: SdpMatrix3): SdpMatrix3 {
-        this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle, this.scratchBuffer);
-        return SdpMatrix3Ops.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle, scratchBuffer);
+        return SdpMatrix3Ops.fromBuffer(scratchBuffer, target);
     }
 
     // #endif
@@ -742,8 +763,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public effectiveAngularInertia(target?: SdpMatrix3): SdpMatrix3 {
-        this.rawSet.rbEffectiveAngularInertia(this.handle, this.scratchBuffer);
-        return SdpMatrix3Ops.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbEffectiveAngularInertia(this.handle, scratchBuffer);
+        return SdpMatrix3Ops.fromBuffer(scratchBuffer, target);
     }
 
     // #endif
@@ -1155,8 +1176,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public userForce(target?: Vector): Vector {
-        this.rawSet.rbUserForce(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbUserForce(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     // #if DIM2
@@ -1178,8 +1199,8 @@ export class RigidBody {
      * the function returns this object instead of creating a new one.
      */
     public userTorque(target?: Vector): Vector {
-        this.rawSet.rbUserTorque(this.handle, this.scratchBuffer);
-        return VectorOps.fromBuffer(this.scratchBuffer, target);
+        this.rawSet.rbUserTorque(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
     // #endif
 }
