@@ -1,3 +1,14 @@
+### 0.18.1 (8 August 2025)
+
+### Modified
+
+- Update to Rapier 0.28.0 which includes performance improvements when CCD is active and when
+  the user applies modification to a collider or rigid-body.
+
+### Fix
+
+- Another attempt to fix bundlerless module import with rapier-compat.
+
 ### 0.18.0 (24 July 2025)
 
 ### Added
@@ -15,7 +26,7 @@
 
 #### Modified
 
-- Update to Rapier 0.22.0-beta.1 which includes a fully reworked broad-phase tha supports scene queries.
+- Update to Rapier 0.27.0-beta.1 which includes a fully reworked broad-phase tha supports scene queries.
   This implies a performance gain on large scenes by avoiding the need to re-build the underlying acceleration
   structure at each frame.
 - Un-deprecate methods for reading shape properties (for example `collider.radius()`). It turned out that these
