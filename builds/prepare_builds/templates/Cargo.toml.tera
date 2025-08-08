@@ -27,7 +27,7 @@ rust.unexpected_cfgs = { level = "warn", check-cfg = [
 ] }
 
 [dependencies]
-rapier{{ dimension }}d = { version = "0.27.0", features = [
+rapier{{ dimension }}d = { version = "0.28.0", features = [
     "serde-serialize",
     "debug-render",
     "profiler",
@@ -38,7 +38,7 @@ rapier{{ dimension }}d = { version = "0.27.0", features = [
 ref-cast = "1"
 wasm-bindgen = "0.2.100"
 js-sys = "0.3"
-nalgebra = "0.33"
+nalgebra = "0.34"
 serde = { version = "1", features = ["derive", "rc"] }
 bincode = "1"
 palette = "0.7"
