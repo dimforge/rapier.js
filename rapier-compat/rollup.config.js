@@ -39,6 +39,7 @@ const config = (dim, features_postfix) => ({
                         config.module = "rapier.mjs";
                         config.exports = {
                             ".": {
+                                types: "./rapier.d.ts",
                                 require: "./rapier.cjs",
                                 import: "./rapier.mjs",
                             },
