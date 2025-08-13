@@ -1,3 +1,9 @@
+### 0.18.2 (13 August 2025)
+
+### Fixed
+
+- Fix rollup configuration adding `types: "./rapier.d.ts"` to the export config.
+
 ### 0.18.1 (8 August 2025)
 
 ### Modified
