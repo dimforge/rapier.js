@@ -1,4 +1,10 @@
-import {Vector, VectorOps, Rotation, RotationOps} from "../math";
+import {
+    Vector,
+    VectorOps,
+    Rotation,
+    RotationOps,
+    scratchBuffer
+} from "../math";
 import {RawColliderSet, RawShape, RawShapeType} from "../raw";
 import {ShapeContact} from "./contact";
 import {PointProjection} from "./point";
@@ -35,24 +41,43 @@ export abstract class Shape {
             case RawShapeType.Ball:
                 return new Ball(rawSet.coRadius(handle));
             case RawShapeType.Cuboid:
-                extents = rawSet.coHalfExtents(handle);
+                rawSet.coHalfExtents(handle, scratchBuffer);
+
                 // #if DIM2
+                extents = {
+                    x: scratchBuffer[0],
+                    y: scratchBuffer[1]
+                };
                 return new Cuboid(extents.x, extents.y);
                 // #endif
 
                 // #if DIM3
+                extents = {
+                    x: scratchBuffer[0],
+                    y: scratchBuffer[1],
+                    z: scratchBuffer[2]
+                };
                 return new Cuboid(extents.x, extents.y, extents.z);
-            // #endif
+                // #endif
 
             case RawShapeType.RoundCuboid:
-                extents = rawSet.coHalfExtents(handle);
                 borderRadius = rawSet.coRoundRadius(handle);
+                rawSet.coHalfExtents(handle, scratchBuffer);
 
                 // #if DIM2
+                extents = {
+                    x: scratchBuffer[0],
+                    y: scratchBuffer[1]
+                };
                 return new RoundCuboid(extents.x, extents.y, borderRadius);
                 // #endif
 
                 // #if DIM3
+                extents = {
+                    x: scratchBuffer[0],
+                    y: scratchBuffer[1],
+                    z: scratchBuffer[2]
+                };
                 return new RoundCuboid(
                     extents.x,
                     extents.y,
@@ -143,19 +168,28 @@ export abstract class Shape {
                 return new TriMesh(vs, indices, tri_flags);
 
             case RawShapeType.HeightField:
-                const scale = rawSet.coHeightfieldScale(handle);
                 const heights = rawSet.coHeightfieldHeights(handle);
+                rawSet.coHeightfieldScale(handle, scratchBuffer);
 
                 // #if DIM2
+                const scale = {
+                    x: scratchBuffer[0],
+                    y: scratchBuffer[1]
+                };
                 return new Heightfield(heights, scale);
                 // #endif
 
                 // #if DIM3
+                const scale = {
+                    x: scratchBuffer[0],
+                    y: scratchBuffer[1],
+                    z: scratchBuffer[2]
+                };
                 const nrows = rawSet.coHeightfieldNRows(handle);
                 const ncols = rawSet.coHeightfieldNCols(handle);
                 const hf_flags = rawSet.coHeightFieldFlags(handle);
                 return new Heightfield(nrows, ncols, heights, scale, hf_flags);
-            // #endif
+                // #endif
 
             // #if DIM2
             case RawShapeType.ConvexPolygon:
