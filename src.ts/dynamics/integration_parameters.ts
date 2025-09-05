@@ -62,13 +62,6 @@ export class IntegrationParameters {
     }
 
     /**
-     * Number of addition friction resolution iteration run during the last solver sub-step (default: `4`).
-     */
-    get numAdditionalFrictionIterations(): number {
-        return this.raw.numAdditionalFrictionIterations;
-    }
-
-    /**
      * Number of internal Project Gauss Seidel (PGS) iterations run at each solver iteration (default: `1`).
      */
     get numInternalPgsIterations(): number {
@@ -117,13 +110,6 @@ export class IntegrationParameters {
     }
 
     /**
-     * Sets the number of addition friction resolution iteration run during the last solver sub-step (default: `4`).
-     */
-    set numAdditionalFrictionIterations(value: number) {
-        this.raw.numAdditionalFrictionIterations = value;
-    }
-
-    /**
      * Sets the number of internal Project Gauss Seidel (PGS) iterations run at each solver iteration (default: `1`).
      */
     set numInternalPgsIterations(value: number) {
@@ -136,17 +122,5 @@ export class IntegrationParameters {
 
     set maxCcdSubsteps(value: number) {
         this.raw.maxCcdSubsteps = value;
-    }
-
-    public switchToStandardPgsSolver() {
-        this.raw.switchToStandardPgsSolver();
-    }
-
-    public switchToSmallStepsPgsSolver() {
-        this.raw.switchToSmallStepsPgsSolver();
-    }
-
-    public switchToSmallStepsPgsSolverWithoutWarmstart() {
-        this.raw.switchToSmallStepsPgsSolverWithoutWarmstart();
     }
 }

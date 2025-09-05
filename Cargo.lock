@@ -338,7 +338,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.18.1"
+version = "0.19.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -352,7 +352,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-deterministic"
-version = "0.18.1"
+version = "0.19.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -366,7 +366,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-simd"
-version = "0.18.1"
+version = "0.19.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -380,7 +380,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.18.1"
+version = "0.19.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -394,7 +394,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-deterministic"
-version = "0.18.1"
+version = "0.19.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -408,7 +408,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-simd"
-version = "0.18.1"
+version = "0.19.0"
 dependencies = [
  "bincode",
  "js-sys",
@@ -458,6 +458,12 @@ name = "foldhash"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9c4f5dac5e15c24eb999c26181a6ca40b39fe946cbe4c263c7209467bc83af2"
+
+[[package]]
+name = "foldhash"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
 
 [[package]]
 name = "generic-array"
@@ -617,7 +623,16 @@ checksum = "9229cfe53dfd69f0609a49f65461bd93001ea1ef889cd5529dd176593f5338a1"
 dependencies = [
  "allocator-api2",
  "equivalent",
- "foldhash",
+ "foldhash 0.1.5",
+]
+
+[[package]]
+name = "hashbrown"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5419bdc4f6a9207fbeba6d11b604d481addf78ecd10c11ad51e76c2f6482748d"
+dependencies = [
+ "foldhash 0.2.0",
  "serde",
 ]
 
@@ -693,7 +708,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe4cd85333e22411419a0bcae1297d25e58c9443848b11dc6a86fefe8c78a661"
 dependencies = [
  "equivalent",
- "hashbrown",
+ "hashbrown 0.15.5",
  "serde",
 ]
 
@@ -911,9 +926,9 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3c2b76147dc43564857a6e31e112f4c6b947ad63398f38a4d6a1a734b9893a1"
+checksum = "8240961674a91f3eb4af1bb7451f27c18a07813d223af73789bd90b296f69940"
 dependencies = [
  "approx",
  "arrayvec",
@@ -921,7 +936,8 @@ dependencies = [
  "downcast-rs",
  "either",
  "ena",
- "hashbrown",
+ "foldhash 0.2.0",
+ "hashbrown 0.16.0",
  "indexmap",
  "log",
  "nalgebra",
@@ -938,9 +954,9 @@ dependencies = [
 
 [[package]]
 name = "parry3d"
-version = "0.23.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ef9c6706eddddd1e5d60a4742e66734d4984045cc3cc3ad29caff835306b9b1"
+checksum = "29a58098398ec9b65abcd8c04501430bd273e3bb48ef3664d4d4e0eb7a44029d"
 dependencies = [
  "approx",
  "arrayvec",
@@ -948,8 +964,9 @@ dependencies = [
  "downcast-rs",
  "either",
  "ena",
+ "foldhash 0.2.0",
  "glam 0.30.5",
- "hashbrown",
+ "hashbrown 0.16.0",
  "indexmap",
  "log",
  "nalgebra",
@@ -1170,9 +1187,9 @@ dependencies = [
 
 [[package]]
 name = "rapier2d"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e4cb5dcf7ddba34b02408fde796237d4349e6b2ef5df7cc7efdfa85bf7c7fbe"
+checksum = "49586478ee35cd09ca37c7c2eaeb2b4e01ffee038163cd4c45005dbb8046261d"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1189,16 +1206,18 @@ dependencies = [
  "rustc-hash",
  "serde",
  "simba",
+ "static_assertions",
  "thiserror",
  "vec_map",
  "web-time",
+ "wide",
 ]
 
 [[package]]
 name = "rapier3d"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b32e9e278b6a9b6a692e061c29031f6a4cc448843e9f150f4e02b3e86edc229"
+checksum = "30921dd14f66b5b9fd6e904ce66229640e31241f1fa4e760c2ce4a2ce8ed4dc6"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1215,9 +1234,11 @@ dependencies = [
  "rustc-hash",
  "serde",
  "simba",
+ "static_assertions",
  "thiserror",
  "vec_map",
  "web-time",
+ "wide",
 ]
 
 [[package]]
@@ -1379,9 +1400,9 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "simba"
-version = "0.9.0"
+version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3a386a501cd104797982c15ae17aafe8b9261315b5d07e3ec803f2ea26be0fa"
+checksum = "c99284beb21666094ba2b75bbceda012e610f5479dfcc2d6e2426f53197ffd95"
 dependencies = [
  "approx",
  "libm",
@@ -1425,7 +1446,7 @@ version = "2.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a14e31a007e9f85c32784b04f89e6e194bb252a4d41b4a8ccd9e77245d901c8c"
 dependencies = [
- "hashbrown",
+ "hashbrown 0.15.5",
  "num-traits",
  "robust",
  "serde",
@@ -1676,8 +1697,6 @@ dependencies = [
 [[package]]
 name = "wide"
 version = "0.7.33"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ce5da8ecb62bcd8ec8b7ea19f69a51275e91299be594ea5cc6ef7819e16cd03"
 dependencies = [
  "bytemuck",
  "safe_arch",

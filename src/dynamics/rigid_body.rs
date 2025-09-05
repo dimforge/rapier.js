@@ -403,11 +403,11 @@ impl RawRigidBodySet {
     ///
     /// Components set to zero are assumed to be infinite along the corresponding principal axis.
     #[cfg(feature = "dim2")]
-    pub fn rbInvPrincipalInertiaSqrt(&self, handle: FlatHandle) -> f32 {
+    pub fn rbInvPrincipalInertia(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |rb| {
             rb.mass_properties()
                 .local_mprops
-                .inv_principal_inertia_sqrt
+                .inv_principal_inertia
                 .into()
         })
     }
@@ -416,11 +416,11 @@ impl RawRigidBodySet {
     ///
     /// Components set to zero are assumed to be infinite along the corresponding principal axis.
     #[cfg(feature = "dim3")]
-    pub fn rbInvPrincipalInertiaSqrt(&self, handle: FlatHandle) -> RawVector {
+    pub fn rbInvPrincipalInertia(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |rb| {
             rb.mass_properties()
                 .local_mprops
-                .inv_principal_inertia_sqrt
+                .inv_principal_inertia
                 .into()
         })
     }
@@ -453,21 +453,21 @@ impl RawRigidBodySet {
         })
     }
 
-    /// The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+    /// The world-space inverse angular inertia tensor of the rigid-body,
     /// taking into account rotation locking.
     #[cfg(feature = "dim2")]
-    pub fn rbEffectiveWorldInvInertiaSqrt(&self, handle: FlatHandle) -> f32 {
+    pub fn rbEffectiveWorldInvInertia(&self, handle: FlatHandle) -> f32 {
         self.map(handle, |rb| {
-            rb.mass_properties().effective_world_inv_inertia_sqrt.into()
+            rb.mass_properties().effective_world_inv_inertia.into()
         })
     }
 
-    /// The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+    /// The world-space inverse angular inertia tensor of the rigid-body,
     /// taking into account rotation locking.
     #[cfg(feature = "dim3")]
-    pub fn rbEffectiveWorldInvInertiaSqrt(&self, handle: FlatHandle) -> RawSdpMatrix3 {
+    pub fn rbEffectiveWorldInvInertia(&self, handle: FlatHandle) -> RawSdpMatrix3 {
         self.map(handle, |rb| {
-            rb.mass_properties().effective_world_inv_inertia_sqrt.into()
+            rb.mass_properties().effective_world_inv_inertia.into()
         })
     }
 

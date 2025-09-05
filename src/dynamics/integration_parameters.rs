@@ -1,5 +1,4 @@
 use rapier::dynamics::IntegrationParameters;
-use std::num::NonZeroUsize;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -34,12 +33,7 @@ impl RawIntegrationParameters {
 
     #[wasm_bindgen(getter)]
     pub fn numSolverIterations(&self) -> usize {
-        self.0.num_solver_iterations.get()
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn numAdditionalFrictionIterations(&self) -> usize {
-        self.0.num_additional_friction_iterations
+        self.0.num_solver_iterations
     }
 
     #[wasm_bindgen(getter)]
@@ -84,15 +78,11 @@ impl RawIntegrationParameters {
 
     #[wasm_bindgen(setter)]
     pub fn set_numSolverIterations(&mut self, value: usize) {
-        self.0.num_solver_iterations = NonZeroUsize::new(value.max(1)).unwrap()
-    }
-    #[wasm_bindgen(setter)]
-    pub fn set_numAdditionalFrictionIterations(&mut self, value: usize) {
-        self.0.num_additional_friction_iterations = value
+        self.0.num_solver_iterations = value;
     }
     #[wasm_bindgen(setter)]
     pub fn set_numInternalPgsIterations(&mut self, value: usize) {
-        self.0.num_internal_pgs_iterations = value
+        self.0.num_internal_pgs_iterations = value;
     }
     #[wasm_bindgen(setter)]
     pub fn set_minIslandSize(&mut self, value: usize) {
@@ -107,17 +97,5 @@ impl RawIntegrationParameters {
     #[wasm_bindgen(setter)]
     pub fn set_lengthUnit(&mut self, value: f32) {
         self.0.length_unit = value
-    }
-
-    pub fn switchToStandardPgsSolver(&mut self) {
-        self.0 = IntegrationParameters::pgs_legacy()
-    }
-
-    pub fn switchToSmallStepsPgsSolver(&mut self) {
-        self.0 = IntegrationParameters::tgs_soft()
-    }
-
-    pub fn switchToSmallStepsPgsSolverWithoutWarmstart(&mut self) {
-        self.0 = IntegrationParameters::tgs_soft_without_warmstart()
     }
 }
