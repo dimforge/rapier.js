@@ -582,8 +582,8 @@ export class RigidBody {
      *
      * Components set to zero are assumed to be infinite along the corresponding principal axis.
      */
-    public invPrincipalInertiaSqrt(): number {
-        return this.rawSet.rbInvPrincipalInertiaSqrt(this.handle);
+    public invPrincipalInertia(): number {
+        return this.rawSet.rbInvPrincipalInertia(this.handle);
     }
 
     // #endif
@@ -594,9 +594,9 @@ export class RigidBody {
      *
      * Components set to zero are assumed to be infinite along the corresponding principal axis.
      */
-    public invPrincipalInertiaSqrt(): Vector {
+    public invPrincipalInertia(): Vector {
         return VectorOps.fromRaw(
-            this.rawSet.rbInvPrincipalInertiaSqrt(this.handle),
+            this.rawSet.rbInvPrincipalInertia(this.handle),
         );
     }
 
@@ -636,23 +636,23 @@ export class RigidBody {
 
     // #if DIM2
     /**
-     * The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+     * The world-space inverse angular inertia tensor of the rigid-body,
      * taking into account rotation locking.
      */
-    public effectiveWorldInvInertiaSqrt(): number {
-        return this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle);
+    public effectiveWorldInvInertia(): number {
+        return this.rawSet.rbEffectiveWorldInvInertia(this.handle);
     }
 
     // #endif
 
     // #if DIM3
     /**
-     * The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+     * The world-space inverse angular inertia tensor of the rigid-body,
      * taking into account rotation locking.
      */
-    public effectiveWorldInvInertiaSqrt(): SdpMatrix3 {
+    public effectiveWorldInvInertia(): SdpMatrix3 {
         return SdpMatrix3Ops.fromRaw(
-            this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle),
+            this.rawSet.rbEffectiveWorldInvInertia(this.handle),
         );
     }
 
