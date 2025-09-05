@@ -1,3 +1,15 @@
+### 0.19.0 (05 Sept. 2025)
+
+### Modified
+
+- Update to Rapier 0.29.0 which includes performance improvements for scenes involving a lot of contact constraints.
+  See https://github.com/dimforge/rapier/pull/876 for details.
+- Renamed the `RigidBody.invPrincipalInertiaSqrt` and `.effectiveWorldInvInertiaSqrt` methods to
+  `RigidBody.invPrincipalInertia` and `.effectiveWorldInvInertia` (removed the `Sqrt` suffix). These methods will now
+  return the actual inverse angular inertia matrix rather than its square root.
+- Removed methods related to the legacy PGS solver: `World.numAdditionalFrictionIterations`,
+  `switchToStandardPgsSolver`, `switchToSmallStepsPgsSolver`, `switchToSmallStepsPgsSolverWithoutWarmstart`.
+
 ### 0.18.2 (13 August 2025)
 
 ### Fixed
