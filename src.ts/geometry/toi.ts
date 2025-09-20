@@ -120,13 +120,15 @@ export class ColliderShapeCastHit extends ShapeCastHit {
         if (!buffer) return null;
 
         target ??= new ColliderShapeCastHit(
-            collider,
+            null,
             0,
             VectorOps.zeros(),
             VectorOps.zeros(),
             VectorOps.zeros(),
             VectorOps.zeros()
         );
+
+        target.collider = collider;
 
         target.time_of_impact = buffer[0];
 
