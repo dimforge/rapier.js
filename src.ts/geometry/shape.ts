@@ -219,7 +219,7 @@ export abstract class Shape {
 
     /**
      * Computes the time of impact between two moving shapes.
-     * @param shapePos1 - The initial position of this sahpe.
+     * @param shapePos1 - The initial position of this shape.
      * @param shapeRot1 - The rotation of this shape.
      * @param shapeVel1 - The velocity of this shape.
      * @param shape2 - The second moving shape.
@@ -232,9 +232,11 @@ export abstract class Shape {
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
      *   that it’s on a path to exit that penetration state.
+     * @param {ShapeCastHit?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      * @returns If the two moving shapes collider at some point along their trajectories, this returns the
      *  time at which the two shape collider as well as the contact information during the impact. Returns
-     *  `null`if the two shapes never collide along their paths.
+     *  `null` if the two shapes never collide along their paths.
      */
     public castShape(
         shapePos1: Vector,
@@ -247,6 +249,7 @@ export abstract class Shape {
         targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
+        target?: ShapeCastHit
     ): ShapeCastHit | null {
         let rawPos1 = VectorOps.intoRaw(shapePos1);
         let rawRot1 = RotationOps.intoRaw(shapeRot1);
@@ -258,22 +261,28 @@ export abstract class Shape {
         let rawShape1 = this.intoRaw();
         let rawShape2 = shape2.intoRaw();
 
-        let result = ShapeCastHit.fromRaw(
-            null,
-            rawShape1.castShape(
-                rawPos1,
-                rawRot1,
-                rawVel1,
-                rawShape2,
-                rawPos2,
-                rawRot2,
-                rawVel2,
-                targetDistance,
-                maxToi,
-                stopAtPenetration,
-            ),
+        const rawShapeCastHit = rawShape1.castShape(
+            rawPos1,
+            rawRot1,
+            rawVel1,
+            rawShape2,
+            rawPos2,
+            rawRot2,
+            rawVel2,
+            targetDistance,
+            maxToi,
+            stopAtPenetration,
         );
 
+        rawShapeCastHit.getComponents(scratchBuffer);
+
+        let result = ShapeCastHit.fromBuffer(
+            null,
+            scratchBuffer,
+            target,
+        );
+
+        rawShapeCastHit.free();
         rawPos1.free();
         rawRot1.free();
         rawVel1.free();

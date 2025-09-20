@@ -1,4 +1,3 @@
-import {RawColliderSet} from "../raw";
 import {
     Rotation,
     RotationOps,
@@ -9,7 +8,6 @@ import {
 import {
     CoefficientCombineRule,
     RigidBody,
-    RigidBodyHandle,
     RigidBodySet,
 } from "../dynamics";
 import {ActiveHooks, ActiveEvents} from "../pipeline";
@@ -1028,7 +1026,7 @@ export class Collider {
         return result;
     }
 
-    /*
+    /**
      * Computes the smallest time between this and the given shape under translational movement are separated by a distance smaller or equal to distance.
      *
      * @param collider1Vel - The constant velocity of the current shape to cast (i.e. the cast direction).
@@ -1043,6 +1041,8 @@ export class Collider {
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
      *   that it’s on a path to exit that penetration state.
+     * @param {ShapeCastHit?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
     public castShape(
         collider1Vel: Vector,
@@ -1053,6 +1053,7 @@ export class Collider {
         targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
+        target?: ShapeCastHit
     ): ShapeCastHit | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawShape2Pos = VectorOps.intoRaw(shape2Pos);
@@ -1060,21 +1061,27 @@ export class Collider {
         let rawShape2Vel = VectorOps.intoRaw(shape2Vel);
         let rawShape2 = shape2.intoRaw();
 
-        let result = ShapeCastHit.fromRaw(
-            this.colliderSet,
-            this.colliderSet.raw.coCastShape(
-                this.handle,
-                rawCollider1Vel,
-                rawShape2,
-                rawShape2Pos,
-                rawShape2Rot,
-                rawShape2Vel,
-                targetDistance,
-                maxToi,
-                stopAtPenetration,
-            ),
+        const rawShapeCastHit = this.colliderSet.raw.coCastShape(
+            this.handle,
+            rawCollider1Vel,
+            rawShape2,
+            rawShape2Pos,
+            rawShape2Rot,
+            rawShape2Vel,
+            targetDistance,
+            maxToi,
+            stopAtPenetration,
         );
 
+        rawShapeCastHit.getComponents(scratchBuffer);
+
+        let result = ShapeCastHit.fromBuffer(
+            null,
+            scratchBuffer,
+            target,
+        );
+
+        rawShapeCastHit.free();
         rawCollider1Vel.free();
         rawShape2Pos.free();
         rawShape2Rot.free();
@@ -1084,7 +1091,7 @@ export class Collider {
         return result;
     }
 
-    /*
+    /**
      * Computes the smallest time between this and the given collider under translational movement are separated by a distance smaller or equal to distance.
      *
      * @param collider1Vel - The constant velocity of the current collider to cast (i.e. the cast direction).
@@ -1097,6 +1104,8 @@ export class Collider {
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
      *   that it’s on a path to exit that penetration state.
+     * @param {ColliderShapeCastHit?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
     public castCollider(
         collider1Vel: Vector,
@@ -1105,23 +1114,32 @@ export class Collider {
         targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
+        target?: ColliderShapeCastHit
     ): ColliderShapeCastHit | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawCollider2Vel = VectorOps.intoRaw(collider2Vel);
 
-        let result = ColliderShapeCastHit.fromRaw(
-            this.colliderSet,
-            this.colliderSet.raw.coCastCollider(
-                this.handle,
-                rawCollider1Vel,
-                collider2.handle,
-                rawCollider2Vel,
-                targetDistance,
-                maxToi,
-                stopAtPenetration,
-            ),
+        const rawColliderShapeCastHit = this.colliderSet.raw.coCastCollider(
+            this.handle,
+            rawCollider1Vel,
+            collider2.handle,
+            rawCollider2Vel,
+            targetDistance,
+            maxToi,
+            stopAtPenetration,
         );
 
+        const colliderHandle: number = rawColliderShapeCastHit.colliderHandle();
+
+        rawColliderShapeCastHit.getComponents(scratchBuffer);
+
+        let result = ColliderShapeCastHit.fromBuffer(
+            this.colliderSet.get(colliderHandle),
+            scratchBuffer,
+            target
+        );
+
+        rawColliderShapeCastHit.free();
         rawCollider1Vel.free();
         rawCollider2Vel.free();
 

@@ -3,7 +3,8 @@ import {RawVector, RawRotation} from "./raw";
 import {RawSdpMatrix3} from "./raw";
 // #endif
 
-export const scratchBuffer = new Float32Array(6);
+// scratchBuffer should be as big as the biggest index Rust tries to set on it.
+export const scratchBuffer = new Float32Array(16);
 
 // #if DIM2
 export interface Vector {
