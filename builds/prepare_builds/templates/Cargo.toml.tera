@@ -1,6 +1,6 @@
 [package]
 name = "dimforge_{{ js_package_name }}" # Can't be named rapier{{ dimension }}d which conflicts with the dependency.
-version = "0.18.0-beta.0"
+version = "0.19.0"
 authors = ["Sébastien Crozet <developer@crozet.re>"]
 description = "{{ dimension }}-dimensional physics engine in Rust - official JS bindings."
 documentation = "https://rapier.rs/rustdoc/rapier{{ dimension }}d/index.html"
@@ -27,9 +27,10 @@ rust.unexpected_cfgs = { level = "warn", check-cfg = [
 ] }
 
 [dependencies]
-rapier{{ dimension }}d = { version = "0.27.0-beta.0", features = [
+rapier{{ dimension }}d = { version = "0.29.0", features = [
     "serde-serialize",
     "debug-render",
+    "profiler",
     {%- for feature in additional_features %}
     "{{ feature }}",
     {%- endfor %}
@@ -37,7 +38,7 @@ rapier{{ dimension }}d = { version = "0.27.0-beta.0", features = [
 ref-cast = "1"
 wasm-bindgen = "0.2.100"
 js-sys = "0.3"
-nalgebra = "0.33"
+nalgebra = "0.34"
 serde = { version = "1", features = ["derive", "rc"] }
 bincode = "1"
 palette = "0.7"

@@ -99,7 +99,7 @@ impl RawRigidBodySet {
 
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
             .enabled(enabled)
-            .position(pos)
+            .pose(pos)
             .gravity_scale(gravityScale)
             .enabled_translations(
                 translationEnabledX,
@@ -162,7 +162,7 @@ impl RawRigidBodySet {
         let pos = na::Isometry2::from_parts(translation.0.into(), rotation.0);
         let mut rigid_body = RigidBodyBuilder::new(rb_type.into())
             .enabled(enabled)
-            .position(pos)
+            .pose(pos)
             .gravity_scale(gravityScale)
             .enabled_translations(translationEnabledX, translationEnabledY)
             .linvel(linvel.0)

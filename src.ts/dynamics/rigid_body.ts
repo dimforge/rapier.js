@@ -661,10 +661,9 @@ export class RigidBody {
      *
      * Components set to zero are assumed to be infinite along the corresponding principal axis.
      */
-    public invPrincipalInertiaSqrt(): number {
-        return this.rawSet.rbInvPrincipalInertiaSqrt(this.handle);
+    public invPrincipalInertia(): number {
+        return this.rawSet.rbInvPrincipalInertia(this.handle);
     }
-
     // #endif
 
     // #if DIM3
@@ -676,8 +675,8 @@ export class RigidBody {
      * @param {Vector?} target - The object to be populated. If provided,
      * the function returns this object instead of creating a new one.
      */
-    public invPrincipalInertiaSqrt(target?: Vector): Vector {
-        this.rawSet.rbInvPrincipalInertiaSqrt(this.handle, scratchBuffer);
+    public invPrincipalInertia(target?: Vector): Vector {
+        this.rawSet.rbInvPrincipalInertia(this.handle, scratchBuffer);
         return VectorOps.fromBuffer(scratchBuffer, target);
     }
     // #endif
@@ -719,13 +718,12 @@ export class RigidBody {
 
     // #if DIM2
     /**
-     * The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+     * The world-space inverse angular inertia tensor of the rigid-body,
      * taking into account rotation locking.
      */
-    public effectiveWorldInvInertiaSqrt(): number {
-        return this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle);
+    public effectiveWorldInvInertia(): number {
+        return this.rawSet.rbEffectiveWorldInvInertia(this.handle);
     }
-
     // #endif
 
     // #if DIM3
@@ -736,8 +734,8 @@ export class RigidBody {
      * @param {SdpMatrix3?} target - The object to be populated. If provided,
      * the function returns this object instead of creating a new one.
      */
-    public effectiveWorldInvInertiaSqrt(target?: SdpMatrix3): SdpMatrix3 {
-        this.rawSet.rbEffectiveWorldInvInertiaSqrt(this.handle, scratchBuffer);
+    public effectiveWorldInvInertia(target?: SdpMatrix3): SdpMatrix3 {
+        this.rawSet.rbEffectiveWorldInvInertia(this.handle, scratchBuffer);
         return SdpMatrix3Ops.fromBuffer(scratchBuffer, target);
     }
 

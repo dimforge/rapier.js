@@ -609,8 +609,8 @@ impl RawRigidBodySet {
     ///
     /// Components set to zero are assumed to be infinite along the corresponding principal axis.
     #[cfg(feature = "dim2")]
-    pub fn rbInvPrincipalInertiaSqrt(&self, handle: FlatHandle) -> f32 {
-        self.map(handle, |rb| rb.mass_properties().local_mprops.inv_principal_inertia_sqrt)
+    pub fn rbInvPrincipalInertia(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.mass_properties().local_mprops.inv_principal_inertia)
     }
 
     /// The inverse of the principal angular inertia of the rigid-body.
@@ -620,9 +620,9 @@ impl RawRigidBodySet {
     /// # Parameters
     /// - `scratchBuffer`: The array to be populated.
     #[cfg(feature = "dim3")]
-    pub fn rbInvPrincipalInertiaSqrt(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) {
+    pub fn rbInvPrincipalInertia(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) {
         self.map(handle, |rb| {
-            let u = rb.mass_properties().local_mprops.inv_principal_inertia_sqrt;
+            let u = rb.mass_properties().local_mprops.inv_principal_inertia;
             scratchBuffer.set_index(0, u.x);
             scratchBuffer.set_index(1, u.y);
             scratchBuffer.set_index(2, u.z);
@@ -666,22 +666,22 @@ impl RawRigidBodySet {
 
     }
 
-    /// The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+    /// The world-space inverse angular inertia tensor of the rigid-body,
     /// taking into account rotation locking.
     #[cfg(feature = "dim2")]
-    pub fn rbEffectiveWorldInvInertiaSqrt(&self, handle: FlatHandle) -> f32 {
-        self.map(handle, |rb| rb.mass_properties().effective_world_inv_inertia_sqrt)
+    pub fn rbEffectiveWorldInvInertia(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.mass_properties().effective_world_inv_inertia)
     }
 
-    /// The square-root of the world-space inverse angular inertia tensor of the rigid-body,
+    /// The world-space inverse angular inertia tensor of the rigid-body,
     /// taking into account rotation locking.
     ///
     /// # Parameters
     /// - `scratchBuffer`: The array to be populated.
     #[cfg(feature = "dim3")]
-    pub fn rbEffectiveWorldInvInertiaSqrt(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) {
+    pub fn rbEffectiveWorldInvInertia(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) {
         self.map(handle, |rb| {
-            let u = rb.mass_properties().effective_world_inv_inertia_sqrt;
+            let u = rb.mass_properties().effective_world_inv_inertia;
             scratchBuffer.set_index(0, u.m11);
             scratchBuffer.set_index(1, u.m12);
             scratchBuffer.set_index(2, u.m13);

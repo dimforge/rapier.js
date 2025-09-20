@@ -1,8 +1,50 @@
+### 0.19.0 (05 Sept. 2025)
+
+### Modified
+
+- Update to Rapier 0.29.0 which includes performance improvements for scenes involving a lot of contact constraints.
+  See https://github.com/dimforge/rapier/pull/876 for details.
+- Renamed the `RigidBody.invPrincipalInertiaSqrt` and `.effectiveWorldInvInertiaSqrt` methods to
+  `RigidBody.invPrincipalInertia` and `.effectiveWorldInvInertia` (removed the `Sqrt` suffix). These methods will now
+  return the actual inverse angular inertia matrix rather than its square root.
+- Removed methods related to the legacy PGS solver: `World.numAdditionalFrictionIterations`,
+  `switchToStandardPgsSolver`, `switchToSmallStepsPgsSolver`, `switchToSmallStepsPgsSolverWithoutWarmstart`.
+
+### 0.18.2 (13 August 2025)
+
+### Fixed
+
+- Fix rollup configuration adding `types: "./rapier.d.ts"` to the export config.
+
+### 0.18.1 (8 August 2025)
+
+### Modified
+
+- Update to Rapier 0.28.0 which includes performance improvements when CCD is active and when
+  the user applies modification to a collider or rigid-body.
+
+### Fix
+
+- Another attempt to fix bundlerless module import with rapier-compat.
+
+### 0.18.0 (24 July 2025)
+
+### Added
+
+- Add `World.timing*` functions to access the internal performances measurements if the internal
+  profiler is enabled with `World.profilerEnabled = true`.
+- Add `World.maxCcdSubsteps` to get/set the max number of CCD substeps run by the engine.
+
+### Fix
+
+- Fixed crash that would happen when removing colliders in a particular order (e.g. in the same order
+  as their insertion).
+
 ### 0.18.0-beta.0 (12 July 2025)
 
 #### Modified
 
-- Update to Rapier 0.22.0-beta.1 which includes a fully reworked broad-phase tha supports scene queries.
+- Update to Rapier 0.27.0-beta.1 which includes a fully reworked broad-phase tha supports scene queries.
   This implies a performance gain on large scenes by avoiding the need to re-build the underlying acceleration
   structure at each frame.
 - Un-deprecate methods for reading shape properties (for example `collider.radius()`). It turned out that these

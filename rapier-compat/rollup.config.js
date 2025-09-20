@@ -37,6 +37,13 @@ const config = (dim, features_postfix) => ({
                         config.types = "rapier.d.ts";
                         config.main = "rapier.cjs";
                         config.module = "rapier.mjs";
+                        config.exports = {
+                            ".": {
+                                types: "./rapier.d.ts",
+                                require: "./rapier.cjs",
+                                import: "./rapier.mjs",
+                            },
+                        };
                         // delete config.module;
                         config.files = ["*"];
                         return JSON.stringify(config, undefined, 2);
