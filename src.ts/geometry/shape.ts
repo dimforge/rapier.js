@@ -65,7 +65,7 @@ export abstract class Shape {
                     scratchBuffer[2],
                     borderRadius,
                 );
-            // #endif
+                // #endif
 
             case RawShapeType.Capsule:
                 halfHeight = rawSet.coHalfHeight(handle);
