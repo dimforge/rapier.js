@@ -269,7 +269,7 @@ impl RawColliderSet {
     pub fn coHalfExtents(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) -> bool {
         self.map(handle, |co| {
             co.shape().as_cuboid().map_or_else(|| {
-                co.shape().as_round_cuboid().map_or(false,|c| {
+                co.shape().as_round_cuboid().map_or(false, |c| {
                     let u = c.inner_shape.half_extents;
                     scratchBuffer.set_index(0, u.x);
                     scratchBuffer.set_index(1, u.y);

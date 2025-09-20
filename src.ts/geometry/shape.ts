@@ -29,7 +29,6 @@ export abstract class Shape {
     ): Shape {
         const rawType = rawSet.coShapeType(handle);
 
-        let extents: Vector;
         let borderRadius: number;
         let vs: Float32Array;
         let indices: Uint32Array;
@@ -44,20 +43,11 @@ export abstract class Shape {
                 rawSet.coHalfExtents(handle, scratchBuffer);
 
                 // #if DIM2
-                extents = {
-                    x: scratchBuffer[0],
-                    y: scratchBuffer[1]
-                };
-                return new Cuboid(extents.x, extents.y);
+                return new Cuboid(scratchBuffer[0], scratchBuffer[1]);
                 // #endif
 
                 // #if DIM3
-                extents = {
-                    x: scratchBuffer[0],
-                    y: scratchBuffer[1],
-                    z: scratchBuffer[2]
-                };
-                return new Cuboid(extents.x, extents.y, extents.z);
+                return new Cuboid(scratchBuffer[0], scratchBuffer[1], scratchBuffer[2]);
                 // #endif
 
             case RawShapeType.RoundCuboid:
@@ -65,23 +55,14 @@ export abstract class Shape {
                 rawSet.coHalfExtents(handle, scratchBuffer);
 
                 // #if DIM2
-                extents = {
-                    x: scratchBuffer[0],
-                    y: scratchBuffer[1]
-                };
-                return new RoundCuboid(extents.x, extents.y, borderRadius);
+                return new RoundCuboid(scratchBuffer[0], scratchBuffer[1], borderRadius);
                 // #endif
 
                 // #if DIM3
-                extents = {
-                    x: scratchBuffer[0],
-                    y: scratchBuffer[1],
-                    z: scratchBuffer[2]
-                };
                 return new RoundCuboid(
-                    extents.x,
-                    extents.y,
-                    extents.z,
+                    scratchBuffer[0],
+                    scratchBuffer[1],
+                    scratchBuffer[2],
                     borderRadius,
                 );
             // #endif
