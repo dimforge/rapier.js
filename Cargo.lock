@@ -407,6 +407,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "dimforge_rapier3d-simd"
+version = "0.19.0"
+dependencies = [
+ "bincode",
+ "js-sys",
+ "nalgebra",
+ "palette",
+ "rapier3d",
+ "ref-cast",
+ "serde",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "downcast-rs"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -951,6 +965,7 @@ dependencies = [
  "either",
  "ena",
  "foldhash 0.2.0",
+ "glam 0.30.7",
  "hashbrown 0.16.0",
  "indexmap",
  "log",
@@ -1221,6 +1236,7 @@ dependencies = [
  "simba",
  "static_assertions",
  "thiserror",
+ "vec_map",
  "web-time",
  "wide",
 ]
