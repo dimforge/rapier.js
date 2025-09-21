@@ -1,4 +1,4 @@
-import {RawCCDSolver} from "../raw";
+import {RawCCDSolver} from "../raw.js";
 
 /**
  * The CCD solver responsible for resolving Continuous Collision Detection.

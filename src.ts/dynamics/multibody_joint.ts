@@ -3,7 +3,7 @@ import {
     RawJointAxis,
     RawJointType,
     RawMultibodyJointSet,
-} from "../raw";
+} from "../raw.js";
 import {
     FixedImpulseJoint,
     ImpulseJointHandle,
@@ -11,11 +11,11 @@ import {
     MotorModel,
     PrismaticImpulseJoint,
     RevoluteImpulseJoint,
-} from "./impulse_joint";
+} from "./impulse_joint.js";
 
 // #if DIM3
-import {Quaternion} from "../math";
-import {SphericalImpulseJoint} from "./impulse_joint";
+import {Quaternion} from "../math.js";
+import {SphericalImpulseJoint} from "./impulse_joint.js";
 // #endif
 
 /**

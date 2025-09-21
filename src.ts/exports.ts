@@ -1,4 +1,4 @@
-import {version as vers, reserve_memory as reserve} from "./raw";
+import {version as vers, reserve_memory as reserve} from "./raw.js";
 
 export function version(): string {
     return vers();
@@ -19,9 +19,9 @@ export function reserveMemory(extraBytesCount: number) {
     reserve(extraBytesCount);
 }
 
-export * from "./math";
-export * from "./dynamics";
-export * from "./geometry";
-export * from "./pipeline";
-export * from "./init";
-export * from "./control";
+export * from "./math.js";
+export * from "./dynamics/index.js";
+export * from "./geometry/index.js";
+export * from "./pipeline/index.js";
+export * from "./init.js";
+export * from "./control/index.js";

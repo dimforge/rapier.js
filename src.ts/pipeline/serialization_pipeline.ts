@@ -1,14 +1,14 @@
-import {RawSerializationPipeline} from "../raw";
-import {Vector, VectorOps} from "../math";
+import {RawSerializationPipeline} from "../raw.js";
+import {Vector, VectorOps} from "../math.js";
 import {
     IntegrationParameters,
     IslandManager,
     ImpulseJointSet,
     MultibodyJointSet,
     RigidBodySet,
-} from "../dynamics";
-import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry";
-import {World} from "./world";
+} from "../dynamics/index.js";
+import {BroadPhase, ColliderSet, NarrowPhase} from "../geometry/index.js";
+import {World} from "./world.js";
 
 /**
  * A pipeline for serializing the physics scene.

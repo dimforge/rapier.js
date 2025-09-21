@@ -1,15 +1,15 @@
-import {Testbed} from "./Testbed";
-import * as CollisionGroups from "./demos/collisionGroups";
-import * as Cubes from "./demos/cubes";
-import * as Keva from "./demos/keva";
-import * as Heightfield from "./demos/heightfield";
-import * as Polyline from "./demos/polyline";
-import * as RevoluteJoints from "./demos/revoluteJoints";
-import * as LockedRotations from "./demos/lockedRotations";
-import * as ConvexPolygons from "./demos/convexPolygons";
-import * as CharacterController from "./demos/characterController";
-import * as PidController from "./demos/pidController";
-import * as Voxels from "./demos/voxels";
+import {Testbed} from "./Testbed.js";
+import * as CollisionGroups from "./demos/collisionGroups.js";
+import * as Cubes from "./demos/cubes.js";
+import * as Keva from "./demos/keva.js";
+import * as Heightfield from "./demos/heightfield.js";
+import * as Polyline from "./demos/polyline.js";
+import * as RevoluteJoints from "./demos/revoluteJoints.js";
+import * as LockedRotations from "./demos/lockedRotations.js";
+import * as ConvexPolygons from "./demos/convexPolygons.js";
+import * as CharacterController from "./demos/characterController.js";
+import * as PidController from "./demos/pidController.js";
+import * as Voxels from "./demos/voxels.js";
 
 import("@dimforge/rapier2d").then((RAPIER) => {
     let builders = new Map([

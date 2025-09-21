@@ -1,4 +1,4 @@
-import type {Testbed} from "../Testbed";
+import type {Testbed} from "../Testbed.js";
 import seedrandom from "seedrandom";
 
 type RAPIER_API = typeof import("@dimforge/rapier3d");

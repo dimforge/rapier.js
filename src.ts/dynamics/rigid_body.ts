@@ -1,9 +1,9 @@
-import {RawRigidBodySet, RawRigidBodyType} from "../raw";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
+import {RawRigidBodySet, RawRigidBodyType} from "../raw.js";
+import {Rotation, RotationOps, Vector, VectorOps} from "../math.js";
 // #if DIM3
-import {SdpMatrix3, SdpMatrix3Ops} from "../math";
+import {SdpMatrix3, SdpMatrix3Ops} from "../math.js";
 // #endif
-import {Collider, ColliderSet} from "../geometry";
+import {Collider, ColliderSet} from "../geometry/index.js";
 
 /**
  * The integer identifier of a collider added to a `ColliderSet`.

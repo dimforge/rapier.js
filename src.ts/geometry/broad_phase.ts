@@ -1,15 +1,15 @@
-import {RawBroadPhase, RawRayColliderIntersection} from "../raw";
-import {RigidBodyHandle, RigidBodySet} from "../dynamics";
-import {ColliderSet} from "./collider_set";
-import {Ray, RayColliderHit, RayColliderIntersection} from "./ray";
-import {InteractionGroups} from "./interaction_groups";
-import {ColliderHandle} from "./collider";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
-import {Shape} from "./shape";
-import {PointColliderProjection} from "./point";
-import {ColliderShapeCastHit} from "./toi";
-import {QueryFilterFlags} from "../pipeline";
-import {NarrowPhase} from "./narrow_phase";
+import {RawBroadPhase, RawRayColliderIntersection} from "../raw.js";
+import {RigidBodyHandle, RigidBodySet} from "../dynamics/index.js";
+import {ColliderSet} from "./collider_set.js";
+import {Ray, RayColliderHit, RayColliderIntersection} from "./ray.js";
+import {InteractionGroups} from "./interaction_groups.js";
+import {ColliderHandle} from "./collider.js";
+import {Rotation, RotationOps, Vector, VectorOps} from "../math.js";
+import {Shape} from "./shape.js";
+import {PointColliderProjection} from "./point.js";
+import {ColliderShapeCastHit} from "./toi.js";
+import {QueryFilterFlags} from "../pipeline/index.js";
+import {NarrowPhase} from "./narrow_phase.js";
 
 /**
  * The broad-phase used for coarse collision-detection.

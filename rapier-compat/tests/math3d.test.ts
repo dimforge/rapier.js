@@ -1,4 +1,4 @@
-import {Vector3, VectorOps} from "../builds/3d-deterministic/pkg";
+import {Vector3, VectorOps} from "../builds/3d-deterministic/pkg/index.js";
 
 describe("3d/math", () => {
     test("Vector3", () => {

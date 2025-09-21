@@ -1,10 +1,10 @@
-import {Vector, VectorOps, Rotation, RotationOps} from "../math";
-import {RawColliderSet, RawShape, RawShapeType} from "../raw";
-import {ShapeContact} from "./contact";
-import {PointProjection} from "./point";
-import {Ray, RayIntersection} from "./ray";
-import {ShapeCastHit} from "./toi";
-import {ColliderHandle} from "./collider";
+import {Vector, VectorOps, Rotation, RotationOps} from "../math.js";
+import {RawColliderSet, RawShape, RawShapeType} from "../raw.js";
+import {ShapeContact} from "./contact.js";
+import {PointProjection} from "./point.js";
+import {Ray, RayIntersection} from "./ray.js";
+import {ShapeCastHit} from "./toi.js";
+import {ColliderHandle} from "./collider.js";
 
 export abstract class Shape {
     public abstract intoRaw(): RawShape;
