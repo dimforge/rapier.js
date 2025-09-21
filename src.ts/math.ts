@@ -290,16 +290,14 @@ export class SdpMatrix3Ops {
     public static fromBuffer(buffer: Float32Array, target?: SdpMatrix3): SdpMatrix3 {
         if (!buffer) return null;
 
-        if (target != null){
-            target.elements[0] = buffer[0];
-            target.elements[1] = buffer[1];
-            target.elements[2] = buffer[2];
-            target.elements[3] = buffer[3];
-            target.elements[4] = buffer[4];
-            target.elements[5] = buffer[5];
-            return target;
-        }
-        return new SdpMatrix3(buffer);
+        target ??= new SdpMatrix3(buffer);
+        target.elements[0] = buffer[0];
+        target.elements[1] = buffer[1];
+        target.elements[2] = buffer[2];
+        target.elements[3] = buffer[3];
+        target.elements[4] = buffer[4];
+        target.elements[5] = buffer[5];
+        return target;
     }
 
     public static fromRaw(raw: RawSdpMatrix3): SdpMatrix3 {
