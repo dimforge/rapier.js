@@ -37,12 +37,10 @@ export class VectorOps {
     public static fromBuffer(buffer: Float32Array, target?: Vector): Vector {
         if (!buffer) return null;
 
-        if (target != null){
-            target.x = buffer[0];
-            target.y = buffer[1];
-            return target;
-        }
-        return VectorOps.new(buffer[0], buffer[1]);
+        target ??= VectorOps.zeros();
+        target.x = buffer[0];
+        target.y = buffer[1];
+        return target;
     }
 
     // FIXME: type ram: RawVector?
@@ -127,13 +125,11 @@ export class VectorOps {
     public static fromBuffer(buffer: Float32Array, target?: Vector): Vector {
         if (!buffer) return null;
 
-        if (target != null){
-            target.x = buffer[0];
-            target.y = buffer[1];
-            target.z = buffer[2];
-            return target;
-        }
-        return VectorOps.new(buffer[0], buffer[1], buffer[2]);
+        target ??= VectorOps.zeros();
+        target.x = buffer[0];
+        target.y = buffer[1];
+        target.z = buffer[2];
+        return target;
     }
 
     // FIXME: type ram: RawVector?
@@ -184,14 +180,12 @@ export class RotationOps {
     public static fromBuffer(buffer: Float32Array, target?: Rotation): Rotation {
         if (!buffer) return null;
 
-        if (target != null){
-            target.x = buffer[0];
-            target.y = buffer[1];
-            target.z = buffer[2];
-            target.w = buffer[3];
-            return target;
-        }
-        return new Quaternion(buffer[0], buffer[1], buffer[2], buffer[3]);
+        target ??= RotationOps.identity();
+        target.x = buffer[0];
+        target.y = buffer[1];
+        target.z = buffer[2];
+        target.w = buffer[3];
+        return target;
     }
 
     public static fromRaw(raw: RawRotation): Rotation {
