@@ -7,7 +7,12 @@ import {
     MultibodyJointSet,
     RigidBodySet,
 } from "../dynamics/index.js";
-import {BroadPhase, Collider, ColliderSet, NarrowPhase} from "../geometry/index.js";
+import {
+    BroadPhase,
+    Collider,
+    ColliderSet,
+    NarrowPhase,
+} from "../geometry/index.js";
 import {QueryFilterFlags} from "./query_pipeline.js";
 
 /**

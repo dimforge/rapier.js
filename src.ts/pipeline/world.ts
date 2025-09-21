@@ -52,7 +52,10 @@ import {QueryFilterFlags} from "./query_pipeline.js";
 import {SerializationPipeline} from "./serialization_pipeline.js";
 import {EventQueue} from "./event_queue.js";
 import {PhysicsHooks} from "./physics_hooks.js";
-import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline.js";
+import {
+    DebugRenderBuffers,
+    DebugRenderPipeline,
+} from "./debug_render_pipeline.js";
 import {
     KinematicCharacterController,
     PidAxesMask,

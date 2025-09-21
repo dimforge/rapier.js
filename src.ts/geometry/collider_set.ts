@@ -2,7 +2,11 @@ import {RawColliderSet} from "../raw.js";
 import {Coarena} from "../coarena.js";
 import {RotationOps, VectorOps} from "../math.js";
 import {Collider, ColliderDesc, ColliderHandle} from "./collider.js";
-import {ImpulseJointHandle, IslandManager, RigidBodyHandle} from "../dynamics/index.js";
+import {
+    ImpulseJointHandle,
+    IslandManager,
+    RigidBodyHandle,
+} from "../dynamics/index.js";
 import {RigidBodySet} from "../dynamics/index.js";
 
 /**

@@ -10,7 +10,11 @@ import {
     Shape,
     ColliderShapeCastHit,
 } from "../geometry/index.js";
-import {IslandManager, RigidBodyHandle, RigidBodySet} from "../dynamics/index.js";
+import {
+    IslandManager,
+    RigidBodyHandle,
+    RigidBodySet,
+} from "../dynamics/index.js";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math.js";
 
 // NOTE: must match the bits in the QueryFilterFlags on the Rust side.
