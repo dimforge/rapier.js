@@ -1,16 +1,16 @@
-import {RawRigidBodySet, RawRigidBodyType} from "../raw";
-import {Coarena} from "../coarena";
-import {VectorOps, RotationOps} from "../math";
+import {RawRigidBodySet, RawRigidBodyType} from "../raw.js";
+import {Coarena} from "../coarena.js";
+import {VectorOps, RotationOps} from "../math.js";
 import {
     RigidBody,
     RigidBodyDesc,
     RigidBodyHandle,
     RigidBodyType,
-} from "./rigid_body";
-import {ColliderSet} from "../geometry";
-import {ImpulseJointSet} from "./impulse_joint_set";
-import {MultibodyJointSet} from "./multibody_joint_set";
-import {IslandManager} from "./island_manager";
+} from "./rigid_body.js";
+import {ColliderSet} from "../geometry/index.js";
+import {ImpulseJointSet} from "./impulse_joint_set.js";
+import {MultibodyJointSet} from "./multibody_joint_set.js";
+import {IslandManager} from "./island_manager.js";
 
 /**
  * A set of rigid bodies that can be handled by a physics pipeline.

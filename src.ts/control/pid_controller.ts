@@ -1,8 +1,8 @@
-import {RawPidController} from "../raw";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
-import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry";
-import {QueryFilterFlags, World} from "../pipeline";
-import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics";
+import {RawPidController} from "../raw.js";
+import {Rotation, RotationOps, Vector, VectorOps} from "../math.js";
+import {Collider, ColliderSet, InteractionGroups, Shape} from "../geometry/index.js";
+import {QueryFilterFlags, World} from "../pipeline/index.js";
+import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics/index.js";
 
 // TODO: unify with the JointAxesMask
 /**

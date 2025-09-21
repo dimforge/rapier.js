@@ -1,4 +1,4 @@
-import type {Testbed} from "../Testbed";
+import type {Testbed} from "../Testbed.js";
 import {Vector3, Object3D, Mesh, BufferGeometry, BufferAttribute} from "three";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 type RAPIER_API = typeof import("@dimforge/rapier3d");

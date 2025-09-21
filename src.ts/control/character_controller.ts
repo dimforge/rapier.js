@@ -1,15 +1,15 @@
-import {RawKinematicCharacterController, RawCharacterCollision} from "../raw";
-import {Rotation, Vector, VectorOps} from "../math";
+import {RawKinematicCharacterController, RawCharacterCollision} from "../raw.js";
+import {Rotation, Vector, VectorOps} from "../math.js";
 import {
-    BroadPhase,
     Collider,
-    ColliderSet,
+    ColliderDesc,
+    ColliderHandle,
     InteractionGroups,
-    NarrowPhase,
+    QueryFilterFlags,
     Shape,
-} from "../geometry";
-import {QueryFilterFlags, World} from "../pipeline";
-import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics";
+} from "../geometry/index.js";
+import {QueryFilterFlags, World} from "../pipeline/index.js";
+import {IntegrationParameters, RigidBody, RigidBodySet} from "../dynamics/index.js";
 
 /**
  * A collision between the character and an obstacle hit on its path.

@@ -1,4 +1,4 @@
-import {RawIntegrationParameters} from "../raw";
+import {RawIntegrationParameters} from "../raw.js";
 
 export class IntegrationParameters {
     raw: RawIntegrationParameters;

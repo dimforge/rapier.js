@@ -1,14 +1,14 @@
-import {RawDebugRenderPipeline} from "../raw";
-import {Vector, VectorOps} from "../math";
+import {RawDebugRenderPipeline} from "../raw.js";
+import {Vector, VectorOps} from "../math.js";
 import {
     IntegrationParameters,
     IslandManager,
     ImpulseJointSet,
     MultibodyJointSet,
     RigidBodySet,
-} from "../dynamics";
-import {BroadPhase, Collider, ColliderSet, NarrowPhase} from "../geometry";
-import {QueryFilterFlags} from "./query_pipeline";
+} from "../dynamics/index.js";
+import {BroadPhase, Collider, ColliderSet, NarrowPhase} from "../geometry/index.js";
+import {QueryFilterFlags} from "./query_pipeline.js";
 
 /**
  * The vertex and color buffers for debug-redering the physics scene.

@@ -1,7 +1,7 @@
-import {Collider} from "./collider";
-import {Vector, VectorOps} from "../math";
-import {RawShapeCastHit, RawColliderShapeCastHit} from "../raw";
-import {ColliderSet} from "./collider_set";
+import {Collider} from "./collider.js";
+import {Vector, VectorOps} from "../math.js";
+import {RawShapeCastHit, RawColliderShapeCastHit} from "../raw.js";
+import {ColliderSet} from "./collider_set.js";
 
 /**
  * The intersection between a ray and a collider.

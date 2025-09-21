@@ -1,4 +1,4 @@
-import type {Testbed} from "../Testbed";
+import type {Testbed} from "../Testbed.js";
 import {
     Vector3,
     Object3D,

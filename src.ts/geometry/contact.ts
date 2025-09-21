@@ -1,5 +1,5 @@
-import {Vector, VectorOps} from "../math";
-import {RawShapeContact} from "../raw";
+import {Vector, VectorOps} from "../math.js";
+import {RawShapeContact} from "../raw.js";
 
 /**
  * The contact info between two shapes.
