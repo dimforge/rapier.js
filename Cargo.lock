@@ -407,24 +407,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "dimforge_rapier3d-simd"
-version = "0.19.0"
-dependencies = [
- "bincode",
- "js-sys",
- "nalgebra",
- "palette",
- "rapier3d",
- "ref-cast",
- "serde",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "downcast-rs"
-version = "2.0.1"
+version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea8a8b81cacc08888170eef4d13b775126db426d0b348bee9d18c2c1eaf123cf"
+checksum = "117240f60069e65410b3ae1bb213295bd828f707b5bec6596a1afc8793ce0cbc"
 
 [[package]]
 name = "either"
@@ -578,9 +564,9 @@ checksum = "8babf46d4c1c9d92deac9f7be466f76dfc4482b6452fc5024b5e8daf6ffeb3ee"
 
 [[package]]
 name = "glam"
-version = "0.30.5"
+version = "0.30.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2d1aab06663bdce00d6ca5e5ed586ec8d18033a771906c993a1e3755b368d85"
+checksum = "34e4649b62c21fb8c737abe6449192ce96ecd16b5c0d606759fe43831b31bd95"
 
 [[package]]
 name = "globset"
@@ -703,9 +689,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "2.10.0"
+version = "2.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe4cd85333e22411419a0bcae1297d25e58c9443848b11dc6a86fefe8c78a661"
+checksum = "206a8042aec68fa4a62e8d3f7aa4ceb508177d9324faf261e1959e495b7a1921"
 dependencies = [
  "equivalent",
  "hashbrown 0.15.5",
@@ -776,9 +762,9 @@ checksum = "32a282da65faaf38286cf3be983213fcf1d2e2a58700e808f83f4ea9a4804bc0"
 
 [[package]]
 name = "nalgebra"
-version = "0.34.0"
+version = "0.34.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9cd59afb6639828b33677758314a4a1a745c15c02bc597095b851c8fd915cf49"
+checksum = "c4d5b3eff5cd580f93da45e64715e8c20a3996342f1e466599cf7a267a0c2f5f"
 dependencies = [
  "approx",
  "glam 0.14.0",
@@ -796,7 +782,7 @@ dependencies = [
  "glam 0.27.0",
  "glam 0.28.0",
  "glam 0.29.3",
- "glam 0.30.5",
+ "glam 0.30.7",
  "matrixmultiply",
  "nalgebra-macros",
  "num-complex",
@@ -965,7 +951,6 @@ dependencies = [
  "either",
  "ena",
  "foldhash 0.2.0",
- "glam 0.30.5",
  "hashbrown 0.16.0",
  "indexmap",
  "log",
@@ -1236,7 +1221,6 @@ dependencies = [
  "simba",
  "static_assertions",
  "thiserror",
- "vec_map",
  "web-time",
  "wide",
 ]
@@ -1442,9 +1426,9 @@ checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
 name = "spade"
-version = "2.14.0"
+version = "2.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a14e31a007e9f85c32784b04f89e6e194bb252a4d41b4a8ccd9e77245d901c8c"
+checksum = "fb313e1c8afee5b5647e00ee0fe6855e3d529eb863a0fdae1d60006c4d1e9990"
 dependencies = [
  "hashbrown 0.15.5",
  "num-traits",
@@ -1697,6 +1681,8 @@ dependencies = [
 [[package]]
 name = "wide"
 version = "0.7.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce5da8ecb62bcd8ec8b7ea19f69a51275e91299be594ea5cc6ef7819e16cd03"
 dependencies = [
  "bytemuck",
  "safe_arch",
