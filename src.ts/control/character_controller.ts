@@ -4,11 +4,11 @@ import {
 } from "../raw.js";
 import {Rotation, Vector, VectorOps} from "../math.js";
 import {
+    BroadPhase,
     Collider,
-    ColliderDesc,
-    ColliderHandle,
+    ColliderSet,
     InteractionGroups,
-    QueryFilterFlags,
+    NarrowPhase,
     Shape,
 } from "../geometry/index.js";
 import {QueryFilterFlags, World} from "../pipeline/index.js";
