@@ -1,3 +1,11 @@
+### 0.19.1 (03 Oct. 2025)
+
+### Modified
+
+- Update to Rapier 0.30.0. The only change is a [switch to a sparse storage](https://github.com/dimforge/parry/pull/380)
+  for the Voxels shapes. This allows support for orders of magnitudes larger maps without reaching the 4GB WASM memory
+  limit.
+
 ### 0.19.0 (05 Sept. 2025)
 
 ### Modified
