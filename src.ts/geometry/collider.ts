@@ -1,9 +1,13 @@
-import {RawColliderSet} from "../raw";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
+import {
+    Rotation,
+    RotationOps,
+    Vector,
+    VectorOps,
+    scratchBuffer
+} from "../math";
 import {
     CoefficientCombineRule,
     RigidBody,
-    RigidBodyHandle,
     RigidBodySet,
 } from "../dynamics";
 import {ActiveHooks, ActiveEvents} from "../pipeline";
@@ -169,43 +173,76 @@ export class Collider {
 
     /**
      * The world-space translation of this collider.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public translation(): Vector {
-        return VectorOps.fromRaw(
-            this.colliderSet.raw.coTranslation(this.handle),
-        );
+    public translation(target?: Vector): Vector {
+        this.colliderSet.raw.coTranslation(this.handle, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     /**
      * The translation of this collider relative to its parent rigid-body.
      *
      * Returns `null` if the collider doesn’t have a parent rigid-body.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public translationWrtParent(): Vector | null {
-        return VectorOps.fromRaw(
-            this.colliderSet.raw.coTranslationWrtParent(this.handle),
-        );
+    public translationWrtParent(target?: Vector): Vector | null {
+        const hasParent = this.colliderSet.raw.coTranslationWrtParent(this.handle, scratchBuffer);
+        return hasParent ? VectorOps.fromBuffer(scratchBuffer, target) : null;
     }
 
+    // #if DIM2
     /**
      * The world-space orientation of this collider.
      */
-    public rotation(): Rotation {
-        return RotationOps.fromRaw(
-            this.colliderSet.raw.coRotation(this.handle),
-        );
+    public rotation(): number {
+        return this.colliderSet.raw.coRotation(this.handle);
     }
+    // #endif
 
+    // #if DIM3
+    /**
+     * The world-space orientation of this collider.
+     *
+     * @param {Rotation?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public rotation(target?: Rotation): Rotation {
+        this.colliderSet.raw.coRotation(this.handle, scratchBuffer);
+        return RotationOps.fromBuffer(scratchBuffer, target);
+    }
+    // #endif
+
+    // #if DIM2
     /**
      * The orientation of this collider relative to its parent rigid-body.
      *
      * Returns `null` if the collider doesn’t have a parent rigid-body.
      */
     public rotationWrtParent(): Rotation | null {
-        return RotationOps.fromRaw(
-            this.colliderSet.raw.coRotationWrtParent(this.handle),
-        );
+        const val = this.colliderSet.raw.coRotationWrtParent(this.handle);
+        return isNaN(val) ? null : val;
     }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The orientation of this collider relative to its parent rigid-body.
+     *
+     * Returns `null` if the collider doesn’t have a parent rigid-body.
+     *
+     * @param {Rotation?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public rotationWrtParent(target?: Rotation): Rotation | null {
+        const hasParent = this.colliderSet.raw.coRotationWrtParent(this.handle, scratchBuffer);
+        return hasParent ? RotationOps.fromBuffer(scratchBuffer, target) : null;
+    }
+    // #endif
 
     /**
      * Is this collider a sensor?
@@ -622,11 +659,13 @@ export class Collider {
 
     /**
      * The half-extents of this collider if it is a cuboid shape.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public halfExtents(): Vector {
-        return VectorOps.fromRaw(
-            this.colliderSet.raw.coHalfExtents(this.handle),
-        );
+    public halfExtents(target?: Vector): Vector | null {
+        const isCuboid = this.colliderSet.raw.coHalfExtents(this.handle, scratchBuffer);
+        return isCuboid ? VectorOps.fromBuffer(scratchBuffer, target) : null;
     }
 
     /**
@@ -842,10 +881,13 @@ export class Collider {
     /**
      * If this collider has a heightfield shape, this returns the scale
      * applied to it.
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
-    public heightfieldScale(): Vector {
-        let scale = this.colliderSet.raw.coHeightfieldScale(this.handle);
-        return VectorOps.fromRaw(scale);
+    public heightfieldScale(target?: Vector): Vector | null {
+        const isHeightfield = this.colliderSet.raw.coHeightfieldScale(this.handle, scratchBuffer);
+        return isHeightfield ? VectorOps.fromBuffer(scratchBuffer, target) : null;
     }
 
     // #if DIM3
@@ -984,7 +1026,7 @@ export class Collider {
         return result;
     }
 
-    /*
+    /**
      * Computes the smallest time between this and the given shape under translational movement are separated by a distance smaller or equal to distance.
      *
      * @param collider1Vel - The constant velocity of the current shape to cast (i.e. the cast direction).
@@ -999,6 +1041,8 @@ export class Collider {
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
      *   that it’s on a path to exit that penetration state.
+     * @param {ShapeCastHit?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
     public castShape(
         collider1Vel: Vector,
@@ -1009,6 +1053,7 @@ export class Collider {
         targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
+        target?: ShapeCastHit
     ): ShapeCastHit | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawShape2Pos = VectorOps.intoRaw(shape2Pos);
@@ -1016,21 +1061,27 @@ export class Collider {
         let rawShape2Vel = VectorOps.intoRaw(shape2Vel);
         let rawShape2 = shape2.intoRaw();
 
-        let result = ShapeCastHit.fromRaw(
-            this.colliderSet,
-            this.colliderSet.raw.coCastShape(
-                this.handle,
-                rawCollider1Vel,
-                rawShape2,
-                rawShape2Pos,
-                rawShape2Rot,
-                rawShape2Vel,
-                targetDistance,
-                maxToi,
-                stopAtPenetration,
-            ),
+        const rawShapeCastHit = this.colliderSet.raw.coCastShape(
+            this.handle,
+            rawCollider1Vel,
+            rawShape2,
+            rawShape2Pos,
+            rawShape2Rot,
+            rawShape2Vel,
+            targetDistance,
+            maxToi,
+            stopAtPenetration,
         );
 
+        rawShapeCastHit.getComponents(scratchBuffer);
+
+        let result = ShapeCastHit.fromBuffer(
+            null,
+            scratchBuffer,
+            target,
+        );
+
+        rawShapeCastHit.free();
         rawCollider1Vel.free();
         rawShape2Pos.free();
         rawShape2Rot.free();
@@ -1040,7 +1091,7 @@ export class Collider {
         return result;
     }
 
-    /*
+    /**
      * Computes the smallest time between this and the given collider under translational movement are separated by a distance smaller or equal to distance.
      *
      * @param collider1Vel - The constant velocity of the current collider to cast (i.e. the cast direction).
@@ -1053,6 +1104,8 @@ export class Collider {
      * @param stopAtPenetration - If set to `false`, the linear shape-cast won’t immediately stop if
      *   the shape is penetrating another shape at its starting point **and** its trajectory is such
      *   that it’s on a path to exit that penetration state.
+     * @param {ColliderShapeCastHit?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
      */
     public castCollider(
         collider1Vel: Vector,
@@ -1061,23 +1114,32 @@ export class Collider {
         targetDistance: number,
         maxToi: number,
         stopAtPenetration: boolean,
+        target?: ColliderShapeCastHit
     ): ColliderShapeCastHit | null {
         let rawCollider1Vel = VectorOps.intoRaw(collider1Vel);
         let rawCollider2Vel = VectorOps.intoRaw(collider2Vel);
 
-        let result = ColliderShapeCastHit.fromRaw(
-            this.colliderSet,
-            this.colliderSet.raw.coCastCollider(
-                this.handle,
-                rawCollider1Vel,
-                collider2.handle,
-                rawCollider2Vel,
-                targetDistance,
-                maxToi,
-                stopAtPenetration,
-            ),
+        const rawColliderShapeCastHit = this.colliderSet.raw.coCastCollider(
+            this.handle,
+            rawCollider1Vel,
+            collider2.handle,
+            rawCollider2Vel,
+            targetDistance,
+            maxToi,
+            stopAtPenetration,
         );
 
+        const colliderHandle: number = rawColliderShapeCastHit.colliderHandle();
+
+        rawColliderShapeCastHit.getComponents(scratchBuffer);
+
+        let result = ColliderShapeCastHit.fromBuffer(
+            this.colliderSet.get(colliderHandle),
+            scratchBuffer,
+            target
+        );
+
+        rawColliderShapeCastHit.free();
         rawCollider1Vel.free();
         rawCollider2Vel.free();
 
