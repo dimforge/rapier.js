@@ -1,4 +1,4 @@
-import {RawRayColliderIntersection} from "../raw";
+import {RawRayColliderIntersection} from "../raw.js";
 import {
     ColliderHandle,
     ColliderSet,
@@ -9,9 +9,13 @@ import {
     RayColliderHit,
     Shape,
     ColliderShapeCastHit,
-} from "../geometry";
-import {IslandManager, RigidBodyHandle, RigidBodySet} from "../dynamics";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
+} from "../geometry/index.js";
+import {
+    IslandManager,
+    RigidBodyHandle,
+    RigidBodySet,
+} from "../dynamics/index.js";
+import {Rotation, RotationOps, Vector, VectorOps} from "../math.js";
 
 // NOTE: must match the bits in the QueryFilterFlags on the Rust side.
 /**

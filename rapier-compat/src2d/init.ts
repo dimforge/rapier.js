@@ -1,6 +1,6 @@
 // @ts-ignore
-import wasmBase64 from "../pkg/rapier_wasm2d_bg.wasm";
-import wasmInit from "../pkg/rapier_wasm2d";
+import wasmBase64 from "../pkg/rapier_wasm2d_bg.wasm.js";
+import wasmInit from "../pkg/rapier_wasm2d.js";
 import base64 from "base64-js";
 
 /**

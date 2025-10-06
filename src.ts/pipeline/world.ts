@@ -12,7 +12,7 @@ import {
     RawRigidBodySet,
     RawSerializationPipeline,
     RawDebugRenderPipeline,
-} from "../raw";
+} from "../raw.js";
 
 import {
     BroadPhase,
@@ -29,7 +29,7 @@ import {
     Shape,
     ColliderShapeCastHit,
     TempContactManifold,
-} from "../geometry";
+} from "../geometry/index.js";
 import {
     CCDSolver,
     IntegrationParameters,
@@ -45,23 +45,26 @@ import {
     RigidBodyDesc,
     RigidBodyHandle,
     RigidBodySet,
-} from "../dynamics";
-import {Rotation, Vector, VectorOps} from "../math";
-import {PhysicsPipeline} from "./physics_pipeline";
-import {QueryFilterFlags} from "./query_pipeline";
-import {SerializationPipeline} from "./serialization_pipeline";
-import {EventQueue} from "./event_queue";
-import {PhysicsHooks} from "./physics_hooks";
-import {DebugRenderBuffers, DebugRenderPipeline} from "./debug_render_pipeline";
+} from "../dynamics/index.js";
+import {Rotation, Vector, VectorOps} from "../math.js";
+import {PhysicsPipeline} from "./physics_pipeline.js";
+import {QueryFilterFlags} from "./query_pipeline.js";
+import {SerializationPipeline} from "./serialization_pipeline.js";
+import {EventQueue} from "./event_queue.js";
+import {PhysicsHooks} from "./physics_hooks.js";
+import {
+    DebugRenderBuffers,
+    DebugRenderPipeline,
+} from "./debug_render_pipeline.js";
 import {
     KinematicCharacterController,
     PidAxesMask,
     PidController,
-} from "../control";
-import {Coarena} from "../coarena";
+} from "../control/index.js";
+import {Coarena} from "../coarena.js";
 
 // #if DIM3
-import {DynamicRayCastVehicleController} from "../control";
+import {DynamicRayCastVehicleController} from "../control/index.js";
 
 // #endif
 

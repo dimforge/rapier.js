@@ -1,13 +1,13 @@
-import {Vector, VectorOps} from "../math";
+import {Vector, VectorOps} from "../math.js";
 import {
     RawFeatureType,
     RawRayColliderIntersection,
     RawRayColliderHit,
     RawRayIntersection,
-} from "../raw";
-import {Collider} from "./collider";
-import {FeatureType} from "./feature";
-import {ColliderSet} from "./collider_set";
+} from "../raw.js";
+import {Collider} from "./collider.js";
+import {FeatureType} from "./feature.js";
+import {ColliderSet} from "./collider_set.js";
 
 /**
  * A ray. This is a directed half-line.

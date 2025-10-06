@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import RAPIER from "@dimforge/rapier3d";
 
 const BOX_INSTANCE_INDEX = 0;

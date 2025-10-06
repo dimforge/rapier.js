@@ -1,5 +1,5 @@
-import {RigidBodyHandle} from "../dynamics";
-import {ColliderHandle} from "../geometry";
+import {RigidBodyHandle} from "../dynamics/index.js";
+import {ColliderHandle} from "../geometry/index.js";
 
 export enum ActiveHooks {
     NONE = 0,

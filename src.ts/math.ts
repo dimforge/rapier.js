@@ -1,6 +1,6 @@
-import {RawVector, RawRotation} from "./raw";
+import {RawVector, RawRotation} from "./raw.js";
 // #if DIM3
-import {RawSdpMatrix3} from "./raw";
+import {RawSdpMatrix3} from "./raw.js";
 // #endif
 
 // #if DIM2
