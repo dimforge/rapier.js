@@ -1,9 +1,10 @@
 #!/bin/bash
 
+set -o
 
 help()
 {
-    printf "Usage: %s: [-d 2|3] [-f deterministim|non-deterministic|simd]\n" $0
+    printf "Usage: %s: [-d 2|3] [-f deterministic|non-deterministic|simd]\n" $0
 }
 
 while getopts :d:f: name

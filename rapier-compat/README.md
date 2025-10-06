@@ -14,3 +14,9 @@ Summary:
 - build rust wasm projects into their dedicated folder in `./builds/`
 - copy common javascript and generate dimension specific javascript into a common `./pkg` folder
 - copy that `pkg` folder in each folder from `./builds`
+
+## Build scripts
+
+- To generate everything: `npm run build`
+- To generate a specific package: `FEATURE_TARGET="non-deterministic" DIM_TARGET=3 npm run build-feature`.
+  - The values correspond to the list in the script `build-rust.sh`, check its usage.
