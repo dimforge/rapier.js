@@ -1,0 +1,12 @@
+
+# Files below this line will be copied during build.
+### RAPIER_COMPAT_FILES
+tests
+src2d/raw.ts
+src3d/raw.ts
+fix_raw_file.sh
+gen_src.sh
+tsconfig.common.json
+tsconfig.json
+tsconfig.pkg2d.json
+tsconfig.pkg3d.json
