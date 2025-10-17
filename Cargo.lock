@@ -338,7 +338,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.19.0"
+version = "0.19.2"
 dependencies = [
  "bincode",
  "js-sys",
@@ -352,7 +352,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-deterministic"
-version = "0.19.0"
+version = "0.19.2"
 dependencies = [
  "bincode",
  "js-sys",
@@ -366,7 +366,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-simd"
-version = "0.19.0"
+version = "0.19.2"
 dependencies = [
  "bincode",
  "js-sys",
@@ -380,7 +380,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.19.0"
+version = "0.19.2"
 dependencies = [
  "bincode",
  "js-sys",
@@ -394,7 +394,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-deterministic"
-version = "0.19.0"
+version = "0.19.2"
 dependencies = [
  "bincode",
  "js-sys",
@@ -408,7 +408,7 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-simd"
-version = "0.19.0"
+version = "0.19.2"
 dependencies = [
  "bincode",
  "js-sys",
@@ -926,9 +926,9 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.24.0"
+version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8240961674a91f3eb4af1bb7451f27c18a07813d223af73789bd90b296f69940"
+checksum = "2cc1650b6dc9290551e6004bc2d678cfd0048f33655c36165db670eb9f6d9230"
 dependencies = [
  "approx",
  "arrayvec",
@@ -945,6 +945,7 @@ dependencies = [
  "num-traits",
  "ordered-float",
  "serde",
+ "serde_arrays",
  "simba",
  "slab",
  "smallvec",
@@ -954,9 +955,9 @@ dependencies = [
 
 [[package]]
 name = "parry3d"
-version = "0.24.0"
+version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29a58098398ec9b65abcd8c04501430bd273e3bb48ef3664d4d4e0eb7a44029d"
+checksum = "017be73f24c8ca8b10f9727616e5cb9af82b98488cc6d5eea468e727ffa780ca"
 dependencies = [
  "approx",
  "arrayvec",
@@ -975,6 +976,7 @@ dependencies = [
  "ordered-float",
  "rstar",
  "serde",
+ "serde_arrays",
  "simba",
  "slab",
  "smallvec",
@@ -1187,9 +1189,9 @@ dependencies = [
 
 [[package]]
 name = "rapier2d"
-version = "0.29.0"
+version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "49586478ee35cd09ca37c7c2eaeb2b4e01ffee038163cd4c45005dbb8046261d"
+checksum = "eab12a465faea032e025eb97a3b0763422391c3edb98200ed5efd516307df550"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1215,9 +1217,9 @@ dependencies = [
 
 [[package]]
 name = "rapier3d"
-version = "0.29.0"
+version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30921dd14f66b5b9fd6e904ce66229640e31241f1fa4e760c2ce4a2ce8ed4dc6"
+checksum = "5bd27b8eb36d0833fa0f2aea40164fabfad0fc34b9932286ae9e84f3452f5364"
 dependencies = [
  "approx",
  "arrayvec",
@@ -1356,6 +1358,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde_arrays"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "94a16b99c5ea4fe3daccd14853ad260ec00ea043b2708d1fd1da3106dcd8d9df"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -1697,6 +1708,8 @@ dependencies = [
 [[package]]
 name = "wide"
 version = "0.7.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce5da8ecb62bcd8ec8b7ea19f69a51275e91299be594ea5cc6ef7819e16cd03"
 dependencies = [
  "bytemuck",
  "safe_arch",
