@@ -1,3 +1,9 @@
+### 0.19.2 (17 Oct. 2025)
+
+- Fix bug where kinematic bodies would not wake up when setting its velocity.
+- Fix bug where slow-moving kinematic bodies would fall asleep.
+- Fix point-projection on voxels shapes.
+
 ### 0.19.1 (03 Oct. 2025)
 
 ### Modified
