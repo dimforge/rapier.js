@@ -1,6 +1,6 @@
-import {RawImpulseJointSet} from "../raw";
-import {Coarena} from "../coarena";
-import {RigidBodySet} from "./rigid_body_set";
+import {RawImpulseJointSet} from "../raw.js";
+import {Coarena} from "../coarena.js";
+import {RigidBodySet} from "./rigid_body_set.js";
 import {
     RevoluteImpulseJoint,
     FixedImpulseJoint,
@@ -12,10 +12,10 @@ import {
     // #if DIM3
     SphericalImpulseJoint,
     // #endif
-} from "./impulse_joint";
-import {IslandManager} from "./island_manager";
-import {RigidBodyHandle} from "./rigid_body";
-import {Collider, ColliderHandle} from "../geometry";
+} from "./impulse_joint.js";
+import {IslandManager} from "./island_manager.js";
+import {RigidBodyHandle} from "./rigid_body.js";
+import {Collider, ColliderHandle} from "../geometry/index.js";
 
 /**
  * A set of joints.

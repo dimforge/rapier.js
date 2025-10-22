@@ -1,5 +1,5 @@
-import {RawIslandManager} from "../raw";
-import {RigidBodyHandle} from "./rigid_body";
+import {RawIslandManager} from "../raw.js";
+import {RigidBodyHandle} from "./rigid_body.js";
 
 /**
  * The CCD solver responsible for resolving Continuous Collision Detection.

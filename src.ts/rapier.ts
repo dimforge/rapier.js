@@ -1,3 +1,3 @@
-import * as RAPIER from "./exports";
-export * from "./exports";
+import * as RAPIER from "./exports.js";
+export * from "./exports.js";
 export default RAPIER;

@@ -1,4 +1,4 @@
-import {init, Vector2, World} from "../builds/2d-deterministic/pkg";
+import {init, Vector2, World} from "../builds/2d-deterministic/pkg/index.js";
 
 describe("2d/World", () => {
     let world: World;

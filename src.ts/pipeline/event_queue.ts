@@ -1,7 +1,7 @@
-import {RawContactForceEvent, RawEventQueue} from "../raw";
-import {RigidBodyHandle} from "../dynamics";
-import {Collider, ColliderHandle} from "../geometry";
-import {Vector, VectorOps} from "../math";
+import {RawContactForceEvent, RawEventQueue} from "../raw.js";
+import {RigidBodyHandle} from "../dynamics/index.js";
+import {Collider, ColliderHandle} from "../geometry/index.js";
+import {Vector, VectorOps} from "../math.js";
 
 /**
  * Flags indicating what events are enabled for colliders.

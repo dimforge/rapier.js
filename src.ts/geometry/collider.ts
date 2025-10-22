@@ -1,13 +1,13 @@
-import {RawColliderSet} from "../raw";
-import {Rotation, RotationOps, Vector, VectorOps} from "../math";
+import {RawColliderSet} from "../raw.js";
+import {Rotation, RotationOps, Vector, VectorOps} from "../math.js";
 import {
     CoefficientCombineRule,
     RigidBody,
     RigidBodyHandle,
     RigidBodySet,
-} from "../dynamics";
-import {ActiveHooks, ActiveEvents} from "../pipeline";
-import {InteractionGroups} from "./interaction_groups";
+} from "../dynamics/index.js";
+import {ActiveHooks, ActiveEvents} from "../pipeline/index.js";
+import {InteractionGroups} from "./interaction_groups.js";
 import {
     Shape,
     Cuboid,
@@ -37,12 +37,12 @@ import {
     RoundConvexPolyhedron,
     HeightFieldFlags,
     // #endif
-} from "./shape";
-import {Ray, RayIntersection} from "./ray";
-import {PointProjection} from "./point";
-import {ColliderShapeCastHit, ShapeCastHit} from "./toi";
-import {ShapeContact} from "./contact";
-import {ColliderSet} from "./collider_set";
+} from "./shape.js";
+import {Ray, RayIntersection} from "./ray.js";
+import {PointProjection} from "./point.js";
+import {ColliderShapeCastHit, ShapeCastHit} from "./toi.js";
+import {ShapeContact} from "./contact.js";
+import {ColliderSet} from "./collider_set.js";
 
 /**
  * Flags affecting whether collision-detection happens between two colliders

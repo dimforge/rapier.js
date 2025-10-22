@@ -1,4 +1,4 @@
-import {Rotation, Vector, VectorOps, RotationOps} from "../math";
+import {Rotation, Vector, VectorOps, RotationOps} from "../math.js";
 import {
     RawGenericJoint,
     RawImpulseJointSet,
@@ -6,11 +6,11 @@ import {
     RawJointAxis,
     RawJointType,
     RawMotorModel,
-} from "../raw";
-import {RigidBody, RigidBodyHandle} from "./rigid_body";
-import {RigidBodySet} from "./rigid_body_set";
+} from "../raw.js";
+import {RigidBody, RigidBodyHandle} from "./rigid_body.js";
+import {RigidBodySet} from "./rigid_body_set.js";
 // #if DIM3
-import {Quaternion} from "../math";
+import {Quaternion} from "../math.js";
 // #endif
 
 /**

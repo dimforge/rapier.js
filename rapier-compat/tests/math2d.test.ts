@@ -1,4 +1,4 @@
-import {Vector2, VectorOps} from "../builds/2d-deterministic/pkg";
+import {Vector2, VectorOps} from "../builds/2d-deterministic/pkg/index.js";
 
 describe("2d/math", () => {
     test("Vector2", () => {

@@ -1,6 +1,6 @@
-import {Graphics} from "./Graphics";
-import {Gui} from "./Gui";
-import type {DebugInfos} from "./Gui";
+import {Graphics} from "./Graphics.js";
+import {Gui} from "./Gui.js";
+import type {DebugInfos} from "./Gui.js";
 import {xxhash128} from "hash-wasm";
 import type * as RAPIER from "@dimforge/rapier2d";
 

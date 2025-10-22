@@ -1,6 +1,6 @@
-import {RawNarrowPhase, RawContactManifold} from "../raw";
-import {ColliderHandle} from "./collider";
-import {Vector, VectorOps} from "../math";
+import {RawNarrowPhase, RawContactManifold} from "../raw.js";
+import {ColliderHandle} from "./collider.js";
+import {Vector, VectorOps} from "../math.js";
 
 /**
  * The narrow-phase used for precise collision-detection.

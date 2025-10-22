@@ -1,5 +1,5 @@
 import type RAPIER from "@dimforge/rapier3d";
-import type {Testbed} from "../Testbed";
+import type {Testbed} from "../Testbed.js";
 
 type RAPIER_API = typeof import("@dimforge/rapier3d");
 

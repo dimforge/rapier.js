@@ -1,5 +1,5 @@
-import {RawPhysicsPipeline} from "../raw";
-import {Vector, VectorOps} from "../math";
+import {RawPhysicsPipeline} from "../raw.js";
+import {Vector, VectorOps} from "../math.js";
 import {
     IntegrationParameters,
     ImpulseJointSet,
@@ -8,15 +8,15 @@ import {
     RigidBodySet,
     CCDSolver,
     IslandManager,
-} from "../dynamics";
+} from "../dynamics/index.js";
 import {
     BroadPhase,
     ColliderHandle,
     ColliderSet,
     NarrowPhase,
-} from "../geometry";
-import {EventQueue} from "./event_queue";
-import {PhysicsHooks} from "./physics_hooks";
+} from "../geometry/index.js";
+import {EventQueue} from "./event_queue.js";
+import {PhysicsHooks} from "./physics_hooks.js";
 
 export class PhysicsPipeline {
     raw: RawPhysicsPipeline;
