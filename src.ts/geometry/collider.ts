@@ -1,4 +1,4 @@
-import {RawColliderSet, RawShape} from "../raw";
+import {RawColliderSet, RawShape, RawVHACDParameters} from "../raw";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
 import {
     CoefficientCombineRule,
@@ -44,6 +44,64 @@ import {PointProjection} from "./point";
 import {ColliderShapeCastHit, ShapeCastHit} from "./toi";
 import {ShapeContact} from "./contact";
 import {ColliderSet} from "./collider_set";
+
+/**
+ * Parameters for VHACD convex decomposition algorithm.
+ *
+ * All parameters are optional. When not specified, default values from the
+ * underlying Rapier/Parry library are used.
+ */
+export interface VHACDParameters {
+    /**
+     * Controls the bias toward clipping along symmetry planes.
+     * Range: [0.0, 1.0]
+     */
+    alpha?: number;
+
+    /**
+     * Controls the bias toward clipping along revolution planes.
+     * Range: [0.0, 1.0]
+     * Useful for objects with cylindrical or rotational features.
+     */
+    beta?: number;
+
+    /**
+     * Controls maximum allowed deviation from convexity.
+     * Range: [0.0, 1.0]
+     * Lower values create more convex parts for a tighter fit.
+     */
+    concavity?: number;
+
+    /**
+     * Controls the granularity of searching optimal clipping planes.
+     * Lower values test more planes (slower but more accurate).
+     */
+    planeDownsampling?: number;
+
+    /**
+     * Controls the precision of convex hull generation.
+     * Lower values use more voxels for hull computation.
+     */
+    convexHullDownsampling?: number;
+
+    /**
+     * Maximum number of convex parts to generate.
+     * Limits part count during decomposition.
+     */
+    maxConvexHulls?: number;
+
+    /**
+     * Voxel grid resolution for decomposition.
+     * Higher resolution captures more detail but is slower.
+     */
+    resolution?: number;
+
+    /**
+     * Whether to use approximate convex hulls for better performance.
+     * Faster method with minimal impact on quality.
+     */
+    convexHullApproximation?: boolean;
+}
 
 /**
  * Flags affecting whether collision-detection happens between two colliders
@@ -1713,12 +1771,31 @@ export class ColliderDesc {
      *
      * @param vertices - The coordinates of the mesh's vertices.
      * @param indices - The indices of the mesh's triangles.
+     * @param params - Optional VHACD parameters to control the decomposition.
      */
     public static convexDecomposition(
         vertices: Float32Array,
         indices: Uint32Array,
+        params?: VHACDParameters,
     ): ColliderDesc | null {
-        const rawShape = RawShape.convexDecomposition(vertices, indices);
+        let rawShape: RawShape;
+        
+        if (params) {
+            // Convert TypeScript params to Rust params
+            const rawParams = new RawVHACDParameters();
+            if (params.alpha !== undefined) rawParams.alpha = params.alpha;
+            if (params.beta !== undefined) rawParams.beta = params.beta;
+            if (params.concavity !== undefined) rawParams.concavity = params.concavity;
+            if (params.planeDownsampling !== undefined) rawParams.plane_downsampling = params.planeDownsampling;
+            if (params.convexHullDownsampling !== undefined) rawParams.convex_hull_downsampling = params.convexHullDownsampling;
+            if (params.maxConvexHulls !== undefined) rawParams.max_convex_hulls = params.maxConvexHulls;
+            if (params.resolution !== undefined) rawParams.resolution = params.resolution;
+            if (params.convexHullApproximation !== undefined) rawParams.convex_hull_approximation = params.convexHullApproximation;
+            
+            rawShape = RawShape.convexDecompositionWithParams(vertices, indices, rawParams);
+        } else {
+            rawShape = RawShape.convexDecomposition(vertices, indices);
+        }
 
         if (!rawShape) {
             return null;

@@ -9,6 +9,8 @@ use rapier::geometry::{Shape, SharedShape, TriMeshFlags};
 use rapier::math::{Isometry, Point, Real, Vector, DIM};
 use rapier::parry::query;
 use rapier::parry::query::{Ray, ShapeCastOptions};
+#[cfg(any(feature = "dim2", feature = "dim3"))]
+use rapier::parry::transformation::vhacd::VHACDParameters;
 use wasm_bindgen::prelude::*;
 
 pub trait SharedShapeUtility {
@@ -222,6 +224,58 @@ pub enum RawShapeType {
     RoundConvexPolyhedron = 16,
     HalfSpace = 17,
     Voxels = 18,
+}
+
+/// Parameters for VHACD convex decomposition algorithm
+#[wasm_bindgen]
+pub struct RawVHACDParameters(pub(crate) VHACDParameters);
+
+#[wasm_bindgen]
+impl RawVHACDParameters {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        RawVHACDParameters(VHACDParameters::default())
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn alpha(&self) -> f32 { self.0.alpha }
+    #[wasm_bindgen(setter)]
+    pub fn set_alpha(&mut self, val: f32) { self.0.alpha = val.clamp(0.0, 1.0); }
+
+    #[wasm_bindgen(getter)]
+    pub fn beta(&self) -> f32 { self.0.beta }
+    #[wasm_bindgen(setter)]
+    pub fn set_beta(&mut self, val: f32) { self.0.beta = val.clamp(0.0, 1.0); }
+
+    #[wasm_bindgen(getter)]
+    pub fn concavity(&self) -> f32 { self.0.concavity }
+    #[wasm_bindgen(setter)]
+    pub fn set_concavity(&mut self, val: f32) { self.0.concavity = val.clamp(0.0, 1.0); }
+
+    #[wasm_bindgen(getter)]
+    pub fn plane_downsampling(&self) -> u32 { self.0.plane_downsampling }
+    #[wasm_bindgen(setter)]
+    pub fn set_plane_downsampling(&mut self, val: u32) { self.0.plane_downsampling = val; }
+
+    #[wasm_bindgen(getter)]
+    pub fn convex_hull_downsampling(&self) -> u32 { self.0.convex_hull_downsampling }
+    #[wasm_bindgen(setter)]
+    pub fn set_convex_hull_downsampling(&mut self, val: u32) { self.0.convex_hull_downsampling = val; }
+
+    #[wasm_bindgen(getter)]
+    pub fn max_convex_hulls(&self) -> u32 { self.0.max_convex_hulls }
+    #[wasm_bindgen(setter)]
+    pub fn set_max_convex_hulls(&mut self, val: u32) { self.0.max_convex_hulls = val; }
+
+    #[wasm_bindgen(getter)]
+    pub fn resolution(&self) -> u32 { self.0.resolution }
+    #[wasm_bindgen(setter)]
+    pub fn set_resolution(&mut self, val: u32) { self.0.resolution = val; }
+
+    #[wasm_bindgen(getter)]
+    pub fn convex_hull_approximation(&self) -> bool { self.0.convex_hull_approximation }
+    #[wasm_bindgen(setter)]
+    pub fn set_convex_hull_approximation(&mut self, val: bool) { self.0.convex_hull_approximation = val; }
 }
 
 #[wasm_bindgen]
@@ -451,12 +505,38 @@ impl RawShape {
         Some(Self(shape))
     }
 
+    #[cfg(feature = "dim3")]
+    pub fn convexDecompositionWithParams(
+        vertices: Vec<f32>,
+        indices: Vec<u32>,
+        params: &RawVHACDParameters
+    ) -> Option<RawShape> {
+        let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
+
+        let shape = SharedShape::convex_decomposition_with_params(&vertices, &indices, &params.0);
+        Some(Self(shape))
+    }
+
     #[cfg(feature = "dim2")]
     pub fn convexDecomposition(vertices: Vec<f32>, indices: Vec<u32>) -> Option<RawShape> {
         let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
         let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
 
         let shape = SharedShape::convex_decomposition_with_params(&vertices, &indices, &Default::default());
+        Some(Self(shape))
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn convexDecompositionWithParams(
+        vertices: Vec<f32>,
+        indices: Vec<u32>,
+        params: &RawVHACDParameters
+    ) -> Option<RawShape> {
+        let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
+
+        let shape = SharedShape::convex_decomposition_with_params(&vertices, &indices, &params.0);
         Some(Self(shape))
     }
 
