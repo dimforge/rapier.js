@@ -197,6 +197,17 @@ export abstract class Shape {
                 return new RoundCone(halfHeight, radius, borderRadius);
             // #endif
 
+            case RawShapeType.Compound:
+                // For compound shapes, we can't deserialize the sub-shapes from WASM,
+                // so we create a minimal placeholder that can't be reconstructed
+                return new (class extends Shape {
+                    readonly type = ShapeType.Compound;
+                    intoRaw(): RawShape {
+                        throw new Error(
+                            "Cannot reconstruct compound shapes from deserialized colliders",
+                        );
+                    }
+                })();
             default:
                 throw new Error("unknown shape type: " + rawType);
         }
@@ -515,7 +526,7 @@ export enum ShapeType {
     Triangle = 5,
     TriMesh = 6,
     HeightField = 7,
-    // Compound = 8,
+    Compound = 8,
     ConvexPolygon = 9,
     RoundCuboid = 10,
     RoundTriangle = 11,
@@ -540,7 +551,7 @@ export enum ShapeType {
     Triangle = 5,
     TriMesh = 6,
     HeightField = 7,
-    // Compound = 8,
+    Compound = 8,
     ConvexPolyhedron = 9,
     Cylinder = 10,
     Cone = 11,
@@ -1061,6 +1072,97 @@ export class Voxels extends Shape {
         }
 
         voxelSize.free();
+        return result;
+    }
+}
+
+/**
+ * A compound shape, consisting of multiple sub-shapes with relative positions.
+ */
+export class Compound extends Shape {
+    readonly type = ShapeType.Compound;
+
+    /**
+     * The shapes composing this compound shape.
+     */
+    shapes: Shape[];
+
+    /**
+     * The positions of each sub-shape relative to the compound's origin.
+     */
+    positions: Vector[];
+
+    /**
+     * The rotations of each sub-shape relative to the compound's orientation.
+     */
+    rotations: Rotation[];
+
+    /**
+     * Creates a new compound shape.
+     *
+     * @param shapes - The array of shapes composing this compound.
+     * @param positions - The array of positions for each shape.
+     * @param rotations - The array of rotations for each shape.
+     */
+    constructor(shapes: Shape[], positions: Vector[], rotations: Rotation[]) {
+        super();
+
+        if (
+            shapes.length !== positions.length ||
+            shapes.length !== rotations.length
+        ) {
+            throw new Error(
+                "shapes, positions, and rotations arrays must have the same length",
+            );
+        }
+
+        this.shapes = shapes;
+        this.positions = positions;
+        this.rotations = rotations;
+    }
+
+    public intoRaw(): RawShape {
+        const rawShapes = this.shapes.map((s) => s.intoRaw());
+
+        // #if DIM2
+        // Flatten positions into a single array
+        const positions = new Float32Array(this.positions.length * 2);
+        this.positions.forEach((pos, i) => {
+            positions[i * 2] = pos.x;
+            positions[i * 2 + 1] = pos.y;
+        });
+
+        // Flatten rotations (single angle for 2D)
+        const rotations = new Float32Array(this.rotations.length);
+        this.rotations.forEach((rot, i) => {
+            rotations[i] = rot;
+        });
+        // #endif
+
+        // #if DIM3
+        // Flatten positions into a single array
+        const positions = new Float32Array(this.positions.length * 3);
+        this.positions.forEach((pos, i) => {
+            positions[i * 3] = pos.x;
+            positions[i * 3 + 1] = pos.y;
+            positions[i * 3 + 2] = pos.z;
+        });
+
+        // Flatten rotations (quaternion for 3D: x, y, z, w)
+        const rotations = new Float32Array(this.rotations.length * 4);
+        this.rotations.forEach((rot, i) => {
+            rotations[i * 4] = rot.x;
+            rotations[i * 4 + 1] = rot.y;
+            rotations[i * 4 + 2] = rot.z;
+            rotations[i * 4 + 3] = rot.w;
+        });
+        // #endif
+
+        const result = RawShape.compound(rawShapes, positions, rotations);
+
+        // Free temporary raw shapes (they're cloned by compound())
+        rawShapes.forEach((s) => s.free());
+
         return result;
     }
 }

@@ -1,4 +1,4 @@
-import {RawColliderSet} from "../raw";
+import {RawColliderSet, RawShape} from "../raw";
 import {Rotation, RotationOps, Vector, VectorOps} from "../math";
 import {
     CoefficientCombineRule,
@@ -18,6 +18,7 @@ import {
     TriMesh,
     Polyline,
     Heightfield,
+    Compound,
     Segment,
     Triangle,
     RoundTriangle,
@@ -1689,6 +1690,51 @@ export class ColliderDesc {
     }
 
     // #endif
+
+    /**
+     * Creates a new collider descriptor with a compound shape.
+     *
+     * @param shapes - The array of shapes composing this compound.
+     * @param positions - The array of positions for each shape (relative to the compound's origin).
+     * @param rotations - The array of rotations for each shape (relative to the compound's orientation).
+     */
+    public static compound(
+        shapes: Shape[],
+        positions: Vector[],
+        rotations: Rotation[],
+    ): ColliderDesc {
+        const shape = new Compound(shapes, positions, rotations);
+        return new ColliderDesc(shape);
+    }
+
+    /**
+     * Creates a new collider descriptor with a compound shape automatically created
+     * from a convex decomposition of the given triangle mesh.
+     *
+     * @param vertices - The coordinates of the mesh's vertices.
+     * @param indices - The indices of the mesh's triangles.
+     */
+    public static convexDecomposition(
+        vertices: Float32Array,
+        indices: Uint32Array,
+    ): ColliderDesc | null {
+        const rawShape = RawShape.convexDecomposition(vertices, indices);
+
+        if (!rawShape) {
+            return null;
+        }
+
+        // Create a wrapper - note: we can't deserialize compound shapes yet,
+        // so we create a minimal wrapper that just holds the raw shape
+        const shape = new (class extends Shape {
+            readonly type = ShapeType.Compound;
+            intoRaw(): RawShape {
+                return rawShape;
+            }
+        })();
+
+        return new ColliderDesc(shape);
+    }
 
     // #if DIM2
     /**

@@ -401,6 +401,64 @@ impl RawShape {
         SharedShape::round_convex_mesh(vertices, &indices, borderRadius).map(|s| Self(s))
     }
 
+    pub fn compound(shapes: Vec<RawShape>, positions: Vec<f32>, rotations: Vec<f32>) -> RawShape {
+        let mut compound_parts = Vec::new();
+        let num_shapes = shapes.len();
+
+        for i in 0..num_shapes {
+            #[cfg(feature = "dim2")]
+            let pos_offset = i * 2;
+            #[cfg(feature = "dim3")]
+            let pos_offset = i * 3;
+
+            #[cfg(feature = "dim2")]
+            let translation = Vector::new(positions[pos_offset], positions[pos_offset + 1]).into();
+
+            #[cfg(feature = "dim3")]
+            let translation = Vector::new(
+                positions[pos_offset],
+                positions[pos_offset + 1],
+                positions[pos_offset + 2],
+            ).into();
+
+            #[cfg(feature = "dim2")]
+            let rotation = na::UnitComplex::new(rotations[i]);
+
+            #[cfg(feature = "dim3")]
+            let rotation = {
+                let rot_offset = i * 4;
+                na::UnitQuaternion::from_quaternion(na::Quaternion::new(
+                    rotations[rot_offset + 3], // w
+                    rotations[rot_offset],     // x
+                    rotations[rot_offset + 1], // y
+                    rotations[rot_offset + 2], // z
+                ))
+            };
+
+            let isometry = Isometry::from_parts(translation, rotation);
+            compound_parts.push((isometry, shapes[i].0.clone()));
+        }
+
+        Self(SharedShape::compound(compound_parts))
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn convexDecomposition(vertices: Vec<f32>, indices: Vec<u32>) -> Option<RawShape> {
+        let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
+
+        SharedShape::convex_decomposition(&vertices, &indices).map(Self)
+    }
+
+    #[cfg(feature = "dim2")]
+    pub fn convexDecomposition(vertices: Vec<f32>, indices: Vec<u32>) -> Option<RawShape> {
+        let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
+
+        let shape = SharedShape::convex_decomposition_with_params(&vertices, &indices, &Default::default());
+        Some(Self(shape))
+    }
+
     pub fn castShape(
         &self,
         shapePos1: &RawVector,
