@@ -238,44 +238,76 @@ impl RawVHACDParameters {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn alpha(&self) -> f32 { self.0.alpha }
+    pub fn alpha(&self) -> f32 {
+        self.0.alpha
+    }
     #[wasm_bindgen(setter)]
-    pub fn set_alpha(&mut self, val: f32) { self.0.alpha = val.clamp(0.0, 1.0); }
+    pub fn set_alpha(&mut self, val: f32) {
+        self.0.alpha = val.clamp(0.0, 1.0);
+    }
 
     #[wasm_bindgen(getter)]
-    pub fn beta(&self) -> f32 { self.0.beta }
+    pub fn beta(&self) -> f32 {
+        self.0.beta
+    }
     #[wasm_bindgen(setter)]
-    pub fn set_beta(&mut self, val: f32) { self.0.beta = val.clamp(0.0, 1.0); }
+    pub fn set_beta(&mut self, val: f32) {
+        self.0.beta = val.clamp(0.0, 1.0);
+    }
 
     #[wasm_bindgen(getter)]
-    pub fn concavity(&self) -> f32 { self.0.concavity }
+    pub fn concavity(&self) -> f32 {
+        self.0.concavity
+    }
     #[wasm_bindgen(setter)]
-    pub fn set_concavity(&mut self, val: f32) { self.0.concavity = val.clamp(0.0, 1.0); }
+    pub fn set_concavity(&mut self, val: f32) {
+        self.0.concavity = val.clamp(0.0, 1.0);
+    }
 
     #[wasm_bindgen(getter)]
-    pub fn plane_downsampling(&self) -> u32 { self.0.plane_downsampling }
+    pub fn plane_downsampling(&self) -> u32 {
+        self.0.plane_downsampling
+    }
     #[wasm_bindgen(setter)]
-    pub fn set_plane_downsampling(&mut self, val: u32) { self.0.plane_downsampling = val; }
+    pub fn set_plane_downsampling(&mut self, val: u32) {
+        self.0.plane_downsampling = val;
+    }
 
     #[wasm_bindgen(getter)]
-    pub fn convex_hull_downsampling(&self) -> u32 { self.0.convex_hull_downsampling }
+    pub fn convex_hull_downsampling(&self) -> u32 {
+        self.0.convex_hull_downsampling
+    }
     #[wasm_bindgen(setter)]
-    pub fn set_convex_hull_downsampling(&mut self, val: u32) { self.0.convex_hull_downsampling = val; }
+    pub fn set_convex_hull_downsampling(&mut self, val: u32) {
+        self.0.convex_hull_downsampling = val;
+    }
 
     #[wasm_bindgen(getter)]
-    pub fn max_convex_hulls(&self) -> u32 { self.0.max_convex_hulls }
+    pub fn max_convex_hulls(&self) -> u32 {
+        self.0.max_convex_hulls
+    }
     #[wasm_bindgen(setter)]
-    pub fn set_max_convex_hulls(&mut self, val: u32) { self.0.max_convex_hulls = val; }
+    pub fn set_max_convex_hulls(&mut self, val: u32) {
+        self.0.max_convex_hulls = val;
+    }
 
     #[wasm_bindgen(getter)]
-    pub fn resolution(&self) -> u32 { self.0.resolution }
+    pub fn resolution(&self) -> u32 {
+        self.0.resolution
+    }
     #[wasm_bindgen(setter)]
-    pub fn set_resolution(&mut self, val: u32) { self.0.resolution = val; }
+    pub fn set_resolution(&mut self, val: u32) {
+        self.0.resolution = val;
+    }
 
     #[wasm_bindgen(getter)]
-    pub fn convex_hull_approximation(&self) -> bool { self.0.convex_hull_approximation }
+    pub fn convex_hull_approximation(&self) -> bool {
+        self.0.convex_hull_approximation
+    }
     #[wasm_bindgen(setter)]
-    pub fn set_convex_hull_approximation(&mut self, val: bool) { self.0.convex_hull_approximation = val; }
+    pub fn set_convex_hull_approximation(&mut self, val: bool) {
+        self.0.convex_hull_approximation = val;
+    }
 }
 
 #[wasm_bindgen]
@@ -473,7 +505,8 @@ impl RawShape {
                 positions[pos_offset],
                 positions[pos_offset + 1],
                 positions[pos_offset + 2],
-            ).into();
+            )
+            .into();
 
             #[cfg(feature = "dim2")]
             let rotation = na::UnitComplex::new(rotations[i]);
@@ -509,7 +542,7 @@ impl RawShape {
     pub fn convexDecompositionWithParams(
         vertices: Vec<f32>,
         indices: Vec<u32>,
-        params: &RawVHACDParameters
+        params: &RawVHACDParameters,
     ) -> Option<RawShape> {
         let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
         let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
@@ -523,7 +556,8 @@ impl RawShape {
         let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
         let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
 
-        let shape = SharedShape::convex_decomposition_with_params(&vertices, &indices, &Default::default());
+        let shape =
+            SharedShape::convex_decomposition_with_params(&vertices, &indices, &Default::default());
         Some(Self(shape))
     }
 
@@ -531,7 +565,7 @@ impl RawShape {
     pub fn convexDecompositionWithParams(
         vertices: Vec<f32>,
         indices: Vec<u32>,
-        params: &RawVHACDParameters
+        params: &RawVHACDParameters,
     ) -> Option<RawShape> {
         let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
         let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();

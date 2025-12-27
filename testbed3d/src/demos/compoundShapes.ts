@@ -76,9 +76,9 @@ function createStairsShape(RAPIER: RAPIER_API): any {
 }
 
 function createDumbbellShape(RAPIER: RAPIER_API): any {
-    const shape1 = new RAPIER.Ball(0.8);       // left weight
+    const shape1 = new RAPIER.Ball(0.8); // left weight
     const shape2 = new RAPIER.Cuboid(1.5, 0.2, 0.2); // bar
-    const shape3 = new RAPIER.Ball(0.8);       // right weight
+    const shape3 = new RAPIER.Ball(0.8); // right weight
 
     const shapes = [shape1, shape2, shape3];
     const positions = [
@@ -109,7 +109,11 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
 
     for (let i = 0; i < 3; i++) {
         const x = (i - 1) * 8;
-        const bodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(x, 1.0, 0.0);
+        const bodyDesc = RAPIER.RigidBodyDesc.fixed().setTranslation(
+            x,
+            1.0,
+            0.0,
+        );
         const body = world.createRigidBody(bodyDesc);
         const colliderDesc = RAPIER.ColliderDesc.cylinder(2.0, 0.5);
         world.createCollider(colliderDesc, body);
@@ -155,11 +159,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
                 true,
             );
             body.setLinvel(
-                new RAPIER.Vector3(
-                    (rng() - 0.5) * 2,
-                    -1.0,
-                    (rng() - 0.5) * 2,
-                ),
+                new RAPIER.Vector3((rng() - 0.5) * 2, -1.0, (rng() - 0.5) * 2),
                 true,
             );
         }
@@ -176,10 +176,7 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
         const colliderDesc = createDumbbellShape(RAPIER);
         world.createCollider(colliderDesc, body);
         body.setLinvel(new RAPIER.Vector3(side * -1.5, 0.0, 0.0), true);
-        body.setAngvel(
-            new RAPIER.Vector3(0.0, (rng() - 0.5) * 4, 0.0),
-            true,
-        );
+        body.setAngvel(new RAPIER.Vector3(0.0, (rng() - 0.5) * 4, 0.0), true);
     }
 
     testbed.setWorld(world);

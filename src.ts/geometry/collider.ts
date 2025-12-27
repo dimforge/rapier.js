@@ -1779,20 +1779,32 @@ export class ColliderDesc {
         params?: VHACDParameters,
     ): ColliderDesc | null {
         let rawShape: RawShape;
-        
+
         if (params) {
             // Convert TypeScript params to Rust params
             const rawParams = new RawVHACDParameters();
             if (params.alpha !== undefined) rawParams.alpha = params.alpha;
             if (params.beta !== undefined) rawParams.beta = params.beta;
-            if (params.concavity !== undefined) rawParams.concavity = params.concavity;
-            if (params.planeDownsampling !== undefined) rawParams.plane_downsampling = params.planeDownsampling;
-            if (params.convexHullDownsampling !== undefined) rawParams.convex_hull_downsampling = params.convexHullDownsampling;
-            if (params.maxConvexHulls !== undefined) rawParams.max_convex_hulls = params.maxConvexHulls;
-            if (params.resolution !== undefined) rawParams.resolution = params.resolution;
-            if (params.convexHullApproximation !== undefined) rawParams.convex_hull_approximation = params.convexHullApproximation;
-            
-            rawShape = RawShape.convexDecompositionWithParams(vertices, indices, rawParams);
+            if (params.concavity !== undefined)
+                rawParams.concavity = params.concavity;
+            if (params.planeDownsampling !== undefined)
+                rawParams.plane_downsampling = params.planeDownsampling;
+            if (params.convexHullDownsampling !== undefined)
+                rawParams.convex_hull_downsampling =
+                    params.convexHullDownsampling;
+            if (params.maxConvexHulls !== undefined)
+                rawParams.max_convex_hulls = params.maxConvexHulls;
+            if (params.resolution !== undefined)
+                rawParams.resolution = params.resolution;
+            if (params.convexHullApproximation !== undefined)
+                rawParams.convex_hull_approximation =
+                    params.convexHullApproximation;
+
+            rawShape = RawShape.convexDecompositionWithParams(
+                vertices,
+                indices,
+                rawParams,
+            );
         } else {
             rawShape = RawShape.convexDecomposition(vertices, indices);
         }

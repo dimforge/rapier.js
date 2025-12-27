@@ -108,7 +108,9 @@ export function initWorld(RAPIER: RAPIER_API, testbed: Testbed) {
                             const color = new Color(
                                 colorPalette[
                                     Math.floor(
-                                        (i / geometry.attributes.position.count) *
+                                        (i /
+                                            geometry.attributes.position
+                                                .count) *
                                             colorPalette.length,
                                     )
                                 ],
