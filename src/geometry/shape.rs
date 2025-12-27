@@ -447,7 +447,8 @@ impl RawShape {
         let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
         let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
 
-        SharedShape::convex_decomposition(&vertices, &indices).map(Self)
+        let shape = SharedShape::convex_decomposition(&vertices, &indices);
+        Some(Self(shape))
     }
 
     #[cfg(feature = "dim2")]

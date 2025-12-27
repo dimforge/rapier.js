@@ -1125,14 +1125,12 @@ export class Compound extends Shape {
         const rawShapes = this.shapes.map((s) => s.intoRaw());
 
         // #if DIM2
-        // Flatten positions into a single array
         const positions = new Float32Array(this.positions.length * 2);
         this.positions.forEach((pos, i) => {
             positions[i * 2] = pos.x;
             positions[i * 2 + 1] = pos.y;
         });
 
-        // Flatten rotations (single angle for 2D)
         const rotations = new Float32Array(this.rotations.length);
         this.rotations.forEach((rot, i) => {
             rotations[i] = rot;
@@ -1140,7 +1138,6 @@ export class Compound extends Shape {
         // #endif
 
         // #if DIM3
-        // Flatten positions into a single array
         const positions = new Float32Array(this.positions.length * 3);
         this.positions.forEach((pos, i) => {
             positions[i * 3] = pos.x;
@@ -1148,7 +1145,6 @@ export class Compound extends Shape {
             positions[i * 3 + 2] = pos.z;
         });
 
-        // Flatten rotations (quaternion for 3D: x, y, z, w)
         const rotations = new Float32Array(this.rotations.length * 4);
         this.rotations.forEach((rot, i) => {
             rotations[i * 4] = rot.x;
@@ -1158,12 +1154,7 @@ export class Compound extends Shape {
         });
         // #endif
 
-        const result = RawShape.compound(rawShapes, positions, rotations);
-
-        // Free temporary raw shapes (they're cloned by compound())
-        rawShapes.forEach((s) => s.free());
-
-        return result;
+        return RawShape.compound(rawShapes, positions, rotations);
     }
 }
 
