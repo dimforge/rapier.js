@@ -1403,8 +1403,43 @@ export class ColliderDesc {
     /**
      * Creates a new collider descriptor with a triangle mesh shape.
      *
+     * The `vertices` array is a flat list of coordinates (`[x1, y1, z1, x2, y2, z2, ...]`),
+     * where every 3 consecutive floats define one vertex position.
+     *
+     * The `indices` array defines triangles by referencing vertex positions. Every 3
+     * consecutive indices form one triangle. For example, indices `[0, 1, 2]` create a
+     * triangle from the 1st, 2nd, and 3rd vertices.
+     *
+     * This follows the same vertex/index buffer layout used by Three.js `BufferGeometry`,
+     * so the same arrays can be shared between Rapier.js and Three.js.
+     *
+     * @example
+     * // Single triangle floor
+     * const vertices = new Float32Array([
+     *     -9, 0,  9,  // vertex 0
+     *      9, 0,  9,  // vertex 1
+     *      0, 0, -9,  // vertex 2
+     * ]);
+     * const indices = new Uint32Array([0, 1, 2]); // one triangle
+     * const desc = RAPIER.ColliderDesc.trimesh(vertices, indices);
+     *
+     * @example
+     * // Quad (two triangles sharing vertices)
+     * const vertices = new Float32Array([
+     *     -2, 0, -2,  // vertex 0
+     *     -2, 0,  2,  // vertex 1
+     *      2, 0,  2,  // vertex 2
+     *      2, 0, -2,  // vertex 3
+     * ]);
+     * const indices = new Uint32Array([
+     *     0, 1, 2,    // triangle 1
+     *     0, 2, 3,    // triangle 2
+     * ]);
+     * const desc = RAPIER.ColliderDesc.trimesh(vertices, indices);
+     *
      * @param vertices - The coordinates of the triangle mesh's vertices.
      * @param indices - The indices of the triangle mesh's triangles.
+     * @param flags - Optional flags for the triangle mesh.
      */
     public static trimesh(
         vertices: Float32Array,
