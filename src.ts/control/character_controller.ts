@@ -338,6 +338,35 @@ export class KinematicCharacterController {
     }
 
     /**
+     * The `x` component of the movement computed by the last call to `this.computeColliderMovement`.
+     *
+     * This is a zero-allocation alternative to `computedMovement().x`.
+     */
+    public computedMovementX(): number {
+        return this.raw.computedMovementX();
+    }
+
+    /**
+     * The `y` component of the movement computed by the last call to `this.computeColliderMovement`.
+     *
+     * This is a zero-allocation alternative to `computedMovement().y`.
+     */
+    public computedMovementY(): number {
+        return this.raw.computedMovementY();
+    }
+
+    // #if DIM3
+    /**
+     * The `z` component of the movement computed by the last call to `this.computeColliderMovement`.
+     *
+     * This is a zero-allocation alternative to `computedMovement().z`.
+     */
+    public computedMovementZ(): number {
+        return this.raw.computedMovementZ();
+    }
+    // #endif
+
+    /**
      * The result of ground detection computed by the last call to `this.computeColliderMovement`.
      */
     public computedGrounded(): boolean {

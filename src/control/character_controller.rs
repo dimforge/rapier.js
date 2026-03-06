@@ -216,6 +216,22 @@ impl RawKinematicCharacterController {
         self.result.translation.into()
     }
 
+    /// The x component of the movement computed by the last call to `computeColliderMovement`.
+    pub fn computedMovementX(&self) -> f32 {
+        self.result.translation.x
+    }
+
+    /// The y component of the movement computed by the last call to `computeColliderMovement`.
+    pub fn computedMovementY(&self) -> f32 {
+        self.result.translation.y
+    }
+
+    /// The z component of the movement computed by the last call to `computeColliderMovement`.
+    #[cfg(feature = "dim3")]
+    pub fn computedMovementZ(&self) -> f32 {
+        self.result.translation.z
+    }
+
     pub fn computedGrounded(&self) -> bool {
         self.result.grounded
     }

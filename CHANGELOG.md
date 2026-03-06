@@ -1,3 +1,15 @@
+## Unreleased
+
+### Added
+
+- Add zero-allocation scalar component getters and setters to `RigidBody`, `Collider`,
+  and `KinematicCharacterController`. Methods like `translationX()`, `translationY()`,
+  `rotationAngle()` (2D), `rotationX/Y/Z/W()` (3D), `linvelX/Y(/Z)()` return individual
+  `number` values without creating intermediate JS objects or WASM heap allocations.
+  Scalar setters `setLinvelXY/XYZ()`, `addForceXY/XYZ()`, `applyImpulseXY/XYZ()` avoid
+  the `VectorOps.intoRaw()` allocation on the input path. These are performance alternatives
+  to the existing struct-returning methods, which remain unchanged.
+
 ## 0.19.3 (05 Nov. 2025)
 
 - Significantly improve performances of `combineVoxelStates`.

@@ -750,4 +750,125 @@ impl RawRigidBodySet {
     pub fn rbUserTorque(&self, handle: FlatHandle) -> RawVector {
         self.map(handle, |rb| rb.user_torque().into())
     }
+
+    // --- Zero-allocation scalar component getters ---
+
+    /// The x component of the world-space translation of this rigid-body.
+    pub fn rbTranslationX(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.position().translation.vector.x)
+    }
+
+    /// The y component of the world-space translation of this rigid-body.
+    pub fn rbTranslationY(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.position().translation.vector.y)
+    }
+
+    /// The z component of the world-space translation of this rigid-body.
+    #[cfg(feature = "dim3")]
+    pub fn rbTranslationZ(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.position().translation.vector.z)
+    }
+
+    /// The rotation angle of this rigid-body, in radians.
+    #[cfg(feature = "dim2")]
+    pub fn rbRotationAngle(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.position().rotation.angle())
+    }
+
+    /// The x component of the rotation quaternion of this rigid-body.
+    #[cfg(feature = "dim3")]
+    pub fn rbRotationX(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.position().rotation.i)
+    }
+
+    /// The y component of the rotation quaternion of this rigid-body.
+    #[cfg(feature = "dim3")]
+    pub fn rbRotationY(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.position().rotation.j)
+    }
+
+    /// The z component of the rotation quaternion of this rigid-body.
+    #[cfg(feature = "dim3")]
+    pub fn rbRotationZ(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.position().rotation.k)
+    }
+
+    /// The w component of the rotation quaternion of this rigid-body.
+    #[cfg(feature = "dim3")]
+    pub fn rbRotationW(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.position().rotation.w)
+    }
+
+    /// The x component of the linear velocity of this rigid-body.
+    pub fn rbLinvelX(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.linvel().x)
+    }
+
+    /// The y component of the linear velocity of this rigid-body.
+    pub fn rbLinvelY(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.linvel().y)
+    }
+
+    /// The z component of the linear velocity of this rigid-body.
+    #[cfg(feature = "dim3")]
+    pub fn rbLinvelZ(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |rb| rb.linvel().z)
+    }
+
+    // --- Zero-allocation scalar setters ---
+
+    /// Sets the linear velocity of this rigid-body using scalar components.
+    #[cfg(feature = "dim2")]
+    pub fn rbSetLinvelXY(&mut self, handle: FlatHandle, x: f32, y: f32, wakeUp: bool) {
+        self.map_mut(handle, |rb| {
+            rb.set_linvel(na::Vector2::new(x, y), wakeUp);
+        });
+    }
+
+    /// Sets the linear velocity of this rigid-body using scalar components.
+    #[cfg(feature = "dim3")]
+    pub fn rbSetLinvelXYZ(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32, wakeUp: bool) {
+        self.map_mut(handle, |rb| {
+            rb.set_linvel(na::Vector3::new(x, y, z), wakeUp);
+        });
+    }
+
+    /// Adds a force at the center-of-mass of this rigid-body using scalar components.
+    #[cfg(feature = "dim2")]
+    pub fn rbAddForceXY(&mut self, handle: FlatHandle, x: f32, y: f32, wakeUp: bool) {
+        self.map_mut(handle, |rb| {
+            rb.add_force(na::Vector2::new(x, y), wakeUp);
+        });
+    }
+
+    /// Adds a force at the center-of-mass of this rigid-body using scalar components.
+    #[cfg(feature = "dim3")]
+    pub fn rbAddForceXYZ(&mut self, handle: FlatHandle, x: f32, y: f32, z: f32, wakeUp: bool) {
+        self.map_mut(handle, |rb| {
+            rb.add_force(na::Vector3::new(x, y, z), wakeUp);
+        });
+    }
+
+    /// Applies an impulse at the center-of-mass of this rigid-body using scalar components.
+    #[cfg(feature = "dim2")]
+    pub fn rbApplyImpulseXY(&mut self, handle: FlatHandle, x: f32, y: f32, wakeUp: bool) {
+        self.map_mut(handle, |rb| {
+            rb.apply_impulse(na::Vector2::new(x, y), wakeUp);
+        });
+    }
+
+    /// Applies an impulse at the center-of-mass of this rigid-body using scalar components.
+    #[cfg(feature = "dim3")]
+    pub fn rbApplyImpulseXYZ(
+        &mut self,
+        handle: FlatHandle,
+        x: f32,
+        y: f32,
+        z: f32,
+        wakeUp: bool,
+    ) {
+        self.map_mut(handle, |rb| {
+            rb.apply_impulse(na::Vector3::new(x, y, z), wakeUp);
+        });
+    }
 }

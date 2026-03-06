@@ -308,6 +308,84 @@ export class RigidBody {
     }
 
     /**
+     * The `x` component of the world-space translation of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `translation().x`.
+     */
+    public translationX(): number {
+        return this.rawSet.rbTranslationX(this.handle);
+    }
+
+    /**
+     * The `y` component of the world-space translation of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `translation().y`.
+     */
+    public translationY(): number {
+        return this.rawSet.rbTranslationY(this.handle);
+    }
+
+    // #if DIM3
+    /**
+     * The `z` component of the world-space translation of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `translation().z`.
+     */
+    public translationZ(): number {
+        return this.rawSet.rbTranslationZ(this.handle);
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * The rotation angle of this rigid-body, in radians.
+     *
+     * This is a zero-allocation alternative to `rotation()`.
+     */
+    public rotationAngle(): number {
+        return this.rawSet.rbRotationAngle(this.handle);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The `x` component of the rotation quaternion of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `rotation().x`.
+     */
+    public rotationX(): number {
+        return this.rawSet.rbRotationX(this.handle);
+    }
+
+    /**
+     * The `y` component of the rotation quaternion of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `rotation().y`.
+     */
+    public rotationY(): number {
+        return this.rawSet.rbRotationY(this.handle);
+    }
+
+    /**
+     * The `z` component of the rotation quaternion of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `rotation().z`.
+     */
+    public rotationZ(): number {
+        return this.rawSet.rbRotationZ(this.handle);
+    }
+
+    /**
+     * The `w` component of the rotation quaternion of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `rotation().w`.
+     */
+    public rotationW(): number {
+        return this.rawSet.rbRotationW(this.handle);
+    }
+    // #endif
+
+    /**
      * The world-space next translation of this rigid-body.
      *
      * If this rigid-body is kinematic this value is set by the `setNextKinematicTranslation`
@@ -506,6 +584,35 @@ export class RigidBody {
     public linvel(): Vector {
         return VectorOps.fromRaw(this.rawSet.rbLinvel(this.handle));
     }
+
+    /**
+     * The `x` component of the linear velocity of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `linvel().x`.
+     */
+    public linvelX(): number {
+        return this.rawSet.rbLinvelX(this.handle);
+    }
+
+    /**
+     * The `y` component of the linear velocity of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `linvel().y`.
+     */
+    public linvelY(): number {
+        return this.rawSet.rbLinvelY(this.handle);
+    }
+
+    // #if DIM3
+    /**
+     * The `z` component of the linear velocity of this rigid-body.
+     *
+     * This is a zero-allocation alternative to `linvel().z`.
+     */
+    public linvelZ(): number {
+        return this.rawSet.rbLinvelZ(this.handle);
+    }
+    // #endif
 
     /**
      * The velocity of the given world-space point on this rigid-body.
@@ -1040,6 +1147,104 @@ export class RigidBody {
         rawTorqueImpulse.free();
     }
 
+    // #endif
+
+    // #if DIM2
+    /**
+     * Sets the linear velocity using scalar components.
+     *
+     * This is a zero-allocation alternative to `setLinvel({x, y}, wakeUp)`.
+     *
+     * @param x - The linear velocity along the `x` axis.
+     * @param y - The linear velocity along the `y` axis.
+     * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
+     */
+    public setLinvelXY(x: number, y: number, wakeUp: boolean) {
+        this.rawSet.rbSetLinvelXY(this.handle, x, y, wakeUp);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * Sets the linear velocity using scalar components.
+     *
+     * This is a zero-allocation alternative to `setLinvel({x, y, z}, wakeUp)`.
+     *
+     * @param x - The linear velocity along the `x` axis.
+     * @param y - The linear velocity along the `y` axis.
+     * @param z - The linear velocity along the `z` axis.
+     * @param wakeUp - Forces the rigid-body to wake-up if it was asleep.
+     */
+    public setLinvelXYZ(x: number, y: number, z: number, wakeUp: boolean) {
+        this.rawSet.rbSetLinvelXYZ(this.handle, x, y, z, wakeUp);
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * Adds a force at the center-of-mass using scalar components.
+     *
+     * This is a zero-allocation alternative to `addForce({x, y}, wakeUp)`.
+     *
+     * @param x - The force along the `x` axis.
+     * @param y - The force along the `y` axis.
+     * @param wakeUp - Should the rigid-body be automatically woken-up?
+     */
+    public addForceXY(x: number, y: number, wakeUp: boolean) {
+        this.rawSet.rbAddForceXY(this.handle, x, y, wakeUp);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * Adds a force at the center-of-mass using scalar components.
+     *
+     * This is a zero-allocation alternative to `addForce({x, y, z}, wakeUp)`.
+     *
+     * @param x - The force along the `x` axis.
+     * @param y - The force along the `y` axis.
+     * @param z - The force along the `z` axis.
+     * @param wakeUp - Should the rigid-body be automatically woken-up?
+     */
+    public addForceXYZ(x: number, y: number, z: number, wakeUp: boolean) {
+        this.rawSet.rbAddForceXYZ(this.handle, x, y, z, wakeUp);
+    }
+    // #endif
+
+    // #if DIM2
+    /**
+     * Applies an impulse at the center-of-mass using scalar components.
+     *
+     * This is a zero-allocation alternative to `applyImpulse({x, y}, wakeUp)`.
+     *
+     * @param x - The impulse along the `x` axis.
+     * @param y - The impulse along the `y` axis.
+     * @param wakeUp - Should the rigid-body be automatically woken-up?
+     */
+    public applyImpulseXY(x: number, y: number, wakeUp: boolean) {
+        this.rawSet.rbApplyImpulseXY(this.handle, x, y, wakeUp);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * Applies an impulse at the center-of-mass using scalar components.
+     *
+     * This is a zero-allocation alternative to `applyImpulse({x, y, z}, wakeUp)`.
+     *
+     * @param x - The impulse along the `x` axis.
+     * @param y - The impulse along the `y` axis.
+     * @param z - The impulse along the `z` axis.
+     * @param wakeUp - Should the rigid-body be automatically woken-up?
+     */
+    public applyImpulseXYZ(
+        x: number,
+        y: number,
+        z: number,
+        wakeUp: boolean,
+    ) {
+        this.rawSet.rbApplyImpulseXYZ(this.handle, x, y, z, wakeUp);
+    }
     // #endif
 
     /**
