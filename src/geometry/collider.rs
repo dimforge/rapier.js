@@ -18,26 +18,26 @@ impl RawColliderSet {
     /// The world-space translation of this collider.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim2")]
-    pub fn coTranslation(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) {
+    pub fn coTranslation(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) {
         self.map(handle, |co| {
             let u = co.position().translation.vector;
-            scratchBuffer.set_index(0, u.x);
-            scratchBuffer.set_index(1, u.y);
+            scratch_buffer.set_index(0, u.x);
+            scratch_buffer.set_index(1, u.y);
         });
     }
     /// The world-space translation of this collider.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim3")]
-    pub fn coTranslation(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) {
+    pub fn coTranslation(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) {
         self.map(handle, |co| {
             let u = co.position().translation.vector;
-            scratchBuffer.set_index(0, u.x);
-            scratchBuffer.set_index(1, u.y);
-            scratchBuffer.set_index(2, u.z);
+            scratch_buffer.set_index(0, u.x);
+            scratch_buffer.set_index(1, u.y);
+            scratch_buffer.set_index(2, u.z);
         });
     }
 
@@ -50,16 +50,16 @@ impl RawColliderSet {
     /// The world-space orientation of this collider.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim3")]
-    pub fn coRotation(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) {
+    pub fn coRotation(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) {
         self.map(handle, |co| {
             let u = co.position().rotation;
             let inner = u.into_inner();
-            scratchBuffer.set_index(0, inner.i);
-            scratchBuffer.set_index(1, inner.j);
-            scratchBuffer.set_index(2, inner.k);
-            scratchBuffer.set_index(3, inner.w);
+            scratch_buffer.set_index(0, inner.i);
+            scratch_buffer.set_index(1, inner.j);
+            scratch_buffer.set_index(2, inner.k);
+            scratch_buffer.set_index(3, inner.w);
         });
     }
 
@@ -67,11 +67,11 @@ impl RawColliderSet {
     ///
     /// Returns `false` if it doesn’t have a parent.
     #[cfg(feature = "dim2")]
-    pub fn coTranslationWrtParent(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) -> bool {
+    pub fn coTranslationWrtParent(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) -> bool {
         self.map(handle, |co| co.position_wrt_parent().map_or(false, |pose| {
             let u = pose.translation.vector;
-            scratchBuffer.set_index(0, u.x);
-            scratchBuffer.set_index(1, u.y);
+            scratch_buffer.set_index(0, u.x);
+            scratch_buffer.set_index(1, u.y);
             true
         }))
     }
@@ -81,14 +81,14 @@ impl RawColliderSet {
     /// Returns `false` if it doesn’t have a parent.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim3")]
-    pub fn coTranslationWrtParent(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) -> bool {
+    pub fn coTranslationWrtParent(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) -> bool {
         self.map(handle, |co| co.position_wrt_parent().map_or(false, |pose| {
             let u = pose.translation.vector;
-            scratchBuffer.set_index(0, u.x);
-            scratchBuffer.set_index(1, u.y);
-            scratchBuffer.set_index(2, u.z);
+            scratch_buffer.set_index(0, u.x);
+            scratch_buffer.set_index(1, u.y);
+            scratch_buffer.set_index(2, u.z);
             true
         }))
     }
@@ -110,17 +110,17 @@ impl RawColliderSet {
     /// Returns `false` if it doesn’t have a parent.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim3")]
-    pub fn coRotationWrtParent(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) -> bool {
+    pub fn coRotationWrtParent(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) -> bool {
         self.map(handle, |co| {
             co.position_wrt_parent().map_or(false, |pose| {
                 let u = pose.rotation;
                 let inner = u.into_inner();
-                scratchBuffer.set_index(0, inner.i);
-                scratchBuffer.set_index(1, inner.j);
-                scratchBuffer.set_index(2, inner.k);
-                scratchBuffer.set_index(3, inner.w);
+                scratch_buffer.set_index(0, inner.i);
+                scratch_buffer.set_index(1, inner.j);
+                scratch_buffer.set_index(2, inner.k);
+                scratch_buffer.set_index(3, inner.w);
                 true
             })
         })
@@ -264,21 +264,21 @@ impl RawColliderSet {
     /// Returns `false` if it doesn’t have a cuboid shape.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim2")]
-    pub fn coHalfExtents(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) -> bool {
+    pub fn coHalfExtents(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) -> bool {
         self.map(handle, |co| {
             co.shape().as_cuboid().map_or_else(|| {
                 co.shape().as_round_cuboid().map_or(false, |c| {
                     let u = c.inner_shape.half_extents;
-                    scratchBuffer.set_index(0, u.x);
-                    scratchBuffer.set_index(1, u.y);
+                    scratch_buffer.set_index(0, u.x);
+                    scratch_buffer.set_index(1, u.y);
                     true
                 })
             },|c| {
                 let u = c.half_extents;
-                scratchBuffer.set_index(0, u.x);
-                scratchBuffer.set_index(1, u.y);
+                scratch_buffer.set_index(0, u.x);
+                scratch_buffer.set_index(1, u.y);
                 true
             })
         })
@@ -289,23 +289,23 @@ impl RawColliderSet {
     /// Returns `false` if it doesn’t have a cuboid shape.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim3")]
-    pub fn coHalfExtents(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) -> bool {
+    pub fn coHalfExtents(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) -> bool {
         self.map(handle, |co| {
             co.shape().as_cuboid().map_or_else(|| {
                 co.shape().as_round_cuboid().map_or(false,|c| {
                     let u = c.inner_shape.half_extents;
-                    scratchBuffer.set_index(0, u.x);
-                    scratchBuffer.set_index(1, u.y);
-                    scratchBuffer.set_index(2, u.z);
+                    scratch_buffer.set_index(0, u.x);
+                    scratch_buffer.set_index(1, u.y);
+                    scratch_buffer.set_index(2, u.z);
                     true
                 })
             },|c| {
                 let u = c.half_extents;
-                scratchBuffer.set_index(0, u.x);
-                scratchBuffer.set_index(1, u.y);
-                scratchBuffer.set_index(2, u.z);
+                scratch_buffer.set_index(0, u.x);
+                scratch_buffer.set_index(1, u.y);
+                scratch_buffer.set_index(2, u.z);
                 true
             })
         })
@@ -703,14 +703,14 @@ impl RawColliderSet {
     /// The scaling factor applied to this heightfield if it is one.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim2")]
-    pub fn coHeightfieldScale(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) -> bool {
+    pub fn coHeightfieldScale(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) -> bool {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::HeightField => co.shape().as_heightfield().map_or(false, |h| {
                 let u = h.scale();
-                scratchBuffer.set_index(0, u.x);
-                scratchBuffer.set_index(1, u.y);
+                scratch_buffer.set_index(0, u.x);
+                scratch_buffer.set_index(1, u.y);
                 true
             }),
             _ => false,
@@ -720,15 +720,15 @@ impl RawColliderSet {
     /// The scaling factor applied to this heightfield if it is one.
     ///
     /// # Parameters
-    /// - `scratchBuffer`: The array to be populated.
+    /// - `scratch_buffer`: The array to be populated.
     #[cfg(feature = "dim3")]
-    pub fn coHeightfieldScale(&self, handle: FlatHandle, scratchBuffer: &js_sys::Float32Array) -> bool {
+    pub fn coHeightfieldScale(&self, handle: FlatHandle, scratch_buffer: &js_sys::Float32Array) -> bool {
         self.map(handle, |co| match co.shape().shape_type() {
             ShapeType::HeightField => co.shape().as_heightfield().map_or(false, |h| {
                 let u = h.scale();
-                scratchBuffer.set_index(0, u.x);
-                scratchBuffer.set_index(1, u.y);
-                scratchBuffer.set_index(2, u.z);
+                scratch_buffer.set_index(0, u.x);
+                scratch_buffer.set_index(1, u.y);
+                scratch_buffer.set_index(2, u.z);
                 true
             }),
             _ => false,

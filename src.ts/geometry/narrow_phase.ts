@@ -1,6 +1,10 @@
 import {RawNarrowPhase, RawContactManifold} from "../raw";
 import {ColliderHandle} from "./collider";
-import {Vector, VectorOps} from "../math";
+import {
+    Vector,
+    VectorOps,
+    scratchBuffer
+} from "../math";
 
 /**
  * The narrow-phase used for precise collision-detection.
@@ -113,16 +117,37 @@ export class TempContactManifold {
         this.raw = raw;
     }
 
-    public normal(): Vector {
-        return VectorOps.fromRaw(this.raw.normal());
+    /**
+     * (no description)
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public normal(target?: Vector): Vector {
+        this.raw.normal(scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
-    public localNormal1(): Vector {
-        return VectorOps.fromRaw(this.raw.local_n1());
+    /**
+     * (no description)
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public localNormal1(target?: Vector): Vector {
+        this.raw.local_n1(scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
-    public localNormal2(): Vector {
-        return VectorOps.fromRaw(this.raw.local_n2());
+    /**
+     * (no description)
+     *
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public localNormal2(target?: Vector): Vector {
+        this.raw.local_n2(scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 
     public subshape1(): number {
@@ -137,12 +162,28 @@ export class TempContactManifold {
         return this.raw.num_contacts();
     }
 
-    public localContactPoint1(i: number): Vector | null {
-        return VectorOps.fromRaw(this.raw.contact_local_p1(i));
+    /**
+     * (no description)
+     *
+     * @param {number} i
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public localContactPoint1(i: number, target?: Vector): Vector | null {
+        const exists = this.raw.contact_local_p1(i, scratchBuffer);
+        return exists ? VectorOps.fromBuffer(scratchBuffer, target) : null;
     }
 
-    public localContactPoint2(i: number): Vector | null {
-        return VectorOps.fromRaw(this.raw.contact_local_p2(i));
+    /**
+     * (no description)
+     *
+     * @param {number} i
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public localContactPoint2(i: number, target?: Vector): Vector | null {
+        const exists = this.raw.contact_local_p2(i, scratchBuffer);
+        return exists ? VectorOps.fromBuffer(scratchBuffer, target) : null;
     }
 
     public contactDist(i: number): number {
@@ -181,8 +222,16 @@ export class TempContactManifold {
         return this.raw.num_solver_contacts();
     }
 
-    public solverContactPoint(i: number): Vector {
-        return VectorOps.fromRaw(this.raw.solver_contact_point(i));
+    /**
+     * (no description)
+     *
+     * @param {number} i
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public solverContactPoint(i: number, target?: Vector): Vector | null {
+        const exists = this.raw.solver_contact_point(i, scratchBuffer);
+        return exists ? VectorOps.fromBuffer(scratchBuffer, target) : null;
     }
 
     public solverContactDist(i: number): number {
@@ -197,7 +246,15 @@ export class TempContactManifold {
         return this.raw.solver_contact_restitution(i);
     }
 
-    public solverContactTangentVelocity(i: number): Vector {
-        return VectorOps.fromRaw(this.raw.solver_contact_tangent_velocity(i));
+    /**
+     * (no description)
+     *
+     * @param {number} i
+     * @param {Vector?} target - The object to be populated. If provided,
+     * the function returns this object instead of creating a new one.
+     */
+    public solverContactTangentVelocity(i: number, target?: Vector): Vector {
+        this.raw.solver_contact_tangent_velocity(i, scratchBuffer);
+        return VectorOps.fromBuffer(scratchBuffer, target);
     }
 }
