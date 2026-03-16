@@ -9,7 +9,6 @@ use rapier::geometry::{Shape, SharedShape, TriMeshFlags};
 use rapier::math::{Isometry, Point, Real, Vector, DIM};
 use rapier::parry::query;
 use rapier::parry::query::{Ray, ShapeCastOptions};
-#[cfg(any(feature = "dim2", feature = "dim3"))]
 use rapier::parry::transformation::vhacd::VHACDParameters;
 use wasm_bindgen::prelude::*;
 
@@ -315,6 +314,348 @@ pub struct RawShape(pub(crate) SharedShape);
 
 #[wasm_bindgen]
 impl RawShape {
+    pub fn clone(&self) -> Self {
+        Self(self.0.clone())
+    }
+
+    pub fn shapeType(&self) -> RawShapeType {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::Ball => RawShapeType::Ball,
+            rapier::geometry::ShapeType::Cuboid => RawShapeType::Cuboid,
+            rapier::geometry::ShapeType::Capsule => RawShapeType::Capsule,
+            rapier::geometry::ShapeType::Segment => RawShapeType::Segment,
+            rapier::geometry::ShapeType::Polyline => RawShapeType::Polyline,
+            rapier::geometry::ShapeType::Triangle => RawShapeType::Triangle,
+            rapier::geometry::ShapeType::TriMesh => RawShapeType::TriMesh,
+            rapier::geometry::ShapeType::HeightField => RawShapeType::HeightField,
+            rapier::geometry::ShapeType::Compound => RawShapeType::Compound,
+            rapier::geometry::ShapeType::HalfSpace => RawShapeType::HalfSpace,
+            rapier::geometry::ShapeType::Voxels => RawShapeType::Voxels,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::ConvexPolyhedron => RawShapeType::ConvexPolyhedron,
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::ConvexPolygon => RawShapeType::ConvexPolygon,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cylinder => RawShapeType::Cylinder,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cone => RawShapeType::Cone,
+            rapier::geometry::ShapeType::RoundCuboid => RawShapeType::RoundCuboid,
+            rapier::geometry::ShapeType::RoundTriangle => RawShapeType::RoundTriangle,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCylinder => RawShapeType::RoundCylinder,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCone => RawShapeType::RoundCone,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundConvexPolyhedron => {
+                RawShapeType::RoundConvexPolyhedron
+            }
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::RoundConvexPolygon => RawShapeType::RoundConvexPolygon,
+            rapier::geometry::ShapeType::Custom => panic!("Not yet implemented."),
+        }
+    }
+
+    pub fn halfspaceNormal(&self) -> Option<RawVector> {
+        self.0
+            .as_halfspace()
+            .map(|halfspace| halfspace.normal.into_inner().into())
+    }
+
+    pub fn halfExtents(&self) -> Option<RawVector> {
+        self.0
+            .as_cuboid()
+            .map(|cuboid| cuboid.half_extents.into())
+            .or_else(|| {
+                self.0
+                    .as_round_cuboid()
+                    .map(|cuboid| cuboid.inner_shape.half_extents.into())
+            })
+    }
+
+    pub fn radius(&self) -> Option<f32> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::Ball => self.0.as_ball().map(|ball| ball.radius),
+            rapier::geometry::ShapeType::Capsule => {
+                self.0.as_capsule().map(|capsule| capsule.radius)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cylinder => {
+                self.0.as_cylinder().map(|cylinder| cylinder.radius)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCylinder => self
+                .0
+                .as_round_cylinder()
+                .map(|cylinder| cylinder.inner_shape.radius),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cone => self.0.as_cone().map(|cone| cone.radius),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCone => {
+                self.0.as_round_cone().map(|cone| cone.inner_shape.radius)
+            }
+            _ => None,
+        }
+    }
+
+    pub fn halfHeight(&self) -> Option<f32> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::Capsule => {
+                self.0.as_capsule().map(|capsule| capsule.half_height())
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cylinder => {
+                self.0.as_cylinder().map(|cylinder| cylinder.half_height)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCylinder => self
+                .0
+                .as_round_cylinder()
+                .map(|cylinder| cylinder.inner_shape.half_height),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cone => self.0.as_cone().map(|cone| cone.half_height),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCone => self
+                .0
+                .as_round_cone()
+                .map(|cone| cone.inner_shape.half_height),
+            _ => None,
+        }
+    }
+
+    pub fn roundRadius(&self) -> Option<f32> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::RoundCuboid => {
+                self.0.as_round_cuboid().map(|cuboid| cuboid.border_radius)
+            }
+            rapier::geometry::ShapeType::RoundTriangle => self
+                .0
+                .as_round_triangle()
+                .map(|triangle| triangle.border_radius),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCylinder => self
+                .0
+                .as_round_cylinder()
+                .map(|cylinder| cylinder.border_radius),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCone => {
+                self.0.as_round_cone().map(|cone| cone.border_radius)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundConvexPolyhedron => self
+                .0
+                .as_round_convex_polyhedron()
+                .map(|polyhedron| polyhedron.border_radius),
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::RoundConvexPolygon => self
+                .0
+                .as_round_convex_polygon()
+                .map(|polygon| polygon.border_radius),
+            _ => None,
+        }
+    }
+
+    pub fn voxelData(&self) -> Option<Vec<i32>> {
+        let voxels = self.0.as_voxels()?;
+        Some(
+            voxels
+                .voxels()
+                .filter_map(|vox| (!vox.state.is_empty()).then_some(vox.grid_coords))
+                .flat_map(|ids| ids.coords.data.0[0])
+                .collect(),
+        )
+    }
+
+    pub fn voxelSize(&self) -> Option<RawVector> {
+        self.0
+            .as_voxels()
+            .map(|voxels| RawVector(voxels.voxel_size()))
+    }
+
+    pub fn vertices(&self) -> Option<Vec<f32>> {
+        let flatten = |vertices: &[Point<f32>]| {
+            vertices
+                .iter()
+                .flat_map(|point| point.iter())
+                .copied()
+                .collect()
+        };
+
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::TriMesh => {
+                self.0.as_trimesh().map(|mesh| flatten(mesh.vertices()))
+            }
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::Polyline => self
+                .0
+                .as_polyline()
+                .map(|polyline| flatten(polyline.vertices())),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::ConvexPolyhedron => self
+                .0
+                .as_convex_polyhedron()
+                .map(|polyhedron| flatten(polyhedron.points())),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundConvexPolyhedron => self
+                .0
+                .as_round_convex_polyhedron()
+                .map(|polyhedron| flatten(polyhedron.inner_shape.points())),
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::ConvexPolygon => self
+                .0
+                .as_convex_polygon()
+                .map(|polygon| flatten(polygon.points())),
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::RoundConvexPolygon => self
+                .0
+                .as_round_convex_polygon()
+                .map(|polygon| flatten(polygon.inner_shape.points())),
+            rapier::geometry::ShapeType::Segment => self
+                .0
+                .as_segment()
+                .map(|segment| flatten(&[segment.a, segment.b])),
+            rapier::geometry::ShapeType::RoundTriangle => {
+                self.0.as_round_triangle().map(|triangle| {
+                    flatten(&[
+                        triangle.inner_shape.a,
+                        triangle.inner_shape.b,
+                        triangle.inner_shape.c,
+                    ])
+                })
+            }
+            rapier::geometry::ShapeType::Triangle => self
+                .0
+                .as_triangle()
+                .map(|triangle| flatten(&[triangle.a, triangle.b, triangle.c])),
+            _ => None,
+        }
+    }
+
+    pub fn indices(&self) -> Option<Vec<u32>> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::TriMesh => self.0.as_trimesh().map(|mesh| {
+                mesh.indices()
+                    .iter()
+                    .flat_map(|triangle| triangle.iter())
+                    .copied()
+                    .collect()
+            }),
+            rapier::geometry::ShapeType::Polyline => self.0.as_polyline().map(|polyline| {
+                polyline
+                    .indices()
+                    .iter()
+                    .flat_map(|segment| segment.iter())
+                    .copied()
+                    .collect()
+            }),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::ConvexPolyhedron => {
+                self.0.as_convex_polyhedron().map(|polyhedron| {
+                    polyhedron
+                        .to_trimesh()
+                        .1
+                        .iter()
+                        .flat_map(|triangle| triangle.iter())
+                        .copied()
+                        .collect()
+                })
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundConvexPolyhedron => {
+                self.0.as_round_convex_polyhedron().map(|polyhedron| {
+                    polyhedron
+                        .inner_shape
+                        .to_trimesh()
+                        .1
+                        .iter()
+                        .flat_map(|triangle| triangle.iter())
+                        .copied()
+                        .collect()
+                })
+            }
+            _ => None,
+        }
+    }
+
+    pub fn triMeshFlags(&self) -> Option<u32> {
+        self.0
+            .as_trimesh()
+            .map(|trimesh| trimesh.flags().bits() as u32)
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn heightFieldFlags(&self) -> Option<u32> {
+        self.0
+            .as_heightfield()
+            .map(|heightfield| heightfield.flags().bits() as u32)
+    }
+
+    pub fn heightfieldHeights(&self) -> Option<Vec<f32>> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::HeightField => self
+                .0
+                .as_heightfield()
+                .map(|heightfield| heightfield.heights().as_slice().to_vec()),
+            _ => None,
+        }
+    }
+
+    pub fn heightfieldScale(&self) -> Option<RawVector> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::HeightField => self
+                .0
+                .as_heightfield()
+                .map(|heightfield| RawVector(*heightfield.scale())),
+            _ => None,
+        }
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn heightfieldNRows(&self) -> Option<usize> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::HeightField => self
+                .0
+                .as_heightfield()
+                .map(|heightfield| heightfield.nrows()),
+            _ => None,
+        }
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn heightfieldNCols(&self) -> Option<usize> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::HeightField => self
+                .0
+                .as_heightfield()
+                .map(|heightfield| heightfield.ncols()),
+            _ => None,
+        }
+    }
+
+    pub fn compoundLen(&self) -> Option<usize> {
+        self.0.as_compound().map(|compound| compound.shapes().len())
+    }
+
+    pub fn compoundShape(&self, index: usize) -> Option<RawShape> {
+        self.0
+            .as_compound()
+            .and_then(|compound| compound.shapes().get(index))
+            .map(|(_, shape)| RawShape(shape.clone()))
+    }
+
+    pub fn compoundTranslation(&self, index: usize) -> Option<RawVector> {
+        self.0
+            .as_compound()
+            .and_then(|compound| compound.shapes().get(index))
+            .map(|(position, _)| position.translation.vector.into())
+    }
+
+    pub fn compoundRotation(&self, index: usize) -> Option<RawRotation> {
+        self.0
+            .as_compound()
+            .and_then(|compound| compound.shapes().get(index))
+            .map(|(position, _)| position.rotation.into())
+    }
+
     #[cfg(feature = "dim2")]
     pub fn cuboid(hx: f32, hy: f32) -> Self {
         Self(SharedShape::cuboid(hx, hy))
@@ -492,10 +833,7 @@ impl RawShape {
         let num_shapes = shapes.len();
 
         for i in 0..num_shapes {
-            #[cfg(feature = "dim2")]
-            let pos_offset = i * 2;
-            #[cfg(feature = "dim3")]
-            let pos_offset = i * 3;
+            let pos_offset = i * DIM;
 
             #[cfg(feature = "dim2")]
             let translation = Vector::new(positions[pos_offset], positions[pos_offset + 1]).into();
@@ -529,46 +867,28 @@ impl RawShape {
         Self(SharedShape::compound(compound_parts))
     }
 
-    #[cfg(feature = "dim3")]
     pub fn convexDecomposition(vertices: Vec<f32>, indices: Vec<u32>) -> Option<RawShape> {
         let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
-        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
-
-        let shape = SharedShape::convex_decomposition(&vertices, &indices);
-        Some(Self(shape))
-    }
-
-    #[cfg(feature = "dim3")]
-    pub fn convexDecompositionWithParams(
-        vertices: Vec<f32>,
-        indices: Vec<u32>,
-        params: &RawVHACDParameters,
-    ) -> Option<RawShape> {
-        let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
-        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
-
-        let shape = SharedShape::convex_decomposition_with_params(&vertices, &indices, &params.0);
-        Some(Self(shape))
-    }
-
-    #[cfg(feature = "dim2")]
-    pub fn convexDecomposition(vertices: Vec<f32>, indices: Vec<u32>) -> Option<RawShape> {
-        let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        #[cfg(feature = "dim2")]
         let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
+        #[cfg(feature = "dim3")]
+        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
 
         let shape =
             SharedShape::convex_decomposition_with_params(&vertices, &indices, &Default::default());
         Some(Self(shape))
     }
 
-    #[cfg(feature = "dim2")]
     pub fn convexDecompositionWithParams(
         vertices: Vec<f32>,
         indices: Vec<u32>,
         params: &RawVHACDParameters,
     ) -> Option<RawShape> {
         let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        #[cfg(feature = "dim2")]
         let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
+        #[cfg(feature = "dim3")]
+        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
 
         let shape = SharedShape::convex_decomposition_with_params(&vertices, &indices, &params.0);
         Some(Self(shape))

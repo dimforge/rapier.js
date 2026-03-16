@@ -169,6 +169,10 @@ impl RawColliderSet {
         })
     }
 
+    pub fn coShape(&self, handle: FlatHandle) -> RawShape {
+        self.map(handle, |co| RawShape(co.shared_shape().clone()))
+    }
+
     pub fn coHalfspaceNormal(&self, handle: FlatHandle) -> Option<RawVector> {
         self.map(handle, |co| {
             co.shape()
@@ -219,6 +223,8 @@ impl RawColliderSet {
             }
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.radius),
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundCone => co.shape().as_round_cone().map(|b| b.inner_shape.radius),
             _ => None,
         })
     }
@@ -243,6 +249,11 @@ impl RawColliderSet {
                 .map(|b| b.inner_shape.radius = newRadius),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape_mut().as_cone_mut().map(|b| b.radius = newRadius),
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundCone => co
+                .shape_mut()
+                .as_round_cone_mut()
+                .map(|b| b.inner_shape.radius = newRadius),
             _ => None,
         });
     }
@@ -260,6 +271,11 @@ impl RawColliderSet {
                 .map(|b| b.inner_shape.half_height),
             #[cfg(feature = "dim3")]
             ShapeType::Cone => co.shape().as_cone().map(|b| b.half_height),
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundCone => co
+                .shape()
+                .as_round_cone()
+                .map(|b| b.inner_shape.half_height),
             _ => None,
         })
     }
@@ -289,6 +305,11 @@ impl RawColliderSet {
                 .shape_mut()
                 .as_cone_mut()
                 .map(|b| b.half_height = newHalfheight),
+            #[cfg(feature = "dim3")]
+            ShapeType::RoundCone => co
+                .shape_mut()
+                .as_round_cone_mut()
+                .map(|b| b.inner_shape.half_height = newHalfheight),
             _ => None,
         });
     }

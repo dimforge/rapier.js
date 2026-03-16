@@ -1813,15 +1813,7 @@ export class ColliderDesc {
             return null;
         }
 
-        // Create a wrapper - note: we can't deserialize compound shapes yet,
-        // so we create a minimal wrapper that just holds the raw shape
-        const shape = new (class extends Shape {
-            readonly type = ShapeType.Compound;
-            intoRaw(): RawShape {
-                return rawShape;
-            }
-        })();
-
+        const shape = Shape.fromRawShape(rawShape);
         return new ColliderDesc(shape);
     }
 

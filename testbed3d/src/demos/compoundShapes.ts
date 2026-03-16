@@ -55,11 +55,9 @@ function createPlusShape(RAPIER: RAPIER_API): any {
 }
 
 function createStairsShape(RAPIER: RAPIER_API): any {
-    const shape1 = new RAPIER.Cuboid(0.8, 0.4, 0.5);
-    const shape2 = new RAPIER.Cuboid(0.8, 0.4, 0.5);
-    const shape3 = new RAPIER.Cuboid(0.8, 0.4, 0.5);
+    const step = new RAPIER.Cuboid(0.8, 0.4, 0.5);
 
-    const shapes = [shape1, shape2, shape3];
+    const shapes = [step, step, step];
     // Bottom, middle, top steps respectively.
     const positions = [
         new RAPIER.Vector3(-1.2, -0.8, 0.0),
