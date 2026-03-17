@@ -6,21 +6,6 @@ import {Ray, RayIntersection} from "./ray";
 import {ShapeCastHit} from "./toi";
 import {ColliderHandle} from "./collider";
 
-function typedArraysEqual(
-    a: Float32Array | Uint32Array | null | undefined,
-    b: Float32Array | Uint32Array | null | undefined,
-): boolean {
-    if (a === b) return true;
-    if (!a || !b) return false;
-    if (a.length !== b.length) return false;
-
-    for (let i = 0; i < a.length; i++) {
-        if (a[i] !== b[i]) return false;
-    }
-
-    return true;
-}
-
 export abstract class Shape {
     public abstract intoRaw(): RawShape;
 
@@ -198,9 +183,14 @@ export abstract class Shape {
 
                 // #if DIM3
                 case RawShapeType.ConvexPolyhedron:
-                    return ConvexPolyhedron.fromRawShape(rawShape);
+                    vs = rawShape.vertices();
+                    indices = rawShape.indices();
+                    return new ConvexPolyhedron(vs, indices);
                 case RawShapeType.RoundConvexPolyhedron:
-                    return RoundConvexPolyhedron.fromRawShape(rawShape);
+                    vs = rawShape.vertices();
+                    indices = rawShape.indices();
+                    borderRadius = rawShape.roundRadius();
+                    return new RoundConvexPolyhedron(vs, indices, borderRadius);
                 case RawShapeType.Cylinder:
                     halfHeight = rawShape.halfHeight();
                     radius = rawShape.radius();
@@ -1390,9 +1380,6 @@ export class Heightfield extends Shape {
  */
 export class ConvexPolyhedron extends Shape {
     readonly type = ShapeType.ConvexPolyhedron;
-    private exactRawShape?: RawShape;
-    private exactVertices?: Float32Array;
-    private exactIndices?: Uint32Array | null;
 
     /**
      * The vertices of the convex polygon.
@@ -1419,37 +1406,7 @@ export class ConvexPolyhedron extends Shape {
         this.indices = indices;
     }
 
-    static fromRawShape(rawShape: RawShape): ConvexPolyhedron {
-        const vertices = rawShape.vertices();
-        const indices = rawShape.indices();
-        const shape = new ConvexPolyhedron(vertices, indices);
-        shape.exactRawShape = rawShape.clone();
-        shape.exactVertices = vertices.slice();
-        shape.exactIndices = indices?.slice() ?? null;
-        return shape;
-    }
-
-    private canReuseExactRawShape(): boolean {
-        return (
-            !!this.exactRawShape &&
-            typedArraysEqual(this.vertices, this.exactVertices) &&
-            typedArraysEqual(this.indices, this.exactIndices)
-        );
-    }
-
     public intoRaw(): RawShape {
-        // This matters for compound deserialization: a compound child comes out of
-        // Shape.fromRawShape(...) as a JS ConvexPolyhedron, and later Compound.intoRaw()
-        // serializes that child back into RawShape.compound(...). Without this check,
-        // this method falls through to RawShape.convexMesh(this.vertices, this.indices),
-        // which tries to reconstruct a fresh raw convex mesh from the JS data. Some
-        // deserialized VHACD children fail on that reconstruction path even though the
-        // user never changed them. So unchanged deserialized meshes reuse their exact
-        // RawShape, while edited meshes still rebuild from the current vertices/indices.
-        if (this.canReuseExactRawShape()) {
-            return this.exactRawShape.clone();
-        }
-
         if (!!this.indices) {
             return RawShape.convexMesh(this.vertices, this.indices);
         } else {
@@ -1463,10 +1420,6 @@ export class ConvexPolyhedron extends Shape {
  */
 export class RoundConvexPolyhedron extends Shape {
     readonly type = ShapeType.RoundConvexPolyhedron;
-    private exactRawShape?: RawShape;
-    private exactVertices?: Float32Array;
-    private exactIndices?: Uint32Array | null;
-    private exactBorderRadius?: number;
 
     /**
      * The vertices of the convex polygon.
@@ -1504,37 +1457,7 @@ export class RoundConvexPolyhedron extends Shape {
         this.borderRadius = borderRadius;
     }
 
-    static fromRawShape(rawShape: RawShape): RoundConvexPolyhedron {
-        const vertices = rawShape.vertices();
-        const indices = rawShape.indices();
-        const borderRadius = rawShape.roundRadius();
-        const shape = new RoundConvexPolyhedron(
-            vertices,
-            indices,
-            borderRadius,
-        );
-        shape.exactRawShape = rawShape.clone();
-        shape.exactVertices = vertices.slice();
-        shape.exactIndices = indices?.slice() ?? null;
-        shape.exactBorderRadius = borderRadius;
-        return shape;
-    }
-
-    private canReuseExactRawShape(): boolean {
-        return (
-            !!this.exactRawShape &&
-            typedArraysEqual(this.vertices, this.exactVertices) &&
-            typedArraysEqual(this.indices, this.exactIndices) &&
-            this.borderRadius === this.exactBorderRadius
-        );
-    }
-
     public intoRaw(): RawShape {
-        // See the comment in ConvexPolyhedron.intoRaw() for why this check is necessary.
-        if (this.canReuseExactRawShape()) {
-            return this.exactRawShape.clone();
-        }
-
         if (!!this.indices) {
             return RawShape.roundConvexMesh(
                 this.vertices,

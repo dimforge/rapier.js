@@ -1,4 +1,6 @@
 use crate::geometry::shape::SharedShapeUtility;
+#[cfg(feature = "dim3")]
+use crate::geometry::shape::normalized_convex_polyhedron_mesh;
 use crate::geometry::{
     RawColliderSet, RawColliderShapeCastHit, RawPointProjection, RawRayIntersection, RawShape,
     RawShapeCastHit, RawShapeContact, RawShapeType,
@@ -516,12 +518,14 @@ impl RawColliderSet {
             ShapeType::ConvexPolyhedron => co
                 .shape()
                 .as_convex_polyhedron()
-                .map(|p| flatten(p.points())),
+                .and_then(normalized_convex_polyhedron_mesh)
+                .map(|(points, _)| flatten(&points)),
             #[cfg(feature = "dim3")]
             ShapeType::RoundConvexPolyhedron => co
                 .shape()
                 .as_round_convex_polyhedron()
-                .map(|p| flatten(p.inner_shape.points())),
+                .and_then(|p| normalized_convex_polyhedron_mesh(&p.inner_shape))
+                .map(|(points, _)| flatten(&points)),
             #[cfg(feature = "dim2")]
             ShapeType::ConvexPolygon => co.shape().as_convex_polygon().map(|p| flatten(p.points())),
             #[cfg(feature = "dim2")]
@@ -551,26 +555,17 @@ impl RawColliderSet {
                 .as_polyline()
                 .map(|p| p.indices().iter().flat_map(|p| p.iter()).copied().collect()),
             #[cfg(feature = "dim3")]
-            ShapeType::ConvexPolyhedron => co.shape().as_convex_polyhedron().map(|p| {
-                // TODO: avoid the `.to_trimesh()`.
-                p.to_trimesh()
-                    .1
-                    .iter()
-                    .flat_map(|p| p.iter())
-                    .copied()
-                    .collect()
-            }),
+            ShapeType::ConvexPolyhedron => co
+                .shape()
+                .as_convex_polyhedron()
+                .and_then(normalized_convex_polyhedron_mesh)
+                .map(|(_, indices)| indices),
             #[cfg(feature = "dim3")]
-            ShapeType::RoundConvexPolyhedron => co.shape().as_round_convex_polyhedron().map(|p| {
-                // TODO: avoid the `.to_trimesh()`.
-                p.inner_shape
-                    .to_trimesh()
-                    .1
-                    .iter()
-                    .flat_map(|p| p.iter())
-                    .copied()
-                    .collect()
-            }),
+            ShapeType::RoundConvexPolyhedron => co
+                .shape()
+                .as_round_convex_polyhedron()
+                .and_then(|p| normalized_convex_polyhedron_mesh(&p.inner_shape))
+                .map(|(_, indices)| indices),
             _ => None,
         })
     }
