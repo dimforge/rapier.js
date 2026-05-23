@@ -20,7 +20,7 @@ import {IslandManager} from "./island_manager";
  */
 export class RigidBodySet {
     raw: RawRigidBodySet;
-    private map: Coarena<RigidBody>;
+    #map: Coarena<RigidBody>;
 
     /**
      * Release the WASM memory occupied by this rigid-body set.
@@ -31,19 +31,19 @@ export class RigidBodySet {
         }
         this.raw = undefined;
 
-        if (!!this.map) {
-            this.map.clear();
+        if (!!this.#map) {
+            this.#map.clear();
         }
-        this.map = undefined;
+        this.#map = undefined;
     }
 
     constructor(raw?: RawRigidBodySet) {
         this.raw = raw || new RawRigidBodySet();
-        this.map = new Coarena<RigidBody>();
+        this.#map = new Coarena<RigidBody>();
         // deserialize
         if (raw) {
             raw.forEachRigidBodyHandle((handle: RigidBodyHandle) => {
-                this.map.set(handle, new RigidBody(raw, null, handle));
+                this.#map.set(handle, new RigidBody(raw, null, handle));
             });
         }
     }
@@ -52,7 +52,7 @@ export class RigidBodySet {
      * Internal method, do not call this explicitly.
      */
     public finalizeDeserialization(colliderSet: ColliderSet) {
-        this.map.forEach((rb) => rb.finalizeDeserialization(colliderSet));
+        this.#map.forEach((rb) => rb.finalizeDeserialization(colliderSet));
     }
 
     /**
@@ -131,7 +131,7 @@ export class RigidBodySet {
         const body = new RigidBody(this.raw, colliderSet, handle);
         body.userData = desc.userData;
 
-        this.map.set(handle, body);
+        this.#map.set(handle, body);
 
         return body;
     }
@@ -174,14 +174,14 @@ export class RigidBodySet {
             impulseJoints.raw,
             multibodyJoints.raw,
         );
-        this.map.delete(handle);
+        this.#map.delete(handle);
     }
 
     /**
      * The number of rigid-bodies on this set.
      */
     public len(): number {
-        return this.map.len();
+        return this.#map.len();
     }
 
     /**
@@ -199,7 +199,7 @@ export class RigidBodySet {
      * @param handle - The handle of the rigid-body to retrieve.
      */
     public get(handle: RigidBodyHandle): RigidBody | null {
-        return this.map.get(handle);
+        return this.#map.get(handle);
     }
 
     /**
@@ -208,7 +208,7 @@ export class RigidBodySet {
      * @param f - The closure to apply.
      */
     public forEach(f: (body: RigidBody) => void) {
-        this.map.forEach(f);
+        this.#map.forEach(f);
     }
 
     /**
@@ -233,6 +233,6 @@ export class RigidBodySet {
      * @returns rigid-bodies list.
      */
     public getAll(): RigidBody[] {
-        return this.map.getAll();
+        return this.#map.getAll();
     }
 }

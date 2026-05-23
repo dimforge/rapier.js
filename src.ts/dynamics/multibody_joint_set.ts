@@ -24,7 +24,7 @@ import {RigidBodyHandle} from "./rigid_body";
  */
 export class MultibodyJointSet {
     raw: RawMultibodyJointSet;
-    private map: Coarena<MultibodyJoint>;
+    #map: Coarena<MultibodyJoint>;
 
     /**
      * Release the WASM memory occupied by this joint set.
@@ -35,19 +35,19 @@ export class MultibodyJointSet {
         }
         this.raw = undefined;
 
-        if (!!this.map) {
-            this.map.clear();
+        if (!!this.#map) {
+            this.#map.clear();
         }
-        this.map = undefined;
+        this.#map = undefined;
     }
 
     constructor(raw?: RawMultibodyJointSet) {
         this.raw = raw || new RawMultibodyJointSet();
-        this.map = new Coarena<MultibodyJoint>();
+        this.#map = new Coarena<MultibodyJoint>();
         // Initialize the map with the existing elements, if any.
         if (raw) {
             raw.forEachJointHandle((handle: MultibodyJointHandle) => {
-                this.map.set(handle, MultibodyJoint.newTyped(this.raw, handle));
+                this.#map.set(handle, MultibodyJoint.newTyped(this.raw, handle));
             });
         }
     }
@@ -75,7 +75,7 @@ export class MultibodyJointSet {
         );
         rawParams.free();
         let joint = MultibodyJoint.newTyped(this.raw, handle);
-        this.map.set(handle, joint);
+        this.#map.set(handle, joint);
         return joint;
     }
 
@@ -87,7 +87,7 @@ export class MultibodyJointSet {
      */
     public remove(handle: MultibodyJointHandle, wake_up: boolean) {
         this.raw.remove(handle, wake_up);
-        this.map.delete(handle);
+        this.#map.delete(handle);
     }
 
     /**
@@ -95,14 +95,14 @@ export class MultibodyJointSet {
      * @param handle
      */
     public unmap(handle: MultibodyJointHandle) {
-        this.map.delete(handle);
+        this.#map.delete(handle);
     }
 
     /**
      * The number of joints on this set.
      */
     public len(): number {
-        return this.map.len();
+        return this.#map.len();
     }
 
     /**
@@ -122,7 +122,7 @@ export class MultibodyJointSet {
      * @param handle - The integer handle of the joint to retrieve.
      */
     public get(handle: MultibodyJointHandle): MultibodyJoint | null {
-        return this.map.get(handle);
+        return this.#map.get(handle);
     }
 
     /**
@@ -131,7 +131,7 @@ export class MultibodyJointSet {
      * @param f - The closure to apply.
      */
     public forEach(f: (joint: MultibodyJoint) => void) {
-        this.map.forEach(f);
+        this.#map.forEach(f);
     }
 
     /**
@@ -152,6 +152,6 @@ export class MultibodyJointSet {
      * @returns joint list.
      */
     public getAll(): MultibodyJoint[] {
-        return this.map.getAll();
+        return this.#map.getAll();
     }
 }

@@ -13,7 +13,7 @@ import {RigidBodySet} from "../dynamics";
  */
 export class ColliderSet {
     raw: RawColliderSet;
-    private map: Coarena<Collider>;
+    #map: Coarena<Collider>;
 
     /**
      * Release the WASM memory occupied by this collider set.
@@ -24,19 +24,19 @@ export class ColliderSet {
         }
         this.raw = undefined;
 
-        if (!!this.map) {
-            this.map.clear();
+        if (!!this.#map) {
+            this.#map.clear();
         }
-        this.map = undefined;
+        this.#map = undefined;
     }
 
     constructor(raw?: RawColliderSet) {
         this.raw = raw || new RawColliderSet();
-        this.map = new Coarena<Collider>();
+        this.#map = new Coarena<Collider>();
         // Initialize the map with the existing elements, if any.
         if (raw) {
             raw.forEachColliderHandle((handle: ColliderHandle) => {
-                this.map.set(handle, new Collider(this, handle, null));
+                this.#map.set(handle, new Collider(this, handle, null));
             });
         }
     }
@@ -56,7 +56,7 @@ export class ColliderSet {
 
     /** @internal */
     public finalizeDeserialization(bodies: RigidBodySet) {
-        this.map.forEach((collider) =>
+        this.#map.forEach((collider) =>
             collider.finalizeDeserialization(bodies),
         );
     }
@@ -139,7 +139,7 @@ export class ColliderSet {
 
         let parent = hasParent ? bodies.get(parentHandle) : null;
         let collider = new Collider(this, handle, parent, desc.shape);
-        this.map.set(handle, collider);
+        this.#map.set(handle, collider);
         return collider;
     }
 
@@ -165,7 +165,7 @@ export class ColliderSet {
      * @param handle
      */
     public unmap(handle: ImpulseJointHandle) {
-        this.map.delete(handle);
+        this.#map.delete(handle);
     }
 
     /**
@@ -174,14 +174,14 @@ export class ColliderSet {
      * @param handle - The handle of the rigid-body to retrieve.
      */
     public get(handle: ColliderHandle): Collider | null {
-        return this.map.get(handle);
+        return this.#map.get(handle);
     }
 
     /**
      * The number of colliders on this set.
      */
     public len(): number {
-        return this.map.len();
+        return this.#map.len();
     }
 
     /**
@@ -199,7 +199,7 @@ export class ColliderSet {
      * @param f - The closure to apply.
      */
     public forEach(f: (collider: Collider) => void) {
-        this.map.forEach(f);
+        this.#map.forEach(f);
     }
 
     /**
@@ -208,6 +208,6 @@ export class ColliderSet {
      * @returns collider list.
      */
     public getAll(): Collider[] {
-        return this.map.getAll();
+        return this.#map.getAll();
     }
 }

@@ -12,7 +12,7 @@ export class Coarena<T> {
     }
 
     public set(handle: number, data: T) {
-        let i = this.index(handle);
+        let i = this.#index(handle);
         while (this.data.length <= i) {
             this.data.push(null);
         }
@@ -26,7 +26,7 @@ export class Coarena<T> {
     }
 
     public delete(handle: number) {
-        let i = this.index(handle);
+        let i = this.#index(handle);
         if (i < this.data.length) {
             if (this.data[i] != null) this.size -= 1;
             this.data[i] = null;
@@ -38,7 +38,7 @@ export class Coarena<T> {
     }
 
     public get(handle: number): T | null {
-        let i = this.index(handle);
+        let i = this.#index(handle);
         if (i < this.data.length) {
             return this.data[i];
         } else {
@@ -56,7 +56,7 @@ export class Coarena<T> {
         return this.data.filter((elt) => elt != null);
     }
 
-    private index(handle: number): number {
+    #index(handle: number): number {
         /// Extracts the index part of a handle (the lower 32 bits).
         /// This is done by first injecting the handle into an Float64Array
         /// which is itself injected into an Uint32Array (at construction time).

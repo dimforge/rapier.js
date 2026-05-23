@@ -25,7 +25,7 @@ import {Collider, ColliderHandle} from "../geometry";
  */
 export class ImpulseJointSet {
     raw: RawImpulseJointSet;
-    private map: Coarena<ImpulseJoint>;
+    #map: Coarena<ImpulseJoint>;
 
     /**
      * Release the WASM memory occupied by this joint set.
@@ -36,26 +36,26 @@ export class ImpulseJointSet {
         }
         this.raw = undefined;
 
-        if (!!this.map) {
-            this.map.clear();
+        if (!!this.#map) {
+            this.#map.clear();
         }
-        this.map = undefined;
+        this.#map = undefined;
     }
 
     constructor(raw?: RawImpulseJointSet) {
         this.raw = raw || new RawImpulseJointSet();
-        this.map = new Coarena<ImpulseJoint>();
+        this.#map = new Coarena<ImpulseJoint>();
         // Initialize the map with the existing elements, if any.
         if (raw) {
             raw.forEachJointHandle((handle: ImpulseJointHandle) => {
-                this.map.set(handle, ImpulseJoint.newTyped(raw, null, handle));
+                this.#map.set(handle, ImpulseJoint.newTyped(raw, null, handle));
             });
         }
     }
 
     /** @internal */
     public finalizeDeserialization(bodies: RigidBodySet) {
-        this.map.forEach((joint) => joint.finalizeDeserialization(bodies));
+        this.#map.forEach((joint) => joint.finalizeDeserialization(bodies));
     }
 
     /**
@@ -83,7 +83,7 @@ export class ImpulseJointSet {
         );
         rawParams.free();
         let joint = ImpulseJoint.newTyped(this.raw, bodies, handle);
-        this.map.set(handle, joint);
+        this.#map.set(handle, joint);
         return joint;
     }
 
@@ -115,14 +115,14 @@ export class ImpulseJointSet {
      * @param handle
      */
     public unmap(handle: ImpulseJointHandle) {
-        this.map.delete(handle);
+        this.#map.delete(handle);
     }
 
     /**
      * The number of joints on this set.
      */
     public len(): number {
-        return this.map.len();
+        return this.#map.len();
     }
 
     /**
@@ -142,7 +142,7 @@ export class ImpulseJointSet {
      * @param handle - The integer handle of the joint to retrieve.
      */
     public get(handle: ImpulseJointHandle): ImpulseJoint | null {
-        return this.map.get(handle);
+        return this.#map.get(handle);
     }
 
     /**
@@ -151,7 +151,7 @@ export class ImpulseJointSet {
      * @param f - The closure to apply.
      */
     public forEach(f: (joint: ImpulseJoint) => void) {
-        this.map.forEach(f);
+        this.#map.forEach(f);
     }
 
     /**
@@ -160,6 +160,6 @@ export class ImpulseJointSet {
      * @returns joint list.
      */
     public getAll(): ImpulseJoint[] {
-        return this.map.getAll();
+        return this.#map.getAll();
     }
 }

@@ -72,7 +72,7 @@ export enum JointAxesMask {
 
 export class ImpulseJoint {
     protected rawSet: RawImpulseJointSet; // The ImpulseJoint won't need to free this.
-    protected bodySet: RigidBodySet; // The ImpulseJoint won’t need to free this.
+    #bodySet: RigidBodySet; // The ImpulseJoint won’t need to free this.
     handle: ImpulseJointHandle;
 
     constructor(
@@ -81,7 +81,7 @@ export class ImpulseJoint {
         handle: ImpulseJointHandle,
     ) {
         this.rawSet = rawSet;
-        this.bodySet = bodySet;
+        this.#bodySet = bodySet;
         this.handle = handle;
     }
 
@@ -114,7 +114,7 @@ export class ImpulseJoint {
 
     /** @internal */
     public finalizeDeserialization(bodySet: RigidBodySet) {
-        this.bodySet = bodySet;
+        this.#bodySet = bodySet;
     }
 
     /**
@@ -129,14 +129,14 @@ export class ImpulseJoint {
      * The first rigid-body this joint it attached to.
      */
     public body1(): RigidBody {
-        return this.bodySet.get(this.rawSet.jointBodyHandle1(this.handle));
+        return this.#bodySet.get(this.rawSet.jointBodyHandle1(this.handle));
     }
 
     /**
      * The second rigid-body this joint is attached to.
      */
     public body2(): RigidBody {
-        return this.bodySet.get(this.rawSet.jointBodyHandle2(this.handle));
+        return this.#bodySet.get(this.rawSet.jointBodyHandle2(this.handle));
     }
 
     /**
@@ -379,7 +379,7 @@ export class JointData {
     damping: number;
     length: number;
 
-    private constructor() {}
+    constructor() {}
 
     /**
      * Creates a new joint descriptor that builds a Fixed joint.
