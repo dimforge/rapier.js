@@ -177,6 +177,35 @@ export class Collider {
     }
 
     /**
+     * The `x` component of the world-space translation of this collider.
+     *
+     * This is a zero-allocation alternative to `translation().x`.
+     */
+    public translationX(): number {
+        return this.colliderSet.raw.coTranslationX(this.handle);
+    }
+
+    /**
+     * The `y` component of the world-space translation of this collider.
+     *
+     * This is a zero-allocation alternative to `translation().y`.
+     */
+    public translationY(): number {
+        return this.colliderSet.raw.coTranslationY(this.handle);
+    }
+
+    // #if DIM3
+    /**
+     * The `z` component of the world-space translation of this collider.
+     *
+     * This is a zero-allocation alternative to `translation().z`.
+     */
+    public translationZ(): number {
+        return this.colliderSet.raw.coTranslationZ(this.handle);
+    }
+    // #endif
+
+    /**
      * The translation of this collider relative to its parent rigid-body.
      *
      * Returns `null` if the collider doesn’t have a parent rigid-body.
@@ -195,6 +224,55 @@ export class Collider {
             this.colliderSet.raw.coRotation(this.handle),
         );
     }
+
+    // #if DIM2
+    /**
+     * The rotation angle of this collider, in radians.
+     *
+     * This is a zero-allocation alternative to `rotation()`.
+     */
+    public rotationAngle(): number {
+        return this.colliderSet.raw.coRotationAngle(this.handle);
+    }
+    // #endif
+
+    // #if DIM3
+    /**
+     * The `x` component of the rotation quaternion of this collider.
+     *
+     * This is a zero-allocation alternative to `rotation().x`.
+     */
+    public rotationX(): number {
+        return this.colliderSet.raw.coRotationX(this.handle);
+    }
+
+    /**
+     * The `y` component of the rotation quaternion of this collider.
+     *
+     * This is a zero-allocation alternative to `rotation().y`.
+     */
+    public rotationY(): number {
+        return this.colliderSet.raw.coRotationY(this.handle);
+    }
+
+    /**
+     * The `z` component of the rotation quaternion of this collider.
+     *
+     * This is a zero-allocation alternative to `rotation().z`.
+     */
+    public rotationZ(): number {
+        return this.colliderSet.raw.coRotationZ(this.handle);
+    }
+
+    /**
+     * The `w` component of the rotation quaternion of this collider.
+     *
+     * This is a zero-allocation alternative to `rotation().w`.
+     */
+    public rotationW(): number {
+        return this.colliderSet.raw.coRotationW(this.handle);
+    }
+    // #endif
 
     /**
      * The orientation of this collider relative to its parent rigid-body.

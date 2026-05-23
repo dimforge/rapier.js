@@ -990,4 +990,52 @@ impl RawColliderSet {
             co.set_mass_properties(props)
         })
     }
+
+    // --- Zero-allocation scalar component getters ---
+
+    /// The x component of the world-space translation of this collider.
+    pub fn coTranslationX(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.position().translation.vector.x)
+    }
+
+    /// The y component of the world-space translation of this collider.
+    pub fn coTranslationY(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.position().translation.vector.y)
+    }
+
+    /// The z component of the world-space translation of this collider.
+    #[cfg(feature = "dim3")]
+    pub fn coTranslationZ(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.position().translation.vector.z)
+    }
+
+    /// The rotation angle of this collider, in radians.
+    #[cfg(feature = "dim2")]
+    pub fn coRotationAngle(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.position().rotation.angle())
+    }
+
+    /// The x component of the rotation quaternion of this collider.
+    #[cfg(feature = "dim3")]
+    pub fn coRotationX(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.position().rotation.i)
+    }
+
+    /// The y component of the rotation quaternion of this collider.
+    #[cfg(feature = "dim3")]
+    pub fn coRotationY(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.position().rotation.j)
+    }
+
+    /// The z component of the rotation quaternion of this collider.
+    #[cfg(feature = "dim3")]
+    pub fn coRotationZ(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.position().rotation.k)
+    }
+
+    /// The w component of the rotation quaternion of this collider.
+    #[cfg(feature = "dim3")]
+    pub fn coRotationW(&self, handle: FlatHandle) -> f32 {
+        self.map(handle, |co| co.position().rotation.w)
+    }
 }
