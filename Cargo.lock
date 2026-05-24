@@ -338,12 +338,13 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d"
-version = "0.19.2"
+version = "0.19.3"
 dependencies = [
  "bincode",
  "js-sys",
  "nalgebra",
  "palette",
+ "parry2d",
  "rapier2d",
  "ref-cast",
  "serde",
@@ -352,12 +353,13 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-deterministic"
-version = "0.19.2"
+version = "0.19.3"
 dependencies = [
  "bincode",
  "js-sys",
  "nalgebra",
  "palette",
+ "parry2d",
  "rapier2d",
  "ref-cast",
  "serde",
@@ -366,12 +368,13 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier2d-simd"
-version = "0.19.2"
+version = "0.19.3"
 dependencies = [
  "bincode",
  "js-sys",
  "nalgebra",
  "palette",
+ "parry2d",
  "rapier2d",
  "ref-cast",
  "serde",
@@ -380,12 +383,13 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d"
-version = "0.19.2"
+version = "0.19.3"
 dependencies = [
  "bincode",
  "js-sys",
  "nalgebra",
  "palette",
+ "parry3d",
  "rapier3d",
  "ref-cast",
  "serde",
@@ -394,12 +398,13 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-deterministic"
-version = "0.19.2"
+version = "0.19.3"
 dependencies = [
  "bincode",
  "js-sys",
  "nalgebra",
  "palette",
+ "parry3d",
  "rapier3d",
  "ref-cast",
  "serde",
@@ -408,12 +413,13 @@ dependencies = [
 
 [[package]]
 name = "dimforge_rapier3d-simd"
-version = "0.19.2"
+version = "0.19.3"
 dependencies = [
  "bincode",
  "js-sys",
  "nalgebra",
  "palette",
+ "parry3d",
  "rapier3d",
  "ref-cast",
  "serde",
@@ -578,9 +584,9 @@ checksum = "8babf46d4c1c9d92deac9f7be466f76dfc4482b6452fc5024b5e8daf6ffeb3ee"
 
 [[package]]
 name = "glam"
-version = "0.30.8"
+version = "0.30.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e12d847aeb25f41be4c0ec9587d624e9cd631bc007a8fd7ce3f5851e064c6460"
+checksum = "bd47b05dddf0005d850e5644cae7f2b14ac3df487979dbfff3b56f20b1a6ae46"
 
 [[package]]
 name = "globset"
@@ -796,7 +802,7 @@ dependencies = [
  "glam 0.27.0",
  "glam 0.28.0",
  "glam 0.29.3",
- "glam 0.30.8",
+ "glam 0.30.9",
  "matrixmultiply",
  "nalgebra-macros",
  "num-complex",
@@ -926,9 +932,9 @@ dependencies = [
 
 [[package]]
 name = "parry2d"
-version = "0.25.2"
+version = "0.25.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92ea16e5cdf52dd91b2a98ef781a2121f48dfb0880a92ae1ec6bc9e78097fceb"
+checksum = "ef681740349cec3ab9b5996b03b459b383b6998e1ffcb2804e8b57eb1e8491d9"
 dependencies = [
  "approx",
  "arrayvec",
@@ -955,9 +961,9 @@ dependencies = [
 
 [[package]]
 name = "parry3d"
-version = "0.25.2"
+version = "0.25.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb2b4291e3c8fcba5f514ed627228c92fa4c94c38bb202c35be7b3b021090193"
+checksum = "e99471b7b6870f7fe406d5611dd4b4c9b07aa3e5436b1d27e1515f9832bb0c6b"
 dependencies = [
  "approx",
  "arrayvec",
@@ -966,7 +972,7 @@ dependencies = [
  "either",
  "ena",
  "foldhash 0.2.0",
- "glam 0.30.8",
+ "glam 0.30.9",
  "hashbrown 0.16.0",
  "indexmap",
  "log",

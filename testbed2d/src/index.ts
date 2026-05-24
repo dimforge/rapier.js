@@ -1,4 +1,4 @@
-import {Testbed} from "./Testbed";
+import { Testbed } from "./Testbed";
 import * as CollisionGroups from "./demos/collisionGroups";
 import * as Cubes from "./demos/cubes";
 import * as Keva from "./demos/keva";
@@ -9,6 +9,7 @@ import * as LockedRotations from "./demos/lockedRotations";
 import * as ConvexPolygons from "./demos/convexPolygons";
 import * as CharacterController from "./demos/characterController";
 import * as PidController from "./demos/pidController";
+import * as OneWayPlatforms from "./demos/oneWayPlatforms";
 import * as Voxels from "./demos/voxels";
 
 import("@dimforge/rapier2d").then((RAPIER) => {
@@ -21,6 +22,7 @@ import("@dimforge/rapier2d").then((RAPIER) => {
         ["joints: revolute", RevoluteJoints.initWorld],
         ["keva tower", Keva.initWorld],
         ["locked rotations", LockedRotations.initWorld],
+        ["one way platforms", OneWayPlatforms.initWorld],
         ["pid controller", PidController.initWorld],
         ["polyline", Polyline.initWorld],
         ["voxels", Voxels.initWorld],

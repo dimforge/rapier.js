@@ -62,7 +62,7 @@ impl RawNarrowPhase {
 #[wasm_bindgen]
 pub struct RawContactPair(*const ContactPair);
 #[wasm_bindgen]
-pub struct RawContactManifold(*const ContactManifold);
+pub struct RawContactManifold(pub(crate) *const ContactManifold);
 
 // SAFETY: the use of a raw pointer is very unsafe.
 //         We need this because wasm-bindgen doesn't support

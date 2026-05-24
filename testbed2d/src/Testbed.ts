@@ -49,8 +49,9 @@ export class Testbed {
     inhibitLookAt: boolean;
     parameters: SimulationParameters;
     demoToken: number;
-    mouse: {x: number; y: number};
+    mouse: { x: number; y: number };
     events: RAPIER.EventQueue;
+    hooks: RAPIER.PhysicsHooks;
     world: RAPIER.World;
     preTimestepAction?: (gfx: Graphics) => void;
     stepId: number;
@@ -68,7 +69,7 @@ export class Testbed {
         this.inhibitLookAt = false;
         this.parameters = parameters;
         this.demoToken = 0;
-        this.mouse = {x: 0, y: 0};
+        this.mouse = { x: 0, y: 0 };
         this.events = new RAPIER.EventQueue(true);
         this.switchToDemo(builders.keys().next().value);
 
@@ -146,7 +147,7 @@ export class Testbed {
             }
 
             let t0 = new Date().getTime();
-            this.world.step(this.events);
+            this.world.step(this.events, this.hooks);
             this.gui.setTiming(new Date().getTime() - t0);
             this.stepId += 1;
 
