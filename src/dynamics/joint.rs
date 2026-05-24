@@ -327,12 +327,7 @@ impl RawGenericJoint {
     ) -> Option<RawGenericJoint> {
         let axis1 = Unit::try_new(axis1.0, 0.0)?;
         let axis2 = Unit::try_new(axis2.0, 0.0)?;
-        let axes_mask = JointAxesMask::LIN_X
-            | JointAxesMask::LIN_Y
-            | JointAxesMask::LIN_Z
-            | JointAxesMask::ANG_Y
-            | JointAxesMask::ANG_Z;
-        let joint: GenericJoint = GenericJointBuilder::new(axes_mask)
+        let joint: GenericJoint = GenericJointBuilder::new(JointAxesMask::LOCKED_REVOLUTE_AXES)
             .local_anchor1(anchor1.0.into())
             .local_anchor2(anchor2.0.into())
             .local_axis1(axis1)
