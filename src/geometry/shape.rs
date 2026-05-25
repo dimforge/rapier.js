@@ -9,6 +9,7 @@ use rapier::geometry::{Shape, SharedShape, TriMeshFlags};
 use rapier::math::{Isometry, Point, Real, Vector, DIM};
 use rapier::parry::query;
 use rapier::parry::query::{Ray, ShapeCastOptions};
+use rapier::parry::transformation::vhacd::VHACDParameters;
 use wasm_bindgen::prelude::*;
 
 pub trait SharedShapeUtility {
@@ -73,6 +74,19 @@ pub trait SharedShapeUtility {
         maxToi: f32,
         solid: bool,
     ) -> Option<RawRayIntersection>;
+}
+
+#[cfg(feature = "dim3")]
+pub(crate) fn normalized_convex_polyhedron_mesh(
+    polyhedron: &rapier::parry::shape::ConvexPolyhedron,
+) -> Option<(Vec<Point<Real>>, Vec<u32>)> {
+    let (points, indices) = rapier::parry::transformation::try_convex_hull(polyhedron.points()).ok()?;
+    let flat_indices = indices
+        .iter()
+        .flat_map(|triangle| triangle.iter())
+        .copied()
+        .collect();
+    Some((points, flat_indices))
 }
 
 // for RawShape & Collider
@@ -224,11 +238,426 @@ pub enum RawShapeType {
     Voxels = 18,
 }
 
+/// Parameters for VHACD convex decomposition algorithm
+#[wasm_bindgen]
+pub struct RawVHACDParameters(pub(crate) VHACDParameters);
+
+#[wasm_bindgen]
+impl RawVHACDParameters {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        RawVHACDParameters(VHACDParameters::default())
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn alpha(&self) -> f32 {
+        self.0.alpha
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_alpha(&mut self, val: f32) {
+        self.0.alpha = val.clamp(0.0, 1.0);
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn beta(&self) -> f32 {
+        self.0.beta
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_beta(&mut self, val: f32) {
+        self.0.beta = val.clamp(0.0, 1.0);
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn concavity(&self) -> f32 {
+        self.0.concavity
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_concavity(&mut self, val: f32) {
+        self.0.concavity = val.clamp(0.0, 1.0);
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn plane_downsampling(&self) -> u32 {
+        self.0.plane_downsampling
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_plane_downsampling(&mut self, val: u32) {
+        self.0.plane_downsampling = val;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn convex_hull_downsampling(&self) -> u32 {
+        self.0.convex_hull_downsampling
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_convex_hull_downsampling(&mut self, val: u32) {
+        self.0.convex_hull_downsampling = val;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn max_convex_hulls(&self) -> u32 {
+        self.0.max_convex_hulls
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_max_convex_hulls(&mut self, val: u32) {
+        self.0.max_convex_hulls = val;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn resolution(&self) -> u32 {
+        self.0.resolution
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_resolution(&mut self, val: u32) {
+        self.0.resolution = val;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn convex_hull_approximation(&self) -> bool {
+        self.0.convex_hull_approximation
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_convex_hull_approximation(&mut self, val: bool) {
+        self.0.convex_hull_approximation = val;
+    }
+}
+
 #[wasm_bindgen]
 pub struct RawShape(pub(crate) SharedShape);
 
 #[wasm_bindgen]
 impl RawShape {
+    pub fn shapeType(&self) -> RawShapeType {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::Ball => RawShapeType::Ball,
+            rapier::geometry::ShapeType::Cuboid => RawShapeType::Cuboid,
+            rapier::geometry::ShapeType::Capsule => RawShapeType::Capsule,
+            rapier::geometry::ShapeType::Segment => RawShapeType::Segment,
+            rapier::geometry::ShapeType::Polyline => RawShapeType::Polyline,
+            rapier::geometry::ShapeType::Triangle => RawShapeType::Triangle,
+            rapier::geometry::ShapeType::TriMesh => RawShapeType::TriMesh,
+            rapier::geometry::ShapeType::HeightField => RawShapeType::HeightField,
+            rapier::geometry::ShapeType::Compound => RawShapeType::Compound,
+            rapier::geometry::ShapeType::HalfSpace => RawShapeType::HalfSpace,
+            rapier::geometry::ShapeType::Voxels => RawShapeType::Voxels,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::ConvexPolyhedron => RawShapeType::ConvexPolyhedron,
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::ConvexPolygon => RawShapeType::ConvexPolygon,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cylinder => RawShapeType::Cylinder,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cone => RawShapeType::Cone,
+            rapier::geometry::ShapeType::RoundCuboid => RawShapeType::RoundCuboid,
+            rapier::geometry::ShapeType::RoundTriangle => RawShapeType::RoundTriangle,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCylinder => RawShapeType::RoundCylinder,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCone => RawShapeType::RoundCone,
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundConvexPolyhedron => {
+                RawShapeType::RoundConvexPolyhedron
+            }
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::RoundConvexPolygon => RawShapeType::RoundConvexPolygon,
+            rapier::geometry::ShapeType::Custom => panic!("Not yet implemented."),
+        }
+    }
+
+    pub fn halfspaceNormal(&self) -> Option<RawVector> {
+        self.0
+            .as_halfspace()
+            .map(|halfspace| halfspace.normal.into_inner().into())
+    }
+
+    pub fn halfExtents(&self) -> Option<RawVector> {
+        self.0
+            .as_cuboid()
+            .map(|cuboid| cuboid.half_extents.into())
+            .or_else(|| {
+                self.0
+                    .as_round_cuboid()
+                    .map(|cuboid| cuboid.inner_shape.half_extents.into())
+            })
+    }
+
+    pub fn radius(&self) -> Option<f32> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::Ball => self.0.as_ball().map(|ball| ball.radius),
+            rapier::geometry::ShapeType::Capsule => {
+                self.0.as_capsule().map(|capsule| capsule.radius)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cylinder => {
+                self.0.as_cylinder().map(|cylinder| cylinder.radius)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCylinder => self
+                .0
+                .as_round_cylinder()
+                .map(|cylinder| cylinder.inner_shape.radius),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cone => self.0.as_cone().map(|cone| cone.radius),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCone => {
+                self.0.as_round_cone().map(|cone| cone.inner_shape.radius)
+            }
+            _ => None,
+        }
+    }
+
+    pub fn halfHeight(&self) -> Option<f32> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::Capsule => {
+                self.0.as_capsule().map(|capsule| capsule.half_height())
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cylinder => {
+                self.0.as_cylinder().map(|cylinder| cylinder.half_height)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCylinder => self
+                .0
+                .as_round_cylinder()
+                .map(|cylinder| cylinder.inner_shape.half_height),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::Cone => self.0.as_cone().map(|cone| cone.half_height),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCone => self
+                .0
+                .as_round_cone()
+                .map(|cone| cone.inner_shape.half_height),
+            _ => None,
+        }
+    }
+
+    pub fn roundRadius(&self) -> Option<f32> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::RoundCuboid => {
+                self.0.as_round_cuboid().map(|cuboid| cuboid.border_radius)
+            }
+            rapier::geometry::ShapeType::RoundTriangle => self
+                .0
+                .as_round_triangle()
+                .map(|triangle| triangle.border_radius),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCylinder => self
+                .0
+                .as_round_cylinder()
+                .map(|cylinder| cylinder.border_radius),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundCone => {
+                self.0.as_round_cone().map(|cone| cone.border_radius)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundConvexPolyhedron => self
+                .0
+                .as_round_convex_polyhedron()
+                .map(|polyhedron| polyhedron.border_radius),
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::RoundConvexPolygon => self
+                .0
+                .as_round_convex_polygon()
+                .map(|polygon| polygon.border_radius),
+            _ => None,
+        }
+    }
+
+    pub fn voxelData(&self) -> Option<Vec<i32>> {
+        let voxels = self.0.as_voxels()?;
+        Some(
+            voxels
+                .voxels()
+                .filter_map(|vox| (!vox.state.is_empty()).then_some(vox.grid_coords))
+                .flat_map(|ids| ids.coords.data.0[0])
+                .collect(),
+        )
+    }
+
+    pub fn voxelSize(&self) -> Option<RawVector> {
+        self.0
+            .as_voxels()
+            .map(|voxels| RawVector(voxels.voxel_size()))
+    }
+
+    pub fn vertices(&self) -> Option<Vec<f32>> {
+        let flatten = |vertices: &[Point<f32>]| {
+            vertices
+                .iter()
+                .flat_map(|point| point.iter())
+                .copied()
+                .collect()
+        };
+
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::TriMesh => {
+                self.0.as_trimesh().map(|mesh| flatten(mesh.vertices()))
+            }
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::Polyline => self
+                .0
+                .as_polyline()
+                .map(|polyline| flatten(polyline.vertices())),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::ConvexPolyhedron => self
+                .0
+                .as_convex_polyhedron()
+                .and_then(normalized_convex_polyhedron_mesh)
+                .map(|(points, _)| flatten(&points)),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundConvexPolyhedron => self
+                .0
+                .as_round_convex_polyhedron()
+                .and_then(|polyhedron| normalized_convex_polyhedron_mesh(&polyhedron.inner_shape))
+                .map(|(points, _)| flatten(&points)),
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::ConvexPolygon => self
+                .0
+                .as_convex_polygon()
+                .map(|polygon| flatten(polygon.points())),
+            #[cfg(feature = "dim2")]
+            rapier::geometry::ShapeType::RoundConvexPolygon => self
+                .0
+                .as_round_convex_polygon()
+                .map(|polygon| flatten(polygon.inner_shape.points())),
+            rapier::geometry::ShapeType::Segment => self
+                .0
+                .as_segment()
+                .map(|segment| flatten(&[segment.a, segment.b])),
+            rapier::geometry::ShapeType::RoundTriangle => {
+                self.0.as_round_triangle().map(|triangle| {
+                    flatten(&[
+                        triangle.inner_shape.a,
+                        triangle.inner_shape.b,
+                        triangle.inner_shape.c,
+                    ])
+                })
+            }
+            rapier::geometry::ShapeType::Triangle => self
+                .0
+                .as_triangle()
+                .map(|triangle| flatten(&[triangle.a, triangle.b, triangle.c])),
+            _ => None,
+        }
+    }
+
+    pub fn indices(&self) -> Option<Vec<u32>> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::TriMesh => self.0.as_trimesh().map(|mesh| {
+                mesh.indices()
+                    .iter()
+                    .flat_map(|triangle| triangle.iter())
+                    .copied()
+                    .collect()
+            }),
+            rapier::geometry::ShapeType::Polyline => self.0.as_polyline().map(|polyline| {
+                polyline
+                    .indices()
+                    .iter()
+                    .flat_map(|segment| segment.iter())
+                    .copied()
+                    .collect()
+            }),
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::ConvexPolyhedron => {
+                self.0
+                    .as_convex_polyhedron()
+                    .and_then(normalized_convex_polyhedron_mesh)
+                    .map(|(_, indices)| indices)
+            }
+            #[cfg(feature = "dim3")]
+            rapier::geometry::ShapeType::RoundConvexPolyhedron => {
+                self.0
+                    .as_round_convex_polyhedron()
+                    .and_then(|polyhedron| {
+                        normalized_convex_polyhedron_mesh(&polyhedron.inner_shape)
+                    })
+                    .map(|(_, indices)| indices)
+            }
+            _ => None,
+        }
+    }
+
+    pub fn triMeshFlags(&self) -> Option<u32> {
+        self.0
+            .as_trimesh()
+            .map(|trimesh| trimesh.flags().bits() as u32)
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn heightFieldFlags(&self) -> Option<u32> {
+        self.0
+            .as_heightfield()
+            .map(|heightfield| heightfield.flags().bits() as u32)
+    }
+
+    pub fn heightfieldHeights(&self) -> Option<Vec<f32>> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::HeightField => self
+                .0
+                .as_heightfield()
+                .map(|heightfield| heightfield.heights().as_slice().to_vec()),
+            _ => None,
+        }
+    }
+
+    pub fn heightfieldScale(&self) -> Option<RawVector> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::HeightField => self
+                .0
+                .as_heightfield()
+                .map(|heightfield| RawVector(*heightfield.scale())),
+            _ => None,
+        }
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn heightfieldNRows(&self) -> Option<usize> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::HeightField => self
+                .0
+                .as_heightfield()
+                .map(|heightfield| heightfield.nrows()),
+            _ => None,
+        }
+    }
+
+    #[cfg(feature = "dim3")]
+    pub fn heightfieldNCols(&self) -> Option<usize> {
+        match self.0.shape_type() {
+            rapier::geometry::ShapeType::HeightField => self
+                .0
+                .as_heightfield()
+                .map(|heightfield| heightfield.ncols()),
+            _ => None,
+        }
+    }
+
+    pub fn compoundLen(&self) -> Option<usize> {
+        self.0.as_compound().map(|compound| compound.shapes().len())
+    }
+
+    pub fn compoundShape(&self, index: usize) -> Option<RawShape> {
+        self.0
+            .as_compound()
+            .and_then(|compound| compound.shapes().get(index))
+            .map(|(_, shape)| RawShape(shape.clone()))
+    }
+
+    pub fn compoundTranslation(&self, index: usize) -> Option<RawVector> {
+        self.0
+            .as_compound()
+            .and_then(|compound| compound.shapes().get(index))
+            .map(|(position, _)| position.translation.vector.into())
+    }
+
+    pub fn compoundRotation(&self, index: usize) -> Option<RawRotation> {
+        self.0
+            .as_compound()
+            .and_then(|compound| compound.shapes().get(index))
+            .map(|(position, _)| position.rotation.into())
+    }
+
     #[cfg(feature = "dim2")]
     pub fn cuboid(hx: f32, hy: f32) -> Self {
         Self(SharedShape::cuboid(hx, hy))
@@ -401,6 +830,72 @@ impl RawShape {
         SharedShape::round_convex_mesh(vertices, &indices, borderRadius).map(|s| Self(s))
     }
 
+    pub fn compound(shapes: Vec<RawShape>, positions: Vec<f32>, rotations: Vec<f32>) -> RawShape {
+        let mut compound_parts = Vec::new();
+        let num_shapes = shapes.len();
+
+        for i in 0..num_shapes {
+            let pos_offset = i * DIM;
+
+            #[cfg(feature = "dim2")]
+            let translation = Vector::new(positions[pos_offset], positions[pos_offset + 1]).into();
+
+            #[cfg(feature = "dim3")]
+            let translation = Vector::new(
+                positions[pos_offset],
+                positions[pos_offset + 1],
+                positions[pos_offset + 2],
+            )
+            .into();
+
+            #[cfg(feature = "dim2")]
+            let rotation = na::UnitComplex::new(rotations[i]);
+
+            #[cfg(feature = "dim3")]
+            let rotation = {
+                let rot_offset = i * 4;
+                na::UnitQuaternion::from_quaternion(na::Quaternion::new(
+                    rotations[rot_offset + 3], // w
+                    rotations[rot_offset],     // x
+                    rotations[rot_offset + 1], // y
+                    rotations[rot_offset + 2], // z
+                ))
+            };
+
+            let isometry = Isometry::from_parts(translation, rotation);
+            compound_parts.push((isometry, shapes[i].0.clone()));
+        }
+
+        Self(SharedShape::compound(compound_parts))
+    }
+
+    pub fn convexDecomposition(vertices: Vec<f32>, indices: Vec<u32>) -> Option<RawShape> {
+        let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        #[cfg(feature = "dim2")]
+        let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
+        #[cfg(feature = "dim3")]
+        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
+
+        let shape =
+            SharedShape::convex_decomposition_with_params(&vertices, &indices, &Default::default());
+        Some(Self(shape))
+    }
+
+    pub fn convexDecompositionWithParams(
+        vertices: Vec<f32>,
+        indices: Vec<u32>,
+        params: &RawVHACDParameters,
+    ) -> Option<RawShape> {
+        let vertices: Vec<_> = vertices.chunks(DIM).map(|v| Point::from_slice(v)).collect();
+        #[cfg(feature = "dim2")]
+        let indices: Vec<_> = indices.chunks(2).map(|v| [v[0], v[1]]).collect();
+        #[cfg(feature = "dim3")]
+        let indices: Vec<_> = indices.chunks(3).map(|v| [v[0], v[1], v[2]]).collect();
+
+        let shape = SharedShape::convex_decomposition_with_params(&vertices, &indices, &params.0);
+        Some(Self(shape))
+    }
+
     pub fn castShape(
         &self,
         shapePos1: &RawVector,
@@ -523,5 +1018,131 @@ impl RawShape {
 
         self.0
             .castRayAndGetNormal(&pos, rayOrig.0.into(), rayDir.0.into(), maxToi, solid)
+    }
+}
+
+#[cfg(all(test, feature = "dim3"))]
+mod tests {
+    use super::RawShape;
+
+    #[test]
+    fn raw_convex_mesh_accessors_round_trip_with_collinear_boundary_vertex() {
+        let vertices = vec![
+            0.0, 0.0, 0.0,
+            1.0, 0.0, 0.0,
+            1.0, 1.0, 0.0,
+            0.0, 1.0, 0.0,
+            0.0, 0.0, 1.0,
+            1.0, 0.0, 1.0,
+            1.0, 1.0, 1.0,
+            0.0, 1.0, 1.0,
+            0.0, 0.0, 0.5,
+        ];
+        let indices = vec![
+            [0, 2, 1],
+            [0, 3, 2],
+            [4, 5, 6],
+            [4, 6, 7],
+            [0, 1, 5],
+            [0, 5, 8],
+            [8, 5, 4],
+            [0, 8, 7],
+            [8, 4, 7],
+            [0, 7, 3],
+            [1, 2, 6],
+            [1, 6, 5],
+            [2, 3, 7],
+            [2, 7, 6],
+        ];
+        let flat_indices: Vec<u32> =
+            indices.iter().flat_map(|triangle| triangle.iter()).copied().collect();
+
+        let raw_shape = RawShape::convexMesh(vertices, flat_indices).unwrap();
+        let roundtrip_vertices = raw_shape.vertices().unwrap();
+        let roundtrip_indices = raw_shape.indices().unwrap();
+
+        assert!(RawShape::convexMesh(roundtrip_vertices, roundtrip_indices).is_some());
+    }
+
+    #[test]
+    fn captured_invalid_convex_mesh_export_is_not_reconstructable() {
+        let vertices = vec![
+            -3.2503600120544434, 19.476539611816406, -2.0955400466918945,
+            -3.3597400188446045, 19.960920333862305, -2.0330400466918945,
+            -3.1253600120544434, 20.30466079711914, -2.126800060272217,
+            -2.3614742755889893, 20.145801544189453, -1.71620512008667,
+            -3.3284800052642822, 20.007780075073242, -1.8768000602722168,
+            -2.3614742755889893, 20.138565063476562, -1.8094041347503662,
+            -3.1878600120544434, 19.476539611816406, -1.8924200534820557,
+            -2.3614742755889893, 20.05278968811035, -1.4539750814437866,
+            -2.3614742755889893, 20.1295166015625, -1.4817370176315308,
+            -3.0941200256347656, 20.382780075073242, -1.8768000602722168,
+            -2.3614742755889893, 19.238826751708984, -1.366246223449707,
+            -2.3614742755889893, 19.214706420898438, -1.3726158142089844,
+            -2.3614742755889893, 19.113746643066406, -1.4277477264404297,
+            -2.3614742755889893, 19.131973266601562, -1.6892800331115723,
+            -2.3614742755889893, 19.141845703125, -1.792968511581421,
+            -2.526392936706543, 20.19354248046875, -1.9115056991577148,
+            -2.448280096054077, 19.144739151000977, -1.7378942966461182,
+            -2.448280096054077, 19.153003692626953, -1.824700117111206,
+            -2.7034800052642822, 19.195280075073242, -2.0174200534820557,
+            -2.448280096054077, 19.155406951904297, -1.8499374389648438,
+            -2.406599998474121, 20.17966079711914, -1.5018000602722168,
+            -2.4691200256347656, 20.085920333862305, -1.4705400466918945,
+            -2.688455820083618, 19.69875144958496, -2.0099079608917236,
+            -2.6722400188446045, 20.24216079711914, -2.001800060272217,
+            -2.7034800052642822, 19.185195922851562, -1.9115058183670044,
+            -2.6722400188446045, 20.320280075073242, -1.6580400466918945,
+            -2.7034800052642822, 19.164039611816406, -1.6892800331115723,
+        ];
+        let indices = vec![
+            1, 4, 9, 1, 0, 4, 6, 4, 0, 6, 10, 4, 2, 1, 9, 2, 0, 1, 26, 6, 0, 26, 12, 6, 11,
+            6, 12, 11, 10, 6, 21, 20, 25, 21, 25, 9, 21, 9, 4, 21, 4, 10, 8, 20, 21, 8, 21,
+            7, 26, 0, 18, 13, 12, 26, 13, 26, 18, 13, 18, 14, 3, 5, 25, 3, 25, 20, 3, 20, 8,
+            7, 21, 10, 7, 10, 11, 7, 11, 12, 7, 12, 13, 7, 13, 14, 7, 14, 5, 7, 5, 3, 7, 3,
+            8, 18, 0, 2, 18, 23, 5, 25, 5, 23, 23, 15, 5, 23, 22, 18, 23, 18, 2, 23, 2, 9,
+            23, 9, 25, 18, 5, 14,
+        ];
+
+        assert!(RawShape::convexMesh(vertices, indices).is_none());
+    }
+
+    #[test]
+    fn raw_convex_hull_accessors_round_trip_with_redundant_points() {
+        let vertices = vec![
+            -3.2503600120544434, 19.476539611816406, -2.0955400466918945,
+            -3.3597400188446045, 19.960920333862305, -2.0330400466918945,
+            -3.1253600120544434, 20.30466079711914, -2.126800060272217,
+            -2.3614742755889893, 20.145801544189453, -1.71620512008667,
+            -3.3284800052642822, 20.007780075073242, -1.8768000602722168,
+            -2.3614742755889893, 20.138565063476562, -1.8094041347503662,
+            -3.1878600120544434, 19.476539611816406, -1.8924200534820557,
+            -2.3614742755889893, 20.05278968811035, -1.4539750814437866,
+            -2.3614742755889893, 20.1295166015625, -1.4817370176315308,
+            -3.0941200256347656, 20.382780075073242, -1.8768000602722168,
+            -2.3614742755889893, 19.238826751708984, -1.366246223449707,
+            -2.3614742755889893, 19.214706420898438, -1.3726158142089844,
+            -2.3614742755889893, 19.113746643066406, -1.4277477264404297,
+            -2.3614742755889893, 19.131973266601562, -1.6892800331115723,
+            -2.3614742755889893, 19.141845703125, -1.792968511581421,
+            -2.526392936706543, 20.19354248046875, -1.9115056991577148,
+            -2.448280096054077, 19.144739151000977, -1.7378942966461182,
+            -2.448280096054077, 19.153003692626953, -1.824700117111206,
+            -2.7034800052642822, 19.195280075073242, -2.0174200534820557,
+            -2.448280096054077, 19.155406951904297, -1.8499374389648438,
+            -2.406599998474121, 20.17966079711914, -1.5018000602722168,
+            -2.4691200256347656, 20.085920333862305, -1.4705400466918945,
+            -2.688455820083618, 19.69875144958496, -2.0099079608917236,
+            -2.6722400188446045, 20.24216079711914, -2.001800060272217,
+            -2.7034800052642822, 19.185195922851562, -1.9115058183670044,
+            -2.6722400188446045, 20.320280075073242, -1.6580400466918945,
+            -2.7034800052642822, 19.164039611816406, -1.6892800331115723,
+        ];
+
+        let raw_shape = RawShape::convexHull(vertices).unwrap();
+        let roundtrip_vertices = raw_shape.vertices().unwrap();
+        let roundtrip_indices = raw_shape.indices().unwrap();
+
+        assert!(RawShape::convexMesh(roundtrip_vertices, roundtrip_indices).is_some());
     }
 }

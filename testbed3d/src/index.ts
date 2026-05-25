@@ -16,11 +16,15 @@ import * as CharacterController from "./demos/characterController";
 import * as PidController from "./demos/pidController";
 import * as glbToTrimesh from "./demos/glbToTrimesh";
 import * as glbToConvexHull from "./demos/glbtoConvexHull";
+import * as CompoundShapes from "./demos/compoundShapes";
+import * as ConvexDecomposition from "./demos/convexDecomposition";
 
 import("@dimforge/rapier3d").then((RAPIER) => {
     let builders = new Map([
         ["collision groups", CollisionGroups.initWorld],
         ["character controller", CharacterController.initWorld],
+        ["compound shapes", CompoundShapes.initWorld],
+        ["convex decomposition", ConvexDecomposition.initWorld],
         ["convex polyhedron", ConvexPolyhedron.initWorld],
         ["CCD", CCD.initWorld],
         ["damping", Damping.initWorld],
